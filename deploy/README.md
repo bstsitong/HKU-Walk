@@ -69,13 +69,13 @@ Render 的临时磁盘不用于持久保存图片。小组演示设置 `DJANGO_S
 
 维护者也可以在自己的电脑通过 `deploy/remote_manage.py --config .local/cloud-env.json <管理命令>` 访问云端数据库。该私有 JSON 配置使用上面的环境变量名称，只能留在忽略目录并限制文件访问权限，不能发到小组群或上传仓库。此方式不依赖 Render 的远程终端功能。
 
-云端备份前，先将 Render 的 `DJANGO_MAINTENANCE` 设置为 `1` 并等待部署生效；确认健康接口返回 `maintenance: true`，暂停其他维护写入后运行：
+当前 PostgreSQL 加数据库图片存储的方案会在同一个数据库快照中读取内容和图片，可以直接在线运行：
 
 ```powershell
 .\.venv\Scripts\python.exe deploy\remote_manage.py --config .local\cloud-env.json backup_project --output .local\backups\cloud-backup.zip
 ```
 
-完成后恢复 `DJANGO_MAINTENANCE=0` 并确认健康状态。每次使用新的备份文件名；恢复只指向新建的空数据库。数据库图片存储也会导出为独立图片文件并计算摘要，不依赖原云平台才能恢复。
+每次使用新的备份文件名；恢复只指向新建的空数据库。数据库图片存储也会导出为独立图片文件并计算摘要，不依赖原云平台才能恢复。若改用文件或 S3 图片存储，需先设置 `DJANGO_MAINTENANCE=1` 并等待生效、暂停其他写入后再备份，完成后恢复为 `0`，避免数据库与外部图片的版本不一致。
 
 也可以使用支持 Python/Docker 的云平台，但必须同时配置 PostgreSQL 和持久图片存储。不能将本地 SQLite 或图片保存在会重启清空的临时文件系统里。
 

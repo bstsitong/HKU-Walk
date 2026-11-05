@@ -1,4 +1,4 @@
-"""Portable database fixture + uploaded files. Pause writers for a coordinated backup."""
+"""Portable backup. Database images share the DB snapshot; pause external-storage writers."""
 import hashlib
 import json
 import os
@@ -21,7 +21,7 @@ def digest_file(path):
 
 
 class Command(BaseCommand):
-    help = "备份账号、指南、投稿和图片；请先暂停所有写入。备份包含密码摘要，请妥善保管。"
+    help = "备份账号、指南、投稿和图片；外部图片存储需先暂停写入。备份包含密码摘要，请妥善保管。"
 
     def add_arguments(self, parser):
         parser.add_argument("--output", default="")
@@ -43,16 +43,17 @@ class Command(BaseCommand):
                     exclude=["contenttypes", "auth.permission", "sessions", "community.mobilesession",
                         "community.storedmedia", "community.mediaquota"], stdout=handle)
                 image_names = list(Submission.objects.exclude(image="").values_list("image", flat=True).distinct())
-            files = {"data.json": fixture}
-            for name in image_names:
-                path = PurePosixPath(name)
-                if path.is_absolute() or ".." in path.parts or "\\" in name or ":" in name:
-                    raise CommandError("图片记录包含无效路径，已取消备份。")
-                target = Path(temp) / "uploads" / name
-                target.parent.mkdir(parents=True, exist_ok=True)
-                with default_storage.open(name, "rb") as source, target.open("wb") as destination:
-                    shutil.copyfileobj(source, destination)
-                files["uploads/" + name] = target
+                files = {"data.json": fixture}
+                # DatabaseStorage reads image bytes from this same repeatable-read snapshot.
+                for name in image_names:
+                    path = PurePosixPath(name)
+                    if path.is_absolute() or ".." in path.parts or "\\" in name or ":" in name:
+                        raise CommandError("图片记录包含无效路径，已取消备份。")
+                    target = Path(temp) / "uploads" / name
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    with default_storage.open(name, "rb") as source, target.open("wb") as destination:
+                        shutil.copyfileobj(source, destination)
+                    files["uploads/" + name] = target
             manifest = {"formatVersion": 1, "createdAt": stamp, "databaseEngine": connection.vendor,
                 "files": {name: digest_file(path) for name, path in files.items()}}
             # Exclusive creation prevents overwriting a backup with the same timestamp.
