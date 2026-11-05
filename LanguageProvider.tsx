@@ -7,6 +7,8 @@ const Context = createContext({ language: getLanguage(), chooseLanguage: (_: Lan
 const storageKey = 'hku-walk.language.v1';
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>(getLanguage());
+  // Keep imperative alerts and data helpers aligned after development refreshes.
+  setCurrentLanguage(language);
   const changes = useRef(0);
   const writes = useRef(Promise.resolve());
   useEffect(() => {
