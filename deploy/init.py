@@ -8,6 +8,8 @@ from pathlib import Path
 parser = argparse.ArgumentParser()
 parser.add_argument("--domain", required=True, help="An owned DNS hostname, without https://")
 args = parser.parse_args()
+if os.name == "posix" and os.geteuid() != 0:
+    parser.error("On Linux, run sudo python3 deploy/init.py so private secret files can be owned by the app's UID 10001.")
 if not re.fullmatch(r"(?=.{1,253}$)(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,63}", args.domain):
     parser.error("Use a DNS hostname such as campus.example.com, without a path or port.")
 root = Path(__file__).resolve().parent
@@ -22,6 +24,9 @@ for name, value in {"django_secret_key": secrets.token_urlsafe(64), "postgres_pa
         fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
             handle.write(value)
+    if os.name == "posix":
+        os.chown(target, 10001, 10001)
+        target.chmod(0o600)
 if not config.exists():
     config.write_text(f"APP_DOMAIN={args.domain}\n", encoding="utf-8")
 (root / "backups").mkdir(mode=0o700, exist_ok=True)

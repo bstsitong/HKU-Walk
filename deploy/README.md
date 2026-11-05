@@ -18,7 +18,7 @@
 3. 在项目根目录运行：
 
 ```sh
-python3 deploy/init.py --domain campus.example.com
+sudo python3 deploy/init.py --domain campus.example.com
 docker compose --env-file deploy/.env -f deploy/compose.yaml config --quiet
 docker compose --env-file deploy/.env -f deploy/compose.yaml up -d --build
 ```
@@ -36,7 +36,7 @@ Caddy 取得公开证书需要正确的 DNS、可达的 80/443 端口及持久�
 在服务器执行：
 
 ```sh
-sh deploy/backup.sh
+sudo sh deploy/backup.sh
 ```
 
 脚本短暂停止应用写入，导出数据库和图片，生成文件摘要，再重新启动应用。备份复制到 `deploy/backups`；请另存到独立的安全位置，单独保存在同一台服务器上不足以防止整机损坏。
@@ -50,7 +50,7 @@ sh deploy/backup.sh
 提供的新部署恢复命令为：
 
 ```sh
-COMPOSE_PROJECT_NAME=hku-walk-restore sh deploy/restore.sh /绝对路径/备份.zip
+sudo env COMPOSE_PROJECT_NAME=hku-walk-restore sh deploy/restore.sh /绝对路径/备份.zip
 ```
 
 脚本要求使用不同的 Compose 项目名，不覆盖原部署。它只启动恢复后的内部服务，不抢占原站点的 80/443 端口。验证后再切换公开入口。恢复后保留备份中的账号密码，首次初始化生成的 `admin_password` 文件不会替换已有管理员密码。

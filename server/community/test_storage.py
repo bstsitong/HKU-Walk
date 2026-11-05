@@ -54,7 +54,9 @@ class DatabaseMediaAPITests(CommunityFixture):
     def test_image_permissions_still_apply_to_database_media(self):
         item = self.submit(image=self.photo())
         self.assertEqual(self.anon.get(f"/api/images/{item.pk}/").status_code, 404)
-        self.assertEqual(self.api.get(f"/api/images/{item.pk}/").status_code, 200)
+        private = self.api.get(f"/api/images/{item.pk}/")
+        self.assertEqual(private.status_code, 200)
+        self.assertTrue(b"".join(private.streaming_content))
         review_submission(item.pk, item.revision, Submission.Status.APPROVED, "", self.admin)
         response = self.anon.get(f"/api/images/{item.pk}/")
         self.assertEqual(response.status_code, 200)

@@ -164,7 +164,7 @@ class PublishedEditTests(CommunityFixture):
         self.assertTrue(Path(old_file).exists())
         public = self.anon.get(f"/api/images/{original.pk}/")
         self.assertEqual(public.status_code, 200)
-        public.close()
+        self.assertTrue(b"".join(public.streaming_content))
         edit.refresh_from_db()
         review_submission(edit.pk, edit.revision, "approved", "", self.admin)
         self.assertEqual(self.anon.get(f"/api/images/{original.pk}/").status_code, 404)
@@ -178,7 +178,7 @@ class PublishedEditTests(CommunityFixture):
         self.assertNotEqual(original.image.name, edit.image.name)
         response = self.anon.get(f"/api/images/{edit.pk}/")
         self.assertEqual(response.status_code, 200)
-        response.close()
+        self.assertTrue(b"".join(response.streaming_content))
         self.assertEqual(self.anon.get(f"/api/images/{original.pk}/").status_code, 404)
         self.assertContains(self.anon.get("/api/guide/"), f"/api/images/{edit.pk}/")
 

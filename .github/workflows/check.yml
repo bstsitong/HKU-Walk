@@ -49,7 +49,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
-      - run: python deploy/init.py --domain hku.example
+      - run: sudo python3 deploy/init.py --domain hku.example
       - name: Build and check persistent PostgreSQL stack without public TLS
         run: docker compose --env-file deploy/.env -f deploy/compose.yaml up -d --build --wait --wait-timeout 240 db api
       - run: docker compose --env-file deploy/.env -f deploy/compose.yaml exec -T api python -c "import urllib.request; assert urllib.request.urlopen('http://127.0.0.1:8000/api/health/').status == 200"
