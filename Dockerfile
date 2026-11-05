@@ -4,7 +4,7 @@ WORKDIR /app
 COPY server/requirements.txt /app/server/requirements.txt
 RUN pip install --no-cache-dir -r server/requirements.txt \
     && groupadd --gid 10001 hku \
-    && useradd --uid 10001 --gid hku --no-create-home hku \
+    && useradd --uid 10001 --gid hku --create-home hku \
     && mkdir -p /data /backups && chown hku:hku /data /backups
 COPY --chown=hku:hku server /app/server
 COPY --chown=hku:hku deploy/entrypoint.py /app/deploy/entrypoint.py
