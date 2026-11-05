@@ -54,6 +54,7 @@ python -m venv .venv
 ## 配置与检查
 
 手机端新增功能检查：`node scripts/audit-locales.cjs --strict` 校验系统文案覆盖，`node scripts/check-app.cjs` 检查三语搜索、类别筛选、无结果、内置指南翻译和动态参数。界面约定见 [DESIGN.md](DESIGN.md)。
+本轮模拟器操作、三语显示及检查范围见 [UI_QA.md](UI_QA.md)。
 
 安卓模拟器默认通过 `10.0.2.2:8000` 访问电脑后端。开发服务器默认只监听本机地址。使用真机时，需在可信网络下为后端配置可访问地址和 `DJANGO_ALLOWED_HOSTS`，并按 `.env.example` 配置 `EXPO_PUBLIC_API_URL` 后重新启动 Expo。
 
