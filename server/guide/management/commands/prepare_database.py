@@ -17,7 +17,10 @@ class Command(BaseCommand):
             raise CommandError("独立 schema 仅用于 PostgreSQL。")
         quoted = connection.ops.quote_name(schema)
         with connection.cursor() as cursor:
-            cursor.execute("CREATE SCHEMA IF NOT EXISTS " + quoted)
+            cursor.execute("SELECT 1 FROM pg_namespace WHERE nspname = %s", [schema])
+            if not cursor.fetchone():
+                # A limited service role may own an existing schema without CREATE on the database.
+                cursor.execute("CREATE SCHEMA " + quoted)
             cursor.execute("REVOKE ALL ON SCHEMA " + quoted + " FROM PUBLIC")
             cursor.execute("SELECT rolname FROM pg_roles WHERE rolname IN ('anon', 'authenticated')")
             roles = [row[0] for row in cursor.fetchall()]
