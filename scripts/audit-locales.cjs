@@ -18,6 +18,7 @@ for (const name of fs.readdirSync('.').filter(name => /\.tsx?$/.test(name))) vis
 function strings(value) { if (typeof value === 'string' && chinese.test(value)) found.add(value); else if (Array.isArray(value)) value.forEach(strings); else if (value && typeof value === 'object') Object.values(value).forEach(strings); }
 strings(JSON.parse(fs.readFileSync('server/guide/seed.json','utf8')));
 const missing = [...found].filter(text => !dictionary[text]);
+fs.mkdirSync('.local', { recursive: true });
 fs.writeFileSync('.local/missing-locales.json', JSON.stringify(missing,null,2));
 console.log(JSON.stringify({ total: found.size, missing: missing.length }));
 if (process.argv.includes('--strict') && missing.length) process.exitCode = 1;
