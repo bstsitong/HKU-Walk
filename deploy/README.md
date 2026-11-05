@@ -67,6 +67,16 @@ Render 的临时磁盘不用于持久保存图片。小组演示设置 `DJANGO_S
 
 免费服务有休眠与容量限制。Render 空闲后首次访问可能较慢；指南加载会等待唤醒，并支持失败后重试。具体限制以 [Render 免费服务说明](https://render.com/docs/free) 和 [Supabase 价格说明](https://supabase.com/pricing) 为准。
 
+维护者也可以在自己的电脑通过 `deploy/remote_manage.py --config .local/cloud-env.json <管理命令>` 访问云端数据库。该私有 JSON 配置使用上面的环境变量名称，只能留在忽略目录并限制文件访问权限，不能发到小组群或上传仓库。此方式不依赖 Render 的远程终端功能。
+
+云端备份前，先将 Render 的 `DJANGO_MAINTENANCE` 设置为 `1` 并等待部署生效；确认健康接口返回 `maintenance: true`，暂停其他维护写入后运行：
+
+```powershell
+.\.venv\Scripts\python.exe deploy\remote_manage.py --config .local\cloud-env.json backup_project --output .local\backups\cloud-backup.zip
+```
+
+完成后恢复 `DJANGO_MAINTENANCE=0` 并确认健康状态。每次使用新的备份文件名；恢复只指向新建的空数据库。数据库图片存储也会导出为独立图片文件并计算摘要，不依赖原云平台才能恢复。
+
 也可以使用支持 Python/Docker 的云平台，但必须同时配置 PostgreSQL 和持久图片存储。不能将本地 SQLite 或图片保存在会重启清空的临时文件系统里。
 
 若使用平台托管的数据库，提供 `DATABASE_URL`（或 `DATABASE_URL_FILE`）；外部连接默认要求 SSL。平台的 HTTPS 代理应覆盖 `X-Forwarded-Proto`，并隐藏应用直连端口，再启用 `DJANGO_TRUST_PROXY=1`。设置 `DJANGO_DEBUG=0`、独立密钥、明确的 `DJANGO_ALLOWED_HOSTS` 与 HTTPS `DJANGO_PUBLIC_ORIGIN`。

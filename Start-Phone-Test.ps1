@@ -10,6 +10,11 @@ Set-Location -LiteralPath $PSScriptRoot
 $serverPython = Join-Path $PSScriptRoot '.venv\Scripts\python.exe'
 if (-not (Test-Path -LiteralPath $serverPython)) { throw 'Install the Python dependencies first. See README.md.' }
 if (-not (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'node_modules\expo\bin\cli'))) { throw 'Run npm ci first.' }
+$installedAndroidSdk = Join-Path $env:LOCALAPPDATA 'Android\Sdk'
+if (-not $env:ANDROID_HOME -and (Test-Path -LiteralPath $installedAndroidSdk)) { $env:ANDROID_HOME = $installedAndroidSdk }
+if ($env:ANDROID_HOME) {
+    $env:PATH = (Join-Path $env:ANDROID_HOME 'emulator') + ';' + (Join-Path $env:ANDROID_HOME 'platform-tools') + ';' + $env:PATH
+}
 
 $candidates = @()
 foreach ($adapter in [System.Net.NetworkInformation.NetworkInterface]::GetAllNetworkInterfaces()) {
@@ -69,7 +74,7 @@ try {
             if (-not $healthy) { throw 'Backend did not become reachable. Check the local address and port.' }
         }
     } else {
-        if ((Invoke-RestMethod -Uri $plan.health -TimeoutSec 15).status -ne 'ok') { throw 'Online backend health check failed.' }
+        if ((Invoke-RestMethod -Uri $plan.health -TimeoutSec 80).status -ne 'ok') { throw 'Online backend health check failed.' }
     }
     $env:EXPO_PUBLIC_API_URL = $ApiUrl
     $env:REACT_NATIVE_PACKAGER_HOSTNAME = $LanAddress
