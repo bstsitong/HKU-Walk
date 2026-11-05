@@ -88,3 +88,7 @@ Render 的临时磁盘不用于持久保存图片。小组演示设置 `DJANGO_S
 `scripts/verify_production.py` 在隔离目录中启动关闭 DEBUG 的 WSGI 服务，检查代理头、静态资源、账号恢复、图片可见范围、已发布内容修改，以及备份校验和恢复。
 
 该本机检查使用 SQLite，并不表示 Docker、真实 PostgreSQL、公开 TLS 证书或真实手机已经验证。`.github/workflows/check.yml` 包含 PostgreSQL 和容器集成检查，推送到支持 Actions 的仓库后才会运行。
+
+2026-11-05：GitHub Actions 的 PostgreSQL、容器及前端检查均已通过。Render 服务已部署并完成公网 HTTPS 的指南、账号、图片上传、审核修改与管理登录联调。真实手机测试单独记录在 `PHONE_TEST.md`。
+
+Supabase 的 `hku_app` 私有 schema 已撤销 `anon` / `authenticated` 访问，并对全部应用表启用 RLS。安全检查仅提示 [RLS Enabled No Policy](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy)：本方案不向客户端授予数据库访问权限，所以刻意没有客户端策略；Django 的专用表所有者角色经自己的接口做权限检查。

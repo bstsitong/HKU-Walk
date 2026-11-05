@@ -53,6 +53,12 @@ python -m venv .venv
 
 后端检查命令为 `.\.venv\Scripts\python.exe server\manage.py test guide community`。40 项测试覆盖指南维护、账号与恢复码、上传校验、图片可见范围、分页、防重复提交、修改申请和审核发布，以及数据库图片存储的容量限制。手机端类型检查命令为 `npx tsc --noEmit`，依赖兼容检查为 `npx expo install --check`。
 
-本轮还完成了实际 HTTP 联调：上传图片、退回并填写建议、投稿人修改重交、管理员通过并发布、匿名读取正文与图片。安卓模拟器中实际验证了登录、投稿、系统选图入口、查看修改建议、编辑重交及刷新已通过状态。iOS 使用 `npx expo export --platform ios` 通过代码打包检查；这不等同于 iPhone 真机或 iOS 安装包验证。
+早期 SDK 54 版本在安卓模拟器中验证过登录、投稿、系统选图入口、查看修改建议、编辑重交及刷新已通过状态。升级 SDK 58 后，已重新通过苹果、安卓代码打包、Expo Doctor 20 项检查和安卓地图启动检查。新增账号与编辑功能有独立后端及 HTTP 联调验证；这不等同于完整的真实手机操作验证。
 
-服务器配置和备份操作见 [deploy/README.md](deploy/README.md)。`.github/workflows/check.yml` 提供 PostgreSQL、容器启动与两种图片存储的集成检查。实际云端地址和上线验证会在部署成功后补充；配置文件存在本身不代表已上线。安卓和 iPhone 真实手机测试、正式安装包以及真实路线数据仍需分别验证或补充。
+服务器配置和备份操作见 [deploy/README.md](deploy/README.md)。`.github/workflows/check.yml` 的 PostgreSQL、容器启动、两种图片存储以及苹果、安卓打包检查已经在 GitHub Actions 通过。
+
+云端后端已经部署到 Render 免费服务，数据库为 Supabase 免费 PostgreSQL。维护入口为 <https://hku-walk-api.onrender.com/admin/>，健康检查为 <https://hku-walk-api.onrender.com/api/health/>。这两个链接是后端入口；手机界面通过 Expo Go 运行。
+
+已通过公网 HTTPS 验证四类指南、管理员登录、注册、登录、修改密码、恢复码找回、旧会话撤销、图片上传与受控读取、已发布内容修改审核。生成的联调账号已停用，测试指南已取消发布。云端数据库的初始备份已在维护者本机保存并校验摘要；备份不进入仓库。后台凭据存放在本机忽略目录的私有文件中。
+
+连接线上数据进行手机测试：`./Start-Phone-Test.ps1 -ApiUrl https://hku-walk-api.onrender.com`。地图仍使用演示数据，GPS 和真实路线没有接入。安卓和 iPhone 真实手机测试、正式安装包仍待完成。
