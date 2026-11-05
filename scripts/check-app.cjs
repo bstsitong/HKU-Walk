@@ -17,6 +17,7 @@ for (const language of ['zh-Hans','zh-Hant','en']) {
 }
 setCurrentLanguage('en');
 assert.equal(t('从 {place} 出发', { place: 'Main Library' }), 'Start at Main Library');
+assert.equal(t('{title}，{status}', { title: '更多', status: t('待审核') }), '更多, Pending');
 assert.equal(translate('账号：这个账号已被使用。'), 'Username: This username is already taken.');
 assert.equal(translate('请确保这个字段不能多于 160 个字符。'), 'Use no more than 160 characters.');
 assert.equal(translate('同学自己写的内容 test'), '同学自己写的内容 test');

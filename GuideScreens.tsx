@@ -90,7 +90,7 @@ function EntryCard({ entry, category, bookmarks, first = false, onMap }: { entry
         <View style={s.entryBody}>
           <Text raw={entry.isCommunity !== false} style={s.body}>{entry.body}</Text>
           {entry.imageUrl && !imageFailed ? (
-            <Image source={{ uri: entry.imageUrl }} accessibilityLabel={entry.title + '配图'} style={s.contentImage}
+            <Image source={{ uri: entry.imageUrl }} accessibilityLabel={t('内容配图：{title}', { title: entry.isCommunity === false ? t(entry.title) : entry.title })} style={s.contentImage}
               resizeMode="cover" onError={() => setImageFailed(true)} />
           ) : category === 'food' ? (
             <View style={s.photoSlot}><AppIcon name="photo" /><Text style={s.meta}>{imageFailed ? '配图暂时无法加载' : '店铺与餐点实拍待补充'}</Text></View>

@@ -1371,6 +1371,14 @@
     "en": "Submission details",
     "zh-Hant": "投稿詳情"
   },
+  "{title}，{status}": {
+    "en": "{title}, {status}",
+    "zh-Hant": "{title}，{status}"
+  },
+  "内容配图：{title}": {
+    "en": "Image: {title}",
+    "zh-Hant": "內容配圖：{title}"
+  },
   "校园共建": {
     "en": "Campus community",
     "zh-Hant": "校園共建"

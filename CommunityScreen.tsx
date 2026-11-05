@@ -1,4 +1,4 @@
-import { formatDate } from './localization';
+import { formatDate, t } from './localization';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator, Keyboard, KeyboardAvoidingView, Modal, Platform, RefreshControl, ScrollView, StyleSheet, View,
@@ -189,7 +189,7 @@ export default function CommunityScreen({ visible, onClose, account }: {
             <Button label="写一条新投稿" busy={busy} onPress={() => void begin()} />
             <Text accessibilityRole="header" style={s.sectionTitle}>我的投稿</Text>
             {!items.length && !loading ? <View style={s.empty}><AppIcon name="book" size={30} /><Text style={s.copy}>还没有投稿。第一个校园发现，从这里开始。</Text></View> : null}
-            {items.map(item => <Pressable key={item.id} accessibilityRole="button" accessibilityLabel={`${item.title}，${statuses[item.status]}`} onPress={() => { setSelected(item); setScreen('detail'); setError(''); }} style={s.listRow}>
+            {items.map(item => <Pressable key={item.id} accessibilityRole="button" accessibilityLabel={t('{title}，{status}', { title: item.title, status: t(statuses[item.status]) })} onPress={() => { setSelected(item); setScreen('detail'); setError(''); }} style={s.listRow}>
               <View style={s.listContent}><Text raw style={s.itemTitle}>{item.title}</Text><Text style={s.hint}>{item.isEdit ? '内容修改申请 · ' : ''}{kinds.find(kind => kind.key === item.kind)?.label} · {dateText(item.createdAt)}</Text></View>
               <Status value={item.status} /><AppIcon name="chevron" size={15} />
             </Pressable>)}

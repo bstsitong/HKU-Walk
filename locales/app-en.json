@@ -144,6 +144,8 @@
   "修改投稿": "Edit submission",
   "新投稿": "New submission",
   "投稿详情": "Submission details",
+  "{title}，{status}": "{title}, {status}",
+  "内容配图：{title}": "Image: {title}",
   "校园共建": "Campus community",
   "刷新投稿状态": "Refresh submission status",
   "正在读取登录信息…": "Loading your account…",
