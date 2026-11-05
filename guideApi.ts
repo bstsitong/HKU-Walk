@@ -9,6 +9,7 @@ export type GuideEntry = {
   externalUrl: string;
   imageUrl: string;
   isExample: boolean;
+  isCommunity?: boolean;
   updatedAt: string;
 };
 export type GuideCategory = {

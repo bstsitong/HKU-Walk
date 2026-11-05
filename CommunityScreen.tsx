@@ -1,8 +1,9 @@
+import { formatDate } from './localization';
 import { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator, Alert, Image, Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable,
-  RefreshControl, ScrollView, StyleSheet, Text, View,
+  ActivityIndicator, Keyboard, KeyboardAvoidingView, Modal, Platform, RefreshControl, ScrollView, StyleSheet, View,
 } from 'react-native';
+import { Alert, Image, Pressable, Text } from './ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import AppIcon, { IconName } from './AppIcon';
@@ -20,7 +21,7 @@ const statuses = { pending: '待审核', approved: '已通过', changes_requeste
 const newDraft = (): Draft => ({ kind: 'food', title: '', body: '', location: '', externalUrl: '', image: null,
   existingImage: '', removeImage: false, requestKey: `${Date.now()}_${Math.random().toString(36).slice(2, 12)}` });
 const message = (error: unknown) => error instanceof Error ? error.message : '操作暂时未完成，请重试。';
-const dateText = (value: string) => new Date(value).toLocaleDateString('zh-CN');
+const dateText = formatDate;
 
 function Status({ value }: { value: Submission['status'] }) {
   return <Text style={[s.status, value === 'approved' && s.approved, value === 'changes_requested' && s.changes]}>{statuses[value]}</Text>;
@@ -189,14 +190,14 @@ export default function CommunityScreen({ visible, onClose, account }: {
             <Text accessibilityRole="header" style={s.sectionTitle}>我的投稿</Text>
             {!items.length && !loading ? <View style={s.empty}><AppIcon name="book" size={30} /><Text style={s.copy}>还没有投稿。第一个校园发现，从这里开始。</Text></View> : null}
             {items.map(item => <Pressable key={item.id} accessibilityRole="button" accessibilityLabel={`${item.title}，${statuses[item.status]}`} onPress={() => { setSelected(item); setScreen('detail'); setError(''); }} style={s.listRow}>
-              <View style={s.listContent}><Text style={s.itemTitle}>{item.title}</Text><Text style={s.hint}>{item.isEdit ? '内容修改申请 · ' : ''}{kinds.find(kind => kind.key === item.kind)?.label} · {dateText(item.createdAt)}</Text></View>
+              <View style={s.listContent}><Text raw style={s.itemTitle}>{item.title}</Text><Text style={s.hint}>{item.isEdit ? '内容修改申请 · ' : ''}{kinds.find(kind => kind.key === item.kind)?.label} · {dateText(item.createdAt)}</Text></View>
               <Status value={item.status} /><AppIcon name="chevron" size={15} />
             </Pressable>)}
             {nextPage ? <Button label="加载更早的投稿" secondary busy={loading} onPress={() => void load(nextPage)} /> : null}
           </ScrollView>
         ) : screen === 'form' ? (
           <ScrollView contentContainerStyle={s.page} keyboardShouldPersistTaps="handled">
-            {editing?.reviewNote ? <View style={s.feedback}><Text style={s.label}>管理员建议</Text><Text style={s.copy}>{editing.reviewNote}</Text></View> : null}
+            {editing?.reviewNote ? <View style={s.feedback}><Text style={s.label}>管理员建议</Text><Text raw style={s.copy}>{editing.reviewNote}</Text></View> : null}
             {editing?.status === 'approved' ? <Text style={s.copy}>提交的是一个新版本。审核通过前，大家仍会看到当前已发布的内容。</Text> : null}
             <Text style={s.label}>投稿类型</Text>
             <View style={s.kindGrid}>{kinds.map(kind => <Pressable key={kind.key} disabled={busy || !!(editing && (editing.status === 'approved' || editing.isEdit))} accessibilityRole="radio" accessibilityState={{ checked: draft.kind === kind.key }} onPress={() => update({ kind: kind.key })}
@@ -215,14 +216,14 @@ export default function CommunityScreen({ visible, onClose, account }: {
         ) : selected ? (
           <ScrollView contentContainerStyle={s.page} refreshControl={<RefreshControl refreshing={loading} onRefresh={() => void load()} tintColor={green} />}>
             <Status value={selected.status} />
-            <Text accessibilityRole="header" style={[s.title, s.detailTitle]}>{selected.title}</Text>
+            <Text raw accessibilityRole="header" style={[s.title, s.detailTitle]}>{selected.title}</Text>
             <Text style={s.hint}>{selected.isEdit ? '内容修改申请 · ' : ''}{kinds.find(kind => kind.key === selected.kind)?.label} · {dateText(selected.createdAt)}</Text>
             <View style={s.feedback}><Text style={s.label}>{selected.status === 'pending' ? '已收到，等待管理员审核' : selected.status === 'approved' ? '审核通过' : '修改后可以重新提交'}</Text>
-              <Text style={s.copy}>{selected.reviewNote || (selected.status === 'pending' ? '审核结果会显示在这里，下拉即可刷新。' : '内容已发布到对应的学生指南分类。')}</Text></View>
-            {selected.location ? <Text style={s.location}>相关地点或路线：{selected.location}</Text> : null}
-            <Text selectable style={s.detailBody}>{selected.body}</Text>
+              <Text style={s.copy}>{selected.reviewNote ? <Text raw>{selected.reviewNote}</Text> : (selected.status === 'pending' ? '审核结果会显示在这里，下拉即可刷新。' : '内容已发布到对应的学生指南分类。')}</Text></View>
+            {selected.location ? <Text style={s.location}>相关地点或路线：<Text raw>{selected.location}</Text></Text> : null}
+            <Text raw selectable style={s.detailBody}>{selected.body}</Text>
             {selected.imageUrl ? <Image source={contributionImageSource(selected.imageUrl, token)} style={s.photo} resizeMode="cover" accessibilityLabel="投稿配图" /> : null}
-            {selected.externalUrl ? <Text selectable style={s.copy}>{selected.externalUrl}</Text> : null}
+            {selected.externalUrl ? <Text raw selectable style={s.copy}>{selected.externalUrl}</Text> : null}
             {selected.status === 'changes_requested' ? <Button label="按建议修改并重交" onPress={() => void begin(selected)} /> : null}
             {selected.status === 'approved' && selected.publishedContent?.published ? <Button label={selected.openEditId ? '查看当前修改申请' : '申请修改已发布内容'} busy={busy} onPress={() => void begin(selected)} /> : null}
             {selected.status === 'approved' && selected.publishedContent && !selected.publishedContent.published ? <Text style={s.note}>此内容已下线，目前不会显示在公共指南中。</Text> : null}
@@ -235,14 +236,14 @@ export default function CommunityScreen({ visible, onClose, account }: {
 }
 
 const s = StyleSheet.create({
-  shell: { flex: 1, backgroundColor: '#f7f8f3' }, flex: { flex: 1 },
+  shell: { flex: 1, backgroundColor: '#fbfcf8' }, flex: { flex: 1 },
   topbar: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 5 },
   iconButton: { width: 48, height: 48, justifyContent: 'center', alignItems: 'center' },
   topTitle: { flex: 1, fontSize: 19, fontWeight: '800', color: '#203a31' },
   page: { width: '100%', maxWidth: 650, alignSelf: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 36 },
-  title: { fontSize: 28, fontWeight: '800', color: '#203a31', lineHeight: 38 },
-  copy: { color: '#526258', fontSize: 14, lineHeight: 24, marginTop: 7, marginBottom: 10 },
-  hint: { color: '#526258', fontSize: 12, lineHeight: 20 },
+  title: { fontSize: 24, fontWeight: '800', color: '#203a31', lineHeight: 33 },
+  copy: { color: '#637169', fontSize: 14, lineHeight: 24, marginTop: 7, marginBottom: 10 },
+  hint: { color: '#637169', fontSize: 12, lineHeight: 20 },
   bigSymbol: { width: 62, height: 62, backgroundColor: '#eaf1e8', borderRadius: 15, alignItems: 'center', justifyContent: 'center', marginBottom: 22 },
   field: { marginTop: 18 }, label: { color: '#203a31', fontSize: 14, fontWeight: '700', lineHeight: 23 },
   input: { color: '#203a31', backgroundColor: '#fff', borderWidth: 1, borderColor: '#bccbbd', borderRadius: 10, minHeight: 50, padding: 12, fontSize: 15, marginTop: 7 },
@@ -253,7 +254,7 @@ const s = StyleSheet.create({
   accountRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between', gap: 8, marginTop: 5 },
   textButton: { minHeight: 48, paddingHorizontal: 6, justifyContent: 'center' }, linkText: { color: green, fontWeight: '700', fontSize: 13 }, removeText: { color: '#813a28', fontSize: 13 },
   sectionTitle: { fontSize: 19, fontWeight: '800', color: '#203a31', marginTop: 30, marginBottom: 12 },
-  listRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 17, borderBottomColor: '#dbe3d9', borderBottomWidth: 1 }, listContent: { flex: 1, gap: 4 },
+  listRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 17, borderBottomColor: '#e6eae2', borderBottomWidth: 1 }, listContent: { flex: 1, gap: 4 },
   itemTitle: { fontSize: 15, fontWeight: '700', color: '#203a31', lineHeight: 24 },
   status: { alignSelf: 'flex-start', color: '#775013', backgroundColor: '#f4ecd6', fontSize: 12, lineHeight: 20, paddingHorizontal: 9, paddingVertical: 3, borderRadius: 6, overflow: 'hidden' },
   approved: { color: green, backgroundColor: '#e3eee3' }, changes: { color: '#813a28', backgroundColor: '#f8e9e1' },
@@ -262,8 +263,8 @@ const s = StyleSheet.create({
   kind: { minWidth: '46%', flexGrow: 1, minHeight: 50, flexDirection: 'row', gap: 9, justifyContent: 'center', alignItems: 'center', backgroundColor: '#eaf1e8', borderRadius: 10 },
   kindActive: { backgroundColor: green }, kindText: { color: green, fontSize: 14, fontWeight: '700' }, white: { color: '#fff' },
   photo: { width: '100%', height: 200, borderRadius: 12, marginTop: 12, backgroundColor: '#eaf1e8' }, photoActions: { flexDirection: 'row', justifyContent: 'space-between' },
-  note: { fontSize: 12, lineHeight: 21, color: '#526258', marginTop: 15 },
+  note: { fontSize: 12, lineHeight: 21, color: '#637169', marginTop: 15 },
   feedback: { backgroundColor: '#eaf1e8', borderRadius: 12, padding: 15, marginTop: 24, marginBottom: 20 },
   detailTitle: { marginTop: 14, marginBottom: 8 }, detailBody: { color: '#203a31', fontSize: 15, lineHeight: 27, marginBottom: 14 },
-  location: { color: '#526258', fontSize: 13, lineHeight: 23, marginBottom: 12 },
+  location: { color: '#637169', fontSize: 13, lineHeight: 23, marginBottom: 12 },
 });

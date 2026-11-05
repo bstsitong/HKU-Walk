@@ -1,10 +1,15 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Keyboard, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, Text } from './ui';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon, { IconName } from './AppIcon';
-import CampusMap from './CampusMap';
+import CampusMap, { MapRequest, MapView } from './CampusMap';
+import usePlaces from './usePlaces';
+import { Category, Place } from './campus';
+import { LanguageProvider, useLanguage } from './LanguageProvider';
+import { colors } from './theme';
 import { GuideScreen, MoreScreen, SavedScreen } from './GuideScreens';
 import { GuideKey } from './guideApi';
 import useGuide from './useGuide';
@@ -20,6 +25,7 @@ const tabs: { key: 'map' | 'guide' | 'saved' | 'more'; label: string; icon: Icon
 const bookmarkKey = 'hku-walk.guide-bookmarks.v1';
 
 function MainApp() {
+  useLanguage();
   const [tab, setTab] = useState<(typeof tabs)[number]['key']>('map');
   const [category, setCategory] = useState<GuideKey | null>(null);
   const [saved, setSaved] = useState<string[]>([]);
@@ -28,6 +34,23 @@ function MainApp() {
   const data = useGuide();
   const account = useAccount();
   const [communityVisible, setCommunityVisible] = useState(false);
+  const records = usePlaces();
+  const [mapView, setMapView] = useState<MapView>('home');
+  const [mapRequest, setMapRequest] = useState<MapRequest | null>(null);
+  const [sampleLocation, setSampleLocation] = useState(false);
+  const sampleChanges = useRef(0);
+  const sampleQueue = useRef(Promise.resolve());
+  useEffect(() => {
+    let live = true;
+    AsyncStorage.getItem('hku-walk.sample-location.v1').then(value => { if (live && !sampleChanges.current) setSampleLocation(value === 'true'); }).catch(() => {});
+    return () => { live = false; };
+  }, []);
+  const chooseSampleLocation = (value: boolean) => {
+    sampleChanges.current++; setSampleLocation(value);
+    sampleQueue.current = sampleQueue.current.then(() => AsyncStorage.setItem('hku-walk.sample-location.v1', String(value))).catch(() => Alert.alert('设置暂时无法保存', '本次设置仍然有效。'));
+  };
+  const openMap = (category: Category) => { setTab('map'); setMapRequest({ serial: Date.now(), view: 'home', category }); };
+  const openPlace = (place: Place) => { setTab('map'); setMapRequest({ serial: Date.now(), view: 'detail', placeId: place.id, fromSaved: true }); };
 
   useEffect(() => {
     let active = true;
@@ -52,12 +75,12 @@ function MainApp() {
   return (
     <SafeAreaView style={s.shell}>
       <StatusBar style="dark" />
-      <View style={[s.content, tab !== 'map' && s.hidden]}><CampusMap active={tab === 'map'} /></View>
-      {tab === 'guide' ? <GuideScreen data={data} bookmarks={bookmarks} selected={category} onSelect={setCategory} onContribute={() => setCommunityVisible(true)} /> : null}
-      {tab === 'saved' ? <SavedScreen data={data} bookmarks={bookmarks} /> : null}
-      {tab === 'more' ? <MoreScreen data={data} onContribute={() => setCommunityVisible(true)} /> : null}
+      <View style={[s.content, tab !== 'map' && s.hidden]}><CampusMap active={tab === 'map'} records={records} sampleLocation={sampleLocation} request={mapRequest} onViewChange={setMapView} onReturnSaved={() => setTab('saved')} /></View>
+      {tab === 'guide' ? <GuideScreen data={data} bookmarks={bookmarks} selected={category} onSelect={setCategory} onContribute={() => setCommunityVisible(true)} onMap={openMap} /> : null}
+      {tab === 'saved' ? <SavedScreen data={data} bookmarks={bookmarks} records={records} onOpenPlace={openPlace} /> : null}
+      {tab === 'more' ? <MoreScreen data={data} onContribute={() => setCommunityVisible(true)} sampleLocation={sampleLocation} onSampleLocation={chooseSampleLocation} /> : null}
       <CommunityScreen visible={communityVisible} onClose={() => { setCommunityVisible(false); void data.reload(); }} account={account} />
-      <View style={s.nav} accessibilityRole="tablist">
+      {tab !== 'map' || mapView === 'home' ? <View style={s.nav} accessibilityRole="tablist">
         {tabs.map(item => (
           <Pressable key={item.key} testID={`tab-${item.key}`} accessibilityRole="tab" accessibilityLabel={item.label}
             accessibilityState={{ selected: tab === item.key }}
@@ -66,20 +89,20 @@ function MainApp() {
             <Text style={[s.navText, tab === item.key && s.navTextActive]}>{item.label}</Text>
           </Pressable>
         ))}
-      </View>
+      </View> : null}
     </SafeAreaView>
   );
 }
 
 export default function App() {
-  return <SafeAreaProvider><MainApp /></SafeAreaProvider>;
+  return <SafeAreaProvider><LanguageProvider><MainApp /></LanguageProvider></SafeAreaProvider>;
 }
 
 const s = StyleSheet.create({
-  shell: { flex: 1, backgroundColor: '#f7f8f3' },
+  shell: { flex: 1, backgroundColor: colors.app },
   content: { flex: 1 },
   hidden: { display: 'none' },
-  nav: { flexDirection: 'row', backgroundColor: '#fff', borderTopColor: '#dbe3d9', borderTopWidth: 1, paddingHorizontal: 5, paddingTop: 4, paddingBottom: 3 },
+  nav: { flexDirection: 'row', backgroundColor: colors.app, borderTopColor: colors.line, borderTopWidth: 1, paddingHorizontal: 5, paddingTop: 4, paddingBottom: 3 },
   navItem: { flex: 1, minHeight: 58, alignItems: 'center', justifyContent: 'center', gap: 2 },
   navSymbol: { minWidth: 45, minHeight: 29, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   navActive: { backgroundColor: '#eaf1e8' },

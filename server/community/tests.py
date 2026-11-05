@@ -146,6 +146,9 @@ class CommunityTests(CommunityFixture):
         self.assertIn("no-store", public["Cache-Control"])
         self.assertTrue(b"".join(public.streaming_content))
         self.assertContains(self.anon.get("/api/guide/"), f"/api/images/{item.pk}/")
+        published = [entry for category in self.anon.get("/api/guide/").json()["categories"] for entry in category["entries"] if entry["id"] == str(reviewed.public_entry_id)]
+        self.assertEqual(len(published), 1)
+        self.assertTrue(published[0]["isCommunity"])
         reviewed.public_entry.published = False
         reviewed.public_entry.save()
         self.assertEqual(self.anon.get(path).status_code, 404)

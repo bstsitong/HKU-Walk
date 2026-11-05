@@ -1,3 +1,5 @@
+import { t } from './localization';
+import type { IconName } from './AppIcon';
 export const categories = [
   { id: 'all', label: '全部' },
   { id: 'building', label: '教学楼' },
@@ -9,7 +11,7 @@ export const categories = [
 
 export type Category = (typeof categories)[number]['id'];
 
-type Place = {
+export type Place = {
   id: string;
   name: string;
   english: string;
@@ -36,13 +38,20 @@ export function findPlace(id: string) {
 }
 
 export function categoryLabel(category: Place['category']) {
-  return categories.find(item => item.id === category)?.label ?? '校园空间';
+  return t(categories.find(item => item.id === category)?.label ?? '校园空间');
 }
 
+export const placeName = (place: Place) => t(place.name);
+export const placeIcon = (place: Place): IconName => ({ building: 'building', study: 'book', food: 'coffee', toilet: 'wc', access: 'gate', space: 'leaf' } as const)[place.category];
+export const categoryIcon = (category: Category): IconName => category === 'all' ? 'map' : placeIcon({ category } as Place);
+export const placePhoto = (place: Place) => place.id === 'main' ? require('./assets/hku-main.webp') : require('./assets/hku-campus.webp');
+export const hasPlacePhoto = (place: Place) => ['main', 'chiwah', 'garden'].includes(place.id);
+const traditionalNames: Record<string, string> = { main: '本部大樓', library: '大學圖書館', chiwah: '智華學習共享空間', knowles: '鈕魯詩樓', gate: '港大站校園入口', garden: '百周年校園花園', cafe: '校園咖啡點（示例）', toilet: '公共洗手間（示例）' };
+
 export function filterPlaces(category: Category, query = '') {
-  const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  const terms = query.normalize('NFKC').toLowerCase().trim().split(/\s+/).filter(Boolean);
   return places.filter(place => {
-    const names = `${place.name} ${place.english} ${place.keywords}`.toLowerCase();
+    const names = `${place.name} ${place.english} ${place.keywords} ${traditionalNames[place.id]}`.normalize('NFKC').toLowerCase();
     return (category === 'all' || place.category === category) && terms.every(term => names.includes(term));
   });
 }

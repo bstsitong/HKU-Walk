@@ -1,8 +1,16 @@
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator, Alert, BackHandler, Image, Linking, Pressable,
-  RefreshControl, ScrollView, StyleSheet, Text, View,
+  ActivityIndicator, BackHandler, Linking, Modal, Switch,
+  RefreshControl, ScrollView, StyleSheet, View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Alert, Image, Pressable, Text } from './ui';
+import { useLanguage } from './LanguageProvider';
+import { languages, t } from './localization';
+import { colors } from './theme';
+import { PlaceRecords } from './usePlaces';
+import { Category, Place, findPlace } from './campus';
+import { PlaceRow } from './CampusMap';
 import AppIcon, { IconName } from './AppIcon';
 import { ADMIN_URL, GuideCategory, GuideEntry, GuideKey } from './guideApi';
 import useGuide from './useGuide';
@@ -11,8 +19,8 @@ type GuideData = ReturnType<typeof useGuide>;
 type Bookmarks = { saved: string[]; ready: boolean; toggle: (id: string) => void };
 const green = '#184d3e';
 const ink = '#203a31';
-const muted = '#526258';
-const paper = '#f7f8f3';
+const muted = colors.muted;
+const paper = colors.paper;
 const icons: Record<GuideKey, IconName> = { links: 'link', tips: 'tips', food: 'food', groups: 'groups' };
 
 async function openLink(url: string) {
@@ -51,8 +59,8 @@ function Feedback({ data }: { data: GuideData }) {
   return null;
 }
 
-function EntryCard({ entry, category, bookmarks }: { entry: GuideEntry; category: GuideKey; bookmarks: Bookmarks }) {
-  const [expanded, setExpanded] = useState(category === 'links');
+function EntryCard({ entry, category, bookmarks, first = false, onMap }: { entry: GuideEntry; category: GuideKey; bookmarks: Bookmarks; first?: boolean; onMap?: (category: Category) => void }) {
+  const [expanded, setExpanded] = useState(category === 'links' || first);
   const [imageFailed, setImageFailed] = useState(false);
   useEffect(() => setImageFailed(false), [entry.imageUrl]);
   const saved = bookmarks.saved.includes(entry.id);
@@ -64,15 +72,15 @@ function EntryCard({ entry, category, bookmarks }: { entry: GuideEntry; category
           testID={`guide-entry-${entry.id}`}
           onPress={() => isLink ? void openLink(entry.externalUrl) : setExpanded(value => !value)}
           style={s.entrySummary}>
-          <View style={s.entrySymbol}><AppIcon name={icons[category]} size={20} /></View>
+          <View style={[s.entrySymbol, category === 'food' && s.foodSymbol]}><AppIcon name={icons[category]} size={20} color={category === 'food' ? colors.rust : green} /></View>
           <View style={s.flex}>
-            <Text style={s.entryTitle}>{entry.title}</Text>
-            {isLink ? <Text style={s.meta}>{entry.body}</Text> : null}
+            <Text raw={entry.isCommunity !== false} style={s.entryTitle}>{entry.title}</Text>
+            {isLink ? <Text raw={entry.isCommunity !== false} style={s.meta}>{entry.body}</Text> : null}
             {entry.isExample ? <Text style={s.example}>内容示例</Text> : null}
           </View>
           <View style={!isLink && expanded ? s.chevronOpen : undefined}><AppIcon name={isLink ? 'external' : 'chevron'} size={16} /></View>
         </Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel={`${saved ? '取消收藏' : '收藏'}${entry.title}`}
+        <Pressable accessibilityRole="button" accessibilityLabel={t(saved ? '取消收藏：{title}' : '收藏：{title}', { title: entry.title })}
           accessibilityState={{ selected: saved, disabled: !bookmarks.ready }}
           disabled={!bookmarks.ready} onPress={() => bookmarks.toggle(entry.id)} style={s.iconButton}>
           <AppIcon name="saved" color={saved ? '#a14630' : muted} size={19} />
@@ -80,28 +88,34 @@ function EntryCard({ entry, category, bookmarks }: { entry: GuideEntry; category
       </View>
       {expanded && !isLink ? (
         <View style={s.entryBody}>
-          <Text style={s.body}>{entry.body}</Text>
+          <Text raw={entry.isCommunity !== false} style={s.body}>{entry.body}</Text>
           {entry.imageUrl && !imageFailed ? (
             <Image source={{ uri: entry.imageUrl }} accessibilityLabel={entry.title + '配图'} style={s.contentImage}
               resizeMode="cover" onError={() => setImageFailed(true)} />
           ) : category === 'food' ? (
-            <View style={s.photoSlot}><AppIcon name="food" /><Text style={s.meta}>{imageFailed ? '配图暂时无法加载' : '店铺与餐点实拍待补充'}</Text></View>
+            <View style={s.photoSlot}><AppIcon name="photo" /><Text style={s.meta}>{imageFailed ? '配图暂时无法加载' : '店铺与餐点实拍待补充'}</Text></View>
           ) : null}
           {entry.externalUrl ? (
             <Pressable accessibilityRole="link" onPress={() => void openLink(entry.externalUrl)} style={s.smallAction}>
               <Text style={s.actionText}>{category === 'groups' ? '打开入群链接' : '查看相关链接'}</Text><AppIcon name="external" size={16} />
             </Pressable>
           ) : category === 'groups' ? <Text style={s.pending}>邀请入口待群主补充</Text> : null}
+          {category === 'food' && onMap ? <Pressable accessibilityRole="button" onPress={() => onMap('food')} style={s.smallAction}><AppIcon name="map" size={17} /><Text style={s.actionText}>在地图查看餐饮</Text></Pressable> : null}
         </View>
       ) : null}
     </View>
   );
 }
 
-export function GuideScreen({ data, bookmarks, selected, onSelect, onContribute }: {
-  data: GuideData; bookmarks: Bookmarks; selected: GuideKey | null; onSelect: (key: GuideKey | null) => void; onContribute: () => void;
+export function GuideScreen({ data, bookmarks, selected, onSelect, onContribute, onMap }: {
+  data: GuideData; bookmarks: Bookmarks; selected: GuideKey | null; onSelect: (key: GuideKey | null) => void; onContribute: () => void; onMap: (category: Category) => void;
 }) {
+  const [foodFilter, setFoodFilter] = useState<number | null>(null);
+  useEffect(() => setFoodFilter(null), [selected]);
   const category = data.categories.find(item => item.key === selected);
+  const foodTags = ['午餐', '咖啡轻食', '朋友聚餐'];
+  const foodPatterns = [/午餐|赶课|lunch/i, /咖啡|轻食|coffee|caf[eé]/i, /聚餐|朋友|dinner|weekend/i];
+  const entries = category?.entries.filter(entry => category.key !== 'food' || foodFilter === null || foodPatterns[foodFilter].test(entry.title + ' ' + entry.body)) ?? [];
   useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
       if (!selected) return false;
@@ -131,9 +145,11 @@ export function GuideScreen({ data, bookmarks, selected, onSelect, onContribute 
         <Feedback data={data} />
         {category ? (
           <>
-            {category.entries.length ? category.entries.map(entry => (
-              <EntryCard key={entry.id} entry={entry} category={category.key} bookmarks={bookmarks} />
-            )) : <Text style={s.body}>这个分类还没有发布内容。</Text>}
+            {category.key === 'food' ? <View style={s.foodFilters}>{foodTags.map((tag, index) => <Pressable key={tag} accessibilityRole="button" accessibilityState={{ selected: foodFilter === index }} onPress={() => setFoodFilter(foodFilter === index ? null : index)} style={[s.foodFilter, foodFilter === index && s.selectedLanguage]}><Text style={[s.meta, foodFilter === index && s.white]}>{tag}</Text></Pressable>)}</View> : null}
+            {entries.length ? entries.map((entry, index) => (
+              <EntryCard key={entry.id} entry={entry} category={category.key} bookmarks={bookmarks} first={index === 0} onMap={onMap} />
+            )) : <Text style={s.body}>{category.entries.length ? '当前筛选没有内容，再点一次标签可以查看全部。' : '这个分类还没有发布内容。'}</Text>}
+            {category.key === 'food' ? <Pressable accessibilityRole="link" onPress={() => void openLink('https://catering.hku.hk/en/')} style={s.settingRow}><Text style={s.settingTitle}>查看校内餐饮目录</Text><AppIcon name="external" size={17} /></Pressable> : null}
           </>
         ) : (
           <>
@@ -149,6 +165,7 @@ export function GuideScreen({ data, bookmarks, selected, onSelect, onContribute 
                 </Pressable>
               ))}
             </View>
+            <View style={s.guideHelp}><Text style={s.introTitle}>第一次来，可以先从地图开始</Text><Text style={s.meta}>搜索地点、确认入口，再跟着图文步骤认识校园。</Text><Pressable accessibilityRole="button" onPress={() => onMap('all')} style={s.smallAction}><AppIcon name="map" size={17} /><Text style={s.actionText}>去地图找路</Text></Pressable></View>
             <Pressable accessibilityRole="button" onPress={onContribute} style={s.settingRow}>
               <AppIcon name="groups" /><View style={s.flex}><Text style={s.introTitle}>分享发现，一起更新指南</Text><Text style={s.meta}>投稿 · 地点纠错 · 查看审核进度</Text></View><AppIcon name="chevron" size={17} />
             </Pressable>
@@ -160,50 +177,65 @@ export function GuideScreen({ data, bookmarks, selected, onSelect, onContribute 
   );
 }
 
-export function SavedScreen({ data, bookmarks }: { data: GuideData; bookmarks: Bookmarks }) {
+export function SavedScreen({ data, bookmarks, records, onOpenPlace }: { data: GuideData; bookmarks: Bookmarks; records: PlaceRecords; onOpenPlace: (place: Place) => void }) {
+  const [section, setSection] = useState<'saved' | 'recent'>('saved');
+  const [confirmClear, setConfirmClear] = useState(false);
   const entries = data.categories.flatMap(category => category.entries
     .filter(entry => bookmarks.saved.includes(entry.id)).map(entry => ({ entry, category: category.key })));
   return (
     <ScrollView style={s.flex} contentContainerStyle={s.page}
       refreshControl={<RefreshControl refreshing={data.loading} onRefresh={() => void data.reload()} tintColor={green} />}>
-      <Text accessibilityRole="header" style={s.title}>我的收藏</Text>
-      <Text style={s.subtitle}>把常用的学生指南留在手边。</Text>
-      <Feedback data={data} />
-      {entries.map(({ entry, category }) => <EntryCard key={entry.id} entry={entry} category={category} bookmarks={bookmarks} />)}
-      {!entries.length && !data.loading ? <View style={s.empty}><AppIcon name="saved" size={30} /><Text style={s.body}>还没有收藏内容。在学生指南中点书签试试。</Text></View> : null}
-      <Text style={s.note}>收藏保存在当前设备。已下线的内容会从列表中隐藏。</Text>
+      <Text accessibilityRole="header" style={s.title}>熟悉的地方</Text>
+      <Text style={s.subtitle}>把常去的地方，留在手边。</Text>
+      <View style={s.savedTabs} accessibilityRole="tablist">{(['saved', 'recent'] as const).map(key => <Pressable key={key} accessibilityRole="tab" accessibilityState={{ selected: key === section }} onPress={() => { setSection(key); setConfirmClear(false); }} style={[s.savedTab, key === section && s.savedTabActive]}><Text style={[s.savedTabText, key === section && s.actionText]}>{key === 'saved' ? '我的收藏' : '最近浏览'} {key === 'saved' ? records.saved.length : records.recent.length}</Text></Pressable>)}</View>
+      {(section === 'saved' ? records.saved : records.recent).map(id => <PlaceRow key={id} place={findPlace(id)} onPress={() => onOpenPlace(findPlace(id))} trailing={<Pressable accessibilityRole="button" accessibilityLabel={records.saved.includes(id) ? '取消收藏' : '收藏地点'} disabled={!records.ready} onPress={() => records.toggle(id)} style={s.iconButton}><AppIcon name="bookmark" size={19} color={records.saved.includes(id) ? green : muted} /></Pressable>} />)}
+      {!(section === 'saved' ? records.saved : records.recent).length ? <View style={s.empty}><AppIcon name={section === 'saved' ? 'bookmark' : 'history'} size={28} /><Text style={s.body}>{section === 'saved' ? '还没有收藏地点。在地点旁点书签试试。' : '还没有浏览记录。打开地点详情后会出现在这里。'}</Text></View> : null}
+      {section === 'recent' && records.recent.length ? <View style={s.clearHistory}>{confirmClear ? <><Text style={s.body}>清空这台设备的浏览记录？</Text><View style={s.headingRow}><Pressable accessibilityRole="button" onPress={() => setConfirmClear(false)} style={s.smallAction}><Text style={s.actionText}>取消</Text></Pressable><Pressable accessibilityRole="button" onPress={() => { records.clearRecent(); setConfirmClear(false); }} style={s.smallAction}><Text style={s.actionText}>确认清空</Text></Pressable></View></> : <Pressable accessibilityRole="button" onPress={() => setConfirmClear(true)} style={s.smallAction}><AppIcon name="trash" size={17} /><Text style={s.actionText}>清空浏览记录</Text></Pressable>}</View> : null}
+      {section === 'saved' ? <><Text style={s.sectionTitle}>学生指南收藏</Text><Feedback data={data} />{entries.map(({ entry, category }) => <EntryCard key={entry.id} entry={entry} category={category} bookmarks={bookmarks} />)}{!entries.length ? <Text style={s.body}>在学生指南中点书签，把常用内容留在这里。</Text> : null}</> : null}
+      <View style={s.localNotice}><AppIcon name="shield" size={15} /><Text style={[s.meta, s.flex]}>收藏和浏览记录仅保存在当前设备，无需登录。</Text></View>
     </ScrollView>
   );
 }
 
-export function MoreScreen({ data, onContribute }: { data: GuideData; onContribute: () => void }) {
+export function MoreScreen({ data, onContribute, sampleLocation, onSampleLocation }: { data: GuideData; onContribute: () => void; sampleLocation: boolean; onSampleLocation: (value: boolean) => void }) {
+  const { language, chooseLanguage } = useLanguage();
+  const [help, setHelp] = useState(false);
+  const [about, setAbout] = useState(false);
+  const [originalMap, setOriginalMap] = useState(false);
   return (
     <ScrollView style={s.flex} contentContainerStyle={s.page}>
       <Text accessibilityRole="header" style={s.title}>更多</Text>
       <Text style={s.subtitle}>轻装出发，慢慢熟悉校园。</Text>
-      <View style={s.intro}><AppIcon name="map" size={28} /><View style={s.flex}><Text style={s.introTitle}>打开就能用</Text><Text style={s.body}>地图和学生指南随时可看。</Text></View></View>
-      <Text style={s.sectionTitle}>内容与维护</Text>
+      <View style={s.intro}><View style={s.brandSymbol}><AppIcon name="map" color="#fff" size={28} /></View><View style={s.flex}><Text style={s.introTitle}>随时打开，直接使用</Text><Text style={s.meta}>看地图、找地点和查路线，都不需要注册账号。</Text></View></View>
+      <Text style={s.sectionTitle}>使用偏好</Text>
+      <View style={s.preference}><View style={s.settingLabel}><AppIcon name="globe" size={20} /><Text style={s.settingTitle}>界面语言</Text></View><View style={s.languageOptions} accessibilityRole="radiogroup">{languages.map(item => <Pressable key={item.code} testID={`language-${item.code}`} accessibilityRole="radio" accessibilityState={{ checked: language === item.code }} onPress={() => chooseLanguage(item.code)} style={[s.language, language === item.code && s.selectedLanguage]}><Text raw style={[s.languageText, language === item.code && s.white]}>{item.label}</Text></Pressable>)}</View></View>
+      <View style={s.settingRow}><AppIcon name="locate" /><View style={s.flex}><Text style={s.introTitle}>显示演示位置</Text><Text style={s.meta}>仅展示蓝点效果，GPS 实时定位待接入。</Text></View><Switch accessibilityLabel={t('显示演示位置')} value={sampleLocation} onValueChange={onSampleLocation} trackColor={{ false: '#c5cec3', true: green }} thumbColor="#fff" /></View>
+      <Text style={s.sectionTitle}>地图资料</Text>
+      <Pressable accessibilityRole="button" onPress={() => void data.reload()} disabled={data.loading} style={s.settingRow}><AppIcon name="refresh" /><View style={s.flex}><Text style={s.introTitle}>检查资料更新</Text><Text style={s.meta}>{data.loading ? '正在更新学生指南…' : '刷新学生指南和已发布的投稿内容'}</Text></View>{data.loading ? <ActivityIndicator color={green} /> : <AppIcon name="refresh" size={17} />}</Pressable>
+      <Feedback data={data} />
+      <Pressable accessibilityRole="button" onPress={() => setOriginalMap(true)} style={s.settingRow}><AppIcon name="map" /><Text style={s.settingTitle}>查看校园地图原图</Text><AppIcon name="chevron" size={17} /></Pressable>
+      <Text style={s.sectionTitle}>了解更多</Text>
+      <Pressable accessibilityRole="button" accessibilityState={{ expanded: help }} onPress={() => setHelp(value => !value)} style={s.settingRow}><AppIcon name="info" /><Text style={s.settingTitle}>使用说明</Text><AppIcon name="chevron" size={17} /></Pressable>
+      {help ? <Text style={s.helpCopy}>从地图搜索框输入名称、英文或简称，也可以直接点击地图标记。打开地点详情后查看步行路线；起点和终点可以更换，每一步右侧都有配图位置。收藏及浏览记录保存在本机。地图、距离和路线目前为演示，暂未接入 GPS。</Text> : null}
       <Pressable accessibilityRole="button" onPress={onContribute} style={s.settingRow}>
         <AppIcon name="groups" /><Text style={s.settingTitle}>校园共建与我的投稿</Text><AppIcon name="chevron" size={17} />
-      </Pressable>
-      <Pressable accessibilityRole="button" onPress={() => void data.reload()} disabled={data.loading} style={s.settingRow}>
-        <AppIcon name="refresh" /><Text style={s.settingTitle}>{data.loading ? '正在更新学生指南…' : '刷新学生指南'}</Text><AppIcon name="chevron" size={17} />
       </Pressable>
       <Pressable accessibilityRole="link" onPress={() => void openLink(ADMIN_URL)} style={s.settingRow}>
         <AppIcon name="book" /><Text style={s.settingTitle}>管理员内容维护</Text><AppIcon name="external" size={17} />
       </Pressable>
       <Text style={s.note}>管理员登录后，可以编辑和发布指南内容。</Text>
-      <Text style={s.sectionTitle}>关于港大漫游</Text>
-      <Text style={s.body}>独立校园地图与学生指南项目。地图标点和步行指引目前为演示资料，GPS 留待后续接入。</Text>
+      <Pressable accessibilityRole="button" accessibilityState={{ expanded: about }} onPress={() => setAbout(value => !value)} style={s.settingRow}><AppIcon name="leaf" /><Text style={s.settingTitle}>关于港大漫游</Text><AppIcon name="chevron" size={17} /></Pressable>
+      {about ? <Text style={s.helpCopy}>独立校园地图与学生指南项目，并非香港大学官方应用。校园照片来自 HKU Wallpapers；地图、入口、距离和路线资料目前仅为演示。投稿经管理员审核后发布，原文不会随界面语言改变。</Text> : null}
+      <Modal visible={originalMap} animationType="slide" onRequestClose={() => setOriginalMap(false)}><SafeAreaView style={{ flex: 1, backgroundColor: colors.app }}><View style={s.topBar}><Pressable accessibilityRole="button" accessibilityLabel="返回" onPress={() => setOriginalMap(false)} style={s.iconButton}><AppIcon name="back" /></Pressable><Text style={s.topTitle}>校园地图原图</Text></View><ScrollView horizontal maximumZoomScale={3} minimumZoomScale={1}><ScrollView><Image source={require('./assets/hku-campus-map.png')} style={{ width: 1080, height: 765 }} resizeMode="contain" accessibilityLabel="香港大学校园地图原图" /></ScrollView></ScrollView></SafeAreaView></Modal>
     </ScrollView>
   );
 }
 
 const s = StyleSheet.create({
   flex: { flex: 1 },
-  page: { width: '100%', maxWidth: 650, alignSelf: 'center', paddingHorizontal: 20, paddingTop: 14, paddingBottom: 26 },
+  page: { width: '100%', maxWidth: 650, alignSelf: 'center', paddingHorizontal: 20, paddingTop: 20, paddingBottom: 26 },
   headingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
-  title: { fontSize: 30, color: ink, fontWeight: '800', flexShrink: 1 },
+  title: { fontSize: 25, lineHeight: 34, color: ink, fontWeight: '800', flexShrink: 1 },
   subtitle: { fontSize: 14, color: muted, lineHeight: 23, marginTop: 6, marginBottom: 20 },
   iconButton: { minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
   topBar: { width: '100%', maxWidth: 650, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 5, gap: 4 },
@@ -213,7 +245,7 @@ const s = StyleSheet.create({
   meta: { fontSize: 12, color: muted, lineHeight: 20 },
   body: { fontSize: 14, color: muted, lineHeight: 24 },
   cardGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  card: { width: '47%', flexGrow: 1, minHeight: 184, padding: 16, backgroundColor: '#fff', borderRadius: 14 },
+  card: { width: '47%', flexGrow: 1, minHeight: 180, padding: 16, backgroundColor: '#fff', borderRadius: 14 },
   firstCard: { backgroundColor: green },
   cardSymbol: { width: 38, height: 38, borderRadius: 10, backgroundColor: '#eaf1e8', alignItems: 'center', justifyContent: 'center', marginBottom: 14 },
   firstSymbol: { backgroundColor: '#2d6454' },
@@ -242,4 +274,12 @@ const s = StyleSheet.create({
   sectionTitle: { fontSize: 14, fontWeight: '700', color: ink, marginTop: 12, marginBottom: 9 },
   settingRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 60, padding: 13, backgroundColor: '#fff', borderRadius: 10, marginBottom: 8 },
   settingTitle: { flex: 1, fontSize: 14, color: ink },
+  guideHelp: { marginTop: 25, paddingTop: 20, borderTopWidth: 1, borderTopColor: colors.line, marginBottom: 20, gap: 5 },
+  savedTabs: { flexDirection: 'row', gap: 20, marginBottom: 14 }, savedTab: { minHeight: 48, paddingVertical: 12, borderBottomWidth: 2, borderBottomColor: 'transparent' }, savedTabActive: { borderBottomColor: green }, savedTabText: { fontSize: 13, color: muted, lineHeight: 22 },
+  clearHistory: { paddingVertical: 10 }, localNotice: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, borderTopWidth: 1, borderTopColor: colors.line, marginTop: 25, paddingTop: 15 },
+  brandSymbol: { width: 46, height: 48, borderRadius: 12, backgroundColor: green, alignItems: 'center', justifyContent: 'center' },
+  preference: { backgroundColor: '#fff', borderRadius: 10, padding: 13, marginBottom: 8 }, settingLabel: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
+  languageOptions: { flexDirection: 'row', gap: 5, backgroundColor: colors.tint, padding: 4, borderRadius: 9 }, language: { flex: 1, minHeight: 44, paddingHorizontal: 3, paddingVertical: 10, alignItems: 'center', justifyContent: 'center', borderRadius: 7 }, selectedLanguage: { backgroundColor: green }, languageText: { fontSize: 12, color: green, lineHeight: 20 },
+  helpCopy: { fontSize: 13, lineHeight: 23, color: muted, padding: 13, paddingTop: 4, marginBottom: 13 },
+  foodSymbol: { backgroundColor: colors.rustLight }, foodFilters: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 }, foodFilter: { minHeight: 44, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 8, backgroundColor: colors.tint, justifyContent: 'center' },
 });

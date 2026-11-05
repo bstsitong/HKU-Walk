@@ -13,6 +13,7 @@ class GuideTests(TestCase):
 
     def test_public_read_contains_four_categories_and_live_edits(self):
         self.assertEqual(len(self.client.get("/api/guide/").json()["categories"]), 4)
+        self.assertTrue(all(entry["isCommunity"] is False for category in self.client.get("/api/guide/").json()["categories"] for entry in category["entries"]))
         entry = GuideEntry.objects.get(key="tips-1")
         entry.body = "管理员更新后的入学安排"
         entry.save()

@@ -1,0 +1,2090 @@
+{
+  "校园空间": {
+    "en": "Campus space",
+    "zh-Hant": "校園空間"
+  },
+  "地图": {
+    "en": "Map",
+    "zh-Hant": "地圖"
+  },
+  "学生指南": {
+    "en": "Student guide",
+    "zh-Hant": "學生指南"
+  },
+  "收藏": {
+    "en": "Saved",
+    "zh-Hant": "收藏"
+  },
+  "更多": {
+    "en": "More",
+    "zh-Hant": "更多"
+  },
+  "返回": {
+    "en": "Back",
+    "zh-Hant": "返回"
+  },
+  "校园示意地图，位置仅供界面演示": {
+    "en": "Schematic campus map; illustrative positions",
+    "zh-Hant": "校園示意地圖，位置僅供界面演示"
+  },
+  "本部校园": {
+    "en": "MAIN CAMPUS",
+    "zh-Hant": "本部校園"
+  },
+  "GPS 定位接入说明": {
+    "en": "GPS integration information",
+    "zh-Hant": "GPS 定位接入説明"
+  },
+  "GPS 实时定位": {
+    "en": "GPS live location",
+    "zh-Hant": "GPS 實時定位"
+  },
+  "接入后查看自己的实时位置": {
+    "en": "Show your live position after integration",
+    "zh-Hant": "接入後查看自己的實時位置"
+  },
+  "待接入": {
+    "en": "Planned",
+    "zh-Hant": "待接入"
+  },
+  "港大漫游": {
+    "en": "HKU Walk",
+    "zh-Hant": "港大漫遊"
+  },
+  "本部 · 百周年": {
+    "en": "Main · Centennial",
+    "zh-Hant": "本部 · 百週年"
+  },
+  "想去哪里？搜索校园地点": {
+    "en": "Where would you like to go?",
+    "zh-Hant": "想去哪裏？搜索校園地點"
+  },
+  "地点类别": {
+    "en": "Place categories",
+    "zh-Hant": "地點類別"
+  },
+  "放大地图": {
+    "en": "Zoom in",
+    "zh-Hant": "放大地圖"
+  },
+  "缩小地图": {
+    "en": "Zoom out",
+    "zh-Hant": "縮小地圖"
+  },
+  "回到演示位置": {
+    "en": "Center on sample location",
+    "zh-Hant": "回到演示位置"
+  },
+  "取消收藏": {
+    "en": "Remove from saved",
+    "zh-Hant": "取消收藏"
+  },
+  "收藏地点": {
+    "en": "Save place",
+    "zh-Hant": "收藏地點"
+  },
+  "地点详情": {
+    "en": "View details",
+    "zh-Hant": "地點詳情"
+  },
+  "查看路线": {
+    "en": "Walking route",
+    "zh-Hant": "查看路線"
+  },
+  "校园示意图 · 非实际导航": {
+    "en": "Schematic map · demo only",
+    "zh-Hant": "校園示意圖 · 非實際導航"
+  },
+  "校园地点": {
+    "en": "Campus place",
+    "zh-Hant": "校園地點"
+  },
+  "搜索结果": {
+    "en": "Search results",
+    "zh-Hant": "搜索結果"
+  },
+  "个地点": {
+    "en": "places",
+    "zh-Hant": "個地點"
+  },
+  "没有找到相关地点": {
+    "en": "No places found",
+    "zh-Hant": "沒有找到相關地點"
+  },
+  "试试建筑的英文名称、简称，\n或者换一个关键词。": {
+    "en": "Try an English name, abbreviation,\nor a different keyword.",
+    "zh-Hant": "試試建築的英文名稱、簡稱，\n或者換一個關鍵詞。"
+  },
+  "查看全部地点": {
+    "en": "Show all places",
+    "zh-Hant": "查看全部地點"
+  },
+  "地点资料仅用于本次原型演示": {
+    "en": "Illustrative place data for this prototype",
+    "zh-Hant": "地點資料僅用於本次原型演示"
+  },
+  "返回地图": {
+    "en": "Back to map",
+    "zh-Hant": "返回地圖"
+  },
+  "搜索名称、英文或简称": {
+    "en": "Name or abbreviation",
+    "zh-Hant": "搜索名稱、英文或簡稱"
+  },
+  "搜索校园地点": {
+    "en": "Search campus places",
+    "zh-Hant": "搜索校園地點"
+  },
+  "清除搜索": {
+    "en": "Clear search",
+    "zh-Hant": "清除搜索"
+  },
+  "常用搜索": {
+    "en": "Quick searches",
+    "zh-Hant": "常用搜索"
+  },
+  "按类别探索": {
+    "en": "Explore by category",
+    "zh-Hant": "按類別探索"
+  },
+  "本部大楼 · 图片：HKU": {
+    "en": "Main Building · Photo: HKU",
+    "zh-Hant": "本部大樓 · 圖片：HKU"
+  },
+  "校园环境参考 · 图片：HKU": {
+    "en": "Campus setting · Photo: HKU",
+    "zh-Hant": "校園環境參考 · 圖片：HKU"
+  },
+  "资料演示": {
+    "en": "Sample data",
+    "zh-Hant": "資料演示"
+  },
+  "怎么进入这里": {
+    "en": "Finding the entrance",
+    "zh-Hant": "怎麼進入這裏"
+  },
+  "以下为说明示例": {
+    "en": "Illustrative guidance",
+    "zh-Hant": "以下為説明示例"
+  },
+  "入口位置": {
+    "en": "Entrance",
+    "zh-Hant": "入口位置"
+  },
+  "入口说明示例：从建筑前方入口进入。": {
+    "en": "Sample entrance: enter from the front of the building.",
+    "zh-Hant": "入口説明示例：從建築前方入口進入。"
+  },
+  "楼层与升降机": {
+    "en": "Levels & lifts",
+    "zh-Hant": "樓層與升降機"
+  },
+  "楼层说明示例：G/F · 入口层。": {
+    "en": "Sample floor: G/F · entrance level.",
+    "zh-Hant": "樓層説明示例：G/F · 入口層。"
+  },
+  "地图位置": {
+    "en": "On the map",
+    "zh-Hant": "地圖位置"
+  },
+  "位置示意": {
+    "en": "Sample position",
+    "zh-Hant": "位置示意"
+  },
+  "本页为设计演示；入口与位置尚未实地核实。\n实景图片来自香港大学官方壁纸页面。": {
+    "en": "Design demonstration; entrances and positions are unverified.\nPhotography: HKU official wallpaper collection.",
+    "zh-Hant": "本頁為設計演示；入口與位置尚未實地核實。\n實景圖片來自香港大學官方壁紙頁面。"
+  },
+  "查看步行路线": {
+    "en": "Find a walking route",
+    "zh-Hant": "查看步行路線"
+  },
+  "对照起点照片，从校园入口进入（示例）。": {
+    "en": "Match the starting-point photo and enter campus (sample).",
+    "zh-Hant": "對照起點照片，從校園入口進入（示例）。"
+  },
+  "起点入口图": {
+    "en": "Starting point",
+    "zh-Hant": "起點入口圖"
+  },
+  "沿步行路径前往路口": {
+    "en": "Walk to the junction",
+    "zh-Hant": "沿步行路徑前往路口"
+  },
+  "经过学习空间，在路口按地标右转（示例）。": {
+    "en": "Pass the study space; turn right at the landmark (sample).",
+    "zh-Hant": "經過學習空間，在路口按地標右轉（示例）。"
+  },
+  "路口地标图": {
+    "en": "Junction landmark",
+    "zh-Hant": "路口地標圖"
+  },
+  "乘坐电梯前往连通楼层": {
+    "en": "Take the lift to the connecting level",
+    "zh-Hant": "乘坐電梯前往連通樓層"
+  },
+  "找到图示电梯，按楼层指示换层（示例）。": {
+    "en": "Find the pictured lift and follow the floor signs (sample).",
+    "zh-Hant": "找到圖示電梯，按樓層指示換層（示例）。"
+  },
+  "电梯入口图": {
+    "en": "Lift entrance",
+    "zh-Hant": "電梯入口圖"
+  },
+  "离开电梯后继续步行": {
+    "en": "Continue walking after the lift",
+    "zh-Hant": "離開電梯後繼續步行"
+  },
+  "确认楼层出口，沿指示通道继续前进（示例）。": {
+    "en": "Check the floor exit and follow the passage (sample).",
+    "zh-Hant": "確認樓層出口，沿指示通道繼續前進（示例）。"
+  },
+  "楼层出口图": {
+    "en": "Floor exit",
+    "zh-Hant": "樓層出口圖"
+  },
+  "找到目的地建筑入口": {
+    "en": "Find the destination entrance",
+    "zh-Hant": "找到目的地建築入口"
+  },
+  "对照建筑外观、入口照片和门口标识。": {
+    "en": "Match the building, entrance photo and doorway signs.",
+    "zh-Hant": "對照建築外觀、入口照片和門口標識。"
+  },
+  "建筑入口图": {
+    "en": "Building entrance",
+    "zh-Hant": "建築入口圖"
+  },
+  "结合终点实景图，确认当前位置与目的地。": {
+    "en": "Use the arrival photo to confirm your location.",
+    "zh-Hant": "結合終點實景圖，確認當前位置與目的地。"
+  },
+  "到达位置图": {
+    "en": "Arrival point",
+    "zh-Hant": "到達位置圖"
+  },
+  "步行路线": {
+    "en": "Walking route",
+    "zh-Hant": "步行路線"
+  },
+  "路线起点": {
+    "en": "Route start",
+    "zh-Hant": "路線起點"
+  },
+  "路线终点": {
+    "en": "Route destination",
+    "zh-Hant": "路線終點"
+  },
+  "交换起点和终点": {
+    "en": "Swap start and destination",
+    "zh-Hant": "交換起點和終點"
+  },
+  "步行路线示意": {
+    "en": "Sample walking route",
+    "zh-Hant": "步行路線示意"
+  },
+  "示意地图 · 非实际导航": {
+    "en": "Schematic map · demo only",
+    "zh-Hant": "示意地圖 · 非實際導航"
+  },
+  "分钟 · 示例": {
+    "en": "min · sample",
+    "zh-Hant": "分鐘 · 示例"
+  },
+  "演示步行路线": {
+    "en": "Sample walking route",
+    "zh-Hant": "演示步行路線"
+  },
+  "步行": {
+    "en": "Walking",
+    "zh-Hant": "步行"
+  },
+  "步行途中可按指引乘坐电梯换层。": {
+    "en": "Use lifts for level changes along the walking route.",
+    "zh-Hant": "步行途中可按指引乘坐電梯換層。"
+  },
+  "图文路线指引 · 6 步": {
+    "en": "Photo-guided route · 6 steps",
+    "zh-Hant": "圖文路線指引 · 6 步"
+  },
+  "每步配现场图": {
+    "en": "Photo for every step",
+    "zh-Hant": "每步配現場圖"
+  },
+  "待补实拍": {
+    "en": "Photo needed",
+    "zh-Hant": "待補實拍"
+  },
+  "右侧为配图占位，开发时每一步需补充对应现场照片。路线、距离与用时仍为演示。": {
+    "en": "Image slots mark the on-site photo needed for each step. Route, distance and time remain illustrative.",
+    "zh-Hant": "右側為配圖佔位，開發時每一步需補充對應現場照片。路線、距離與用時仍為演示。"
+  },
+  "返回地图查看地点": {
+    "en": "Return to campus map",
+    "zh-Hant": "返回地圖查看地點"
+  },
+  "查看全部 6 步": {
+    "en": "View all 6 steps",
+    "zh-Hant": "查看全部 6 步"
+  },
+  "熟悉的地方": {
+    "en": "Your campus places",
+    "zh-Hant": "熟悉的地方"
+  },
+  "把常去的地方，留在手边。": {
+    "en": "Keep your everyday places close.",
+    "zh-Hant": "把常去的地方，留在手邊。"
+  },
+  "我的收藏": {
+    "en": "Saved",
+    "zh-Hant": "我的收藏"
+  },
+  "最近浏览": {
+    "en": "Recent",
+    "zh-Hant": "最近瀏覽"
+  },
+  "查看地点": {
+    "en": "View place",
+    "zh-Hant": "查看地點"
+  },
+  "还没有浏览记录": {
+    "en": "No recent places",
+    "zh-Hant": "還沒有瀏覽記錄"
+  },
+  "还没有收藏地点": {
+    "en": "No saved places yet",
+    "zh-Hant": "還沒有收藏地點"
+  },
+  "查看过的地点会出现在这里。": {
+    "en": "Places you open will appear here.",
+    "zh-Hant": "查看過的地點會出現在這裏。"
+  },
+  "在地点详情页点击收藏，\n下次就能从这里快速找到。": {
+    "en": "Save a place from its details,\nthen find it quickly here.",
+    "zh-Hant": "在地點詳情頁點擊收藏，\n下次就能從這裏快速找到。"
+  },
+  "去地图看看": {
+    "en": "Explore the map",
+    "zh-Hant": "去地圖看看"
+  },
+  "清除本机的全部浏览记录？": {
+    "en": "Clear all recent places on this device?",
+    "zh-Hant": "清除本機的全部瀏覽記錄？"
+  },
+  "确认清除": {
+    "en": "Clear history",
+    "zh-Hant": "確認清除"
+  },
+  "取消": {
+    "en": "Cancel",
+    "zh-Hant": "取消"
+  },
+  "清除浏览记录": {
+    "en": "Clear recent places",
+    "zh-Hant": "清除瀏覽記錄"
+  },
+  "收藏和浏览记录仅保存在当前设备，无需登录。": {
+    "en": "Saved and recent places stay on this device. No sign-in needed.",
+    "zh-Hant": "收藏和瀏覽記錄僅保存在當前設備，無需登錄。"
+  },
+  "轻装出发，慢慢熟悉校园。": {
+    "en": "A simpler way to find your campus.",
+    "zh-Hant": "輕裝出發，慢慢熟悉校園。"
+  },
+  "随时打开，直接使用": {
+    "en": "Open it. Find your way.",
+    "zh-Hant": "隨時打開，直接使用"
+  },
+  "看地图、找地点和查路线\n都不需要注册账号。": {
+    "en": "Browse, search and plan routes.\nNo account required.",
+    "zh-Hant": "看地圖、找地點和查路線\n都不需要註冊賬號。"
+  },
+  "使用偏好": {
+    "en": "Preferences",
+    "zh-Hant": "使用偏好"
+  },
+  "界面语言": {
+    "en": "Language",
+    "zh-Hant": "界面語言"
+  },
+  "待接入 · 当前为位置演示": {
+    "en": "Planned · sample location only",
+    "zh-Hant": "待接入 · 當前為位置演示"
+  },
+  "位置展示演示开关": {
+    "en": "Toggle sample location",
+    "zh-Hant": "位置展示演示開關"
+  },
+  "地图资料": {
+    "en": "Map information",
+    "zh-Hant": "地圖資料"
+  },
+  "检查资料更新": {
+    "en": "Check for updates",
+    "zh-Hant": "檢查資料更新"
+  },
+  "正在演示刷新…": {
+    "en": "Simulating refresh…",
+    "zh-Hant": "正在演示刷新…"
+  },
+  "演示完成 · 当前为本地样例": {
+    "en": "Done · local sample data",
+    "zh-Hant": "演示完成 · 當前為本地樣例"
+  },
+  "界面原型 · 本地演示资料": {
+    "en": "Prototype · local sample data",
+    "zh-Hant": "界面原型 · 本地演示資料"
+  },
+  "刷新": {
+    "en": "Refresh",
+    "zh-Hant": "刷新"
+  },
+  "了解更多": {
+    "en": "Learn more",
+    "zh-Hant": "瞭解更多"
+  },
+  "使用说明": {
+    "en": "How to use",
+    "zh-Hant": "使用説明"
+  },
+  "在地图上点选地点，或搜索中文、英文名称。打开详情后，点击“查看步行路线”。": {
+    "en": "Tap a map pin or search for a Chinese or English name. Open its details, then choose a walking route.",
+    "zh-Hant": "在地圖上點選地點，或搜索中文、英文名稱。打開詳情後，點擊“查看步行路線”。"
+  },
+  "可以拖动地图、点击加减号缩放，并将常用地点收藏到本机。": {
+    "en": "Drag the map, zoom with +/−, and save places locally.",
+    "zh-Hant": "可以拖動地圖、點擊加減號縮放，並將常用地點收藏到本機。"
+  },
+  "未来的社区共建": {
+    "en": "Future community contributions",
+    "zh-Hant": "未來的社區共建"
+  },
+  "后续版本将加入地点补充、信息修改和路线更新。参与贡献时再注册登录，日常查看仍可直接使用。": {
+    "en": "A later release will add place suggestions, edits and route updates. Sign in only when contributing; browsing stays open.",
+    "zh-Hant": "後續版本將加入地點補充、信息修改和路線更新。參與貢獻時再註冊登錄，日常查看仍可直接使用。"
+  },
+  "关于港大漫游": {
+    "en": "About HKU Walk",
+    "zh-Hant": "關於港大漫遊"
+  },
+  "独立校园地图设计概念，非香港大学官方应用。所有地图几何、入口、距离和用时均为演示。": {
+    "en": "An independent campus-map concept, not an official HKU app. Map geometry, entrances, distances and times are illustrative.",
+    "zh-Hant": "獨立校園地圖設計概念，非香港大學官方應用。所有地圖幾何、入口、距離和用時均為演示。"
+  },
+  "实景图片来源：": {
+    "en": "Photography: ",
+    "zh-Hant": "實景圖片來源："
+  },
+  "第一版界面原型 / 2026": {
+    "en": "First-version interface prototype / 2026",
+    "zh-Hant": "第一版界面原型 / 2026"
+  },
+  "从第一天开始，慢慢熟悉校园生活。": {
+    "en": "Make campus life a little easier, from day one.",
+    "zh-Hant": "從第一天開始，慢慢熟悉校園生活。"
+  },
+  "常用的、好吃的、一起玩的": {
+    "en": "Useful places, good food, new friends",
+    "zh-Hant": "常用的、好吃的、一起玩的"
+  },
+  "四个入口，把校园生活放在手边。": {
+    "en": "Four starting points for everyday campus life.",
+    "zh-Hant": "四個入口，把校園生活放在手邊。"
+  },
+  "第一次来，可以先做这两件事": {
+    "en": "New here? Start with two small things",
+    "zh-Hant": "第一次來，可以先做這兩件事"
+  },
+  "保存常用校方入口，再提前看看第一堂课的建筑位置与入口。": {
+    "en": "Keep the university links handy, then check the building and entrance for your first class.",
+    "zh-Hant": "保存常用校方入口，再提前看看第一堂課的建築位置與入口。"
+  },
+  "看看新生 Tips": {
+    "en": "Read the new-student tips",
+    "zh-Hant": "看看新生 Tips"
+  },
+  "常用快捷链接": {
+    "en": "Useful links",
+    "zh-Hant": "常用快捷鏈接"
+  },
+  "常用校方服务，一次收好。点击后打开对应官方网站。": {
+    "en": "Keep university services close. Each link opens its official website.",
+    "zh-Hant": "常用校方服務，一次收好。點擊後打開對應官方網站。"
+  },
+  "本 App 浏览无需登录；部分校方服务会在官网要求使用校方账号登录。": {
+    "en": "Browsing this app needs no account. Some university services require university sign-in on their own websites.",
+    "zh-Hant": "本 App 瀏覽無需登錄；部分校方服務會在官網要求使用校方賬號登錄。"
+  },
+  "到校前": {
+    "en": "Before arrival",
+    "zh-Hant": "到校前"
+  },
+  "核对自己的入学安排": {
+    "en": "Check the arrangements for your programme",
+    "zh-Hant": "核對自己的入學安排"
+  },
+  "把注册、迎新、学生证与课程相关通知集中保存。不同课程和学生类别的安排可能不同，按自己收到的校方通知逐项确认。": {
+    "en": "Keep registration, orientation, student-card and course notices together. Check the instructions sent for your own programme and student category.",
+    "zh-Hant": "把註冊、迎新、學生證與課程相關通知集中保存。不同課程和學生類別的安排可能不同，按自己收到的校方通知逐項確認。"
+  },
+  "先认清 Portal 和 Moodle": {
+    "en": "Know your Portal and Moodle",
+    "zh-Hant": "先認清 Portal 和 Moodle"
+  },
+  "将校方门户与课程平台加入浏览器书签。第一次使用前，先确认账户、邮箱和校园网络能正常使用。": {
+    "en": "Bookmark the university portal and course platform. Check that your account, email and campus network access work before you need them.",
+    "zh-Hant": "將校方門户與課程平台加入瀏覽器書籤。第一次使用前，先確認賬户、郵箱和校園網絡能正常使用。"
+  },
+  "第一周": {
+    "en": "Your first week",
+    "zh-Hant": "第一週"
+  },
+  "第一次上课，先找楼再找入口": {
+    "en": "Find the building, then the entrance",
+    "zh-Hant": "第一次上課，先找樓再找入口"
+  },
+  "把课表上的建筑名称与地图对照，提前看入口照片和楼层说明。给第一次找课室留出一点时间。": {
+    "en": "Match the building name on your timetable to the map. Check entrance photos and floor guidance, and allow time to find an unfamiliar classroom.",
+    "zh-Hant": "把課表上的建築名稱與地圖對照，提前看入口照片和樓層説明。給第一次找課室留出一點時間。"
+  },
+  "校园日常": {
+    "en": "Everyday campus life",
+    "zh-Hant": "校園日常"
+  },
+  "出发前查一眼开放安排": {
+    "en": "Check opening arrangements before setting off",
+    "zh-Hant": "出發前查一眼開放安排"
+  },
+  "去图书馆、餐饮点或服务柜台前，查看对应官网的最新开放安排，减少白跑一趟。": {
+    "en": "Check the relevant official website before visiting a library, dining outlet or service counter.",
+    "zh-Hant": "去圖書館、餐飲點或服務櫃枱前，查看對應官網的最新開放安排，減少白跑一趟。"
+  },
+  "需要帮助时，先找到校方支援入口": {
+    "en": "Keep student-support links within reach",
+    "zh-Hant": "需要幫助時，先找到校方支援入口"
+  },
+  "把 CEDARS、学院与校园 IT 帮助入口放在常用链接里。遇到学习生活或账户网络问题时，方便找到对应服务。": {
+    "en": "Keep CEDARS, faculty and IT support links handy so you can find the appropriate service when needed.",
+    "zh-Hant": "把 CEDARS、學院與校園 IT 幫助入口放在常用鏈接裏。遇到學習生活或賬户網絡問題時，方便找到對應服務。"
+  },
+  "新生入学小 Tips": {
+    "en": "New student tips",
+    "zh-Hant": "新生入學小 Tips"
+  },
+  "把第一周过得从容一点。下面是通用小建议，具体入学安排以校方通知为准。": {
+    "en": "A few practical ideas for settling in. Follow your university notices for programme-specific arrangements.",
+    "zh-Hant": "把第一週過得從容一點。下面是通用小建議，具體入學安排以校方通知為準。"
+  },
+  "在地图中找教学楼": {
+    "en": "Find buildings on the map",
+    "zh-Hant": "在地圖中找教學樓"
+  },
+  "查看校方新生指南": {
+    "en": "Open the university new-student guide",
+    "zh-Hant": "查看校方新生指南"
+  },
+  "赶课午餐：先选离课室近的": {
+    "en": "Between classes: keep lunch close",
+    "zh-Hant": "趕課午餐：先選離課室近的"
+  },
+  "先看下一堂课在哪栋楼，再决定去哪吃。": {
+    "en": "Check your next classroom before picking a lunch spot.",
+    "zh-Hant": "先看下一堂課在哪棟樓，再決定去哪吃。"
+  },
+  "快速午餐": {
+    "en": "Quick lunch",
+    "zh-Hant": "快速午餐"
+  },
+  "分享示例：如果两堂课之间时间不多，可以先在地图里找邻近的餐饮点，再查看校方目录中的服务安排。正式投稿可以补充实际店名、推荐菜和等餐体验。": {
+    "en": "Sample post: when time between classes is short, check nearby dining spots on the map, then consult the university directory. A real contribution can add the outlet, dish and waiting experience.",
+    "zh-Hant": "分享示例：如果兩堂課之間時間不多，可以先在地圖裏找鄰近的餐飲點，再查看校方目錄中的服務安排。正式投稿可以補充實際店名、推薦菜和等餐體驗。"
+  },
+  "下课后的咖啡与轻食": {
+    "en": "Coffee and a small bite after class",
+    "zh-Hant": "下課後的咖啡與輕食"
+  },
+  "想找一处歇脚，也可以从轻食开始。": {
+    "en": "A small break can begin with coffee and a light meal.",
+    "zh-Hant": "想找一處歇腳，也可以從輕食開始。"
+  },
+  "咖啡轻食": {
+    "en": "Coffee",
+    "zh-Hant": "咖啡輕食"
+  },
+  "分享示例：记录你觉得适合课间休息的地方。补上饮品或餐点照片、所在位置，以及你实际去过时的感受，让同学更容易判断是否适合自己。": {
+    "en": "Sample post: share a place you have actually visited for a break. Add food photos, its location and your experience so other students can decide whether it suits them.",
+    "zh-Hant": "分享示例：記錄你覺得適合課間休息的地方。補上飲品或餐點照片、所在位置，以及你實際去過時的感受，讓同學更容易判斷是否適合自己。"
+  },
+  "周末聚餐，先说清怎么集合": {
+    "en": "Weekend meals: make meeting up easy",
+    "zh-Hant": "週末聚餐，先説清怎麼集合"
+  },
+  "推荐一家店，也顺手写清入口与集合点。": {
+    "en": "A recommendation is better with a clear meeting point.",
+    "zh-Hant": "推薦一家店，也順手寫清入口與集合點。"
+  },
+  "朋友聚餐": {
+    "en": "Together",
+    "zh-Hant": "朋友聚餐"
+  },
+  "分享示例：除了推荐菜，也可以说明店铺入口、交通方式和集合位置。店名、实际消费与营业安排应由投稿人根据真实体验补充。": {
+    "en": "Sample post: add the entrance, travel directions and meeting point alongside your recommendations. Real outlet names, spending and opening details should come from an actual visit.",
+    "zh-Hant": "分享示例：除了推薦菜，也可以説明店鋪入口、交通方式和集合位置。店名、實際消費與營業安排應由投稿人根據真實體驗補充。"
+  },
+  "美食分享": {
+    "en": "Food stories",
+    "zh-Hant": "美食分享"
+  },
+  "看看同学会怎么分享校园吃喝。以下为内容示例，店名、照片与体验待补充。": {
+    "en": "A preview of student food stories. These samples await real places, photos and experiences.",
+    "zh-Hant": "看看同學會怎麼分享校園吃喝。以下為內容示例，店名、照片與體驗待補充。"
+  },
+  "午餐": {
+    "en": "Lunch",
+    "zh-Hant": "午餐"
+  },
+  "分享示例": {
+    "en": "Sample post",
+    "zh-Hant": "分享示例"
+  },
+  "待补餐点与店铺实拍": {
+    "en": "Add food and outlet photos",
+    "zh-Hant": "待補餐點與店鋪實拍"
+  },
+  "在地图查看餐饮": {
+    "en": "Find food on the map",
+    "zh-Hant": "在地圖查看餐飲"
+  },
+  "查看校内餐饮目录": {
+    "en": "Open the campus dining directory",
+    "zh-Hant": "查看校內餐飲目錄"
+  },
+  "周末轻徒步": {
+    "en": "Weekend walks",
+    "zh-Hant": "週末輕徒步"
+  },
+  "户外 · 城市探索": {
+    "en": "Outdoors · Exploring",
+    "zh-Hant": "户外 · 城市探索"
+  },
+  "一起探索步行路线、分享沿途风景，也可以约同学从校园出发认识周边。正式群介绍可补充适合的路线难度和集合方式。": {
+    "en": "Explore walking routes, share scenery and discover the neighbourhood together. A real group can add route difficulty and meeting arrangements.",
+    "zh-Hant": "一起探索步行路線、分享沿途風景，也可以約同學從校園出發認識周邊。正式羣介紹可補充適合的路線難度和集合方式。"
+  },
+  "羽毛球与运动搭子": {
+    "en": "Badminton & sports buddies",
+    "zh-Hant": "羽毛球與運動搭子"
+  },
+  "运动 · 轻松约伴": {
+    "en": "Sports · Find a partner",
+    "zh-Hant": "運動 · 輕鬆約伴"
+  },
+  "寻找一起运动的同学，交流运动偏好和场地信息。具体活动时间与场地预约由群成员自行确认。": {
+    "en": "Find people to exercise with and exchange activity and venue information. Members confirm their own times and bookings.",
+    "zh-Hant": "尋找一起運動的同學，交流運動偏好和場地信息。具體活動時間與場地預約由羣成員自行確認。"
+  },
+  "桌游与电影夜": {
+    "en": "Board games & movie nights",
+    "zh-Hant": "桌遊與電影夜"
+  },
+  "室内 · 休闲同好": {
+    "en": "Indoors · Shared interests",
+    "zh-Hant": "室內 · 休閒同好"
+  },
+  "交流喜欢的桌游和电影，寻找愿意一起参加线下休闲活动的同学。正式发布时可补充活动形式和入群说明。": {
+    "en": "Talk about games and films and meet others interested in casual activities. A real listing can describe the activities and joining process.",
+    "zh-Hant": "交流喜歡的桌遊和電影，尋找願意一起參加線下休閒活動的同學。正式發佈時可補充活動形式和入羣説明。"
+  },
+  "展览与城市漫游": {
+    "en": "Exhibitions & city exploring",
+    "zh-Hant": "展覽與城市漫遊"
+  },
+  "文化 · 周末出游": {
+    "en": "Culture · Weekend plans",
+    "zh-Hant": "文化 · 週末出遊"
+  },
+  "分享想看的展览和周末出行灵感，找到兴趣相近的同学。活动内容和有效邀请入口由群主补充。": {
+    "en": "Share exhibitions and weekend ideas with people who enjoy the same things. Group owners provide real activity details and invitation links.",
+    "zh-Hant": "分享想看的展覽和週末出行靈感，找到興趣相近的同學。活動內容和有效邀請入口由羣主補充。"
+  },
+  "娱乐群": {
+    "en": "Interest groups",
+    "zh-Hant": "娛樂羣"
+  },
+  "找到一起玩的同好。下面是群组展示示例，有效邀请入口待群主补充。": {
+    "en": "Find people who share your interests. These are sample listings; group owners will supply valid invitations.",
+    "zh-Hant": "找到一起玩的同好。下面是羣組展示示例，有效邀請入口待羣主補充。"
+  },
+  "示例群组": {
+    "en": "Sample group",
+    "zh-Hant": "示例羣組"
+  },
+  "邀请入口待补充": {
+    "en": "Invitation to be supplied",
+    "zh-Hant": "邀請入口待補充"
+  },
+  "由群主补充平台、群介绍及有效邀请链接或二维码。": {
+    "en": "The owner can add the platform, description and a valid link or QR code.",
+    "zh-Hant": "由羣主補充平台、羣介紹及有效邀請鏈接或二維碼。"
+  },
+  "入群链接待补充": {
+    "en": "Invitation link pending",
+    "zh-Hant": "入羣鏈接待補充"
+  },
+  "本页未接入真实聊天群，也不会自动申请入群。": {
+    "en": "This prototype is not connected to live chat groups and does not submit join requests.",
+    "zh-Hant": "本頁未接入真實聊天羣，也不會自動申請入羣。"
+  },
+  "这里展示目的地在地图上的位置示意": {
+    "en": "This shows the sample map position",
+    "zh-Hant": "這裏展示目的地在地圖上的位置示意"
+  },
+  "路线示意中的校园地点": {
+    "en": "A campus place on the sample route",
+    "zh-Hant": "路線示意中的校園地點"
+  },
+  "已取消收藏": {
+    "en": "Removed from saved places",
+    "zh-Hant": "已取消收藏"
+  },
+  "已收藏到当前设备": {
+    "en": "Saved on this device",
+    "zh-Hant": "已收藏到當前設備"
+  },
+  "已到演示缩放边界": {
+    "en": "Sample zoom limit reached",
+    "zh-Hant": "已到演示縮放邊界"
+  },
+  "开发提示：接入手机 GPS 并获得定位授权后，显示用户实时位置；当前仍为模拟定位。": {
+    "en": "Planned: integrate device GPS with permission to show live position. This prototype still uses simulated location.",
+    "zh-Hant": "開發提示：接入手機 GPS 並獲得定位授權後，顯示用户實時位置；當前仍為模擬定位。"
+  },
+  "位置展示已关闭，可在“更多”中开启": {
+    "en": "Enable sample location in More",
+    "zh-Hant": "位置展示已關閉，可在“更多”中開啓"
+  },
+  "演示定位：港大站校园入口附近": {
+    "en": "Sample location: near the campus access",
+    "zh-Hant": "演示定位：港大站校園入口附近"
+  },
+  "已清除本机浏览记录": {
+    "en": "Recent places cleared on this device",
+    "zh-Hant": "已清除本機瀏覽記錄"
+  },
+  "已切换为中文": {
+    "en": "Switched to English",
+    "zh-Hant": "已切換為中文"
+  },
+  "已开启模拟位置展示": {
+    "en": "Sample location enabled",
+    "zh-Hant": "已開啓模擬位置展示"
+  },
+  "已关闭模拟位置展示": {
+    "en": "Sample location disabled",
+    "zh-Hant": "已關閉模擬位置展示"
+  },
+  "刷新演示完成：当前使用本地样例资料": {
+    "en": "Refresh demo complete: local sample data",
+    "zh-Hant": "刷新演示完成：當前使用本地樣例資料"
+  },
+  "请为起点和终点选择不同地点": {
+    "en": "Choose different start and destination places",
+    "zh-Hant": "請為起點和終點選擇不同地點"
+  },
+  "已保存这份恢复码？": {
+    "en": "Have you saved this recovery code?",
+    "zh-Hant": "已保存這份恢復碼？"
+  },
+  "离开后无法再次查看。你仍可在账号与安全中验证密码并生成新的恢复码。": {
+    "en": "You cannot view this code again after leaving. You can verify your password in Account & security to generate a new one.",
+    "zh-Hant": "離開後無法再次查看。你仍可在賬號與安全中驗證密碼並生成新的恢復碼。"
+  },
+  "继续查看": {
+    "en": "Keep viewing",
+    "zh-Hant": "繼續查看"
+  },
+  "已保存，继续": {
+    "en": "Saved, continue",
+    "zh-Hant": "已保存，繼續"
+  },
+  "保存你的恢复码": {
+    "en": "Save your recovery code",
+    "zh-Hant": "保存你的恢復碼"
+  },
+  "忘记账号或密码时，用它找回账号并设置新密码。它只在这里显示这一次，请复制到你自己的安全位置。": {
+    "en": "Use this code to recover your account and reset your password. It is shown only once. Copy it somewhere safe.",
+    "zh-Hant": "忘記賬號或密碼時，用它找回賬號並設置新密碼。它只在這裏顯示這一次，請複製到你自己的安全位置。"
+  },
+  "账号恢复码": {
+    "en": "Account recovery code",
+    "zh-Hant": "賬號恢復碼"
+  },
+  "当前账号：": {
+    "en": "Current account: ",
+    "zh-Hant": "當前賬號："
+  },
+  "当前账号：{username}": {
+    "en": "Current account: {username}",
+    "zh-Hant": "當前賬號：{username}"
+  },
+  "恢复码可以用来重设密码，请妥善保管。生成新码后，旧码立即失效。": {
+    "en": "Keep this code safe: it can reset your password. Generating a new code immediately invalidates the old one.",
+    "zh-Hant": "恢復碼可以用來重設密碼，請妥善保管。生成新碼後，舊碼立即失效。"
+  },
+  "我已保存，继续": {
+    "en": "I have saved it, continue",
+    "zh-Hant": "我已保存，繼續"
+  },
+  "操作未完成，请重试。": {
+    "en": "The action could not be completed. Please try again.",
+    "zh-Hant": "操作未完成，請重試。"
+  },
+  "新密码至少 8 位。": {
+    "en": "Your new password must contain at least 8 characters.",
+    "zh-Hant": "新密碼至少 8 位。"
+  },
+  "两次输入的新密码不一致。": {
+    "en": "The new passwords do not match.",
+    "zh-Hant": "兩次輸入的新密碼不一致。"
+  },
+  "请输入之前保存的恢复码。": {
+    "en": "Enter the recovery code you saved earlier.",
+    "zh-Hant": "請輸入之前保存的恢復碼。"
+  },
+  "请输入当前密码。": {
+    "en": "Enter your current password.",
+    "zh-Hant": "請輸入當前密碼。"
+  },
+  "密码修改成功，其他设备已退出登录。": {
+    "en": "Password changed. Other devices have been signed out.",
+    "zh-Hant": "密碼修改成功，其他設備已退出登錄。"
+  },
+  "找回账号与密码": {
+    "en": "Recover account & password",
+    "zh-Hant": "找回賬號與密碼"
+  },
+  "账号与安全": {
+    "en": "Account & security",
+    "zh-Hant": "賬號與安全"
+  },
+  "输入保存的恢复码并设置新密码。成功后会显示账号名称，并生成一份新的恢复码。": {
+    "en": "Enter your saved recovery code and choose a new password. Your username and a new recovery code will then be shown.",
+    "zh-Hant": "輸入保存的恢復碼並設置新密碼。成功後會顯示賬號名稱，並生成一份新的恢復碼。"
+  },
+  "恢复码": {
+    "en": "Recovery code",
+    "zh-Hant": "恢復碼"
+  },
+  "当前密码": {
+    "en": "Current password",
+    "zh-Hant": "當前密碼"
+  },
+  "新密码": {
+    "en": "New password",
+    "zh-Hant": "新密碼"
+  },
+  "至少 8 位，避免常见密码或纯数字": {
+    "en": "At least 8 characters; avoid common passwords and numbers alone",
+    "zh-Hant": "至少 8 位，避免常見密碼或純數字"
+  },
+  "再次输入新密码": {
+    "en": "Confirm new password",
+    "zh-Hant": "再次輸入新密碼"
+  },
+  "找回账号并重设密码": {
+    "en": "Recover account & reset password",
+    "zh-Hant": "找回賬號並重設密碼"
+  },
+  "修改密码": {
+    "en": "Change password",
+    "zh-Hant": "修改密碼"
+  },
+  "需要更换恢复码时，输入上方的当前密码，再生成新码。旧码随后失效。": {
+    "en": "To replace your recovery code, enter your current password above. The old code will become invalid.",
+    "zh-Hant": "需要更換恢復碼時，輸入上方的當前密碼，再生成新碼。舊碼隨後失效。"
+  },
+  "这个账号还没有恢复码。输入上方的当前密码后生成一份，便于之后找回账号。": {
+    "en": "This account has no recovery code yet. Enter your current password above to generate one.",
+    "zh-Hant": "這個賬號還沒有恢復碼。輸入上方的當前密碼後生成一份，便於之後找回賬號。"
+  },
+  "生成新的恢复码": {
+    "en": "Generate a new recovery code",
+    "zh-Hant": "生成新的恢復碼"
+  },
+  "生成恢复码": {
+    "en": "Generate recovery code",
+    "zh-Hant": "生成恢復碼"
+  },
+  "请先在上方输入当前密码。": {
+    "en": "Enter your current password above first.",
+    "zh-Hant": "請先在上方輸入當前密碼。"
+  },
+  "没有保存恢复码且无法登录时，请联系项目管理员核实账号。管理员不能查看原密码。": {
+    "en": "If you cannot sign in and have no recovery code, contact the project administrator to verify your account. Administrators cannot view your password.",
+    "zh-Hant": "沒有保存恢復碼且無法登錄時，請聯繫項目管理員核實賬號。管理員不能查看原密碼。"
+  },
+  "设置暂时无法保存": {
+    "en": "Could not save this setting",
+    "zh-Hant": "設置暫時無法保存"
+  },
+  "当前筛选没有内容，再点一次标签可以查看全部。": {
+    "en": "No content matches this filter. Tap the selected tag again to see all posts.",
+    "zh-Hant": "當前篩選沒有內容，再點一次標籤可以查看全部。"
+  },
+  "本次设置仍然有效。": {
+    "en": "Your selection still applies for this session.",
+    "zh-Hant": "本次設置仍然有效。"
+  },
+  "收藏暂时无法读取": {
+    "en": "Could not load saved items",
+    "zh-Hant": "收藏暫時無法讀取"
+  },
+  "重新打开 App 后再试。": {
+    "en": "Reopen the app and try again.",
+    "zh-Hant": "重新打開 App 後再試。"
+  },
+  "收藏保存失败": {
+    "en": "Could not save your items",
+    "zh-Hant": "收藏保存失敗"
+  },
+  "请检查设备存储空间后重试。": {
+    "en": "Check your device storage and try again.",
+    "zh-Hant": "請檢查設備存儲空間後重試。"
+  },
+  "全部": {
+    "en": "All",
+    "zh-Hant": "全部"
+  },
+  "教学楼": {
+    "en": "Buildings",
+    "zh-Hant": "教學樓"
+  },
+  "学习": {
+    "en": "Study",
+    "zh-Hant": "學習"
+  },
+  "餐饮": {
+    "en": "Food",
+    "zh-Hant": "餐飲"
+  },
+  "洗手间": {
+    "en": "Toilets",
+    "zh-Hant": "洗手間"
+  },
+  "出入口": {
+    "en": "Access",
+    "zh-Hant": "出入口"
+  },
+  "本部大楼": {
+    "en": "Main Building",
+    "zh-Hant": "本部大樓"
+  },
+  "大学图书馆": {
+    "en": "Main Library",
+    "zh-Hant": "大學圖書館"
+  },
+  "智华学习共享空间": {
+    "en": "Chi Wah Learning Commons",
+    "zh-Hant": "智華學習共享空間"
+  },
+  "钮鲁诗楼": {
+    "en": "Knowles Building",
+    "zh-Hant": "鈕魯詩樓"
+  },
+  "港大站校园入口": {
+    "en": "HKU Station · Campus access",
+    "zh-Hant": "港大站校園入口"
+  },
+  "百周年校园花园": {
+    "en": "Centennial Campus Garden",
+    "zh-Hant": "百週年校園花園"
+  },
+  "校园咖啡点（示例）": {
+    "en": "Campus café · sample",
+    "zh-Hant": "校園咖啡點（示例）"
+  },
+  "公共洗手间（示例）": {
+    "en": "Public toilet · sample",
+    "zh-Hant": "公共洗手間（示例）"
+  },
+  "从港大站校园入口出发": {
+    "en": "Start at HKU Station campus access",
+    "zh-Hant": "從港大站校園入口出發"
+  },
+  "对照配图辨认起点，然后沿通道出发。": {
+    "en": "Identify the starting point using the image, then follow the passage.",
+    "zh-Hant": "對照配圖辨認起點，然後沿通道出發。"
+  },
+  "起点示意图": {
+    "en": "Starting point",
+    "zh-Hant": "起點示意圖"
+  },
+  "经过学习空间，在路口按地标右转。": {
+    "en": "Pass the learning space and turn right at the landmark.",
+    "zh-Hant": "經過學習空間，在路口按地標右轉。"
+  },
+  "乘电梯前往连通楼层": {
+    "en": "Take the lift to the connecting level",
+    "zh-Hant": "乘電梯前往連通樓層"
+  },
+  "找到电梯，对照楼层指示换层。": {
+    "en": "Find the lift and follow the floor signs to the connecting level.",
+    "zh-Hant": "找到電梯，對照樓層指示換層。"
+  },
+  "辨认楼层出口，沿指示通道继续前进。": {
+    "en": "Identify the floor exit and continue along the passage.",
+    "zh-Hant": "辨認樓層出口，沿指示通道繼續前進。"
+  },
+  "找到本部大楼入口": {
+    "en": "Find the Main Building entrance",
+    "zh-Hant": "找到本部大樓入口"
+  },
+  "对照配图和标识，辨认目的地的入口。": {
+    "en": "Use the image and signs to identify the destination entrance.",
+    "zh-Hant": "對照配圖和標識，辨認目的地的入口。"
+  },
+  "到达本部大楼": {
+    "en": "Arrive at Main Building",
+    "zh-Hant": "到達本部大樓"
+  },
+  "对照终点配图，确认到达位置。": {
+    "en": "Compare the arrival image to confirm the destination.",
+    "zh-Hant": "對照終點配圖，確認到達位置。"
+  },
+  "清空搜索": {
+    "en": "Clear search",
+    "zh-Hant": "清空搜索"
+  },
+  "{count} 个地点": {
+    "en": "{count} places",
+    "zh-Hant": "{count} 個地點"
+  },
+  "试试建筑的英文名称、简称，或者换一个关键词。": {
+    "en": "Try an English building name, abbreviation or a different keyword.",
+    "zh-Hant": "試試建築的英文名稱、簡稱，或者換一個關鍵詞。"
+  },
+  "港大校园照片": {
+    "en": "HKU campus photograph",
+    "zh-Hant": "港大校園照片"
+  },
+  "校园实景": {
+    "en": "Campus photograph",
+    "zh-Hant": "校園實景"
+  },
+  "红砖、拱廊与钟楼，是这栋校园历史建筑的鲜明印记。从这里查看建筑位置，并辨认抵达入口。": {
+    "en": "Red brick, arcades and a clock tower distinguish this historic campus building. Check its location and identify the entrance here.",
+    "zh-Hant": "紅磚、拱廊與鐘樓，是這棟校園歷史建築的鮮明印記。從這裏查看建築位置，並辨認抵達入口。"
+  },
+  "在地图上确认地点位置，再查看入口与楼层提示。地点及入口资料目前为示例，后续由实地记录完善。": {
+    "en": "Locate the place on the map, then check the entrance and floor notes. These details are examples and will be updated after site visits.",
+    "zh-Hant": "在地圖上確認地點位置，再查看入口與樓層提示。地點及入口資料目前為示例，後續由實地記錄完善。"
+  },
+  "以下为流程示例": {
+    "en": "Illustrative access notes",
+    "zh-Hant": "以下為流程示例"
+  },
+  "照片：HKU Wallpapers。照片只作校园氛围展示，入口位置及路线请以后续实地记录为准。": {
+    "en": "Photos: HKU Wallpapers. Campus photos illustrate the setting. Entrances and routes will be confirmed through site visits.",
+    "zh-Hant": "照片：HKU Wallpapers。照片只作校園氛圍展示，入口位置及路線請以後續實地記錄為準。"
+  },
+  "从 {place} 出发": {
+    "en": "Start at {place}",
+    "zh-Hant": "從 {place} 出發"
+  },
+  "找到 {place} 入口": {
+    "en": "Find the entrance to {place}",
+    "zh-Hant": "找到 {place} 入口"
+  },
+  "到达 {place}": {
+    "en": "Arrive at {place}",
+    "zh-Hant": "到達 {place}"
+  },
+  "选择终点": {
+    "en": "Choose destination",
+    "zh-Hant": "選擇終點"
+  },
+  "选择起点": {
+    "en": "Choose starting point",
+    "zh-Hant": "選擇起點"
+  },
+  "480 m · 演示步行路线": {
+    "en": "480 m · sample walking route",
+    "zh-Hant": "480 m · 演示步行路線"
+  },
+  "步行途中按指引乘坐电梯或经过楼梯。": {
+    "en": "Follow the walking route, using lifts or stairs along the way.",
+    "zh-Hant": "步行途中按指引乘坐電梯或經過樓梯。"
+  },
+  "图文路线指引 · {count} 步": {
+    "en": "Illustrated directions · {count} steps",
+    "zh-Hant": "圖文路線指引 · {count} 步"
+  },
+  "每步配图待完善": {
+    "en": "Step photos to be added",
+    "zh-Hant": "每步配圖待完善"
+  },
+  "配图待补": {
+    "en": "Photo needed",
+    "zh-Hant": "配圖待補"
+  },
+  "距离、用时与通行方式均为演示，请勿据此实际导航。": {
+    "en": "Distance, time and access instructions are illustrative. This is not a real navigation route.",
+    "zh-Hant": "距離、用時與通行方式均為演示，請勿據此實際導航。"
+  },
+  "查看全部 {count} 步": {
+    "en": "View all {count} steps",
+    "zh-Hant": "查看全部 {count} 步"
+  },
+  "请选择不同地点": {
+    "en": "Choose different places",
+    "zh-Hant": "請選擇不同地點"
+  },
+  "起点和终点不能相同。": {
+    "en": "The starting point and destination must be different.",
+    "zh-Hant": "起點和終點不能相同。"
+  },
+  "校园地点照片": {
+    "en": "Campus place photograph",
+    "zh-Hant": "校園地點照片"
+  },
+  "后续接入 GPS 并获得定位授权后，可在地图上查看自己的实时位置。当前仅显示演示位置，尚未开启实时定位。": {
+    "en": "Once GPS is integrated and location access is granted, the map will show your live position. Only a sample position is available now.",
+    "zh-Hant": "後續接入 GPS 並獲得定位授權後，可在地圖上查看自己的實時位置。當前僅顯示演示位置，尚未開啓實時定位。"
+  },
+  "账号": {
+    "en": "Username",
+    "zh-Hant": "賬號"
+  },
+  "密码": {
+    "en": "Password",
+    "zh-Hant": "密碼"
+  },
+  "标题": {
+    "en": "Title",
+    "zh-Hant": "標題"
+  },
+  "正文": {
+    "en": "Content",
+    "zh-Hant": "正文"
+  },
+  "图片": {
+    "en": "Image",
+    "zh-Hant": "圖片"
+  },
+  "地点": {
+    "en": "Place",
+    "zh-Hant": "地點"
+  },
+  "链接": {
+    "en": "Link",
+    "zh-Hant": "鏈接"
+  },
+  "操作暂时未完成，请重试。": {
+    "en": "The action could not be completed. Please try again.",
+    "zh-Hant": "操作暫時未完成，請重試。"
+  },
+  "服务暂时不可用，请稍后重试。": {
+    "en": "The service is unavailable. Please try again later.",
+    "zh-Hant": "服務暫時不可用，請稍後重試。"
+  },
+  "暂时连不上服务器，请检查网络后重试。": {
+    "en": "Cannot connect to the server. Check your connection and try again.",
+    "zh-Hant": "暫時連不上服務器，請檢查網絡後重試。"
+  },
+  "地点纠错": {
+    "en": "Place correction",
+    "zh-Hant": "地點糾錯"
+  },
+  "路线纠错": {
+    "en": "Route correction",
+    "zh-Hant": "路線糾錯"
+  },
+  "待审核": {
+    "en": "Pending",
+    "zh-Hant": "待審核"
+  },
+  "已通过": {
+    "en": "Approved",
+    "zh-Hant": "已通過"
+  },
+  "需修改": {
+    "en": "Changes requested",
+    "zh-Hant": "需修改"
+  },
+  "账号使用 3–32 位字母、数字或下划线。": {
+    "en": "Use 3–32 letters, numbers or underscores for your username.",
+    "zh-Hant": "賬號使用 3–32 位字母、數字或下劃線。"
+  },
+  "请输入密码。": {
+    "en": "Enter your password.",
+    "zh-Hant": "請輸入密碼。"
+  },
+  "两次输入的密码不一致。": {
+    "en": "The passwords do not match.",
+    "zh-Hant": "兩次輸入的密碼不一致。"
+  },
+  "一起补全校园生活": {
+    "en": "Share your campus discoveries",
+    "zh-Hant": "一起補全校園生活"
+  },
+  "登录后，分享你的发现": {
+    "en": "Sign in to share your discoveries",
+    "zh-Hant": "登錄後，分享你的發現"
+  },
+  "账号用于投稿和查看审核结果。地图与学生指南随时可看。": {
+    "en": "Use an account to submit content and check reviews. The map and student guide are always available.",
+    "zh-Hant": "賬號用於投稿和查看審核結果。地圖與學生指南隨時可看。"
+  },
+  "3–32 位字母、数字或下划线，不区分大小写": {
+    "en": "3–32 letters, numbers or underscores; case insensitive",
+    "zh-Hant": "3–32 位字母、數字或下劃線，不區分大小寫"
+  },
+  "至少 8 位，避免使用常见密码或纯数字": {
+    "en": "At least 8 characters; avoid common passwords and numbers alone",
+    "zh-Hant": "至少 8 位，避免使用常見密碼或純數字"
+  },
+  "再次输入密码": {
+    "en": "Confirm password",
+    "zh-Hant": "再次輸入密碼"
+  },
+  "注册并登录": {
+    "en": "Register & sign in",
+    "zh-Hant": "註冊並登錄"
+  },
+  "登录": {
+    "en": "Sign in",
+    "zh-Hant": "登錄"
+  },
+  "已有账号？去登录": {
+    "en": "Have an account? Sign in",
+    "zh-Hant": "已有賬號？去登錄"
+  },
+  "还没有账号？去注册": {
+    "en": "New here? Register",
+    "zh-Hant": "還沒有賬號？去註冊"
+  },
+  "忘记账号或密码？使用恢复码找回": {
+    "en": "Forgot your username or password? Use a recovery code",
+    "zh-Hant": "忘記賬號或密碼？使用恢復碼找回"
+  },
+  "登录已过期，请重新登录。": {
+    "en": "Your session has expired. Please sign in again.",
+    "zh-Hant": "登錄已過期，請重新登錄。"
+  },
+  "已保存恢复码？": {
+    "en": "Have you saved the recovery code?",
+    "zh-Hant": "已保存恢復碼？"
+  },
+  "离开后无法再次查看，请先保存到自己的安全位置。": {
+    "en": "You cannot view this code again after leaving. Save it somewhere safe first.",
+    "zh-Hant": "離開後無法再次查看，請先保存到自己的安全位置。"
+  },
+  "已保存，返回": {
+    "en": "Saved, go back",
+    "zh-Hant": "已保存，返回"
+  },
+  "放弃这次编辑？": {
+    "en": "Discard this edit?",
+    "zh-Hant": "放棄這次編輯？"
+  },
+  "未提交的修改不会保存。": {
+    "en": "Unsubmitted changes will not be saved.",
+    "zh-Hant": "未提交的修改不會保存。"
+  },
+  "继续编辑": {
+    "en": "Keep editing",
+    "zh-Hant": "繼續編輯"
+  },
+  "放弃编辑": {
+    "en": "Discard changes",
+    "zh-Hant": "放棄編輯"
+  },
+  "这条内容已经下线，暂时无法申请修改。": {
+    "en": "This content is no longer published and cannot be edited now.",
+    "zh-Hant": "這條內容已經下線，暫時無法申請修改。"
+  },
+  "图片需小于 5 MB，请选择较小的图片。": {
+    "en": "Choose an image smaller than 5 MB.",
+    "zh-Hant": "圖片需小於 5 MB，請選擇較小的圖片。"
+  },
+  "暂时无法选择图片，请重试。": {
+    "en": "Could not select an image. Please try again.",
+    "zh-Hant": "暫時無法選擇圖片，請重試。"
+  },
+  "标题至少 3 个字，正文至少 10 个字。": {
+    "en": "The title needs at least 3 characters and the content at least 10.",
+    "zh-Hant": "標題至少 3 個字，正文至少 10 個字。"
+  },
+  "请写明需要纠正的地点或路线。": {
+    "en": "Specify the place or route that needs correcting.",
+    "zh-Hant": "請寫明需要糾正的地點或路線。"
+  },
+  "请填写娱乐群的有效邀请链接。": {
+    "en": "Enter a valid group invitation link.",
+    "zh-Hant": "請填寫娛樂羣的有效邀請鏈接。"
+  },
+  "链接需要以 http:// 或 https:// 开头。": {
+    "en": "Links must start with http:// or https://.",
+    "zh-Hant": "鏈接需要以 http:// 或 https:// 開頭。"
+  },
+  "退出当前账号？": {
+    "en": "Sign out of this account?",
+    "zh-Hant": "退出當前賬號？"
+  },
+  "下次投稿时需要重新登录。": {
+    "en": "You will need to sign in again to submit content.",
+    "zh-Hant": "下次投稿時需要重新登錄。"
+  },
+  "退出登录": {
+    "en": "Sign out",
+    "zh-Hant": "退出登錄"
+  },
+  "返回 App": {
+    "en": "Back to app",
+    "zh-Hant": "返回 App"
+  },
+  "返回我的投稿": {
+    "en": "Back to my submissions",
+    "zh-Hant": "返回我的投稿"
+  },
+  "保存恢复码": {
+    "en": "Save recovery code",
+    "zh-Hant": "保存恢復碼"
+  },
+  "找回账号": {
+    "en": "Recover account",
+    "zh-Hant": "找回賬號"
+  },
+  "申请修改已发布内容": {
+    "en": "Request an edit to published content",
+    "zh-Hant": "申請修改已發佈內容"
+  },
+  "修改投稿": {
+    "en": "Edit submission",
+    "zh-Hant": "修改投稿"
+  },
+  "新投稿": {
+    "en": "New submission",
+    "zh-Hant": "新投稿"
+  },
+  "投稿详情": {
+    "en": "Submission details",
+    "zh-Hant": "投稿詳情"
+  },
+  "校园共建": {
+    "en": "Campus community",
+    "zh-Hant": "校園共建"
+  },
+  "刷新投稿状态": {
+    "en": "Refresh submission status",
+    "zh-Hant": "刷新投稿狀態"
+  },
+  "正在读取登录信息…": {
+    "en": "Loading your account…",
+    "zh-Hant": "正在讀取登錄信息…"
+  },
+  "你的发现，大家受用": {
+    "en": "Your discoveries, shared with everyone",
+    "zh-Hant": "你的發現，大家受用"
+  },
+  "分享好吃的、一起玩的，或帮忙补充地点和路线。审核通过后会发布给大家。": {
+    "en": "Share food, activities, or corrections to places and routes. Approved submissions are published for everyone.",
+    "zh-Hant": "分享好吃的、一起玩的，或幫忙補充地點和路線。審核通過後會發布給大家。"
+  },
+  "当前账号 ·": {
+    "en": "Current account · ",
+    "zh-Hant": "當前賬號 ·"
+  },
+  "这个账号还没有恢复码。到「账号与安全」保存一份，方便找回账号。": {
+    "en": "This account has no recovery code. Generate and save one in Account & security.",
+    "zh-Hant": "這個賬號還沒有恢復碼。到「賬號與安全」保存一份，方便找回賬號。"
+  },
+  "写一条新投稿": {
+    "en": "Write a new submission",
+    "zh-Hant": "寫一條新投稿"
+  },
+  "我的投稿": {
+    "en": "My submissions",
+    "zh-Hant": "我的投稿"
+  },
+  "还没有投稿。第一个校园发现，从这里开始。": {
+    "en": "No submissions yet. Share your first campus discovery here.",
+    "zh-Hant": "還沒有投稿。第一個校園發現，從這裏開始。"
+  },
+  "内容修改申请 ·": {
+    "en": "Edit request · ",
+    "zh-Hant": "內容修改申請 ·"
+  },
+  "加载更早的投稿": {
+    "en": "Load earlier submissions",
+    "zh-Hant": "加載更早的投稿"
+  },
+  "管理员建议": {
+    "en": "Moderator feedback",
+    "zh-Hant": "管理員建議"
+  },
+  "提交的是一个新版本。审核通过前，大家仍会看到当前已发布的内容。": {
+    "en": "You are submitting a new version. The current published version stays visible until approval.",
+    "zh-Hant": "提交的是一個新版本。審核通過前，大家仍會看到當前已發佈的內容。"
+  },
+  "投稿类型": {
+    "en": "Submission type",
+    "zh-Hant": "投稿類型"
+  },
+  "例如：午间饭堂的一份好味道": {
+    "en": "e.g. A favourite lunch at the canteen",
+    "zh-Hant": "例如：午間飯堂的一份好味道"
+  },
+  "相关地点或路线（必填）": {
+    "en": "Place or route (required)",
+    "zh-Hant": "相關地點或路線（必填）"
+  },
+  "相关地点（选填）": {
+    "en": "Place (optional)",
+    "zh-Hant": "相關地點（選填）"
+  },
+  "建筑、楼层、入口或起终点": {
+    "en": "Building, floor, entrance or route endpoints",
+    "zh-Hant": "建築、樓層、入口或起終點"
+  },
+  "至少 10 个字。写明亲身体验、资料来源或需要修改的地方。": {
+    "en": "At least 10 characters. Describe your experience, source or correction.",
+    "zh-Hant": "至少 10 個字。寫明親身體驗、資料來源或需要修改的地方。"
+  },
+  "邀请链接（必填）": {
+    "en": "Invitation link (required)",
+    "zh-Hant": "邀請鏈接（必填）"
+  },
+  "相关链接（选填）": {
+    "en": "Related link (optional)",
+    "zh-Hant": "相關鏈接（選填）"
+  },
+  "配图（选填）": {
+    "en": "Image (optional)",
+    "zh-Hant": "配圖（選填）"
+  },
+  "一张 JPEG、PNG 或 WebP，最多 5 MB。": {
+    "en": "One JPEG, PNG or WebP image, up to 5 MB.",
+    "zh-Hant": "一張 JPEG、PNG 或 WebP，最多 5 MB。"
+  },
+  "投稿配图预览": {
+    "en": "Submission image preview",
+    "zh-Hant": "投稿配圖預覽"
+  },
+  "更换图片": {
+    "en": "Replace image",
+    "zh-Hant": "更換圖片"
+  },
+  "从相册选择图片": {
+    "en": "Choose from photos",
+    "zh-Hant": "從相冊選擇圖片"
+  },
+  "移除图片": {
+    "en": "Remove image",
+    "zh-Hant": "移除圖片"
+  },
+  "投稿和配图经审核后公开，请仅提交可以分享的内容。地点与路线纠错通过后会先作为指南提示发布，地图目前仍为演示。": {
+    "en": "Submissions and images become public after review. Share only content you may publish. Approved place and route corrections appear as guide notes while the map remains a demo.",
+    "zh-Hant": "投稿和配圖經審核後公開，請僅提交可以分享的內容。地點與路線糾錯通過後會先作為指南提示發佈，地圖目前仍為演示。"
+  },
+  "提交修改申请": {
+    "en": "Submit edit request",
+    "zh-Hant": "提交修改申請"
+  },
+  "重新提交审核": {
+    "en": "Resubmit for review",
+    "zh-Hant": "重新提交審核"
+  },
+  "提交审核": {
+    "en": "Submit for review",
+    "zh-Hant": "提交審核"
+  },
+  "已收到，等待管理员审核": {
+    "en": "Received, awaiting review",
+    "zh-Hant": "已收到，等待管理員審核"
+  },
+  "审核通过": {
+    "en": "Approved",
+    "zh-Hant": "審核通過"
+  },
+  "修改后可以重新提交": {
+    "en": "Revise and resubmit",
+    "zh-Hant": "修改後可以重新提交"
+  },
+  "审核结果会显示在这里，下拉即可刷新。": {
+    "en": "The review result will appear here. Pull down to refresh.",
+    "zh-Hant": "審核結果會顯示在這裏，下拉即可刷新。"
+  },
+  "内容已发布到对应的学生指南分类。": {
+    "en": "Your content is published in the relevant student guide category.",
+    "zh-Hant": "內容已發佈到對應的學生指南分類。"
+  },
+  "相关地点或路线：": {
+    "en": "Related place or route: ",
+    "zh-Hant": "相關地點或路線："
+  },
+  "投稿配图": {
+    "en": "Submission image",
+    "zh-Hant": "投稿配圖"
+  },
+  "按建议修改并重交": {
+    "en": "Revise using feedback & resubmit",
+    "zh-Hant": "按建議修改並重交"
+  },
+  "查看当前修改申请": {
+    "en": "View current edit request",
+    "zh-Hant": "查看當前修改申請"
+  },
+  "此内容已下线，目前不会显示在公共指南中。": {
+    "en": "This content is unpublished and no longer appears in the public guide.",
+    "zh-Hant": "此內容已下線，目前不會顯示在公共指南中。"
+  },
+  "暂时无法打开链接": {
+    "en": "Could not open this link",
+    "zh-Hant": "暫時無法打開鏈接"
+  },
+  "请检查网络后重试。": {
+    "en": "Check your connection and try again.",
+    "zh-Hant": "請檢查網絡後重試。"
+  },
+  "刷新学生指南": {
+    "en": "Refresh student guide",
+    "zh-Hant": "刷新學生指南"
+  },
+  "正在读取学生指南…": {
+    "en": "Loading student guide…",
+    "zh-Hant": "正在讀取學生指南…"
+  },
+  "当前保留上次读取的内容。": {
+    "en": "Previously loaded content is still available.",
+    "zh-Hant": "當前保留上次讀取的內容。"
+  },
+  "重新加载": {
+    "en": "Try again",
+    "zh-Hant": "重新加載"
+  },
+  "还没有发布的学生指南，稍后再来看看。": {
+    "en": "No student guide content is published yet. Check back later.",
+    "zh-Hant": "還沒有發佈的學生指南，稍後再來看看。"
+  },
+  "内容示例": {
+    "en": "Example content",
+    "zh-Hant": "內容示例"
+  },
+  "取消收藏：{title}": {
+    "en": "Unsave: {title}",
+    "zh-Hant": "取消收藏：{title}"
+  },
+  "收藏：{title}": {
+    "en": "Save: {title}",
+    "zh-Hant": "收藏：{title}"
+  },
+  "配图": {
+    "en": "Image",
+    "zh-Hant": "配圖"
+  },
+  "配图暂时无法加载": {
+    "en": "Image could not be loaded",
+    "zh-Hant": "配圖暫時無法加載"
+  },
+  "店铺与餐点实拍待补充": {
+    "en": "Venue and food photos to be added",
+    "zh-Hant": "店鋪與餐點實拍待補充"
+  },
+  "打开入群链接": {
+    "en": "Open invitation link",
+    "zh-Hant": "打開入羣鏈接"
+  },
+  "查看相关链接": {
+    "en": "Open related link",
+    "zh-Hant": "查看相關鏈接"
+  },
+  "邀请入口待群主补充": {
+    "en": "Invitation link to be added by the group organiser",
+    "zh-Hant": "邀請入口待羣主補充"
+  },
+  "返回学生指南": {
+    "en": "Back to student guide",
+    "zh-Hant": "返回學生指南"
+  },
+  "这个分类还没有发布内容。": {
+    "en": "No content is published in this category yet.",
+    "zh-Hant": "這個分類還沒有發佈內容。"
+  },
+  "第一次来，可以先从地图开始": {
+    "en": "New here? Start with the map",
+    "zh-Hant": "第一次來，可以先從地圖開始"
+  },
+  "搜索地点、确认入口，再跟着图文步骤认识校园。": {
+    "en": "Find a place, check its entrance and explore using illustrated steps.",
+    "zh-Hant": "搜索地點、確認入口，再跟着圖文步驟認識校園。"
+  },
+  "去地图找路": {
+    "en": "Find a route on the map",
+    "zh-Hant": "去地圖找路"
+  },
+  "分享发现，一起更新指南": {
+    "en": "Share discoveries and update the guide",
+    "zh-Hant": "分享發現，一起更新指南"
+  },
+  "投稿 · 地点纠错 · 查看审核进度": {
+    "en": "Submit · Correct places · Track reviews",
+    "zh-Hant": "投稿 · 地點糾錯 · 查看審核進度"
+  },
+  "向下拉可以刷新内容。点内容旁的书签，把常用信息留在本机。": {
+    "en": "Pull down to refresh. Tap a bookmark to save useful information on this device.",
+    "zh-Hant": "向下拉可以刷新內容。點內容旁的書籤，把常用信息留在本機。"
+  },
+  "还没有收藏地点。在地点旁点书签试试。": {
+    "en": "No saved places yet. Tap a bookmark beside a place to save it.",
+    "zh-Hant": "還沒有收藏地點。在地點旁點書籤試試。"
+  },
+  "还没有浏览记录。打开地点详情后会出现在这里。": {
+    "en": "No recent places yet. Open a place's details to add it here.",
+    "zh-Hant": "還沒有瀏覽記錄。打開地點詳情後會出現在這裏。"
+  },
+  "清空这台设备的浏览记录？": {
+    "en": "Clear recent places on this device?",
+    "zh-Hant": "清空這台設備的瀏覽記錄？"
+  },
+  "确认清空": {
+    "en": "Clear history",
+    "zh-Hant": "確認清空"
+  },
+  "清空浏览记录": {
+    "en": "Clear recent places",
+    "zh-Hant": "清空瀏覽記錄"
+  },
+  "学生指南收藏": {
+    "en": "Saved guide items",
+    "zh-Hant": "學生指南收藏"
+  },
+  "在学生指南中点书签，把常用内容留在这里。": {
+    "en": "Tap bookmarks in the student guide to save useful content here.",
+    "zh-Hant": "在學生指南中點書籤，把常用內容留在這裏。"
+  },
+  "看地图、找地点和查路线，都不需要注册账号。": {
+    "en": "Browse the map, places and routes without an account.",
+    "zh-Hant": "看地圖、找地點和查路線，都不需要註冊賬號。"
+  },
+  "显示演示位置": {
+    "en": "Show sample position",
+    "zh-Hant": "顯示演示位置"
+  },
+  "仅展示蓝点效果，GPS 实时定位待接入。": {
+    "en": "Displays a sample blue dot. Live GPS is planned.",
+    "zh-Hant": "僅展示藍點效果，GPS 實時定位待接入。"
+  },
+  "正在更新学生指南…": {
+    "en": "Updating student guide…",
+    "zh-Hant": "正在更新學生指南…"
+  },
+  "刷新学生指南和已发布的投稿内容": {
+    "en": "Refresh the guide and published submissions",
+    "zh-Hant": "刷新學生指南和已發佈的投稿內容"
+  },
+  "查看校园地图原图": {
+    "en": "View original campus map",
+    "zh-Hant": "查看校園地圖原圖"
+  },
+  "从地图搜索框输入名称、英文或简称，也可以直接点击地图标记。打开地点详情后查看步行路线；起点和终点可以更换，每一步右侧都有配图位置。收藏及浏览记录保存在本机。地图、距离和路线目前为演示，暂未接入 GPS。": {
+    "en": "Search by Chinese or English name or abbreviation, or tap a map marker. Open place details to view a walking route. Change either endpoint and follow the illustrated steps. Saved items and recent places stay on this device. Map positions, distances and routes are illustrative; GPS is not connected yet.",
+    "zh-Hant": "從地圖搜索框輸入名稱、英文或簡稱，也可以直接點擊地圖標記。打開地點詳情後查看步行路線；起點和終點可以更換，每一步右側都有配圖位置。收藏及瀏覽記錄保存在本機。地圖、距離和路線目前為演示，暫未接入 GPS。"
+  },
+  "校园共建与我的投稿": {
+    "en": "Community & my submissions",
+    "zh-Hant": "校園共建與我的投稿"
+  },
+  "管理员内容维护": {
+    "en": "Administrator content management",
+    "zh-Hant": "管理員內容維護"
+  },
+  "管理员登录后，可以编辑和发布指南内容。": {
+    "en": "Administrators can sign in to edit and publish guide content.",
+    "zh-Hant": "管理員登錄後，可以編輯和發佈指南內容。"
+  },
+  "独立校园地图与学生指南项目，并非香港大学官方应用。校园照片来自 HKU Wallpapers；地图、入口、距离和路线资料目前仅为演示。投稿经管理员审核后发布，原文不会随界面语言改变。": {
+    "en": "An independent campus map and student guide, not an official HKU app. Campus photos: HKU Wallpapers. Map positions, entrances, distances and routes are illustrative. Submissions are published after review and stay in their original language.",
+    "zh-Hant": "獨立校園地圖與學生指南項目，並非香港大學官方應用。校園照片來自 HKU Wallpapers；地圖、入口、距離和路線資料目前僅為演示。投稿經管理員審核後發佈，原文不會隨界面語言改變。"
+  },
+  "校园地图原图": {
+    "en": "Original campus map",
+    "zh-Hant": "校園地圖原圖"
+  },
+  "香港大学校园地图原图": {
+    "en": "Original University of Hong Kong campus map",
+    "zh-Hant": "香港大學校園地圖原圖"
+  },
+  "语言暂时无法保存": {
+    "en": "Could not save your language",
+    "zh-Hant": "語言暫時無法保存"
+  },
+  "本次切换仍然有效，重新打开后请检查语言设置。": {
+    "en": "Your selection still applies now. Check the language setting when you reopen the app.",
+    "zh-Hant": "本次切換仍然有效，重新打開後請檢查語言設置。"
+  },
+  "简体中文": {
+    "en": "Simplified Chinese",
+    "zh-Hant": "簡體中文"
+  },
+  "简体": {
+    "en": "Simplified",
+    "zh-Hant": "簡體"
+  },
+  "繁體中文": {
+    "en": "Traditional Chinese",
+    "zh-Hant": "繁體中文"
+  },
+  "繁體": {
+    "en": "Traditional",
+    "zh-Hant": "繁體"
+  },
+  "登录信息暂时无法读取，请重新打开 App。": {
+    "en": "Could not read your account information. Please reopen the app.",
+    "zh-Hant": "登錄信息暫時無法讀取，請重新打開 App。"
+  },
+  "无法安全保存登录信息，请检查设备后重试。": {
+    "en": "Could not securely save your account information. Check your device and try again.",
+    "zh-Hant": "無法安全保存登錄信息，請檢查設備後重試。"
+  },
+  "请先登录。": {
+    "en": "Please sign in first.",
+    "zh-Hant": "請先登錄。"
+  },
+  "请重新打开 App 后再登录。": {
+    "en": "Reopen the app before signing in again.",
+    "zh-Hant": "請重新打開 App 後再登錄。"
+  },
+  "暂时无法连接学生指南，请稍后重试。": {
+    "en": "Cannot connect to the student guide. Please try again later.",
+    "zh-Hant": "暫時無法連接學生指南，請稍後重試。"
+  },
+  "门户、课程平台与校内服务": {
+    "en": "Portal, courses and campus services",
+    "zh-Hant": "門户、課程平台與校內服務"
+  },
+  "常用校方服务，点击后打开对应官方网站。": {
+    "en": "Tap to open official university services.",
+    "zh-Hant": "常用校方服務，點擊後打開對應官方網站。"
+  },
+  "课表、选课及学生事务": {
+    "en": "Timetables, course selection and student matters",
+    "zh-Hant": "課表、選課及學生事務"
+  },
+  "课程资料、作业及课程活动": {
+    "en": "Course materials, assignments and learning activities",
+    "zh-Hant": "課程資料、作業及課程活動"
+  },
+  "馆藏检索与学习空间": {
+    "en": "Library search and study spaces",
+    "zh-Hant": "館藏檢索與學習空間"
+  },
+  "学生支援与校园生活资讯": {
+    "en": "Student support and campus life",
+    "zh-Hant": "學生支援與校園生活資訊"
+  },
+  "校园网络、账户与技术帮助": {
+    "en": "Campus networks, accounts and IT support",
+    "zh-Hant": "校園網絡、賬户與技術幫助"
+  },
+  "校内餐饮地点与服务资讯": {
+    "en": "Campus dining locations and service information",
+    "zh-Hant": "校內餐飲地點與服務資訊"
+  },
+  "入学准备、找课室和校园日常": {
+    "en": "Getting ready, finding classrooms and daily life",
+    "zh-Hant": "入學準備、找課室和校園日常"
+  },
+  "入学准备与校园日常的小建议，具体安排以校方通知为准。": {
+    "en": "Tips for getting ready and settling into campus life. Follow official notices for specific arrangements.",
+    "zh-Hant": "入學準備與校園日常的小建議，具體安排以校方通知為準。"
+  },
+  "把注册、迎新、学生证和课程通知集中保存，按收到的校方通知逐项确认。": {
+    "en": "Keep registration, orientation, student card and course notices together. Confirm each item against the university's instructions.",
+    "zh-Hant": "把註冊、迎新、學生證和課程通知集中保存，按收到的校方通知逐項確認。"
+  },
+  "把校方门户与课程平台加入书签，提前确认账户、邮箱和校园网络能正常使用。": {
+    "en": "Bookmark the university portal and course platform. Check your account, email and campus network access in advance.",
+    "zh-Hant": "把校方門户與課程平台加入書籤，提前確認賬户、郵箱和校園網絡能正常使用。"
+  },
+  "把课表上的楼名与地图对照，提前查入口和楼层，给第一次找课室多留一点时间。": {
+    "en": "Match your timetable's building names to the map. Check entrances and floors, and leave extra time for your first visit.",
+    "zh-Hant": "把課表上的樓名與地圖對照，提前查入口和樓層，給第一次找課室多留一點時間。"
+  },
+  "去图书馆、餐厅或服务柜台前，先查看对应官网的开放安排。": {
+    "en": "Check official opening arrangements before visiting a library, restaurant or service desk.",
+    "zh-Hant": "去圖書館、餐廳或服務櫃枱前，先查看對應官網的開放安排。"
+  },
+  "需要帮助时，先找到校方支援": {
+    "en": "Know where to find university support",
+    "zh-Hant": "需要幫助時，先找到校方支援"
+  },
+  "把 CEDARS、学院及校园 IT 服务加入常用链接。": {
+    "en": "Save links to CEDARS, your faculty and campus IT support.",
+    "zh-Hant": "把 CEDARS、學院及校園 IT 服務加入常用鏈接。"
+  },
+  "午餐、咖啡轻食与聚餐": {
+    "en": "Lunch, coffee, snacks and meals together",
+    "zh-Hant": "午餐、咖啡輕食與聚餐"
+  },
+  "同学们的吃喝分享。标记为示例的内容等待补充真实推荐。": {
+    "en": "Food discoveries from students. Entries marked as examples await real recommendations.",
+    "zh-Hant": "同學們的吃喝分享。標記為示例的內容等待補充真實推薦。"
+  },
+  "赶课午餐": {
+    "en": "Lunch between classes",
+    "zh-Hant": "趕課午餐"
+  },
+  "先看下一堂课在哪栋楼，再挑附近的餐饮点。真实推荐可以补充店名、推荐菜及等餐体验。": {
+    "en": "Check where your next class is, then find food nearby. Real recommendations can include venue names, favourite dishes and waiting times.",
+    "zh-Hant": "先看下一堂課在哪棟樓，再挑附近的餐飲點。真實推薦可以補充店名、推薦菜及等餐體驗。"
+  },
+  "分享课间歇脚的去处时，可以补充饮品照片、座位情况和店铺位置。": {
+    "en": "Share a place to relax between classes, including drink photos, seating and its location.",
+    "zh-Hant": "分享課間歇腳的去處時，可以補充飲品照片、座位情況和店鋪位置。"
+  },
+  "周末聚餐": {
+    "en": "Weekend meals together",
+    "zh-Hant": "週末聚餐"
+  },
+  "除了推荐菜，也可以写清店铺入口和集合位置，方便大家见面。": {
+    "en": "Alongside favourite dishes, describe the entrance and meeting point so everyone can find it.",
+    "zh-Hant": "除了推薦菜，也可以寫清店鋪入口和集合位置，方便大家見面。"
+  },
+  "徒步、运动、桌游与城市探索": {
+    "en": "Hiking, sports, board games and city walks",
+    "zh-Hant": "徒步、運動、桌遊與城市探索"
+  },
+  "找到一起玩的同好。有效邀请入口由群主提供。": {
+    "en": "Find people who share your interests. Group organisers provide valid invitation links.",
+    "zh-Hant": "找到一起玩的同好。有效邀請入口由羣主提供。"
+  },
+  "一起探索步行路线，交流路线难度和集合地点。": {
+    "en": "Explore walking routes together and share route difficulty and meeting points.",
+    "zh-Hant": "一起探索步行路線，交流路線難度和集合地點。"
+  },
+  "寻找一起运动的同学，交流活动时间和场地。": {
+    "en": "Find students to play sports with and arrange times and venues.",
+    "zh-Hant": "尋找一起運動的同學，交流活動時間和場地。"
+  },
+  "交流喜欢的桌游与电影，约同学参加线下活动。": {
+    "en": "Talk about favourite board games and films and arrange activities together.",
+    "zh-Hant": "交流喜歡的桌遊與電影，約同學參加線下活動。"
+  },
+  "分享展览和周末出行灵感，找到兴趣相近的同学。": {
+    "en": "Share exhibitions and weekend ideas with students who have similar interests.",
+    "zh-Hant": "分享展覽和週末出行靈感，找到興趣相近的同學。"
+  },
+  "当前密码不正确。": {
+    "en": "The current password is incorrect.",
+    "zh-Hant": "當前密碼不正確。"
+  },
+  "新密码需要与当前密码不同。": {
+    "en": "Choose a new password different from your current password.",
+    "zh-Hant": "新密碼需要與當前密碼不同。"
+  },
+  "恢复码无效或已被替换，请检查后重试。": {
+    "en": "The recovery code is invalid or has been replaced. Check it and try again.",
+    "zh-Hant": "恢復碼無效或已被替換，請檢查後重試。"
+  },
+  "登录状态已失效，请重新登录。": {
+    "en": "Your session has expired. Please sign in again.",
+    "zh-Hant": "登錄狀態已失效，請重新登錄。"
+  },
+  "图片请控制在 5 MB 以内。": {
+    "en": "Keep your image within 5 MB.",
+    "zh-Hant": "圖片請控制在 5 MB 以內。"
+  },
+  "请选择 JPG、PNG 或 WebP 静态图片。": {
+    "en": "Choose a still JPG, PNG or WebP image.",
+    "zh-Hant": "請選擇 JPG、PNG 或 WebP 靜態圖片。"
+  },
+  "图片分辨率过大，请缩小后再上传。": {
+    "en": "The image resolution is too large. Resize it before uploading.",
+    "zh-Hant": "圖片分辨率過大，請縮小後再上傳。"
+  },
+  "无法读取这张图片，请换一张重试。": {
+    "en": "Could not read this image. Choose another and try again.",
+    "zh-Hant": "無法讀取這張圖片，請換一張重試。"
+  },
+  "账号使用 3–32 位小写字母、数字或下划线。": {
+    "en": "Use 3–32 lowercase letters, numbers or underscores for your username.",
+    "zh-Hant": "賬號使用 3–32 位小寫字母、數字或下劃線。"
+  },
+  "请提交账号和密码。": {
+    "en": "Enter a username and password.",
+    "zh-Hant": "請提交賬號和密碼。"
+  },
+  "这个账号已被使用。": {
+    "en": "This username is already taken.",
+    "zh-Hant": "這個賬號已被使用。"
+  },
+  "娱乐群资料需要提供有效邀请链接。": {
+    "en": "Provide a valid group invitation link.",
+    "zh-Hant": "娛樂羣資料需要提供有效邀請鏈接。"
+  },
+  "请写明相关地点或路线。": {
+    "en": "Specify the related place or route.",
+    "zh-Hant": "請寫明相關地點或路線。"
+  },
+  "内容状态已更新，请刷新后重试。": {
+    "en": "The content status has changed. Refresh and try again.",
+    "zh-Hant": "內容狀態已更新，請刷新後重試。"
+  },
+  "图片空间已满，请先移除配图提交，并联系管理员清理空间。": {
+    "en": "Image storage is full. Submit without an image and contact the administrator.",
+    "zh-Hant": "圖片空間已滿，請先移除配圖提交，並聯系管理員清理空間。"
+  },
+  "缺少投稿编号，请重新打开投稿表单。": {
+    "en": "The submission identifier is missing. Reopen the submission form.",
+    "zh-Hant": "缺少投稿編號，請重新打開投稿表單。"
+  },
+  "上一次投稿已经收到，请先查看我的投稿。": {
+    "en": "Your previous submission has been received. Check My submissions first.",
+    "zh-Hant": "上一次投稿已經收到，請先查看我的投稿。"
+  },
+  "这条内容已有未完成的修改申请，请先在我的投稿中处理。": {
+    "en": "An edit request is already open for this content. Check My submissions first.",
+    "zh-Hant": "這條內容已有未完成的修改申請，請先在我的投稿中處理。"
+  },
+  "只有本人已发布的内容可以申请修改。": {
+    "en": "You can request edits only to your own published content.",
+    "zh-Hant": "只有本人已發佈的內容可以申請修改。"
+  },
+  "公开内容已更新或下线，请刷新投稿详情后再申请修改。": {
+    "en": "The published content has changed or been removed. Refresh its details before requesting an edit.",
+    "zh-Hant": "公開內容已更新或下線，請刷新投稿詳情後再申請修改。"
+  },
+  "修改申请不能更换投稿类型。": {
+    "en": "An edit request cannot change the submission type.",
+    "zh-Hant": "修改申請不能更換投稿類型。"
+  },
+  "请刷新投稿状态，只有需修改的投稿可以重新提交。": {
+    "en": "Refresh the submission status. Only submissions marked Changes requested can be resubmitted.",
+    "zh-Hant": "請刷新投稿狀態，只有需修改的投稿可以重新提交。"
+  },
+  "原内容已更新或下线，请刷新后重新查看修改申请。": {
+    "en": "The original content has changed or been removed. Refresh to review the edit request.",
+    "zh-Hant": "原內容已更新或下線，請刷新後重新查看修改申請。"
+  },
+  "账号或密码不正确。": {
+    "en": "The username or password is incorrect.",
+    "zh-Hant": "賬號或密碼不正確。"
+  },
+  "这个密码太常见了。": {
+    "en": "This password is too common.",
+    "zh-Hant": "這個密碼太常見了。"
+  },
+  "密码只包含数字。": {
+    "en": "The password contains only numbers.",
+    "zh-Hant": "密碼只包含數字。"
+  },
+  "密码不能全都是数字。": {
+    "en": "The password cannot consist entirely of numbers.",
+    "zh-Hant": "密碼不能全都是數字。"
+  },
+  "密码长度太短。密码必须包含至少 8 个字符。": {
+    "en": "This password is too short. It must contain at least 8 characters.",
+    "zh-Hant": "密碼長度太短。密碼必須包含至少 8 個字符。"
+  },
+  "这个密码与 用户名 太相似了。": {
+    "en": "This password is too similar to the username.",
+    "zh-Hant": "這個密碼與 用户名 太相似了。"
+  },
+  "密码跟 用户名 太相似了。": {
+    "en": "This password is too similar to the username.",
+    "zh-Hant": "密碼跟 用户名 太相似了。"
+  },
+  "该字段是必填项。": {
+    "en": "This field is required.",
+    "zh-Hant": "該字段是必填項。"
+  },
+  "该字段不能为空。": {
+    "en": "This field cannot be blank.",
+    "zh-Hant": "該字段不能為空。"
+  },
+  "该字段不能为 null。": {
+    "en": "This field cannot be null.",
+    "zh-Hant": "該字段不能為 null。"
+  },
+  "请输入合法的 URL。": {
+    "en": "Enter a valid URL.",
+    "zh-Hant": "請輸入合法的 URL。"
+  },
+  "请确保这个字段不能多于 {count} 个字符。": {
+    "en": "Use no more than {count} characters.",
+    "zh-Hant": "請確保這個字段不能多於 {count} 個字符。"
+  },
+  "请确保这个字段至少包含 {count} 个字符。": {
+    "en": "Use at least {count} characters.",
+    "zh-Hant": "請確保這個字段至少包含 {count} 個字符。"
+  },
+  "百周年校園花園": {
+    "en": "Centennial Campus Garden",
+    "zh-Hant": "百週年校園花園"
+  },
+  "本部大樓": {
+    "en": "Main Building",
+    "zh-Hant": "本部大樓"
+  },
+  "大學圖書館": {
+    "en": "Main Library",
+    "zh-Hant": "大學圖書館"
+  },
+  "智華學習共享空間": {
+    "en": "Chi Wah Learning Commons",
+    "zh-Hant": "智華學習共享空間"
+  },
+  "鈕魯詩樓": {
+    "en": "Knowles Building",
+    "zh-Hant": "鈕魯詩樓"
+  },
+  "港大站校園入口": {
+    "en": "HKU Station · Campus access",
+    "zh-Hant": "港大站校園入口"
+  },
+  "百週年校園花園": {
+    "en": "Centennial Campus Garden",
+    "zh-Hant": "百週年校園花園"
+  },
+  "校園咖啡點（示例）": {
+    "en": "Campus café · sample",
+    "zh-Hant": "校園咖啡點（示例）"
+  },
+  "公共洗手間（示例）": {
+    "en": "Public toilet · sample",
+    "zh-Hant": "公共洗手間（示例）"
+  },
+  "本部大樓 MB": {
+    "en": "本部大樓 MB",
+    "zh-Hant": "本部大樓 MB"
+  },
+  "圖書館 总图书馆": {
+    "en": "圖書館 总图书馆",
+    "zh-Hant": "圖書館 總圖書館"
+  },
+  "智華 CWLC": {
+    "en": "智華 CWLC",
+    "zh-Hant": "智華 CWLC"
+  },
+  "鈕魯詩樓 KB": {
+    "en": "鈕魯詩樓 KB",
+    "zh-Hant": "鈕魯詩樓 KB"
+  },
+  "港大站 地鐵 地铁 MTR": {
+    "en": "港大站 地鐵 地铁 MTR",
+    "zh-Hant": "港大站 地鐵 地鐵 MTR"
+  },
+  "花園": {
+    "en": "Garden",
+    "zh-Hant": "花園"
+  },
+  "咖啡 cafe 餐饮 food": {
+    "en": "咖啡 cafe 餐饮 food",
+    "zh-Hant": "咖啡 cafe 餐飲 food"
+  },
+  "廁所 洗手間 wc 厕所": {
+    "en": "廁所 洗手間 wc 厕所",
+    "zh-Hant": "廁所 洗手間 wc 廁所"
+  }
+}

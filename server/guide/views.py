@@ -28,6 +28,7 @@ def guide_content(request):
             "id": str(entry.id), "title": entry.title, "body": entry.body,
             "externalUrl": entry.external_url, "imageUrl": entry_image(request, entry),
             "isExample": entry.is_example, "updatedAt": entry.updated_at.isoformat(),
+            "isCommunity": entry.current_submission_id is not None,
         } for entry in category.public_entries],
     } for category in categories]
     return JsonResponse({"categories": result}, json_dumps_params={"ensure_ascii": False})
