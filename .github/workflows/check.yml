@@ -1,0 +1,59 @@
+name: Check app and backend
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: hku_walk
+          POSTGRES_USER: hku
+          POSTGRES_PASSWORD: ci-only-ephemeral-password
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hku -d hku_walk"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install -r server/requirements.txt
+      - name: PostgreSQL integration tests
+        env:
+          DATABASE_URL: postgresql://hku:ci-only-ephemeral-password@127.0.0.1:5432/hku_walk
+          DJANGO_DB_SSL_REQUIRE: "0"
+        run: python server/manage.py test guide community --noinput
+      - name: Production WSGI and portable backup check
+        run: python scripts/verify_production.py
+      - name: Database image storage and portable restore check
+        run: python scripts/verify_production.py --storage database
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "24", cache: npm}
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx expo install --check
+      - run: npx expo export --platform ios --output-dir .expo/ci-ios
+      - run: npx expo export --platform android --output-dir .expo/ci-android
+  containers:
+    runs-on: ubuntu-latest
+    env:
+      COMPOSE_PROJECT_NAME: hku-walk-ci-${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: python deploy/init.py --domain hku.example
+      - name: Build and check persistent PostgreSQL stack without public TLS
+        run: docker compose --env-file deploy/.env -f deploy/compose.yaml up -d --build --wait --wait-timeout 240 db api
+      - run: docker compose --env-file deploy/.env -f deploy/compose.yaml exec -T api python -c "import urllib.request; assert urllib.request.urlopen('http://127.0.0.1:8000/api/health/').status == 200"
+      - if: always()
+        run: docker compose --env-file deploy/.env -f deploy/compose.yaml logs --tail 80 api db
+      - if: always()
+        run: docker compose --env-file deploy/.env -f deploy/compose.yaml down --volumes

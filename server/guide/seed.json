@@ -1,0 +1,142 @@
+[
+  {
+    "key": "links",
+    "title": "常用快捷链接",
+    "subtitle": "门户、课程平台与校内服务",
+    "introduction": "常用校方服务，点击后打开对应官方网站。",
+    "entries": [
+      {
+        "key": "links-1",
+        "title": "HKU Portal",
+        "body": "课表、选课及学生事务",
+        "external_url": "https://hkuportal.hku.hk/"
+      },
+      {
+        "key": "links-2",
+        "title": "HKU Moodle",
+        "body": "课程资料、作业及课程活动",
+        "external_url": "https://moodle.hku.hk/"
+      },
+      {
+        "key": "links-3",
+        "title": "HKU Libraries",
+        "body": "馆藏检索与学习空间",
+        "external_url": "https://lib.hku.hk/"
+      },
+      {
+        "key": "links-4",
+        "title": "CEDARS",
+        "body": "学生支援与校园生活资讯",
+        "external_url": "https://www.cedars.hku.hk/"
+      },
+      {
+        "key": "links-5",
+        "title": "ITS",
+        "body": "校园网络、账户与技术帮助",
+        "external_url": "https://its.hku.hk/"
+      },
+      {
+        "key": "links-6",
+        "title": "Campus Catering",
+        "body": "校内餐饮地点与服务资讯",
+        "external_url": "https://catering.hku.hk/en/"
+      }
+    ]
+  },
+  {
+    "key": "tips",
+    "title": "新生入学小 Tips",
+    "subtitle": "入学准备、找课室和校园日常",
+    "introduction": "入学准备与校园日常的小建议，具体安排以校方通知为准。",
+    "entries": [
+      {
+        "key": "tips-1",
+        "title": "核对自己的入学安排",
+        "body": "把注册、迎新、学生证和课程通知集中保存，按收到的校方通知逐项确认。",
+        "is_example": false
+      },
+      {
+        "key": "tips-2",
+        "title": "先认清 Portal 和 Moodle",
+        "body": "把校方门户与课程平台加入书签，提前确认账户、邮箱和校园网络能正常使用。",
+        "is_example": false
+      },
+      {
+        "key": "tips-3",
+        "title": "第一次上课，先找楼再找入口",
+        "body": "把课表上的楼名与地图对照，提前查入口和楼层，给第一次找课室多留一点时间。",
+        "is_example": false
+      },
+      {
+        "key": "tips-4",
+        "title": "出发前查一眼开放安排",
+        "body": "去图书馆、餐厅或服务柜台前，先查看对应官网的开放安排。",
+        "is_example": false
+      },
+      {
+        "key": "tips-5",
+        "title": "需要帮助时，先找到校方支援",
+        "body": "把 CEDARS、学院及校园 IT 服务加入常用链接。",
+        "is_example": false
+      }
+    ]
+  },
+  {
+    "key": "food",
+    "title": "美食分享",
+    "subtitle": "午餐、咖啡轻食与聚餐",
+    "introduction": "同学们的吃喝分享。标记为示例的内容等待补充真实推荐。",
+    "entries": [
+      {
+        "key": "food-1",
+        "title": "赶课午餐",
+        "body": "先看下一堂课在哪栋楼，再挑附近的餐饮点。真实推荐可以补充店名、推荐菜及等餐体验。",
+        "is_example": true
+      },
+      {
+        "key": "food-2",
+        "title": "下课后的咖啡与轻食",
+        "body": "分享课间歇脚的去处时，可以补充饮品照片、座位情况和店铺位置。",
+        "is_example": true
+      },
+      {
+        "key": "food-3",
+        "title": "周末聚餐",
+        "body": "除了推荐菜，也可以写清店铺入口和集合位置，方便大家见面。",
+        "is_example": true
+      }
+    ]
+  },
+  {
+    "key": "groups",
+    "title": "娱乐群",
+    "subtitle": "徒步、运动、桌游与城市探索",
+    "introduction": "找到一起玩的同好。有效邀请入口由群主提供。",
+    "entries": [
+      {
+        "key": "groups-1",
+        "title": "周末轻徒步",
+        "body": "一起探索步行路线，交流路线难度和集合地点。",
+        "is_example": true
+      },
+      {
+        "key": "groups-2",
+        "title": "羽毛球与运动搭子",
+        "body": "寻找一起运动的同学，交流活动时间和场地。",
+        "is_example": true
+      },
+      {
+        "key": "groups-3",
+        "title": "桌游与电影夜",
+        "body": "交流喜欢的桌游与电影，约同学参加线下活动。",
+        "is_example": true
+      },
+      {
+        "key": "groups-4",
+        "title": "展览与城市漫游",
+        "body": "分享展览和周末出行灵感，找到兴趣相近的同学。",
+        "is_example": true
+      }
+    ]
+  }
+]

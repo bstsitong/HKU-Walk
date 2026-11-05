@@ -1,0 +1,209 @@
+from django.contrib.auth import authenticate, get_user_model
+from django.db import IntegrityError, transaction
+from django.db.models import OuterRef, Subquery
+from django.db.models.functions import Coalesce
+from django.http import FileResponse, Http404
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
+from rest_framework.views import APIView
+
+from .authentication import MobileAuthentication, create_session
+from .models import Submission, RecoveryCredential
+from .serializers import (RegisterInput, AccountInput, SubmissionInput, ChangePasswordInput,
+    RecoveryCodeInput, RecoverAccountInput, check_password)
+from .services import submit_new, resubmit, submit_edit
+from .accounts import issue_recovery_code, change_password, rotate_recovery_code, recover_account
+
+def user_data(user):
+    return {"id": str(user.pk), "username": user.username,
+        "hasRecoveryCode": RecoveryCredential.objects.filter(user=user).exists()}
+
+def image_url(request, item):
+    return request.build_absolute_uri(reverse("submission-image", args=[item.pk])) if item.image else item.inherited_image_url
+
+def published_data(request, item):
+    entry = item.edit_of or item.public_entry
+    if not entry:
+        return None
+    source = entry.current_submission
+    location = source.location if source else ""
+    body = entry.body
+    prefix = f"相关地点或路线：{location}\n\n"
+    if location and body.startswith(prefix):
+        body = body[len(prefix):]
+    return {"title": entry.title, "body": body, "location": location,
+        "externalUrl": entry.external_url,
+        "imageUrl": entry.image_url or (image_url(request, source) if source and source.image else ""),
+        "version": entry.updated_at.isoformat(), "published": entry.published}
+
+def submission_data(request, item):
+    return {
+        "id": str(item.pk), "kind": item.kind, "title": item.title, "body": item.body,
+        "location": item.location, "externalUrl": item.external_url, "imageUrl": image_url(request, item),
+        "status": item.status, "reviewNote": item.review_note, "revision": item.revision,
+        "createdAt": item.created_at.isoformat(), "updatedAt": item.updated_at.isoformat(),
+        "publicEntryId": str(item.public_entry_id) if item.public_entry_id else None,
+        "isEdit": bool(item.edit_of_id), "publishedContent": published_data(request, item),
+        "openEditId": str(item.open_edit_id) if getattr(item, "open_edit_id", None) else None,
+    }
+
+class PrivateResponseView(APIView):
+    def finalize_response(self, request, response, *args, **kwargs):
+        response = super().finalize_response(request, response, *args, **kwargs)
+        response["Cache-Control"] = "no-store"
+        return response
+
+class Register(PrivateResponseView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "auth"
+
+    def post(self, request):
+        data = RegisterInput(data=request.data)
+        data.is_valid(raise_exception=True)
+        try:
+            with transaction.atomic():
+                user = get_user_model().objects.create_user(**data.validated_data)
+                token = create_session(user)
+                recovery_code = issue_recovery_code(user)
+        except IntegrityError:
+            raise ValidationError({"username": "这个账号已被使用。"})
+        return Response({"token": token, "user": user_data(user), "recoveryCode": recovery_code}, status=201)
+
+class Login(PrivateResponseView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "auth"
+
+    def post(self, request):
+        data = AccountInput(data=request.data)
+        data.is_valid(raise_exception=True)
+        user = authenticate(request=request, **data.validated_data)
+        if user is None:
+            return Response({"detail": "账号或密码不正确。"}, status=401)
+        return Response({"token": create_session(user), "user": user_data(user)})
+
+class Me(PrivateResponseView):
+    def get(self, request):
+        return Response({"user": user_data(request.user)})
+
+class Logout(PrivateResponseView):
+    def post(self, request):
+        request.auth.delete()
+        return Response(status=204)
+
+class ChangePassword(PrivateResponseView):
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "auth"
+
+    def post(self, request):
+        data = ChangePasswordInput(data=request.data)
+        data.is_valid(raise_exception=True)
+        check_password(data.validated_data["new_password"], request.user)
+        user, token = change_password(request.user, **data.validated_data)
+        return Response({"token": token, "user": user_data(user)})
+
+class RotateRecoveryCode(PrivateResponseView):
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "auth"
+
+    def post(self, request):
+        data = RecoveryCodeInput(data=request.data)
+        data.is_valid(raise_exception=True)
+        code = rotate_recovery_code(request.user, data.validated_data["current_password"])
+        return Response({"recoveryCode": code, "user": user_data(request.user)})
+
+class RecoverAccount(PrivateResponseView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "recovery"
+
+    def post(self, request):
+        data = RecoverAccountInput(data=request.data)
+        data.is_valid(raise_exception=True)
+        user, token, code = recover_account(data.validated_data["recovery_code"],
+            data.validated_data["new_password"], check_password)
+        return Response({"token": token, "user": user_data(user), "recoveryCode": code})
+
+def owned_submissions(user):
+    active = Submission.objects.filter(edit_of_id=OuterRef("target_entry_id"), status__in=["pending", "changes_requested"])
+    return Submission.objects.filter(author=user).select_related("edit_of__current_submission", "public_entry__current_submission").annotate(
+        target_entry_id=Coalesce("edit_of_id", "public_entry_id"), open_edit_id=Subquery(active.values("pk")[:1]))
+
+class Submissions(PrivateResponseView):
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "submit"
+
+    def get_throttles(self):
+        return [] if self.request.method == "GET" else super().get_throttles()
+
+    def get(self, request):
+        paginator = PageNumberPagination()
+        paginator.page_size = 20
+        items = paginator.paginate_queryset(owned_submissions(request.user), request)
+        return Response({"submissions": [submission_data(request, item) for item in items],
+            "count": paginator.page.paginator.count,
+            "nextPage": paginator.page.next_page_number() if paginator.page.has_next() else None})
+
+    def post(self, request):
+        data = SubmissionInput(data=request.data)
+        data.is_valid(raise_exception=True)
+        item, created = submit_new(request.user, dict(data.validated_data))
+        return Response({"submission": submission_data(request, item)}, status=201 if created else 200)
+
+class SubmissionDetail(PrivateResponseView):
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "submit"
+
+    def get_throttles(self):
+        return [] if self.request.method == "GET" else super().get_throttles()
+
+    def get(self, request, pk):
+        item = get_object_or_404(owned_submissions(request.user), pk=pk)
+        return Response({"submission": submission_data(request, item)})
+
+    def patch(self, request, pk):
+        item = get_object_or_404(owned_submissions(request.user), pk=pk)
+        data = SubmissionInput(data=request.data)
+        data.is_valid(raise_exception=True)
+        item = resubmit(item, dict(data.validated_data))
+        return Response({"submission": submission_data(request, item)})
+
+class PublishedEdit(Submissions):
+    def get(self, request, pk):
+        return Response(status=405)
+
+    def post(self, request, pk):
+        source = get_object_or_404(owned_submissions(request.user), pk=pk)
+        data = SubmissionInput(data=request.data)
+        data.is_valid(raise_exception=True)
+        item, created = submit_edit(request.user, source, dict(data.validated_data))
+        return Response({"submission": submission_data(request, item)}, status=201 if created else 200)
+
+class SubmissionImage(PrivateResponseView):
+    permission_classes = [AllowAny]
+    authentication_classes = [MobileAuthentication, SessionAuthentication]
+
+    def get(self, request, pk):
+        item = get_object_or_404(Submission.objects.select_related("public_entry"), pk=pk)
+        public = (item.status == Submission.Status.APPROVED and item.public_entry and item.public_entry.published
+            and item.public_entry.current_submission_id == item.pk and not item.public_entry.image_url)
+        allowed = public or (request.user.is_authenticated and (request.user.pk == item.author_id or request.user.is_staff))
+        if not allowed or not item.image:
+            raise Http404
+        try:
+            return FileResponse(item.image.open("rb"), content_type="image/jpeg")
+        except FileNotFoundError:
+            raise Http404
