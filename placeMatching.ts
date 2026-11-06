@@ -2,6 +2,7 @@ import { Converter } from 'opencc-js/t2cn';
 import { pinyin } from 'pinyin-pro';
 import type { Category, Place } from './campus';
 import campusAliases from './place-search-aliases.json';
+import { descriptivePlaceQuery, placeCategoryForQuery, placeQueryCore } from './placeSearchIntent';
 
 const han = /\p{Script=Han}/u;
 const chinese = /^\p{Script=Han}+$/u;
@@ -24,6 +25,17 @@ const unique = (values: string[]) => [...new Set(values.filter(Boolean))];
 
 type Profile = { names: string[]; aliases: string[]; romanized: string[]; words: string[] };
 const profiles = new WeakMap<Place, Profile>();
+const descriptorsByPlace = new WeakMap<Place, string[]>();
+
+function descriptorsFor(place: Place) {
+  const cached = descriptorsByPlace.get(place);
+  if (cached) return cached;
+  const descriptions = [place.name, place.english, place.keywords, place.description, place.entrance, place.floor]
+    .flatMap(value => typeof value === 'string' ? value.split(/[。！？；\n!?;]+/u) : []);
+  const descriptors = unique(descriptions.map(normalize));
+  descriptorsByPlace.set(place, descriptors);
+  return descriptors;
+}
 
 function profileFor(place: Place): Profile {
   const cached = profiles.get(place);
@@ -82,22 +94,39 @@ export function matchCampusPlaces(places: Place[], category: Category, input: st
   if (!input.trim()) return candidates;
   const normalized = normalize(input.slice(0, 120));
   if (!normalized) return [];
+  const core = placeQueryCore(normalized) || normalized;
+  const intendedCategory = placeCategoryForQuery(normalized, core);
   const query = compact(normalized);
   const terms = normalized.split(' ');
+  const coreQuery = compact(core);
+  const coreTerms = core.split(' ');
   const recentRank = new Map(recentIds.map((id, index) => [id, index]));
 
-  function rank(scoreFor: (profile: Profile) => number | undefined) {
+  function rank(scoreFor: (place: Place) => number | undefined) {
     return candidates.flatMap(place => {
-      const score = scoreFor(profileFor(place));
+      const score = scoreFor(place);
       return score === undefined ? [] : [{ place, score }];
     }).sort((a, b) => a.score - b.score
       || (recentRank.get(a.place.id) ?? recentIds.length) - (recentRank.get(b.place.id) ?? recentIds.length))
       .map(result => result.place);
   }
 
-  const matches = rank(profile => matchScore(profile, query, terms));
-  const canCorrect = (chinese.test(query) && [...query].length >= 3)
-    || (english.test(query) && query.length >= 5);
-  if (matches.length || !canCorrect) return matches;
-  return rank(profile => correctionScore(profile, query)).slice(0, 3);
+  const scoreName = (place: Place) => {
+    const profile = profileFor(place);
+    return matchScore(profile, query, terms)
+      ?? (core !== normalized ? matchScore(profile, coreQuery, coreTerms) : undefined);
+  };
+  if (intendedCategory) {
+    return rank(place => place.category === intendedCategory ? scoreName(place) ?? 8 : undefined);
+  }
+  const detail = descriptivePlaceQuery(core);
+  const names = rank(place => detail.bareTopic && detail.category && place.category !== detail.category ? undefined : scoreName(place));
+  if (names.length && !detail.bareTopic) return names;
+  const namedIds = new Set(names.map(place => place.id));
+  const described = rank(place => !namedIds.has(place.id) && detail.matches(place, descriptorsFor(place)) ? 8 : undefined);
+  if (names.length || described.length) return [...names, ...described];
+
+  const canCorrect = (chinese.test(coreQuery) && [...coreQuery].length >= 3)
+    || (english.test(coreQuery) && coreQuery.length >= 5);
+  return canCorrect ? rank(place => correctionScore(profileFor(place), coreQuery)).slice(0, 3) : [];
 }

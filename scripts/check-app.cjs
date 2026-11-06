@@ -75,16 +75,42 @@ assert.equal(filterPlaces('all','New study place')[0].id,newPlace.id);
 assert.equal(filterPlaces('all','nsp')[0].id,newPlace.id);
 assert.equal(serializeMapDraft('new_place', { ...newPlace }).data.abbreviation, 'NSP');
 assert.equal(getCampusRoute(newRoute.id).steps.length,1);
-const room = { ...newPlace, id: 'community-place-36', name: '學生研討室', english: 'Seminar Room 102', abbreviation: '', keywords: '小組討論室, Team Room' };
+const room = { ...newPlace, id: 'community-place-36', name: '學生研討室', english: 'Seminar Room 102', abbreviation: '',
+  keywords: '小組討論室, Team Room', description: '这里比较宁静，座位旁有电源插口。', entrance: '东门旁设有电梯。', floor: '三楼' };
 const annex = { ...newPlace, id: 'community-place-37', name: '图书馆附楼', english: 'Main Library Annex', abbreviation: '', keywords: '' };
-setCommunityCampus([newPlace, room, annex], []);
+const canteen = { ...newPlace, id: 'community-place-38', name: '红砖食堂', english: 'Red Brick Canteen', abbreviation: '', keywords: '', category: 'food' };
+const takeaway = { ...canteen, id: 'community-place-39', name: '松林快餐店', english: 'Pine Takeaway' };
+const nailong = { ...canteen, id: 'community-place-40', name: '奶龙', english: 'Nailong',
+  description: '供应汉堡和快餐，可外带，也有榴莲千层。' };
+const noSockets = { ...room, id: 'community-place-41', name: '榕树学习室', english: 'Banyan Study Room',
+  keywords: '', description: '学习空间很安静，不过没有插座。', entrance: '这个入口没有电梯。', floor: '二楼' };
+const updatedCatalog = readCampus({ places: [newPlace, room, annex, canteen, takeaway, nailong, noSockets], routes: [] });
+setCommunityCampus(updatedCatalog.places, updatedCatalog.routes);
 assert.equal(filterPlaces('all', '学生研讨室')[0].id, room.id);
 assert.equal(filterPlaces('all', 'xiaozutaolunshi')[0].id, room.id);
 assert.equal(filterPlaces('all', 'Team Room')[0].id, room.id);
 assert.deepEqual(filterPlaces('all', 'Seminar Room 101'), []);
 assert.equal(filterPlaces('all', 'Main Library', [annex.id])[0].id, 'library');
 assert.equal(filterPlaces('all', 'Main Lib', [annex.id])[0].id, annex.id);
+const foodIds = ['cafe', canteen.id, takeaway.id, nailong.id];
+for (const query of ['吃饭的地方', '想找个地方吃饭', '請問附近有沒有吃飯的地方？', '想在港大吃饭',
+  '附近有什么好吃的', '想找能垫垫肚子的地方', '食嘢', '找吃的', 'Where can I eat on campus?', 'Find me something to eat']) {
+  assert.deepEqual(filterPlaces('all', query).map(place => place.id).sort(), foodIds, query);
+}
+assert.deepEqual(filterPlaces('study', '吃饭的地方'), []);
+assert.deepEqual(filterPlaces('food', '吃饭的地方').map(place => place.id).sort(), foodIds);
+assert.deepEqual(filterPlaces('all', '红砖食堂').map(place => place.id), [canteen.id]);
+assert.deepEqual(filterPlaces('all', '快餐店').map(place => place.id), [takeaway.id, nailong.id]);
+for (const query of ['哪里能吃汉堡？', 'any burgers on campus', '想找能买榴莲千层的地方', '我想去奶龙']) {
+  assert.deepEqual(filterPlaces('all', query).map(place => place.id), [nailong.id], query);
+}
+for (const query of ['我想找个安静有插座的地方自习', 'I want somewhere to study with power sockets', '哪里有升降机', '想找在三楼的地点']) {
+  assert.deepEqual(filterPlaces('all', query).map(place => place.id), [room.id], query);
+}
+assert.deepEqual(filterPlaces('all', 'Where is a restroom?').map(place => place.id), ['toilet']);
+assert.ok(filterPlaces('all', '我想找地方自习').every(place => place.category === 'study'));
+assert.ok(filterPlaces('all', '我想找地方自习').some(place => place.id === room.id));
 setCommunityCampus([],[]);
 assert.equal(getPlace(newPlace.id),undefined);
 assert.deepEqual(readRouteBookmarks([shared]),[shared]);
-console.log('Passed: route bookmark persistence and identity, community search, catalog validation, new map drafts, photo inheritance and step reordering.');
+console.log('Passed: conversational category and detail search for newly published places, route bookmarks, catalog validation, map drafts and step photos.');

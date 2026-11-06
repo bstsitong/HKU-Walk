@@ -1,0 +1,21 @@
+{
+  "food": [
+    "吃饭", "吃个饭", "吃东西", "吃点东西", "吃", "吃的", "好吃的", "买饭", "用餐", "就餐", "餐饮", "餐厅", "美食",
+    "吃早餐", "吃午饭", "吃晚饭", "早餐", "午饭", "午餐", "晚饭", "晚餐", "肚子饿了", "肚子有点饿", "饿了", "垫垫肚子", "食嘢", "搵食",
+    "food", "eat", "eat out", "eating", "dine", "dining", "food options", "campus dining",
+    "breakfast", "lunch", "dinner", "meal", "meals", "something to eat", "restaurants", "restaurant"
+  ],
+  "study": [
+    "学习", "自习", "自修", "读书", "看书", "温书", "温习", "复习", "学习空间", "自习空间",
+    "study", "study space", "study spaces", "revision", "read"
+  ],
+  "toilet": [
+    "厕所", "卫生间", "洗手间", "上厕所", "上洗手间", "去厕所", "去洗手间", "去卫生间",
+    "wc", "toilet", "toilets", "restroom", "restrooms", "bathroom", "bathrooms", "use the restroom"
+  ],
+  "access": [
+    "学校入口", "校园入口", "出入口", "校园出入口", "进校园", "进入校园",
+    "campus entrance", "campus entrances", "campus access", "enter campus"
+  ],
+  "building": ["教学楼", "教学大楼", "teaching building", "teaching buildings"]
+}

@@ -1,0 +1,13 @@
+[
+  { "category": "food", "words": ["食堂", "饭堂", "canteen", "cafeteria", "dining hall"] },
+  { "category": "food", "words": ["快餐", "快餐店", "fast food", "quick service"] },
+  { "category": "food", "words": ["外带", "外卖", "打包", "takeaway", "takeout", "take out"] },
+  { "category": "food", "words": ["汉堡", "汉堡包", "汉堡店", "burger", "burgers", "hamburger", "hamburgers"] },
+  { "category": "food", "words": ["咖啡", "咖啡馆", "咖啡店", "coffee", "coffee shop", "cafe"] },
+  { "category": "food", "words": ["奶茶", "奶茶店", "milk tea"] },
+  { "category": "food", "words": ["珍珠奶茶", "bubble tea", "boba"] },
+  { "words": ["插座", "插电", "充电插口", "充电口", "电源插口", "power outlet", "power outlets", "power socket", "power sockets", "electrical outlet"] },
+  { "words": ["安静", "宁静", "quiet", "silent"] },
+  { "words": ["电梯", "升降机", "lift", "lifts", "elevator", "elevators"] },
+  { "words": ["无障碍", "轮椅通行", "轮椅可达", "轮椅", "wheelchair", "step free"] }
+]
