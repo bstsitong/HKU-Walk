@@ -1,18 +1,13 @@
 import copy
-import re
 from django.urls import reverse
 from rest_framework.exceptions import ValidationError
-from guide.models import GuideEntry
+from guide.models import CampusPlace
 
-BASE_PLACE_IDS = {"main", "library", "chiwah", "knowles", "gate", "garden", "cafe", "toilet"}
-PLACE_CATEGORIES = {"building", "study", "food", "toilet", "access", "space"}
+PLACE_CATEGORIES = set(CampusPlace.Category.values)
 MAX_ROUTE_STEPS = 20
 
 def place_exists(identifier):
-    if identifier in BASE_PLACE_IDS:
-        return True
-    match = re.fullmatch(r"community-place-(\d+)", identifier)
-    return bool(match and GuideEntry.objects.filter(pk=match[1], published=True, map_data__type="place").exists())
+    return CampusPlace.objects.filter(pk=identifier, publication__published=True).exists()
 
 def text(data, key, limit, required=False):
     value = data.get(key, "")
@@ -33,8 +28,11 @@ def validate_map_data(kind, data):
             if isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 <= value <= maximum:
                 raise ValidationError({"map_data": "请在校园示意图上选择地点位置。"})
             coordinates[key] = round(value, 3)
-        return {"type": "place", "category": category, **coordinates,
+        result = {"type": "place", "category": category, **coordinates,
             "english": text(data, "english", 160), "entrance": text(data, "entrance", 1000), "floor": text(data, "floor", 500)}
+        if "abbreviation" in data:
+            result["abbreviation"] = text(data, "abbreviation", 40)
+        return result
     if kind == "new_route":
         origin = text(data, "originId", 80, True)
         destination = text(data, "destinationId", 80, True)

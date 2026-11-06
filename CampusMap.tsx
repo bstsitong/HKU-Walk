@@ -69,7 +69,9 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
     const latest = getPlace(selected.id);
     if (latest) setSelected(latest);
     else { setSelected(findPlace('main')); if (view === 'detail') { Alert.alert('地点暂不可用', '地点已下线或暂时无法读取'); changeView('home'); } }
-    if (!getPlace(origin.id) || !getPlace(destination.id)) { setOrigin(findPlace('gate')); setDestination(findPlace('main')); setPreferredRoute(null); if (view === 'route') changeView('home'); }
+    const currentOrigin = getPlace(origin.id), currentDestination = getPlace(destination.id);
+    if (currentOrigin && currentDestination) { setOrigin(currentOrigin); setDestination(currentDestination); }
+    else { setOrigin(findPlace('gate')); setDestination(findPlace('main')); setPreferredRoute(null); if (view === 'route') changeView('home'); }
   }, [campus.catalog]);
   const saved = records.saved.includes(selected.id);
   const saveButton = <IconButton testID="save-place" icon="bookmark" label={saved ? '取消收藏' : '收藏地点'} selected={saved} disabled={!records.ready} onPress={() => records.toggle(selected.id)} />;

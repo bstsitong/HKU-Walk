@@ -1,64 +1,75 @@
-from django.db.models import Prefetch
 from django.conf import settings
+from django.db.models import Prefetch
 from django.http import JsonResponse
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
-from django.urls import reverse
 
-from .models import GuideCategory, GuideEntry
-from community.map_content import BASE_PLACE_IDS, enrich_map_data
+from .catalog import content_image, published_routes, route_steps_data
+from .models import CampusPlace, GuideCategory, GuidePost, Publication, RouteStep
 
-def entry_image(request, entry):
-    if entry.image_url:
-        return entry.image_url
-    contribution = entry.current_submission
-    if contribution and contribution.image:
-        return request.build_absolute_uri(reverse("submission-image", args=[contribution.pk]))
-    return entry.image_url
+
+def guide_card(request, content, map_type=""):
+    publication = content.publication
+    return {
+        "id": str(publication.pk), "title": content.title, "body": content.body,
+        "externalUrl": content.external_url, "imageUrl": content_image(request, content, publication),
+        "isExample": getattr(content, "is_example", False), "updatedAt": publication.updated_at.isoformat(),
+        "isCommunity": bool(map_type) or publication.current_submission_id is not None, "mapType": map_type,
+    }
+
 
 @require_GET
 @never_cache
 def guide_content(request):
-    categories = GuideCategory.objects.prefetch_related(Prefetch(
-        "entries", queryset=GuideEntry.objects.filter(published=True).select_related("current_submission"), to_attr="public_entries"
-    ))
-    result = [{
-        "key": category.key, "title": category.title,
-        "subtitle": category.subtitle, "introduction": category.introduction,
-        "entries": [{
-            "id": str(entry.id), "title": entry.title, "body": entry.body,
-            "externalUrl": entry.external_url, "imageUrl": entry_image(request, entry),
-            "isExample": entry.is_example, "updatedAt": entry.updated_at.isoformat(),
-            "isCommunity": entry.current_submission_id is not None,
-            "mapType": entry.map_data.get("type", "") if isinstance(entry.map_data, dict) else "",
-        } for entry in category.public_entries],
-    } for category in categories]
+    posts = GuidePost.objects.filter(publication__published=True).select_related("publication__current_submission")
+    categories = GuideCategory.objects.prefetch_related(Prefetch("posts", queryset=posts, to_attr="public_posts"))
+    # Keep the existing guide shortcuts and bookmarks for shared places and routes.
+    map_items = [
+        *CampusPlace.objects.filter(publication__published=True, is_builtin=False).select_related("publication__current_submission"),
+        *published_routes().select_related("publication__current_submission"),
+    ]
+    result = []
+    for category in categories:
+        entries = list(category.public_posts)
+        if category.pk == "tips":
+            entries.extend(map_items)
+        entries.sort(key=lambda item: (item.publication.sort_order, item.publication_id))
+        result.append({
+            "key": category.key, "title": category.title,
+            "subtitle": category.subtitle, "introduction": category.introduction,
+            "entries": [
+                guide_card(request, item, "" if item.publication.kind == Publication.Kind.POST else item.publication.kind)
+                for item in entries
+            ],
+        })
     return JsonResponse({"categories": result}, json_dumps_params={"ensure_ascii": False})
+
 
 @require_GET
 @never_cache
 def campus_content(request):
-    entries = list(GuideEntry.objects.filter(published=True).exclude(map_data={})
-        .select_related("current_submission").prefetch_related("current_submission__step_images"))
-    places = []
-    routes = []
-    for entry in entries:
-        data = entry.map_data if isinstance(entry.map_data, dict) else {}
-        if data.get("type") == "place":
-            places.append({"id": f"community-place-{entry.pk}", "entryId": str(entry.pk), "name": entry.title,
-                "english": data.get("english", ""), "keywords": "", "category": data["category"],
-                "x": data["x"], "y": data["y"], "description": entry.body,
-                "entrance": data.get("entrance", ""), "floor": data.get("floor", ""),
-                "imageUrl": entry_image(request, entry), "isCommunity": True})
-    available = BASE_PLACE_IDS | {place["id"] for place in places}
-    for entry in entries:
-        data = entry.map_data if isinstance(entry.map_data, dict) else {}
-        if data.get("type") == "route" and data.get("originId") in available and data.get("destinationId") in available:
-            content = enrich_map_data(request, data, entry.current_submission)
-            routes.append({"id": f"community-route-{entry.pk}", "entryId": str(entry.pk), "title": entry.title,
-                "body": entry.body, "originId": data["originId"], "destinationId": data["destinationId"],
-                "steps": content["steps"], "isCommunity": True, "updatedAt": entry.updated_at.isoformat()})
-    return JsonResponse({"places": places, "routes": routes}, json_dumps_params={"ensure_ascii": False})
+    places, base_places = [], []
+    place_query = CampusPlace.objects.filter(publication__published=True).select_related("publication__current_submission")
+    for place in place_query.order_by("publication__sort_order", "publication_id"):
+        data = {
+            "id": place.pk, "entryId": str(place.publication_id), "name": place.name_zh,
+            "english": place.name_en, "abbreviation": place.abbreviation_en, "keywords": place.keywords,
+            "category": place.category, "x": place.map_x, "y": place.map_y, "description": place.body,
+            "entrance": place.entrance, "floor": place.floor, "imageUrl": content_image(request, place, place.publication),
+            "isCommunity": not place.is_builtin,
+        }
+        (base_places if place.is_builtin else places).append(data)
+    route_query = published_routes().select_related("publication").prefetch_related(
+        Prefetch("steps", queryset=RouteStep.objects.select_related("photo")),
+    ).order_by("publication__sort_order", "publication_id")
+    routes = [{
+        "id": f"community-route-{route.pk}", "entryId": str(route.pk), "title": route.title,
+        "body": route.body, "originId": route.origin_id, "destinationId": route.destination_id,
+        "steps": route_steps_data(request, route), "isCommunity": True,
+        "updatedAt": route.publication.updated_at.isoformat(),
+    } for route in route_query]
+    return JsonResponse({"places": places, "routes": routes, "basePlaces": base_places}, json_dumps_params={"ensure_ascii": False})
+
 
 @require_GET
 @never_cache

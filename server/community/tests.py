@@ -12,7 +12,7 @@ from django.test import Client, TestCase, override_settings
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from guide.models import GuideEntry
+from guide.models import GuidePost
 from .authentication import create_session
 from .models import MobileSession, Submission
 from .services import ReviewConflict, review_submission
@@ -172,7 +172,7 @@ class CommunityTests(CommunityFixture):
         self.assertTrue(item.public_entry.published)
         self.assertContains(self.anon.get("/api/guide/"), item.title)
         self.assertEqual(self.client.post(path, {"decision": "approved", "review_version": 1, "review_note": "", "_save": "保存"}).status_code, 302)
-        self.assertEqual(GuideEntry.objects.filter(title=item.title).count(), 1)
+        self.assertEqual(GuidePost.objects.filter(title=item.title).count(), 1)
         self.assertEqual(self.api.patch(f"/api/submissions/{item.pk}/", {**self.payload, "revision": 2}, format="json").status_code, 409)
 
     def test_changes_require_feedback_and_owner_can_resubmit(self):
@@ -213,8 +213,8 @@ class CommunityTests(CommunityFixture):
         with self.assertRaises(ReviewConflict):
             review_submission(item.pk, 1, "approved", "", self.owner)
         item = review_submission(item.pk, 1, "approved", "", self.admin)
-        self.assertEqual(item.public_entry.category_id, "tips")
-        self.assertIn(item.location, item.public_entry.body)
+        self.assertEqual(item.public_entry.post.category_id, "tips")
+        self.assertIn(item.location, item.public_entry.post.body)
 
     def test_private_history_is_paginated_and_read_does_not_consume_submit_limit(self):
         Submission.objects.bulk_create([Submission(author=self.owner, kind="food", title=f"投稿{i}", body="正文", request_key=f"history_key_{i}", content_hash="x") for i in range(23)])

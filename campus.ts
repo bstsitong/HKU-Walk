@@ -1,5 +1,6 @@
-import { t } from './localization';
+import { getLanguage, t, translate } from './localization';
 import type { IconName } from './AppIcon';
+import fallbackPlaces from './server/guide/base_places_v1.json';
 export const categories = [
   { id: 'all', label: '全部' },
   { id: 'building', label: '教学楼' },
@@ -15,6 +16,7 @@ export type Place = {
   id: string;
   name: string;
   english: string;
+  abbreviation?: string;
   keywords: string;
   category: Exclude<Category, 'all'> | 'space';
   x: number;
@@ -28,37 +30,33 @@ export type Place = {
 };
 
 // These coordinates are in the prototype's drawing, separate from GPS coordinates.
-export const basePlaces: Place[] = [
-  { id: 'main', name: '本部大楼', english: 'Main Building', keywords: '本部大樓 MB', category: 'building', x: 255, y: 168 },
-  { id: 'library', name: '大学图书馆', english: 'Main Library', keywords: '圖書館 总图书馆', category: 'study', x: 178, y: 296 },
-  { id: 'chiwah', name: '智华学习共享空间', english: 'Chi Wah Learning Commons', keywords: '智華 CWLC', category: 'study', x: 76, y: 416 },
-  { id: 'knowles', name: '钮鲁诗楼', english: 'Knowles Building', keywords: '鈕魯詩樓 KB', category: 'building', x: 266, y: 357 },
-  { id: 'gate', name: '港大站校园入口', english: 'HKU Station · Campus access', keywords: '港大站 地鐵 地铁 MTR', category: 'access', x: 62, y: 507 },
-  { id: 'garden', name: '百周年校园花园', english: 'Centennial Campus Garden', keywords: '花園', category: 'space', x: 88, y: 265 },
-  { id: 'cafe', name: '校园咖啡点（示例）', english: 'Campus café · sample', keywords: '咖啡 cafe 餐饮 food', category: 'food', x: 126, y: 366 },
-  { id: 'toilet', name: '公共洗手间（示例）', english: 'Public toilet · sample', keywords: '廁所 洗手間 wc 厕所', category: 'toilet', x: 275, y: 445 },
-];
+export const basePlaces: Place[] = fallbackPlaces.map(place => ({
+  ...place, category: place.category as Place['category'],
+}));
 
 export const places: Place[] = [...basePlaces];
 export type CampusRoute = { id: string; entryId: string; title: string; body: string; originId: string; destinationId: string;
   steps: { title: string; body: string; imageUrl?: string }[]; isCommunity: true; updatedAt: string };
 export const campusRoutes: CampusRoute[] = [];
-export function setCommunityCampus(newPlaces: Place[], newRoutes: CampusRoute[]) {
-  places.splice(0, places.length, ...basePlaces, ...newPlaces);
+export function setCommunityCampus(newPlaces: Place[], newRoutes: CampusRoute[], builtins = basePlaces) {
+  places.splice(0, places.length, ...builtins, ...newPlaces);
   campusRoutes.splice(0, campusRoutes.length, ...newRoutes);
 }
 export const getPlace = (id: string) => places.find(place => place.id === id);
 export const getCampusRoute = (id: string) => campusRoutes.find(route => route.id === id);
 
 export function findPlace(id: string) {
-  return places.find(place => place.id === id) ?? places[0];
+  return getPlace(id) ?? places[0] ?? basePlaces[0];
 }
 
 export function categoryLabel(category: Place['category']) {
   return t(categories.find(item => item.id === category)?.label ?? '校园空间');
 }
 
-export const placeName = (place: Place) => place.isCommunity ? place.name : t(place.name);
+export const placeName = (place: Place, language = getLanguage()) => {
+  if (place.isCommunity) return place.name;
+  return language === 'en' && place.english ? place.english : translate(place.name, language);
+};
 export const placeIcon = (place: Place): IconName => ({ building: 'building', study: 'book', food: 'coffee', toilet: 'wc', access: 'gate', space: 'leaf' } as const)[place.category];
 export const categoryIcon = (category: Category): IconName => category === 'all' ? 'map' : placeIcon({ category } as Place);
 export const placePhoto = (place: Place) => place.imageUrl ? { uri: place.imageUrl } : place.id === 'main' ? require('./assets/hku-main.webp') : require('./assets/hku-campus.webp');
@@ -68,7 +66,7 @@ const traditionalNames: Record<string, string> = { main: '本部大樓', library
 export function filterPlaces(category: Category, query = '') {
   const terms = query.normalize('NFKC').toLowerCase().trim().split(/\s+/).filter(Boolean);
   return places.filter(place => {
-    const names = `${place.name} ${place.english} ${place.keywords} ${traditionalNames[place.id]}`.normalize('NFKC').toLowerCase();
+    const names = `${place.name} ${place.english} ${place.abbreviation ?? ''} ${place.keywords} ${traditionalNames[place.id] ?? ''}`.normalize('NFKC').toLowerCase();
     return (category === 'all' || place.category === category) && terms.every(term => names.includes(term));
   });
 }

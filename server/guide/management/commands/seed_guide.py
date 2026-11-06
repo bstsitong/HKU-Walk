@@ -3,7 +3,8 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from guide.models import GuideCategory, GuideEntry
+from guide.legacy_catalog import seed_builtin_places
+from guide.models import CampusPlace, GuideCategory, GuidePost, Publication
 
 class Command(BaseCommand):
     help = "添加学生指南初始内容，保留管理员已有修改。"
@@ -18,7 +19,7 @@ class Command(BaseCommand):
             })
             for position, entry in enumerate(category["entries"]):
                 key = entry.pop("key")
-                GuideEntry.objects.get_or_create(key=key, defaults={
-                    **entry, "category": group, "sort_order": position,
-                })
+                publication, _ = Publication.objects.get_or_create(key=key, defaults={"sort_order": position})
+                GuidePost.objects.get_or_create(publication=publication, defaults={**entry, "category": group})
+        seed_builtin_places(Publication, CampusPlace)
         self.stdout.write("学生指南初始内容已就绪，已有修改已保留。")

@@ -1,4 +1,3 @@
-import copy
 import hashlib
 import json
 from django.core.files.storage import default_storage
@@ -7,7 +6,8 @@ from django.db.models import F
 from django.utils import timezone
 from rest_framework.exceptions import APIException, ValidationError
 
-from guide.models import GuideCategory, GuideEntry
+from guide.legacy_catalog import place_fields
+from guide.models import CampusPlace, CampusRoute, GuidePost, Publication, RouteStep
 from .models import Submission, SubmissionStepImage
 from .map_content import validate_map_data
 from .storage import MediaQuotaExceeded
@@ -125,7 +125,7 @@ def submit_new(user, data, edit_of=None, inherited_image="", inherited_image_url
 def submit_edit(user, source, data):
     if source.author_id != user.pk or source.status != Submission.Status.APPROVED or not source.public_entry_id:
         raise Conflict("只有本人已发布的内容可以申请修改。")
-    entry = GuideEntry.objects.select_related("current_submission").get(pk=source.public_entry_id)
+    entry = Publication.objects.select_related("current_submission", "post", "place", "route").get(pk=source.public_entry_id)
     expected = data.get("base_version")
     if not entry.published or expected != entry.updated_at:
         raise Conflict("公开内容已更新或下线，请刷新投稿详情后再申请修改。")
@@ -134,7 +134,7 @@ def submit_edit(user, source, data):
     current = entry.current_submission
     return submit_new(user, data, edit_of=entry,
         inherited_image=current.image.name if current and current.image else "",
-        inherited_image_url=entry.image_url, base_version=expected, inherited_step_images=step_image_names(current))
+        inherited_image_url=entry.content.image_url, base_version=expected, inherited_step_images=step_image_names(current))
 
 def resubmit(item, data):
     expected = data.pop("revision", None)
@@ -147,7 +147,7 @@ def resubmit(item, data):
     if item.status != Submission.Status.CHANGES or item.revision != expected:
         raise Conflict("请刷新投稿状态，只有需修改的投稿可以重新提交。")
     if item.edit_of_id:
-        entry = GuideEntry.objects.get(pk=item.edit_of_id)
+        entry = Publication.objects.get(pk=item.edit_of_id)
         if not entry.published or base_version != entry.updated_at:
             raise Conflict("原内容已更新或下线，请刷新后重新查看修改申请。")
         if data["kind"] != item.kind:
@@ -180,6 +180,52 @@ def resubmit(item, data):
     item.refresh_from_db()
     return item
 
+
+def publish_content(item):
+    try:
+        data = validate_map_data(item.kind, item.map_data)
+    except ValidationError as error:
+        raise ReviewConflict(str(error.detail))
+    kind = data.get("type", Publication.Kind.POST)
+    if item.edit_of_id:
+        publication = Publication.objects.select_for_update().get(pk=item.edit_of_id)
+        if not publication.published or publication.updated_at != item.base_entry_updated_at or publication.kind != kind:
+            raise ReviewConflict("公开内容已更新或下线，请先退回并说明需要核对的内容。")
+        publication.current_submission = item
+        publication.save(update_fields=["current_submission", "updated_at"])
+    else:
+        publication = Publication.objects.create(kind=kind, sort_order=100, current_submission=item)
+
+    body = f"相关地点或路线：{item.location}\n\n{item.body}" if item.location else item.body
+    common = {"body": body, "external_url": item.external_url, "image_url": item.inherited_image_url}
+    if kind == Publication.Kind.PLACE:
+        details = place_fields(data)
+        # Older app versions omit this field when editing a published place.
+        if "abbreviation" not in data and item.edit_of_id:
+            details.pop("abbreviation_en")
+        CampusPlace.objects.update_or_create(
+            publication=publication,
+            defaults={"code": f"community-place-{publication.pk}", "name_zh": item.title, **common, **details},
+        )
+    elif kind == Publication.Kind.ROUTE:
+        route, _ = CampusRoute.objects.update_or_create(publication=publication, defaults={
+            "title": item.title, "origin_id": data["originId"], "destination_id": data["destinationId"], **common,
+        })
+        photos = {photo.step_index: photo for photo in item.step_images.all()}
+        route.steps.all().delete()
+        RouteStep.objects.bulk_create([
+            RouteStep(route=route, position=index, title=step["title"], body=step["body"], photo=photos.get(index))
+            for index, step in enumerate(data["steps"])
+        ])
+    else:
+        category = {Submission.Kind.FOOD: "food", Submission.Kind.GROUP: "groups"}.get(item.kind, "tips")
+        GuidePost.objects.update_or_create(
+            publication=publication, defaults={"title": item.title, **common},
+            create_defaults={"title": item.title, "category_id": category, **common},
+        )
+    return publication
+
+
 @transaction.atomic
 def review_submission(identifier, expected, decision, note, reviewer):
     if not reviewer.is_active or not reviewer.is_staff:
@@ -197,33 +243,7 @@ def review_submission(identifier, expected, decision, note, reviewer):
     if claimed != 1:
         raise ReviewConflict("这条投稿已被处理，请刷新。")
     if decision == Submission.Status.APPROVED:
-        try:
-            validate_map_data(item.kind, item.map_data)
-        except ValidationError as error:
-            raise ReviewConflict(str(error.detail))
-        public_map_data = copy.deepcopy(item.map_data)
-        for index, step in enumerate(public_map_data.get("steps", [])):
-            step["imageIndex"] = index
-        category = {Submission.Kind.FOOD: "food", Submission.Kind.GROUP: "groups"}.get(item.kind, "tips")
-        body = item.body
-        if item.location:
-            body = f"相关地点或路线：{item.location}\n\n{body}"
-        if item.edit_of_id:
-            entry = GuideEntry.objects.select_for_update().get(pk=item.edit_of_id)
-            if not entry.published or entry.updated_at != item.base_entry_updated_at:
-                raise ReviewConflict("公开内容已更新或下线，请先退回并说明需要核对的内容。")
-            entry.title = item.title
-            entry.body = body
-            entry.external_url = item.external_url
-            entry.current_submission = item
-            entry.map_data = public_map_data
-            # An explicit image removal also clears any administrator-supplied image URL.
-            entry.image_url = item.inherited_image_url
-            entry.save(update_fields=["title", "body", "external_url", "current_submission", "image_url", "map_data", "updated_at"])
-        else:
-            entry = GuideEntry.objects.create(category=GuideCategory.objects.get(pk=category), title=item.title,
-                body=body, external_url=item.external_url, is_example=False, published=True, sort_order=100,
-                current_submission=item, map_data=public_map_data)
-        Submission.objects.filter(pk=identifier).update(public_entry=entry)
+        publication = publish_content(item)
+        Submission.objects.filter(pk=identifier).update(public_entry=publication)
     item.refresh_from_db()
     return item

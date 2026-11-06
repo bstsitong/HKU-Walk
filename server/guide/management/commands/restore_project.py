@@ -13,7 +13,8 @@ from django.db import transaction
 from django.core.files.storage import default_storage
 from django.core.files import File
 from community.models import Submission
-from guide.models import GuideCategory, GuideEntry
+from guide.legacy_backup import upgrade_legacy_fixture
+from guide.models import GuideCategory, Publication
 
 def storage_has_files(path=""):
     try:
@@ -31,7 +32,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         media = Path(settings.MEDIA_ROOT).resolve()
         storage_empty = not storage_has_files()
-        if (get_user_model().objects.exists() or GuideCategory.objects.exists() or GuideEntry.objects.exists()
+        if (get_user_model().objects.exists() or GuideCategory.objects.exists() or Publication.objects.exists()
                 or Submission.objects.exists() or not storage_empty):
             raise CommandError("恢复目标必须是空数据库和空图片目录；请使用新的数据目录与数据库。")
         with tempfile.TemporaryDirectory(dir=settings.LOCAL_DIR) as directory:
@@ -61,10 +62,18 @@ class Command(BaseCommand):
                             raise CommandError("备份文件校验失败，未恢复任何数据。")
             except (zipfile.BadZipFile, KeyError, ValueError) as error:
                 raise CommandError("无法读取这份备份。") from error
+            fixture = stage / "data.json"
+            try:
+                records = json.loads(fixture.read_text(encoding="utf-8"))
+                upgraded = upgrade_legacy_fixture(records)
+                if upgraded is not records:
+                    fixture.write_text(json.dumps(upgraded, ensure_ascii=False), encoding="utf-8")
+            except (KeyError, TypeError, ValueError) as error:
+                raise CommandError("备份中的旧版内容格式不正确，未恢复任何数据。") from error
             created = []
             try:
                 with transaction.atomic():
-                    call_command("loaddata", str(stage / "data.json"), verbosity=0)
+                    call_command("loaddata", str(fixture), verbosity=0)
                     for source in (stage / "uploads").rglob("*"):
                         if source.is_file():
                             target = (media / source.relative_to(stage / "uploads")).resolve()

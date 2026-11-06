@@ -2187,6 +2187,14 @@
     "en": "English name (optional)",
     "zh-Hant": "英文名稱（選填）"
   },
+  "英文简称（选填）": {
+    "en": "English abbreviation (optional)",
+    "zh-Hant": "英文簡稱（選填）"
+  },
+  "地点中文名称": {
+    "en": "Chinese place name",
+    "zh-Hant": "地點中文名稱"
+  },
   "入口说明（选填）": {
     "en": "Entrance details (optional)",
     "zh-Hant": "入口説明（選填）"
@@ -2383,61 +2391,61 @@
     "en": "Main Building",
     "zh-Hant": "本部大樓"
   },
-  "大學圖書館": {
-    "en": "Main Library",
-    "zh-Hant": "大學圖書館"
-  },
-  "智華學習共享空間": {
-    "en": "Chi Wah Learning Commons",
-    "zh-Hant": "智華學習共享空間"
-  },
-  "鈕魯詩樓": {
-    "en": "Knowles Building",
-    "zh-Hant": "鈕魯詩樓"
-  },
-  "港大站校園入口": {
-    "en": "HKU Station · Campus access",
-    "zh-Hant": "港大站校園入口"
-  },
-  "百週年校園花園": {
-    "en": "Centennial Campus Garden",
-    "zh-Hant": "百週年校園花園"
-  },
-  "校園咖啡點（示例）": {
-    "en": "Campus café · sample",
-    "zh-Hant": "校園咖啡點（示例）"
-  },
-  "公共洗手間（示例）": {
-    "en": "Public toilet · sample",
-    "zh-Hant": "公共洗手間（示例）"
-  },
   "本部大樓 MB": {
     "en": "本部大樓 MB",
     "zh-Hant": "本部大樓 MB"
+  },
+  "大學圖書館": {
+    "en": "Main Library",
+    "zh-Hant": "大學圖書館"
   },
   "圖書館 总图书馆": {
     "en": "圖書館 总图书馆",
     "zh-Hant": "圖書館 總圖書館"
   },
+  "智華學習共享空間": {
+    "en": "Chi Wah Learning Commons",
+    "zh-Hant": "智華學習共享空間"
+  },
   "智華 CWLC": {
     "en": "智華 CWLC",
     "zh-Hant": "智華 CWLC"
+  },
+  "鈕魯詩樓": {
+    "en": "Knowles Building",
+    "zh-Hant": "鈕魯詩樓"
   },
   "鈕魯詩樓 KB": {
     "en": "鈕魯詩樓 KB",
     "zh-Hant": "鈕魯詩樓 KB"
   },
+  "港大站校園入口": {
+    "en": "HKU Station · Campus access",
+    "zh-Hant": "港大站校園入口"
+  },
   "港大站 地鐵 地铁 MTR": {
     "en": "港大站 地鐵 地铁 MTR",
     "zh-Hant": "港大站 地鐵 地鐵 MTR"
+  },
+  "百週年校園花園": {
+    "en": "Centennial Campus Garden",
+    "zh-Hant": "百週年校園花園"
   },
   "花園": {
     "en": "Garden",
     "zh-Hant": "花園"
   },
+  "校園咖啡點（示例）": {
+    "en": "Campus café · sample",
+    "zh-Hant": "校園咖啡點（示例）"
+  },
   "咖啡 cafe 餐饮 food": {
     "en": "咖啡 cafe 餐饮 food",
     "zh-Hant": "咖啡 cafe 餐飲 food"
+  },
+  "公共洗手間（示例）": {
+    "en": "Public toilet · sample",
+    "zh-Hant": "公共洗手間（示例）"
   },
   "廁所 洗手間 wc 厕所": {
     "en": "廁所 洗手間 wc 厕所",

@@ -127,7 +127,7 @@ def main():
                 http(base, f"/api/images/{posted['id']}/", expected=404)
                 evidence.append('Uploaded image remained private, then an approved edit replaced the public version and image URL')
                 place_values = {'kind': 'new_place', 'title': 'Smoke study entrance', 'body': 'A generated place used only in the isolated verification database.',
-                    'request_key': secrets.token_hex(12), 'map_data': {'category': 'study', 'x': 120, 'y': 280, 'english': 'Smoke entrance'}}
+                    'request_key': secrets.token_hex(12), 'map_data': {'category': 'study', 'x': 120, 'y': 280, 'english': 'Smoke entrance', 'abbreviation': 'SE'}}
                 place_submission = json.loads(http(base, '/api/submissions/', place_values, token, expected=201)[0])['submission']
                 assert not json.loads(http(base, '/api/campus/')[0])['places']
                 review(env, place_submission['id'])
@@ -166,14 +166,14 @@ def main():
         restored_env = {**env, 'DJANGO_DATA_DIR': str(root / 'restored')}
         manage(restored_env, 'migrate', '--noinput')
         manage(restored_env, 'restore_project', str(backup))
-        manage(restored_env, 'shell', '-c', "from django.contrib.auth import get_user_model; from community.models import MobileSession,RecoveryCredential,Submission; from guide.models import GuideEntry; "
+        manage(restored_env, 'shell', '-c', "from django.contrib.auth import get_user_model; from community.models import MobileSession,RecoveryCredential,Submission; from guide.models import CampusPlace, CampusRoute, GuidePost; "
             "u=get_user_model().objects.get(username='smoke_student'); "
             f"assert u.check_password({password!r}); assert u.recovery_credential.token_hash=={recovery_digest!r}; "
             "assert not MobileSession.objects.exists(); assert Submission.objects.count()==4; "
-            "e=GuideEntry.objects.get(title='Smoke edited content'); assert e.current_submission.image.storage.exists(e.current_submission.image.name); "
+            "e=GuidePost.objects.get(title='Smoke edited content'); cover=e.publication.current_submission.image; assert cover.storage.exists(cover.name); "
             "from community.models import SubmissionStepImage; assert SubmissionStepImage.objects.count()==2; "
             "assert all(photo.image.storage.exists(photo.image.name) for photo in SubmissionStepImage.objects.all()); "
-            "assert len(GuideEntry.objects.get(title='Smoke walking route').map_data['steps'])==2")
+            "assert CampusRoute.objects.get(title='Smoke walking route').steps.count()==2; assert CampusPlace.objects.get(name_en='Smoke entrance').abbreviation_en=='SE'")
         evidence.append('Backup hashes and restore into a separate empty database passed, including recovery credential, circular version links and uploaded image')
     output = ROOT / '.local' / ('production-verification' + ('-database-media' if options.storage == 'database' else '') + '.json')
     output.parent.mkdir(exist_ok=True)

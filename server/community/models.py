@@ -56,9 +56,9 @@ class Submission(models.Model):
     reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
         on_delete=models.SET_NULL, related_name="reviewed_submissions", verbose_name="审核人")
     reviewed_at = models.DateTimeField("审核时间", null=True, blank=True)
-    public_entry = models.ForeignKey("guide.GuideEntry", null=True, blank=True,
+    public_entry = models.ForeignKey("guide.Publication", null=True, blank=True,
         on_delete=models.SET_NULL, related_name="contributions", verbose_name="公开内容")
-    edit_of = models.ForeignKey("guide.GuideEntry", null=True, blank=True,
+    edit_of = models.ForeignKey("guide.Publication", null=True, blank=True,
         on_delete=models.PROTECT, related_name="edit_requests", verbose_name="申请修改的内容")
     base_entry_updated_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField("提交时间", auto_now_add=True)

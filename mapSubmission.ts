@@ -1,7 +1,7 @@
 import type { PickedImage } from './communityApi';
 import type { Place } from './campus';
 export type RouteStepDraft = { title: string; body: string; image?: PickedImage | null; existingImage?: string; imageUrl?: string; removeImage?: boolean; sourceIndex?: number };
-export type MapDraftData = { type?: 'place' | 'route'; category?: Place['category']; x?: number | null; y?: number | null; english?: string; entrance?: string; floor?: string; originId?: string; destinationId?: string; steps?: RouteStepDraft[] };
+export type MapDraftData = { type?: 'place' | 'route'; category?: Place['category']; x?: number | null; y?: number | null; english?: string; abbreviation?: string; entrance?: string; floor?: string; originId?: string; destinationId?: string; steps?: RouteStepDraft[] };
 export function emptyMapDraft(kind: string): MapDraftData {
   return kind === 'new_place' ? { type: 'place', category: 'building', x: null, y: null, english: '', entrance: '', floor: '' } : kind === 'new_route' ? { type: 'route', originId: 'gate', destinationId: 'main', steps: [{ title: '', body: '' }] } : {};
 }
@@ -9,7 +9,7 @@ export function editMapDraft(value: MapDraftData = {}): MapDraftData {
   return { ...value, steps: value.steps?.map((step,index) => ({ title: step.title, body: step.body, existingImage: step.imageUrl || '', sourceIndex: step.sourceIndex ?? index, image: null, removeImage: false })) };
 }
 export function hasMapInput(data: MapDraftData): boolean {
-  if (data.type === 'place') return typeof data.x === 'number' || Boolean(data.english || data.entrance || data.floor || (data.category && data.category !== 'building'));
+  if (data.type === 'place') return typeof data.x === 'number' || Boolean(data.english || data.abbreviation || data.entrance || data.floor || (data.category && data.category !== 'building'));
   if (data.type === 'route') return Boolean((data.originId && data.originId !== 'gate') || (data.destinationId && data.destinationId !== 'main') || (data.steps?.length || 0) > 1 || data.steps?.some(step => step.title || step.body || step.image || step.existingImage));
   return false;
 }
@@ -36,5 +36,5 @@ export function serializeMapDraft(kind: string, value: MapDraftData) {
     });
     return { data: { type: 'route', originId: value.originId, destinationId: value.destinationId, steps }, inherit, removed, uploads };
   }
-  return { data: kind === 'new_place' ? { type: 'place', category: value.category, x: value.x, y: value.y, english: value.english || '', entrance: value.entrance || '', floor: value.floor || '' } : {}, inherit, removed, uploads };
+  return { data: kind === 'new_place' ? { type: 'place', category: value.category, x: value.x, y: value.y, english: value.english || '', abbreviation: value.abbreviation, entrance: value.entrance || '', floor: value.floor || '' } : {}, inherit, removed, uploads };
 }

@@ -6,7 +6,7 @@ from .authentication import create_session
 from .models import MobileSession, RecoveryCredential, Submission
 from .services import ReviewConflict, review_submission
 from .tests import CommunityFixture, photo
-from guide.models import GuideEntry
+from guide.models import GuidePost
 
 
 class AccountSecurityTests(CommunityFixture):
@@ -100,11 +100,11 @@ class PublishedEditTests(CommunityFixture):
         self.assertTrue(edit.edit_of_id)
         self.assertNotContains(self.anon.get("/api/guide/"), edit.title)
         self.assertContains(self.anon.get("/api/guide/"), original.title)
-        before = GuideEntry.objects.count()
+        before = GuidePost.objects.count()
         edit = review_submission(edit.pk, 1, "approved", "更新已核实", self.admin)
         self.assertEqual(edit.public_entry_id, original.public_entry_id)
         self.assertEqual(edit.public_entry.current_submission_id, edit.pk)
-        self.assertEqual(GuideEntry.objects.count(), before)
+        self.assertEqual(GuidePost.objects.count(), before)
         self.assertContains(self.anon.get("/api/guide/"), edit.title)
         self.assertNotContains(self.anon.get("/api/guide/"), original.title)
         original.refresh_from_db()
@@ -135,7 +135,8 @@ class PublishedEditTests(CommunityFixture):
         edit = self.propose(original)
         entry = original.public_entry
         old_version = entry.updated_at.isoformat()
-        entry.body = "管理员刚刚更新了公开内容，需先核对。"
+        entry.post.body = "管理员刚刚更新了公开内容，需先核对。"
+        entry.post.save()
         entry.save()
         with self.assertRaises(ReviewConflict):
             review_submission(edit.pk, 1, "approved", "", self.admin)
@@ -191,7 +192,7 @@ class PublishedEditTests(CommunityFixture):
         result = self.client.post(path, {"decision": "approved", "review_version": 1, "review_note": "资料已核实", "_save": "保存"})
         self.assertEqual(result.status_code, 302)
         original.public_entry.refresh_from_db()
-        self.assertEqual(original.public_entry.title, edit.title)
+        self.assertEqual(original.public_entry.post.title, edit.title)
 
     def test_kind_cannot_be_changed_in_edit(self):
         original = self.published()

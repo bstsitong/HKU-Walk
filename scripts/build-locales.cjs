@@ -3,10 +3,11 @@ const OpenCC = require('opencc-js');
 const toTraditional = OpenCC.Converter({ from: 'cn', to: 'hk' });
 const pairs = { ...require('../locales/prototype-en.json'), ...require('../locales/app-en.json'), ...require('../locales/errors-en.json'), ...require('../locales/map-features-en.json') };
 // Search aliases and language autonyms are not rendered as translatable copy.
-const source = fs.readFileSync('campus.ts', 'utf8');
-const names = [...source.matchAll(/name: '([^']+)', english: '([^']+)'/g)];
-for (const [, zh, en] of names) pairs[toTraditional(zh)] = en;
-for (const keyword of [...source.matchAll(/keywords: '([^']+)'/g)]) pairs[keyword[1]] = keyword[1];
+for (const { name, english, keywords } of require('../server/guide/base_places_v1.json')) {
+  pairs[name] = english;
+  pairs[toTraditional(name)] = english;
+  pairs[keywords] = keywords;
+}
 pairs['花園'] = 'Garden';
 const messages = Object.fromEntries(Object.entries(pairs).map(([text, en]) => [text, { en, 'zh-Hant': toTraditional(text) }]));
 fs.writeFileSync('locales/messages.json', JSON.stringify(messages, null, 2) + '\n');

@@ -52,7 +52,7 @@ export default function MapCanvas({ selected, category = 'all', zoom = 1, onSele
       accessibilityState={{ selected: p.id === selected.id }} disabled={!onSelect}
       onPress={() => onSelect?.(p)} style={[s.hit, { left: (p.x - box.x) / box.width * width - 24, top: (p.y - box.y) / box.height * height - 24 }]}>
       <View style={[s.pin, p.id === selected.id && s.selected]}><AppIcon name={placeIcon(p)} size={16} color="#fff" /></View>
-      <View pointerEvents="none" style={{ position: 'absolute', top: 43, left: -44, width: 136 }}><Text raw style={{ fontSize: 10, lineHeight: 14, color: c.muted, textAlign: 'center' }}>{p.isCommunity ? p.name : translate(p.name, language)}</Text></View>
+      <View pointerEvents="none" style={{ position: 'absolute', top: 43, left: -44, width: 136 }}><Text raw style={{ fontSize: 10, lineHeight: 14, color: c.muted, textAlign: 'center' }}>{placeName(p, language)}</Text></View>
     </Pressable>)}
   </View>;
   return <View onLayout={event => setViewport(event.nativeEvent.layout)} style={s.frame}>

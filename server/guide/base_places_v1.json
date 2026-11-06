@@ -1,0 +1,10 @@
+[
+  {"id":"main","name":"本部大楼","english":"Main Building","abbreviation":"MB","keywords":"本部大樓 MB","category":"building","x":255,"y":168},
+  {"id":"library","name":"大学图书馆","english":"Main Library","abbreviation":"ML","keywords":"圖書館 总图书馆","category":"study","x":178,"y":296},
+  {"id":"chiwah","name":"智华学习共享空间","english":"Chi Wah Learning Commons","abbreviation":"CWLC","keywords":"智華 CWLC","category":"study","x":76,"y":416},
+  {"id":"knowles","name":"钮鲁诗楼","english":"Knowles Building","abbreviation":"KB","keywords":"鈕魯詩樓 KB","category":"building","x":266,"y":357},
+  {"id":"gate","name":"港大站校园入口","english":"HKU Station · Campus access","abbreviation":"HKU","keywords":"港大站 地鐵 地铁 MTR","category":"access","x":62,"y":507},
+  {"id":"garden","name":"百周年校园花园","english":"Centennial Campus Garden","abbreviation":"","keywords":"花園","category":"space","x":88,"y":265},
+  {"id":"cafe","name":"校园咖啡点（示例）","english":"Campus café · sample","abbreviation":"","keywords":"咖啡 cafe 餐饮 food","category":"food","x":126,"y":366},
+  {"id":"toilet","name":"公共洗手间（示例）","english":"Public toilet · sample","abbreviation":"WC","keywords":"廁所 洗手間 wc 厕所","category":"toilet","x":275,"y":445}
+]

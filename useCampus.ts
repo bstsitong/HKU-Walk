@@ -13,7 +13,7 @@ export default function useCampus() {
   const controller = useRef<AbortController | null>(null);
   const cacheWrites = useRef(Promise.resolve());
   const fresh = useRef(false);
-  const apply = (next: CampusCatalog) => { setCommunityCampus(next.places, next.routes); setCatalog(next); };
+  const apply = (next: CampusCatalog) => { setCommunityCampus(next.places, next.routes, next.basePlaces); setCatalog(next); };
   const reload = useCallback(async () => {
     const current = ++generation.current;
     controller.current?.abort();

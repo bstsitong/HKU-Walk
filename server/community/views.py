@@ -13,6 +13,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
+from guide.catalog import content_image, publication_map_data, published_routes
+from guide.models import Publication
 
 from .authentication import MobileAuthentication, create_session
 from .models import Submission, SubmissionStepImage, RecoveryCredential
@@ -33,17 +35,20 @@ def published_data(request, item):
     entry = item.edit_of or item.public_entry
     if not entry:
         return None
+    content = entry.content
+    if content is None:
+        return None
     source = entry.current_submission
     location = source.location if source else ""
-    body = entry.body
+    body = content.body
     prefix = f"相关地点或路线：{location}\n\n"
     if location and body.startswith(prefix):
         body = body[len(prefix):]
-    return {"title": entry.title, "body": body, "location": location,
-        "externalUrl": entry.external_url,
-        "imageUrl": entry.image_url or (image_url(request, source) if source and source.image else ""),
+    return {"title": content.title, "body": body, "location": location,
+        "externalUrl": content.external_url,
+        "imageUrl": content_image(request, content, entry),
         "version": entry.updated_at.isoformat(), "published": entry.published,
-        "mapData": enrich_map_data(request, entry.map_data, source)}
+        "mapData": publication_map_data(request, entry, content)}
 
 def submission_data(request, item):
     return {
@@ -140,8 +145,12 @@ class RecoverAccount(PrivateResponseView):
 
 def owned_submissions(user):
     active = Submission.objects.filter(edit_of_id=OuterRef("target_entry_id"), status__in=["pending", "changes_requested"])
-    return Submission.objects.filter(author=user).select_related("edit_of__current_submission", "public_entry__current_submission").prefetch_related(
-        "step_images", "edit_of__current_submission__step_images", "public_entry__current_submission__step_images").annotate(
+    targets = ("edit_of", "public_entry")
+    return Submission.objects.filter(author=user).select_related(
+        *(f"{target}__{child}" for target in targets for child in ("current_submission", "post", "place", "route")),
+    ).prefetch_related(
+        "step_images", *(f"{target}__route__steps__photo" for target in targets),
+    ).annotate(
         target_entry_id=Coalesce("edit_of_id", "public_entry_id"), open_edit_id=Subquery(active.values("pk")[:1]))
 
 class Submissions(PrivateResponseView):
@@ -201,9 +210,13 @@ class SubmissionImage(PrivateResponseView):
     authentication_classes = [MobileAuthentication, SessionAuthentication]
 
     def get(self, request, pk):
-        item = get_object_or_404(Submission.objects.select_related("public_entry"), pk=pk)
-        public = (item.status == Submission.Status.APPROVED and item.public_entry and item.public_entry.published
-            and item.public_entry.current_submission_id == item.pk and not item.public_entry.image_url)
+        item = get_object_or_404(Submission.objects.select_related(
+            "public_entry__post", "public_entry__place", "public_entry__route"), pk=pk)
+        publication = item.public_entry
+        public = (item.status == Submission.Status.APPROVED and publication and publication.published
+            and publication.current_submission_id == item.pk and publication.content and not publication.content.image_url)
+        if public and publication.kind == Publication.Kind.ROUTE:
+            public = published_routes().filter(pk=publication.pk).exists()
         allowed = public or (request.user.is_authenticated and (request.user.pk == item.author_id or request.user.is_staff))
         if not allowed or not item.image:
             raise Http404
@@ -219,11 +232,10 @@ class SubmissionStepImageView(PrivateResponseView):
     def get(self, request, pk):
         image = get_object_or_404(SubmissionStepImage.objects.select_related("submission__public_entry"), pk=pk)
         item = image.submission
-        referenced = (item.public_entry and any(step.get('imageIndex', index) == image.step_index
-            for index, step in enumerate(item.public_entry.map_data.get('steps', []))))
         public = (item.status == Submission.Status.APPROVED and item.public_entry
-            and item.public_entry.published and item.public_entry.current_submission_id == item.pk
-            and item.public_entry.map_data.get("type") == "route" and referenced)
+            and item.public_entry.current_submission_id == item.pk
+            and item.public_entry.kind == Publication.Kind.ROUTE
+            and published_routes().filter(pk=item.public_entry_id, steps__photo_id=image.pk).exists())
         allowed = public or (request.user.is_authenticated and (request.user.pk == item.author_id or request.user.is_staff))
         if not allowed:
             raise Http404

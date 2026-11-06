@@ -7,6 +7,7 @@ from django.core.files.storage import default_storage
 from django.core.management import call_command
 from django.test import TransactionTestCase, override_settings
 from rest_framework.test import APIClient
+from guide.models import CampusPlace, CampusRoute, GuidePost
 from .tests import CommunityFixture, photo
 from .models import Submission, SubmissionStepImage, StoredMedia, MediaQuota
 from .services import review_submission, ReviewConflict
@@ -36,12 +37,18 @@ class CampusContributionTests(CommunityFixture):
         return Submission.objects.get(pk=response.json()['submission']['id'])
 
     def test_place_enters_catalog_only_after_approval_and_can_be_unpublished(self):
-        item = self.submit(kind='new_place', title='饭堂', map_data={"category": "food", "x": 110, "y": 320, "english": "New canteen", "entrance": "从前方入口进入。", "floor": "G/F"})
-        self.assertEqual(self.anon.get('/api/campus/').json(), {'places': [], 'routes': []})
+        item = self.submit(kind='new_place', title='饭堂', map_data={"category": "food", "x": 110, "y": 320, "english": "New canteen", "abbreviation": "NC", "entrance": "从前方入口进入。", "floor": "G/F"})
+        catalog = self.anon.get('/api/campus/').json()
+        self.assertEqual((catalog['places'], catalog['routes']), ([], []))
+        self.assertIn('library', {place['id'] for place in catalog['basePlaces']})
         item = review_submission(item.pk, 1, 'approved', '', self.admin)
         place = self.anon.get('/api/campus/').json()['places'][0]
         self.assertEqual(place['id'], 'community-place-' + str(item.public_entry_id))
         self.assertEqual((place['name'], place['x'], place['category']), ('饭堂', 110, 'food'))
+        stored = CampusPlace.objects.get(pk=place['id'])
+        self.assertEqual((stored.name_zh, stored.name_en, stored.abbreviation_en), ('饭堂', 'New canteen', 'NC'))
+        self.assertEqual(place['abbreviation'], 'NC')
+        self.assertFalse(GuidePost.objects.filter(pk=item.public_entry_id).exists())
         item.public_entry.published = False
         item.public_entry.save()
         self.assertEqual(self.anon.get('/api/campus/').json()['places'], [])
@@ -75,6 +82,10 @@ class CampusContributionTests(CommunityFixture):
         item = review_submission(item.pk, 1, 'approved', '', self.admin)
         result = self.anon.get('/api/campus/').json()['routes'][0]
         self.assertEqual(len(result['steps']), 2)
+        route = CampusRoute.objects.get(pk=item.public_entry_id)
+        self.assertEqual((route.origin.pk, route.destination.pk), ('gate', 'library'))
+        self.assertEqual(route.steps.count(), 2)
+        self.assertFalse(GuidePost.objects.filter(pk=item.public_entry_id).exists())
         self.assertEqual(self.image_status(self.anon, path), 200)
         item.public_entry.published = False
         item.public_entry.save()
@@ -151,15 +162,13 @@ class CampusContributionTests(CommunityFixture):
     def test_admin_reordering_preserves_photo_association_and_removed_photos_stop_being_public(self):
         item = review_submission(self.route().pk, 1, 'approved', '', self.admin)
         old = self.anon.get('/api/campus/').json()['routes'][0]
-        entry = item.public_entry
-        entry.map_data['steps'].reverse()
-        entry.full_clean()
-        entry.save()
+        route = item.public_entry.route
+        first, second = list(route.steps.all())
+        first.position = 2
+        first.save(update_fields=['position'])
         reordered = self.anon.get('/api/campus/').json()['routes'][0]
         self.assertEqual(reordered['steps'][0]['imageUrl'], old['steps'][1]['imageUrl'])
-        entry.map_data['steps'].pop(0)
-        entry.full_clean()
-        entry.save()
+        second.delete()
         self.assertEqual(self.image_status(self.anon, old['steps'][1]['imageUrl']), 404)
         self.assertEqual(self.image_status(self.anon, old['steps'][0]['imageUrl']), 200)
 

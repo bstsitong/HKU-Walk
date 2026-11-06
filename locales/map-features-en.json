@@ -38,6 +38,8 @@
   "上": "up",
   "下": "down",
   "英文名称（选填）": "English name (optional)",
+  "英文简称（选填）": "English abbreviation (optional)",
+  "地点中文名称": "Chinese place name",
   "入口说明（选填）": "Entrance details (optional)",
   "楼层说明（选填）": "Floor details (optional)",
   "路线起终点": "Route endpoints",

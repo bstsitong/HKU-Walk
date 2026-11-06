@@ -61,7 +61,8 @@ class SubmissionAdmin(admin.ModelAdmin):
     def published_version(self, obj):
         if not obj.edit_of_id:
             return "首次投稿"
-        return format_html('<strong>{}</strong><p style="white-space:pre-wrap">{}</p>', obj.edit_of.title, obj.edit_of.body)
+        content = obj.edit_of.content
+        return format_html('<strong>{}</strong><p style="white-space:pre-wrap">{}</p>', content.title, content.body) if content else "—"
 
     @admin.display(description="投稿图片")
     def image_preview(self, obj):
