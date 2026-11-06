@@ -10,6 +10,7 @@ export type GuideEntry = {
   imageUrl: string;
   isExample: boolean;
   isCommunity?: boolean;
+  mapType?: 'place' | 'route' | '';
   updatedAt: string;
 };
 export type GuideCategory = {

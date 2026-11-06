@@ -4,7 +4,7 @@ import { places } from './campus';
 import { Alert } from './ui';
 const storageKey = 'hku-walk.places.v1';
 export function validPlaceIds(value: unknown): string[] {
-  return Array.isArray(value) ? [...new Set(value.filter((id): id is string => typeof id === 'string' && places.some(place => place.id === id)))] : [];
+  return Array.isArray(value) ? [...new Set(value.filter((id): id is string => typeof id === 'string' && (places.some(place => place.id === id) || /^community-place-\d+$/.test(id))))] : [];
 }
 export default function usePlaces() {
   const [saved, setSaved] = useState<string[]>([]);

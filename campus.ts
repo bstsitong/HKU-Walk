@@ -19,10 +19,16 @@ export type Place = {
   category: Exclude<Category, 'all'> | 'space';
   x: number;
   y: number;
+  entryId?: string;
+  description?: string;
+  entrance?: string;
+  floor?: string;
+  imageUrl?: string;
+  isCommunity?: boolean;
 };
 
 // These coordinates are in the prototype's drawing, separate from GPS coordinates.
-export const places: Place[] = [
+export const basePlaces: Place[] = [
   { id: 'main', name: '本部大楼', english: 'Main Building', keywords: '本部大樓 MB', category: 'building', x: 255, y: 168 },
   { id: 'library', name: '大学图书馆', english: 'Main Library', keywords: '圖書館 总图书馆', category: 'study', x: 178, y: 296 },
   { id: 'chiwah', name: '智华学习共享空间', english: 'Chi Wah Learning Commons', keywords: '智華 CWLC', category: 'study', x: 76, y: 416 },
@@ -33,6 +39,17 @@ export const places: Place[] = [
   { id: 'toilet', name: '公共洗手间（示例）', english: 'Public toilet · sample', keywords: '廁所 洗手間 wc 厕所', category: 'toilet', x: 275, y: 445 },
 ];
 
+export const places: Place[] = [...basePlaces];
+export type CampusRoute = { id: string; entryId: string; title: string; body: string; originId: string; destinationId: string;
+  steps: { title: string; body: string; imageUrl?: string }[]; isCommunity: true; updatedAt: string };
+export const campusRoutes: CampusRoute[] = [];
+export function setCommunityCampus(newPlaces: Place[], newRoutes: CampusRoute[]) {
+  places.splice(0, places.length, ...basePlaces, ...newPlaces);
+  campusRoutes.splice(0, campusRoutes.length, ...newRoutes);
+}
+export const getPlace = (id: string) => places.find(place => place.id === id);
+export const getCampusRoute = (id: string) => campusRoutes.find(route => route.id === id);
+
 export function findPlace(id: string) {
   return places.find(place => place.id === id) ?? places[0];
 }
@@ -41,11 +58,11 @@ export function categoryLabel(category: Place['category']) {
   return t(categories.find(item => item.id === category)?.label ?? '校园空间');
 }
 
-export const placeName = (place: Place) => t(place.name);
+export const placeName = (place: Place) => place.isCommunity ? place.name : t(place.name);
 export const placeIcon = (place: Place): IconName => ({ building: 'building', study: 'book', food: 'coffee', toilet: 'wc', access: 'gate', space: 'leaf' } as const)[place.category];
 export const categoryIcon = (category: Category): IconName => category === 'all' ? 'map' : placeIcon({ category } as Place);
-export const placePhoto = (place: Place) => place.id === 'main' ? require('./assets/hku-main.webp') : require('./assets/hku-campus.webp');
-export const hasPlacePhoto = (place: Place) => ['main', 'chiwah', 'garden'].includes(place.id);
+export const placePhoto = (place: Place) => place.imageUrl ? { uri: place.imageUrl } : place.id === 'main' ? require('./assets/hku-main.webp') : require('./assets/hku-campus.webp');
+export const hasPlacePhoto = (place: Place) => Boolean(place.imageUrl) || (!place.isCommunity && ['main', 'chiwah', 'garden'].includes(place.id));
 const traditionalNames: Record<string, string> = { main: '本部大樓', library: '大學圖書館', chiwah: '智華學習共享空間', knowles: '鈕魯詩樓', gate: '港大站校園入口', garden: '百周年校園花園', cafe: '校園咖啡點（示例）', toilet: '公共洗手間（示例）' };
 
 export function filterPlaces(category: Category, query = '') {

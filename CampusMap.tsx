@@ -1,62 +1,29 @@
 import { useEffect, useState } from 'react';
-import { BackHandler, Keyboard, Modal, ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Alert, Image, Pressable, Text, TextInput } from './ui';
+import { BackHandler, Keyboard, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Image, Pressable, Text } from './ui';
 import AppIcon, { IconName } from './AppIcon';
 import MapCanvas from './MapCanvas';
-import StepIllustration from './StepIllustration';
-import { Category, Place, categories, categoryIcon, categoryLabel, filterPlaces, findPlace, hasPlacePhoto, placeIcon, placeName, placePhoto, places, routeSteps } from './campus';
+import { Category, Place, categories, categoryIcon, categoryLabel, findPlace, getCampusRoute, getPlace, hasPlacePhoto, placeIcon, placeName, placePhoto, places } from './campus';
 import { PlaceRecords } from './usePlaces';
 import { t } from './localization';
 import { useLanguage } from './LanguageProvider';
 import { colors as c } from './theme';
+import PlaceSearch from './PlaceSearch';
+import RouteScreen from './RouteScreen';
+import { RouteRecords } from './useSavedRoutes';
+import { RouteBookmark } from './routeBookmarks';
+import useCampus from './useCampus';
 
 export type MapView = 'home' | 'search' | 'detail' | 'route';
-export type MapRequest = { serial: number; view: 'home' | 'detail'; placeId?: string; category?: Category; fromSaved?: boolean };
+export type MapRequest = { serial: number; view: 'home' | 'detail' | 'route'; route?: RouteBookmark; placeId?: string; category?: Category; fromSaved?: boolean };
 function IconButton({ icon, label, onPress, selected = false, disabled = false, testID }: { icon: IconName; label: string; onPress: () => void; selected?: boolean; disabled?: boolean; testID?: string }) {
   return <Pressable testID={testID} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ selected, disabled }} disabled={disabled} onPress={onPress} style={[s.iconButton, disabled && { opacity: 0.35 }]}><AppIcon name={icon} color={selected ? c.rust : c.green} /></Pressable>;
 }
 function Action({ label, onPress, secondary = false, icon, testID }: { label: string; onPress: () => void; secondary?: boolean; icon?: IconName; testID?: string }) {
   return <Pressable testID={testID} accessibilityRole="button" onPress={onPress} style={[s.action, secondary && s.secondary]}>{icon ? <AppIcon name={icon} color={secondary ? c.green : '#fff'} size={18} /> : null}<Text style={[s.actionLabel, secondary && s.secondaryLabel]}>{label}</Text></Pressable>;
 }
-export function PlaceRow({ place, onPress, trailing }: { place: Place; onPress: () => void; trailing?: React.ReactNode }) {
-  const { language } = useLanguage();
-  return <View style={s.placeRow}>
-    <Pressable testID={`place-${place.id}`} accessibilityRole="button" onPress={onPress} style={s.placeMain}>
-      <View style={s.placeSymbol}><AppIcon name={placeIcon(place)} size={22} /></View>
-      <View style={s.flex}><Text style={s.rowTitle}>{placeName(place)}</Text><Text raw style={s.meta}>{language === 'en' ? place.name : place.english}</Text><Text style={s.meta}>{categoryLabel(place.category)}</Text></View>
-      {!trailing ? <AppIcon name="chevron" size={17} color={c.muted} /> : null}
-    </Pressable>{trailing}
-  </View>;
-}
-
-function SearchPlaces({ onBack, onChoose, title }: { onBack: () => void; onChoose: (place: Place) => void; title?: string }) {
-  const [query, setQuery] = useState('');
-  const [category, setCategory] = useState<Category>('all');
-  const results = filterPlaces(category, query);
-  return <View style={s.flex}>
-    <View style={s.searchHeader}>
-      <IconButton icon="back" label="返回" onPress={onBack} />
-      <View style={s.searchInput}><AppIcon name="search" size={18} color={c.muted} /><TextInput testID="place-search" accessibilityLabel={title || '搜索校园地点'} placeholder={title || '搜索名称、英文或简称'} value={query} onChangeText={setQuery} returnKeyType="search" autoCorrect={false} style={s.input} onSubmitEditing={Keyboard.dismiss} />
-        {query ? <IconButton icon="close" label="清空搜索" onPress={() => setQuery('')} /> : null}
-      </View>
-    </View>
-    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={s.page}>
-      {title ? <Text accessibilityRole="header" style={s.sectionTitle}>{title}</Text> : null}
-      {!query && category === 'all' ? <>
-        <Text style={s.sectionTitle}>常用搜索</Text><View style={s.chips}>{places.slice(0, 3).map(place => <Pressable accessibilityRole="button" key={place.id} onPress={() => setQuery(place.name)} style={s.chip}><Text style={s.chipText}>{placeName(place)}</Text></Pressable>)}</View>
-        <Text style={s.sectionTitle}>按类别探索</Text><View style={s.explore}>{categories.filter(item => ['building', 'food', 'toilet', 'access'].includes(item.id)).map(item => <Pressable key={item.id} accessibilityRole="button" onPress={() => setCategory(item.id)} style={s.exploreItem}><View style={s.exploreIcon}><AppIcon name={categoryIcon(item.id)} /></View><Text style={s.meta}>{item.label}</Text></Pressable>)}</View>
-      </> : <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.filters}>{categories.map(item => <Pressable key={item.id} accessibilityRole="button" accessibilityState={{ selected: category === item.id }} onPress={() => setCategory(item.id)} style={[s.chip, category === item.id && s.selectedChip]}><Text style={[s.chipText, category === item.id && s.white]}>{item.label}</Text></Pressable>)}</ScrollView>}
-      <View style={s.sectionHeading}><Text style={s.sectionTitle}>{query || category !== 'all' ? '搜索结果' : '校园地点'}</Text><Text style={s.meta}>{t('{count} 个地点', { count: results.length })}</Text></View>
-      {results.map(place => <PlaceRow key={place.id} place={place} onPress={() => { Keyboard.dismiss(); onChoose(place); }} />)}
-      {!results.length ? <View style={s.empty}><AppIcon name="search" size={34} color={c.muted} /><Text style={s.rowTitle}>没有找到相关地点</Text><Text style={[s.body, s.center]}>试试建筑的英文名称、简称，或者换一个关键词。</Text><Action secondary label="查看全部地点" onPress={() => { setQuery(''); setCategory('all'); }} /></View> : null}
-      <Text style={s.note}>地点资料仅用于本次原型演示</Text>
-    </ScrollView>
-  </View>;
-}
-
-export default function CampusMap({ active, records, sampleLocation, request, onViewChange, onReturnSaved }: {
-  active: boolean; records: PlaceRecords; sampleLocation: boolean; request: MapRequest | null; onViewChange: (view: MapView) => void; onReturnSaved: () => void;
+export default function CampusMap({ active, records, routes, campus, sampleLocation, request, onViewChange, onReturnSaved }: {
+  active: boolean; records: PlaceRecords; routes: RouteRecords; campus: ReturnType<typeof useCampus>; sampleLocation: boolean; request: MapRequest | null; onViewChange: (view: MapView) => void; onReturnSaved: () => void;
 }) {
   const { language } = useLanguage();
   const [view, setView] = useState<MapView>('home');
@@ -66,22 +33,26 @@ export default function CampusMap({ active, records, sampleLocation, request, on
   const [centerTick, setCenterTick] = useState(0);
   const [origin, setOrigin] = useState(findPlace('gate'));
   const [destination, setDestination] = useState(findPlace('main'));
-  const [selector, setSelector] = useState<'origin' | 'destination' | null>(null);
-  const [allSteps, setAllSteps] = useState(false);
+  const [preferredRoute, setPreferredRoute] = useState<RouteBookmark | null>(null);
   const [routeReturn, setRouteReturn] = useState<MapView>('home');
   const [returnView, setReturnView] = useState<MapView>('home');
   const [fromSaved, setFromSaved] = useState(false);
   const changeView = (next: MapView) => { Keyboard.dismiss(); setView(next); onViewChange(next); };
   const detail = (place: Place) => { setFromSaved(false); setSelected(place); records.visit(place.id); setReturnView(view === 'search' ? 'search' : 'home'); changeView('detail'); };
   const back = () => {
-    if (selector) { setSelector(null); return; }
-    if (view === 'route') { changeView(routeReturn); return; }
+    if (view === 'route') { if (fromSaved && routeReturn === 'home') { setFromSaved(false); changeView('home'); onReturnSaved(); } else changeView(routeReturn); return; }
     if (view === 'detail' && fromSaved) { setFromSaved(false); changeView('home'); onReturnSaved(); return; }
     changeView(view === 'detail' ? returnView : 'home');
   };
   useEffect(() => {
     if (!request) return;
     setFromSaved(Boolean(request.fromSaved));
+    if (request.view === 'route' && request.route) {
+      const shared = request.route.source === 'community' ? getCampusRoute(request.route.id) : undefined;
+      const start = getPlace(shared?.originId || request.route.originId), end = getPlace(shared?.destinationId || request.route.destinationId);
+      if (!start || !end || (request.route.source === 'community' && !shared)) { Alert.alert('路线暂不可用', '路线已下线或暂时无法读取'); changeView('home'); if (request.fromSaved) onReturnSaved(); return; }
+      setOrigin(start); setDestination(end); setSelected(end); setPreferredRoute(request.route); setRouteReturn('home'); changeView('route'); return;
+    }
     if (request.category) setCategory(request.category);
     if (request.placeId) { const place = findPlace(request.placeId); setSelected(place); if (request.view === 'detail') records.visit(place.id); }
     setReturnView('home'); setView(request.view); onViewChange(request.view);
@@ -89,54 +60,35 @@ export default function CampusMap({ active, records, sampleLocation, request, on
   useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => { if (!active || view === 'home') return false; back(); return true; });
     return () => listener.remove();
-  }, [active, view, selector, fromSaved, returnView, routeReturn]);
+  }, [active, view, fromSaved, returnView, routeReturn]);
   const startRoute = () => {
     setDestination(selected); setOrigin(findPlace(selected.id === 'gate' ? 'main' : 'gate'));
-    setAllSteps(false); setRouteReturn(view); changeView('route');
+    setPreferredRoute(null); setRouteReturn(view); changeView('route');
   };
+  useEffect(() => {
+    const latest = getPlace(selected.id);
+    if (latest) setSelected(latest);
+    else { setSelected(findPlace('main')); if (view === 'detail') { Alert.alert('地点暂不可用', '地点已下线或暂时无法读取'); changeView('home'); } }
+    if (!getPlace(origin.id) || !getPlace(destination.id)) { setOrigin(findPlace('gate')); setDestination(findPlace('main')); setPreferredRoute(null); if (view === 'route') changeView('home'); }
+  }, [campus.catalog]);
   const saved = records.saved.includes(selected.id);
   const saveButton = <IconButton testID="save-place" icon="bookmark" label={saved ? '取消收藏' : '收藏地点'} selected={saved} disabled={!records.ready} onPress={() => records.toggle(selected.id)} />;
-  if (view === 'search') return <SearchPlaces onBack={back} onChoose={detail} />;
+  if (view === 'search') return <PlaceSearch onBack={back} onChoose={detail} />;
   if (view === 'detail') return <View style={s.flex}>
     <ScrollView contentContainerStyle={s.detailPage}>
-      <View style={s.hero}><Image source={placePhoto(selected)} style={s.heroPhoto} resizeMode="cover" accessibilityLabel="港大校园照片" /><View style={s.heroActions}><View style={s.floating}><IconButton icon="back" label="返回" onPress={back} /></View><View style={s.floating}>{saveButton}</View></View><Text style={s.credit}>{selected.id === 'main' ? '本部大楼' : '校园实景'} · HKU</Text></View>
-      <View style={s.detailBody}><Text accessibilityRole="header" style={s.title}>{placeName(selected)}</Text><Text raw style={s.meta}>{language === 'en' ? selected.name : selected.english}</Text>
-        <View style={[s.chips, s.detailBadges]}><Text style={s.badge}>{categoryLabel(selected.category)}</Text><Text style={s.plainBadge}>校园地点</Text><Text style={s.rustBadge}>资料演示</Text></View>
-        <Text style={s.body}>{selected.id === 'main' ? '红砖、拱廊与钟楼，是这栋校园历史建筑的鲜明印记。从这里查看建筑位置，并辨认抵达入口。' : '在地图上确认地点位置，再查看入口与楼层提示。地点及入口资料目前为示例，后续由实地记录完善。'}</Text>
-        <View style={s.divider} /><View style={s.sectionHeading}><Text style={s.sectionTitle}>怎么进入这里</Text><Text style={s.meta}>以下为流程示例</Text></View>
-        <View style={s.infoRow}><AppIcon name="building" size={20} /><View style={s.flex}><Text style={s.rowTitle}>入口位置</Text><Text style={s.body}>入口说明示例：从建筑前方入口进入。</Text></View></View>
-        <View style={s.infoRow}><AppIcon name="lift" size={20} /><View style={s.flex}><Text style={s.rowTitle}>楼层与升降机</Text><Text style={s.body}>楼层说明示例：G/F · 入口层。</Text></View></View>
+      <View style={s.hero}>{selected.isCommunity && !selected.imageUrl ? <MapCanvas selected={selected} variant="mini" /> : <Image source={placePhoto(selected)} style={s.heroPhoto} resizeMode="cover" accessibilityLabel="校园地点照片" />}<View style={s.heroActions}><View style={s.floating}><IconButton icon="back" label="返回" onPress={back} /></View><View style={s.floating}>{saveButton}</View></View><Text style={s.credit}>{selected.isCommunity ? t(selected.imageUrl ? '投稿配图' : '位置示意') : t(selected.id === 'main' ? '本部大楼' : '校园实景') + ' · HKU'}</Text></View>
+      <View style={s.detailBody}><Text raw={selected.isCommunity} accessibilityRole="header" style={s.title}>{placeName(selected)}</Text><Text raw style={s.meta}>{language === 'en' && !selected.isCommunity ? selected.name : selected.english}</Text>
+        <View style={[s.chips, s.detailBadges]}><Text style={s.badge}>{categoryLabel(selected.category)}</Text><Text style={s.plainBadge}>校园地点</Text><Text style={s.rustBadge}>{selected.isCommunity ? '同学提供' : '资料演示'}</Text></View>
+        <Text raw={selected.isCommunity} style={s.body}>{selected.isCommunity ? selected.description : selected.id === 'main' ? '红砖、拱廊与钟楼，是这栋校园历史建筑的鲜明印记。从这里查看建筑位置，并辨认抵达入口。' : '在地图上确认地点位置，再查看入口与楼层提示。地点及入口资料目前为示例，后续由实地记录完善。'}</Text>
+        <View style={s.divider} /><View style={s.sectionHeading}><Text style={s.sectionTitle}>怎么进入这里</Text><Text style={s.meta}>{selected.isCommunity ? '同学提供' : '以下为流程示例'}</Text></View>
+        <View style={s.infoRow}><AppIcon name="building" size={20} /><View style={s.flex}><Text style={s.rowTitle}>入口位置</Text><Text raw={Boolean(selected.entrance)} style={s.body}>{selected.isCommunity ? selected.entrance || t('入口资料待补充') : t('入口说明示例：从建筑前方入口进入。')}</Text></View></View>
+        <View style={s.infoRow}><AppIcon name="lift" size={20} /><View style={s.flex}><Text style={s.rowTitle}>楼层与升降机</Text><Text raw={Boolean(selected.floor)} style={s.body}>{selected.isCommunity ? selected.floor || t('楼层资料待补充') : t('楼层说明示例：G/F · 入口层。')}</Text></View></View>
         <View style={s.divider} /><Text style={s.sectionTitle}>地图位置</Text><View style={s.miniMap}><MapCanvas selected={selected} variant="mini" /></View>
-        <Text style={s.note}>照片：HKU Wallpapers。照片只作校园氛围展示，入口位置及路线请以后续实地记录为准。</Text>
+        <Text style={s.note}>{selected.isCommunity ? '地点位置由投稿人点选，GPS 尚未接入。' : '照片：HKU Wallpapers。照片只作校园氛围展示，入口位置及路线请以后续实地记录为准。'}</Text>
       </View>
     </ScrollView><View style={s.footer}>{saveButton}<Action testID="detail-route" icon="walk" label="查看步行路线" onPress={startRoute} /></View>
   </View>;
-  if (view === 'route') {
-    const steps = routeSteps.map((step, index) => ({ ...step, title: index === 0 ? t('从 {place} 出发', { place: placeName(origin) }) : index === 4 ? t('找到 {place} 入口', { place: placeName(destination) }) : index === 5 ? t('到达 {place}', { place: placeName(destination) }) : t(step.title) }));
-    return <View style={s.flex}>
-      <View style={s.topBar}><IconButton icon="back" label="返回" onPress={back} /><Text accessibilityRole="header" style={s.topTitle}>步行路线</Text></View>
-      <ScrollView contentContainerStyle={s.routePage}>
-        <View style={s.endpointGroup}><View style={s.endpoints}>{(['origin', 'destination'] as const).map((key, index) => <Pressable key={key} testID={`route-${key}`} accessibilityRole="button" accessibilityLabel={t(index ? '选择终点' : '选择起点')} onPress={() => setSelector(key)} style={[s.endpoint, index === 0 && s.endpointLine]}><View style={[s.endpointDot, index === 1 && s.endDot]} /><Text style={[s.endpointText, s.flex]}>{placeName(key === 'origin' ? origin : destination)}</Text><AppIcon name="chevron" size={16} /></Pressable>)}</View><IconButton testID="route-swap" icon="swap" label="交换起点和终点" onPress={() => { setOrigin(destination); setDestination(origin); setAllSteps(false); }} /></View>
-        <View style={s.routeMap}><MapCanvas selected={destination} origin={origin} variant="route" /><View pointerEvents="none" style={s.mapDemo}><AppIcon name="walk" size={15} /><Text style={s.small}>步行路线示意</Text></View><Text style={s.routeMapNote}>示意地图 · 非实际导航</Text></View>
-        <View style={s.routeBody}><View style={s.sectionHeading}><View><Text style={s.body}><Text style={s.duration}>8</Text> 分钟 · 示例</Text><Text style={s.meta}>480 m · 演示步行路线</Text></View><Text style={s.badge}>步行</Text></View>
-          <View style={s.walkNote}><AppIcon name="walk" size={17} /><Text style={[s.meta, s.flex]}>步行途中按指引乘坐电梯或经过楼梯。</Text></View>
-          <View style={s.sectionHeading}><Text style={s.sectionTitle}>{t('图文路线指引 · {count} 步', { count: steps.length })}</Text><Text style={s.small}>每步配图待完善</Text></View>
-          {steps.slice(0, allSteps ? steps.length : 3).map((step, index) => <View key={step.photo} style={s.step}>
-            <View style={s.stepTrack}><View style={[s.stepDot, index === 2 && s.stepLift]}><Text style={s.stepNumber}>{index + 1}</Text></View>{index < steps.length - 1 ? <View style={s.stepLine} /> : null}</View>
-            <View style={s.stepCopy}><Text style={s.rowTitle}>{step.title}</Text><Text style={s.body}>{step.copy}</Text></View>
-            <View style={s.stepPhoto} accessibilityLabel={t(step.photo)}><StepIllustration step={index} /><Text style={s.photoLabel}>{step.photo}</Text><Text style={s.small}>配图待补</Text></View>
-          </View>)}
-          <Text style={s.note}>距离、用时与通行方式均为演示，请勿据此实际导航。</Text>
-        </View>
-      </ScrollView><View style={s.footer}><Action testID="route-all-steps" icon={allSteps ? 'map' : 'walk'} label={allSteps ? '返回地图' : t('查看全部 {count} 步', { count: steps.length })} onPress={() => { if (allSteps) { setFromSaved(false); changeView('home'); } else setAllSteps(true); }} /></View>
-      <Modal visible={selector !== null} animationType="slide" onRequestClose={() => setSelector(null)}><SafeAreaView style={s.modal}><SearchPlaces title={selector === 'origin' ? '选择起点' : '选择终点'} onBack={() => setSelector(null)} onChoose={place => {
-        const other = selector === 'origin' ? destination : origin;
-        if (place.id === other.id) { Alert.alert('请选择不同地点', '起点和终点不能相同。'); return; }
-        if (selector === 'origin') setOrigin(place); else setDestination(place);
-        setAllSteps(false); setSelector(null);
-      }} /></SafeAreaView></Modal>
-    </View>;
-  }
+  if (view === 'route') return <RouteScreen initialOrigin={origin} initialDestination={destination} initialRouteId={preferredRoute?.source === 'community' ? preferredRoute.id : undefined} preferDemo={preferredRoute?.source === 'demo'} records={routes} onBack={back} onMap={(place?: Place) => { if (place) setSelected(place); setFromSaved(false); setCategory('all'); changeView('home'); }} catalogVersion={campus.catalog} />;
   return <View style={s.flex}>
     <View style={s.mapHome}>
       <MapCanvas selected={selected} category={category} zoom={zoom} onSelect={setSelected} sampleLocation={sampleLocation} centerTick={centerTick} />
@@ -145,9 +97,10 @@ export default function CampusMap({ active, records, sampleLocation, request, on
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.homeCategories}>{categories.map(item => <Pressable testID={`filter-${item.id}`} key={item.id} accessibilityRole="button" accessibilityState={{ selected: category === item.id }} onPress={() => setCategory(item.id)} style={[s.homeChip, category === item.id && s.selectedChip]}><AppIcon name={categoryIcon(item.id)} size={15} color={category === item.id ? '#fff' : c.muted} /><Text style={[s.chipText, category === item.id && s.white]}>{item.label}</Text></Pressable>)}</ScrollView>
       </View>
       <View style={s.mapTools}><View style={s.compass}><Text style={s.compassArrow}>▲</Text><Text style={s.small}>N</Text></View><View style={s.toolBox}><IconButton icon="plus" label="放大地图" disabled={zoom >= 2.2} onPress={() => setZoom(Math.min(2.2, zoom + 0.3))} /><View style={s.toolDivider} /><IconButton icon="minus" label="缩小地图" disabled={zoom <= 1} onPress={() => setZoom(Math.max(1, zoom - 0.3))} /></View><View style={s.toolBox}><IconButton icon="locate" label="回到演示位置" onPress={() => setCenterTick(value => value + 1)} /></View></View>
-      <View style={s.placeSheet}><View style={s.sheetSummary}>{hasPlacePhoto(selected) ? <Image source={placePhoto(selected)} style={s.sheetPhoto} resizeMode="cover" accessibilityLabel="校园地点照片" /> : <View style={[s.sheetPhoto, s.placeSymbol]}><AppIcon name={placeIcon(selected)} /></View>}<View style={s.flex}><Text style={s.rowTitle}>{placeName(selected)}</Text><Text raw style={s.meta}>{language === 'en' ? selected.name : selected.english}</Text><Text style={[s.badge, s.sheetBadge]}>{categoryLabel(selected.category)}</Text></View>{saveButton}</View><View style={s.sheetActions}><Action secondary label="地点详情" onPress={() => detail(selected)} /><Action icon="walk" label="查看路线" onPress={startRoute} /></View></View>
+      <View style={s.placeSheet}><View style={s.sheetSummary}>{hasPlacePhoto(selected) ? <Image source={placePhoto(selected)} style={s.sheetPhoto} resizeMode="cover" accessibilityLabel="校园地点照片" /> : <View style={[s.sheetPhoto, s.placeSymbol]}><AppIcon name={placeIcon(selected)} /></View>}<View style={s.flex}><Text raw={selected.isCommunity} style={s.rowTitle}>{placeName(selected)}</Text><Text raw style={s.meta}>{language === 'en' && !selected.isCommunity ? selected.name : selected.english}</Text><Text style={[s.badge, s.sheetBadge]}>{categoryLabel(selected.category)}</Text></View>{saveButton}</View><View style={s.sheetActions}><Action secondary label="地点详情" onPress={() => detail(selected)} /><Action icon="walk" label="查看路线" onPress={startRoute} /></View></View>
       <Text pointerEvents="none" style={s.homeMapNote}>校园示意图 · 非实际导航</Text>
     </View>
+    {campus.error ? <Pressable accessibilityRole="button" onPress={() => void campus.reload()} style={{ padding: 10, backgroundColor: c.rustLight }}><Text style={s.meta}>{campus.error}</Text><Text style={s.meta}>点击重新加载</Text></Pressable> : null}
     <Pressable testID="gps-info" accessibilityRole="button" accessibilityLabel="GPS 定位接入说明" onPress={() => Alert.alert('GPS 实时定位', '后续接入 GPS 并获得定位授权后，可在地图上查看自己的实时位置。当前仅显示演示位置，尚未开启实时定位。')} style={s.gpsRow}><View style={s.gpsIcon}><AppIcon name="locate" size={20} /></View><View style={s.flex}><Text style={s.gpsTitle}>GPS 实时定位</Text><Text style={s.small}>接入后查看自己的实时位置</Text></View><Text style={s.rustBadge}>待接入</Text></Pressable>
   </View>;
 }

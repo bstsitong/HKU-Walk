@@ -2031,6 +2031,354 @@
     "en": "Centennial Campus Garden",
     "zh-Hant": "百週年校園花園"
   },
+  "内容暂不可用": {
+    "en": "Content unavailable",
+    "zh-Hant": "內容暫不可用"
+  },
+  "地点或路线已下线，请刷新后重试。": {
+    "en": "This place or route is unavailable. Refresh and try again.",
+    "zh-Hant": "地點或路線已下線，請刷新後重試。"
+  },
+  "路线暂不可用": {
+    "en": "Route unavailable",
+    "zh-Hant": "路線暫不可用"
+  },
+  "路线已下线或暂时无法读取": {
+    "en": "Route unpublished or temporarily unavailable",
+    "zh-Hant": "路線已下線或暫時無法讀取"
+  },
+  "地点暂不可用": {
+    "en": "Place unavailable",
+    "zh-Hant": "地點暫不可用"
+  },
+  "地点已下线或暂时无法读取": {
+    "en": "Place unpublished or temporarily unavailable",
+    "zh-Hant": "地點已下線或暫時無法讀取"
+  },
+  "同学提供": {
+    "en": "Student contribution",
+    "zh-Hant": "同學提供"
+  },
+  "入口资料待补充": {
+    "en": "Entrance details to be added",
+    "zh-Hant": "入口資料待補充"
+  },
+  "楼层资料待补充": {
+    "en": "Floor details to be added",
+    "zh-Hant": "樓層資料待補充"
+  },
+  "地点位置由投稿人点选，GPS 尚未接入。": {
+    "en": "The contributor selected this position on the map. Live GPS is planned.",
+    "zh-Hant": "地點位置由投稿人點選，GPS 尚未接入。"
+  },
+  "点击重新加载": {
+    "en": "Tap to reload",
+    "zh-Hant": "點擊重新加載"
+  },
+  "新地点": {
+    "en": "New place",
+    "zh-Hant": "新地點"
+  },
+  "新路线": {
+    "en": "New route",
+    "zh-Hant": "新路線"
+  },
+  "请填写地点名称，地点介绍至少 10 个字。": {
+    "en": "Enter a place name and a description of at least 10 characters.",
+    "zh-Hant": "請填寫地點名稱，地點介紹至少 10 個字。"
+  },
+  "地点名称": {
+    "en": "Place name",
+    "zh-Hant": "地點名稱"
+  },
+  "路线名称": {
+    "en": "Route name",
+    "zh-Hant": "路線名稱"
+  },
+  "例如：图书馆侧门": {
+    "en": "e.g. Library side entrance",
+    "zh-Hant": "例如：圖書館側門"
+  },
+  "例如：港大站到图书馆的步行路线": {
+    "en": "e.g. Walking from HKU Station to the library",
+    "zh-Hant": "例如：港大站到圖書館的步行路線"
+  },
+  "封面配图（选填）": {
+    "en": "Cover photo (optional)",
+    "zh-Hant": "封面配圖（選填）"
+  },
+  "地点照片（选填）": {
+    "en": "Place photo (optional)",
+    "zh-Hant": "地點照片（選填）"
+  },
+  "新地点和新路线审核通过后进入地图和路线列表；地点纠错与路线纠错仍作为指南提示发布。投稿和照片通过审核后公开，请仅提交可以分享的内容。": {
+    "en": "Approved new places and routes appear on the map and route list. Corrections appear as guide notes. Submissions and photos become public after review; share only content you may publish.",
+    "zh-Hant": "新地點和新路線審核通過後進入地圖和路線列表；地點糾錯與路線糾錯仍作為指南提示發佈。投稿和照片通過審核後公開，請僅提交可以分享的內容。"
+  },
+  "内容已发布到地图或路线列表，也可在学生指南查看。": {
+    "en": "Your contribution is published on the map or route list and in the student guide.",
+    "zh-Hant": "內容已發佈到地圖或路線列表，也可在學生指南查看。"
+  },
+  "查看这条路线": {
+    "en": "View this route",
+    "zh-Hant": "查看這條路線"
+  },
+  "在地图查看地点": {
+    "en": "View place on map",
+    "zh-Hant": "在地圖查看地點"
+  },
+  "请在校园示意图上选择地点位置。": {
+    "en": "Choose the place's position on the schematic campus map.",
+    "zh-Hant": "請在校園示意圖上選擇地點位置。"
+  },
+  "请选择路线的起点和终点。": {
+    "en": "Choose the route's starting point and destination.",
+    "zh-Hant": "請選擇路線的起點和終點。"
+  },
+  "路线需要 1–20 个步骤。": {
+    "en": "A route needs 1–20 steps.",
+    "zh-Hant": "路線需要 1–20 個步驟。"
+  },
+  "每一步都需要标题和说明。": {
+    "en": "Add a title and directions for every step.",
+    "zh-Hant": "每一步都需要標題和説明。"
+  },
+  "在地图上点选位置": {
+    "en": "Choose a position on the map",
+    "zh-Hant": "在地圖上點選位置"
+  },
+  "点击校园示意图放置标记，可用方向按钮微调。": {
+    "en": "Tap the schematic map to place a marker. Use the arrow buttons to adjust it.",
+    "zh-Hant": "點擊校園示意圖放置標記，可用方向按鈕微調。"
+  },
+  "点选新地点位置": {
+    "en": "Choose the new place's position",
+    "zh-Hant": "點選新地點位置"
+  },
+  "已选好地点位置": {
+    "en": "Place position selected",
+    "zh-Hant": "已選好地點位置"
+  },
+  "尚未选点": {
+    "en": "No position selected yet",
+    "zh-Hant": "尚未選點"
+  },
+  "向{direction}微调": {
+    "en": "Nudge {direction}",
+    "zh-Hant": "向{direction}微調"
+  },
+  "左": {
+    "en": "left",
+    "zh-Hant": "左"
+  },
+  "右": {
+    "en": "right",
+    "zh-Hant": "右"
+  },
+  "上": {
+    "en": "up",
+    "zh-Hant": "上"
+  },
+  "下": {
+    "en": "down",
+    "zh-Hant": "下"
+  },
+  "英文名称（选填）": {
+    "en": "English name (optional)",
+    "zh-Hant": "英文名稱（選填）"
+  },
+  "入口说明（选填）": {
+    "en": "Entrance details (optional)",
+    "zh-Hant": "入口説明（選填）"
+  },
+  "楼层说明（选填）": {
+    "en": "Floor details (optional)",
+    "zh-Hant": "樓層説明（選填）"
+  },
+  "路线起终点": {
+    "en": "Route endpoints",
+    "zh-Hant": "路線起終點"
+  },
+  "起点": {
+    "en": "Starting point",
+    "zh-Hant": "起點"
+  },
+  "终点": {
+    "en": "Destination",
+    "zh-Hant": "終點"
+  },
+  "请选择地点": {
+    "en": "Choose a place",
+    "zh-Hant": "請選擇地點"
+  },
+  "图文步骤": {
+    "en": "Illustrated steps",
+    "zh-Hant": "圖文步驟"
+  },
+  "按行走顺序填写，每一步可以单独上传照片。最多 20 步。": {
+    "en": "Add directions in walking order. Each step can have its own photo. Up to 20 steps.",
+    "zh-Hant": "按行走順序填寫，每一步可以單獨上傳照片。最多 20 步。"
+  },
+  "第 {step} 步": {
+    "en": "Step {step}",
+    "zh-Hant": "第 {step} 步"
+  },
+  "步骤上移": {
+    "en": "Move step up",
+    "zh-Hant": "步驟上移"
+  },
+  "步骤下移": {
+    "en": "Move step down",
+    "zh-Hant": "步驟下移"
+  },
+  "移除此步骤": {
+    "en": "Remove this step",
+    "zh-Hant": "移除此步驟"
+  },
+  "步骤标题": {
+    "en": "Step title",
+    "zh-Hant": "步驟標題"
+  },
+  "例如：乘电梯到连接楼层": {
+    "en": "e.g. Take the lift to the connecting floor",
+    "zh-Hant": "例如：乘電梯到連接樓層"
+  },
+  "步骤说明": {
+    "en": "Directions for this step",
+    "zh-Hant": "步驟説明"
+  },
+  "写清方向、地标和楼层，方便同学辨认。": {
+    "en": "Describe directions, landmarks and floors to help others find their way.",
+    "zh-Hant": "寫清方向、地標和樓層，方便同學辨認。"
+  },
+  "步骤配图预览": {
+    "en": "Step image preview",
+    "zh-Hant": "步驟配圖預覽"
+  },
+  "更换这一步配图": {
+    "en": "Replace step photo",
+    "zh-Hant": "更換這一步配圖"
+  },
+  "添加这一步配图": {
+    "en": "Add step photo",
+    "zh-Hant": "添加這一步配圖"
+  },
+  "添加下一步": {
+    "en": "Add another step",
+    "zh-Hant": "添加下一步"
+  },
+  "地点资料": {
+    "en": "Place details",
+    "zh-Hant": "地點資料"
+  },
+  "路线步骤": {
+    "en": "Route steps",
+    "zh-Hant": "路線步驟"
+  },
+  "投稿步骤配图": {
+    "en": "Submitted step photo",
+    "zh-Hant": "投稿步驟配圖"
+  },
+  "包含内置示意地点和已审核的新地点。": {
+    "en": "Includes sample places and approved new places.",
+    "zh-Hant": "包含內置示意地點和已審核的新地點。"
+  },
+  "路线第 {step} 步配图": {
+    "en": "Route photo for step {step}",
+    "zh-Hant": "路線第 {step} 步配圖"
+  },
+  "步骤实拍": {
+    "en": "Step photo",
+    "zh-Hant": "步驟實拍"
+  },
+  "步骤配图": {
+    "en": "Step image",
+    "zh-Hant": "步驟配圖"
+  },
+  "取消收藏路线": {
+    "en": "Unsave route",
+    "zh-Hant": "取消收藏路線"
+  },
+  "收藏路线": {
+    "en": "Save route",
+    "zh-Hant": "收藏路線"
+  },
+  "选择路线": {
+    "en": "Choose a route",
+    "zh-Hant": "選擇路線"
+  },
+  "演示路线": {
+    "en": "Sample route",
+    "zh-Hant": "演示路線"
+  },
+  "同学分享的路线 · 地图连线仅为位置示意，请按图文步骤核对。": {
+    "en": "Student-shared route. The map line is schematic; check the illustrated steps.",
+    "zh-Hant": "同學分享的路線 · 地圖連線僅為位置示意，請按圖文步驟核對。"
+  },
+  "帖子、路线和地点，分开收好，随时找到。": {
+    "en": "Keep posts, routes and places handy.",
+    "zh-Hant": "帖子、路線和地點，分開收好，隨時找到。"
+  },
+  "帖子": {
+    "en": "Posts",
+    "zh-Hant": "帖子"
+  },
+  "路线": {
+    "en": "Routes",
+    "zh-Hant": "路線"
+  },
+  "还没有收藏帖子。在指南帖子旁点书签即可收藏。": {
+    "en": "No saved posts yet. Tap the bookmark beside a guide post to save it.",
+    "zh-Hant": "還沒有收藏帖子。在指南帖子旁點書籤即可收藏。"
+  },
+  "帖子已下线或暂时无法读取": {
+    "en": "Post unpublished or temporarily unavailable",
+    "zh-Hant": "帖子已下線或暫時無法讀取"
+  },
+  "同学分享的路线": {
+    "en": "Student-shared route",
+    "zh-Hant": "同學分享的路線"
+  },
+  "还没有收藏路线。打开步行路线后，点右上角书签。": {
+    "en": "No saved routes yet. Open a walking route and tap its top-right bookmark.",
+    "zh-Hant": "還沒有收藏路線。打開步行路線後，點右上角書籤。"
+  },
+  "收藏保存在当前设备，浏览和收藏无需登录。": {
+    "en": "Saved items stay on this device. Browsing and saving need no account.",
+    "zh-Hant": "收藏保存在當前設備，瀏覽和收藏無需登錄。"
+  },
+  "新地点与路线暂时无法更新，当前保留已读取的内容。": {
+    "en": "Cannot refresh new places and routes. Previously loaded content is still available.",
+    "zh-Hant": "新地點與路線暫時無法更新，當前保留已讀取的內容。"
+  },
+  "地点或路线资料不完整，请检查名称、位置和步骤。": {
+    "en": "Some place or route details are missing. Check the name, position and steps.",
+    "zh-Hant": "地點或路線資料不完整，請檢查名稱、位置和步驟。"
+  },
+  "地点或路线资料格式不正确。": {
+    "en": "The place or route details have an invalid format.",
+    "zh-Hant": "地點或路線資料格式不正確。"
+  },
+  "请选择地点类别。": {
+    "en": "Choose a place category.",
+    "zh-Hant": "請選擇地點類別。"
+  },
+  "起点或终点已下线，请重新选择。": {
+    "en": "An endpoint is unavailable. Please choose another place.",
+    "zh-Hant": "起點或終點已下線，請重新選擇。"
+  },
+  "路线配图编号不正确。": {
+    "en": "A route photo reference is invalid.",
+    "zh-Hant": "路線配圖編號不正確。"
+  },
+  "原步骤配图已变化，请刷新后重新编辑。": {
+    "en": "The original step photos have changed. Refresh before editing again.",
+    "zh-Hant": "原步驟配圖已變化，請刷新後重新編輯。"
+  },
+  "标题至少 3 个字。": {
+    "en": "The title needs at least 3 characters.",
+    "zh-Hant": "標題至少 3 個字。"
+  },
   "本部大樓": {
     "en": "Main Building",
     "zh-Hant": "本部大樓"

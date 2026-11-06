@@ -126,6 +126,31 @@ def main():
                 assert photo_headers['Content-Type'] == 'image/jpeg' and Image.open(io.BytesIO(photo)).format == 'JPEG'
                 http(base, f"/api/images/{posted['id']}/", expected=404)
                 evidence.append('Uploaded image remained private, then an approved edit replaced the public version and image URL')
+                place_values = {'kind': 'new_place', 'title': 'Smoke study entrance', 'body': 'A generated place used only in the isolated verification database.',
+                    'request_key': secrets.token_hex(12), 'map_data': {'category': 'study', 'x': 120, 'y': 280, 'english': 'Smoke entrance'}}
+                place_submission = json.loads(http(base, '/api/submissions/', place_values, token, expected=201)[0])['submission']
+                assert not json.loads(http(base, '/api/campus/')[0])['places']
+                review(env, place_submission['id'])
+                place = json.loads(http(base, '/api/campus/')[0])['places'][0]
+                route_values = {'kind': 'new_route', 'title': 'Smoke walking route', 'body': 'An illustrated route used only for the isolated production verification.',
+                    'request_key': secrets.token_hex(12), 'map_data': json.dumps({'originId': 'gate', 'destinationId': place['id'], 'steps': [
+                        {'title': 'Start at the campus entrance', 'body': 'Identify the entrance using this sample image.'},
+                        {'title': 'Arrive at the study entrance', 'body': 'Use the second sample image to identify the destination.'}]})}
+                boundary = secrets.token_hex(16)
+                parts = [f'--{boundary}\r\nContent-Disposition: form-data; name="{key}"\r\n\r\n{value}\r\n'.encode() for key,value in route_values.items()]
+                for index in range(2):
+                    parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="step_image_{index}"; filename="step.png"\r\nContent-Type: image/png\r\n\r\n'.encode() + image.getvalue() + b'\r\n')
+                parts.append(f'--{boundary}--\r\n'.encode())
+                route_submission = json.loads(http(base, '/api/submissions/', b''.join(parts), token, f'multipart/form-data; boundary={boundary}', 201)[0])['submission']
+                from urllib.parse import urlsplit
+                first_step = urlsplit(route_submission['mapData']['steps'][0]['imageUrl']).path
+                http(base, first_step, expected=404)
+                http(base, first_step, token=token)
+                review(env, route_submission['id'])
+                campus = json.loads(http(base, '/api/campus/')[0])
+                assert len(campus['routes']) == 1 and len(campus['routes'][0]['steps']) == 2
+                http(base, first_step)
+                evidence.append('New places and illustrated routes became searchable public catalog data only after approval; step photos respected review permissions')
             finally:
                 process.terminate()
                 try:
@@ -144,8 +169,11 @@ def main():
         manage(restored_env, 'shell', '-c', "from django.contrib.auth import get_user_model; from community.models import MobileSession,RecoveryCredential,Submission; from guide.models import GuideEntry; "
             "u=get_user_model().objects.get(username='smoke_student'); "
             f"assert u.check_password({password!r}); assert u.recovery_credential.token_hash=={recovery_digest!r}; "
-            "assert not MobileSession.objects.exists(); assert Submission.objects.count()==2; "
-            "e=GuideEntry.objects.get(title='Smoke edited content'); assert e.current_submission.image.storage.exists(e.current_submission.image.name)")
+            "assert not MobileSession.objects.exists(); assert Submission.objects.count()==4; "
+            "e=GuideEntry.objects.get(title='Smoke edited content'); assert e.current_submission.image.storage.exists(e.current_submission.image.name); "
+            "from community.models import SubmissionStepImage; assert SubmissionStepImage.objects.count()==2; "
+            "assert all(photo.image.storage.exists(photo.image.name) for photo in SubmissionStepImage.objects.all()); "
+            "assert len(GuideEntry.objects.get(title='Smoke walking route').map_data['steps'])==2")
         evidence.append('Backup hashes and restore into a separate empty database passed, including recovery credential, circular version links and uploaded image')
     output = ROOT / '.local' / ('production-verification' + ('-database-media' if options.storage == 'database' else '') + '.json')
     output.parent.mkdir(exist_ok=True)

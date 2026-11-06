@@ -7,6 +7,7 @@ from rest_framework import serializers
 
 from .images import clean_image
 from .models import Submission
+from .map_content import validate_map_data
 
 def check_password(value, user):
     try:
@@ -51,7 +52,7 @@ class RegisterInput(AccountInput):
 
 class SubmissionInput(serializers.Serializer):
     kind = serializers.ChoiceField(choices=Submission.Kind.choices)
-    title = serializers.CharField(min_length=3, max_length=160)
+    title = serializers.CharField(min_length=1, max_length=160)
     body = serializers.CharField(min_length=10, max_length=8000)
     location = serializers.CharField(max_length=160, required=False, allow_blank=True, default="")
     external_url = serializers.URLField(max_length=1000, required=False, allow_blank=True, default="")
@@ -60,6 +61,9 @@ class SubmissionInput(serializers.Serializer):
     request_key = serializers.RegexField(r"^[a-zA-Z0-9_-]{8,64}$", required=False)
     revision = serializers.IntegerField(min_value=1, required=False)
     base_version = serializers.DateTimeField(required=False)
+    map_data = serializers.JSONField(required=False, default=dict)
+    remove_step_images = serializers.JSONField(required=False, default=list)
+    inherit_step_images = serializers.JSONField(required=False, default=dict)
 
     def validate_external_url(self, value):
         if value and urlsplit(value).scheme not in {"http", "https"}:
@@ -70,6 +74,24 @@ class SubmissionInput(serializers.Serializer):
         return clean_image(value) if value else None
 
     def validate(self, data):
+        if data["kind"] != Submission.Kind.NEW_PLACE and len(data["title"]) < 3:
+            raise serializers.ValidationError({"title": "标题至少 3 个字。"})
+        data["map_data"] = validate_map_data(data["kind"], data["map_data"])
+        removed = data["remove_step_images"]
+        count = len(data["map_data"].get("steps", []))
+        if not isinstance(removed, list) or any(type(index) is not int or not 0 <= index < count for index in removed):
+            raise serializers.ValidationError({"remove_step_images": "路线配图编号不正确。"})
+        inherited = data["inherit_step_images"]
+        if not isinstance(inherited, dict) or any(not str(key).isdecimal() or str(int(key)) != key or not 0 <= int(key) < count or type(value) is not int or not 0 <= value < 20 for key, value in inherited.items()):
+            raise serializers.ValidationError({"inherit_step_images": "路线配图编号不正确。"})
+        files = {}
+        for key in self.initial_data.keys():
+            if key.startswith("step_image_"):
+                suffix = key[len("step_image_"):]
+                if not suffix.isdecimal() or str(int(suffix)) != suffix or not 0 <= int(suffix) < count:
+                    raise serializers.ValidationError({"image": "路线配图编号不正确。"})
+                files[int(suffix)] = clean_image(serializers.FileField().run_validation(self.initial_data[key]))
+        data["step_images"] = files
         if data["kind"] == Submission.Kind.GROUP and not data["external_url"]:
             raise serializers.ValidationError({"external_url": "娱乐群资料需要提供有效邀请链接。"})
         if data["kind"] in {Submission.Kind.PLACE, Submission.Kind.ROUTE} and not data["location"]:

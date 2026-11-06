@@ -1,5 +1,6 @@
 import uuid
 from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 from django.db import models
 
 http_url = URLValidator(schemes=["http", "https"])
@@ -25,6 +26,7 @@ class GuideEntry(models.Model):
     category = models.ForeignKey(GuideCategory, on_delete=models.PROTECT, related_name="entries", verbose_name="分类")
     title = models.CharField("标题", max_length=160)
     body = models.TextField("正文")
+    map_data = models.JSONField("地点或路线资料", default=dict, db_default={}, blank=True)
     external_url = models.URLField("外部链接", blank=True, max_length=1000, validators=[http_url],
         help_text="填写官网、有效邀请链接等，支持 http 和 https。")
     image_url = models.URLField("图片链接", blank=True, max_length=1000, validators=[http_url])
@@ -42,3 +44,29 @@ class GuideEntry(models.Model):
 
     def __str__(self):
         return self.title
+
+    def clean(self):
+        super().clean()
+        if not isinstance(self.map_data, dict):
+            raise ValidationError({"map_data": "地点或路线资料格式不正确。"})
+        if self.map_data:
+            from rest_framework.exceptions import ValidationError as ApiValidationError
+            from community.map_content import validate_map_data
+            kind = {"place": "new_place", "route": "new_route"}.get(self.map_data.get("type") if isinstance(self.map_data, dict) else None)
+            if not kind:
+                raise ValidationError({"map_data": "地点或路线资料格式不正确。"})
+            if self.pk:
+                before = type(self).objects.filter(pk=self.pk).values_list('map_data', flat=True).first() or {}
+                if before.get('type') and before.get('type') != self.map_data.get('type'):
+                    raise ValidationError({'map_data': '已发布的地图内容不能更换类型，请新建内容。'})
+            try:
+                data = validate_map_data(kind, self.map_data)
+                if kind == 'new_route':
+                    for index, step in enumerate(self.map_data['steps']):
+                        image_index = step.get('imageIndex', index)
+                        if type(image_index) is not int or not 0 <= image_index < 20:
+                            raise ValidationError({'map_data': '步骤配图编号不正确。'})
+                        data['steps'][index]['imageIndex'] = image_index
+                self.map_data = data
+            except ApiValidationError:
+                raise ValidationError({"map_data": "请检查地点坐标、类别、路线起终点及步骤。"})

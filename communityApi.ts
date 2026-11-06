@@ -1,20 +1,23 @@
 import { API_BASE } from './guideApi';
+import { MapDraftData, serializeMapDraft } from './mapSubmission';
 
 export type Account = { token: string; user: { id: string; username: string; hasRecoveryCode?: boolean } };
 export type AccountResult = Account & { recoveryCode?: string };
-export type Kind = 'food' | 'group' | 'place' | 'route';
+export type Kind = 'food' | 'group' | 'place' | 'route' | 'new_place' | 'new_route';
 export type Submission = {
   id: string; kind: Kind; title: string; body: string; location: string; externalUrl: string;
   imageUrl: string; status: 'pending' | 'approved' | 'changes_requested'; reviewNote: string;
   revision: number; createdAt: string; updatedAt: string; publicEntryId: string | null;
   isEdit: boolean; openEditId: string | null;
+  mapData?: MapDraftData;
   publishedContent: { title: string; body: string; location: string; externalUrl: string; imageUrl: string;
-    version: string; published: boolean } | null;
+    version: string; published: boolean; mapData?: MapDraftData } | null;
 };
 export type PickedImage = { uri: string; name: string; type: string };
 export type Draft = {
   kind: Kind; title: string; body: string; location: string; externalUrl: string;
   image: PickedImage | null; existingImage: string; removeImage: boolean; requestKey: string;
+  mapData: MapDraftData;
 };
 export class ApiError extends Error {
   constructor(public status: number, message: string) { super(message); }
@@ -28,9 +31,9 @@ function errorMessage(value: unknown): string {
   }
   return '操作暂时未完成，请重试。';
 }
-async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
+async function request<T>(path: string, options: RequestInit = {}, token?: string, timeoutMs = 25000): Promise<T> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 25000);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(API_BASE + path, {
       ...options, signal: controller.signal,
@@ -78,15 +81,20 @@ export function sendSubmission(token: string, draft: Draft, editing?: Submission
   form.append('kind', draft.kind);
   form.append('title', draft.title.trim());
   form.append('body', draft.body.trim());
-  form.append('location', draft.location.trim());
+  form.append('location', draft.kind === 'new_place' || draft.kind === 'new_route' ? '' : draft.location.trim());
   form.append('external_url', draft.externalUrl.trim());
   form.append('request_key', draft.requestKey);
   if (editing) form.append('revision', String(editing.revision));
   if (editing?.publishedContent) form.append('base_version', editing.publishedContent.version);
   form.append('remove_image', String(draft.removeImage));
   if (draft.image) form.append('image', draft.image as unknown as Blob);
+  const map = serializeMapDraft(draft.kind, draft.mapData);
+  form.append('map_data', JSON.stringify(map.data));
+  form.append('inherit_step_images', JSON.stringify(map.inherit));
+  form.append('remove_step_images', JSON.stringify(map.removed));
+  for (const { index, image } of map.uploads) form.append('step_image_' + index, image as unknown as Blob);
   const publishedEdit = editing?.status === 'approved';
   return request<{ submission: Submission }>(editing ? `/api/submissions/${editing.id}/${publishedEdit ? 'edits/' : ''}` : '/api/submissions/', {
     method: editing && !publishedEdit ? 'PATCH' : 'POST', body: form,
-  }, token);
+  }, token, 90000);
 }

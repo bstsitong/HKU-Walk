@@ -15,7 +15,8 @@ from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from .authentication import MobileAuthentication, create_session
-from .models import Submission, RecoveryCredential
+from .models import Submission, SubmissionStepImage, RecoveryCredential
+from .map_content import enrich_map_data
 from .serializers import (RegisterInput, AccountInput, SubmissionInput, ChangePasswordInput,
     RecoveryCodeInput, RecoverAccountInput, check_password)
 from .services import submit_new, resubmit, submit_edit
@@ -41,7 +42,8 @@ def published_data(request, item):
     return {"title": entry.title, "body": body, "location": location,
         "externalUrl": entry.external_url,
         "imageUrl": entry.image_url or (image_url(request, source) if source and source.image else ""),
-        "version": entry.updated_at.isoformat(), "published": entry.published}
+        "version": entry.updated_at.isoformat(), "published": entry.published,
+        "mapData": enrich_map_data(request, entry.map_data, source)}
 
 def submission_data(request, item):
     return {
@@ -52,6 +54,7 @@ def submission_data(request, item):
         "publicEntryId": str(item.public_entry_id) if item.public_entry_id else None,
         "isEdit": bool(item.edit_of_id), "publishedContent": published_data(request, item),
         "openEditId": str(item.open_edit_id) if getattr(item, "open_edit_id", None) else None,
+        "mapData": enrich_map_data(request, item.map_data, item),
     }
 
 class PrivateResponseView(APIView):
@@ -137,7 +140,8 @@ class RecoverAccount(PrivateResponseView):
 
 def owned_submissions(user):
     active = Submission.objects.filter(edit_of_id=OuterRef("target_entry_id"), status__in=["pending", "changes_requested"])
-    return Submission.objects.filter(author=user).select_related("edit_of__current_submission", "public_entry__current_submission").annotate(
+    return Submission.objects.filter(author=user).select_related("edit_of__current_submission", "public_entry__current_submission").prefetch_related(
+        "step_images", "edit_of__current_submission__step_images", "public_entry__current_submission__step_images").annotate(
         target_entry_id=Coalesce("edit_of_id", "public_entry_id"), open_edit_id=Subquery(active.values("pk")[:1]))
 
 class Submissions(PrivateResponseView):
@@ -205,5 +209,25 @@ class SubmissionImage(PrivateResponseView):
             raise Http404
         try:
             return FileResponse(item.image.open("rb"), content_type="image/jpeg")
+        except FileNotFoundError:
+            raise Http404
+
+class SubmissionStepImageView(PrivateResponseView):
+    permission_classes = [AllowAny]
+    authentication_classes = [MobileAuthentication, SessionAuthentication]
+
+    def get(self, request, pk):
+        image = get_object_or_404(SubmissionStepImage.objects.select_related("submission__public_entry"), pk=pk)
+        item = image.submission
+        referenced = (item.public_entry and any(step.get('imageIndex', index) == image.step_index
+            for index, step in enumerate(item.public_entry.map_data.get('steps', []))))
+        public = (item.status == Submission.Status.APPROVED and item.public_entry
+            and item.public_entry.published and item.public_entry.current_submission_id == item.pk
+            and item.public_entry.map_data.get("type") == "route" and referenced)
+        allowed = public or (request.user.is_authenticated and (request.user.pk == item.author_id or request.user.is_staff))
+        if not allowed:
+            raise Http404
+        try:
+            return FileResponse(image.image.open("rb"), content_type="image/jpeg")
         except FileNotFoundError:
             raise Http404

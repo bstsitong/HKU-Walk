@@ -13,7 +13,7 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection, transaction
 from django.core.files.storage import default_storage
-from community.models import Submission
+from community.models import Submission, SubmissionStepImage
 
 def digest_file(path):
     with path.open("rb") as handle:
@@ -42,7 +42,8 @@ class Command(BaseCommand):
                 call_command("dumpdata", natural_foreign=True, natural_primary=True,
                     exclude=["contenttypes", "auth.permission", "sessions", "community.mobilesession",
                         "community.storedmedia", "community.mediaquota"], stdout=handle)
-                image_names = list(Submission.objects.exclude(image="").values_list("image", flat=True).distinct())
+                image_names = sorted(set(Submission.objects.exclude(image="").values_list("image", flat=True))
+                    | set(SubmissionStepImage.objects.values_list("image", flat=True)))
                 files = {"data.json": fixture}
                 # DatabaseStorage reads image bytes from this same repeatable-read snapshot.
                 for name in image_names:

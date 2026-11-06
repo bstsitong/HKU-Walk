@@ -11,15 +11,18 @@ import { ApiError, contributionImageSource, Draft, fetchSubmission, fetchSubmiss
 import useAccount from './useAccount';
 import { Button, Field } from './CommunityUI';
 import { AccountSecurityScreen, RecoveryCodeScreen } from './AccountScreens';
+import MapSubmissionFields, { SubmittedMapData } from './MapSubmissionFields';
+import { editMapDraft, emptyMapDraft, hasMapInput, MapDraftData, validateMapDraft } from './mapSubmission';
 
 const green = '#184d3e';
 const kinds: { key: Kind; label: string; icon: IconName }[] = [
+  { key: 'new_place', label: '新地点', icon: 'pin' }, { key: 'new_route', label: '新路线', icon: 'walk' },
   { key: 'food', label: '美食分享', icon: 'food' }, { key: 'group', label: '娱乐群', icon: 'groups' },
   { key: 'place', label: '地点纠错', icon: 'map' }, { key: 'route', label: '路线纠错', icon: 'arrow' },
 ];
 const statuses = { pending: '待审核', approved: '已通过', changes_requested: '需修改' };
 const newDraft = (): Draft => ({ kind: 'food', title: '', body: '', location: '', externalUrl: '', image: null,
-  existingImage: '', removeImage: false, requestKey: `${Date.now()}_${Math.random().toString(36).slice(2, 12)}` });
+  existingImage: '', removeImage: false, mapData: {}, requestKey: `${Date.now()}_${Math.random().toString(36).slice(2, 12)}` });
 const message = (error: unknown) => error instanceof Error ? error.message : '操作暂时未完成，请重试。';
 const dateText = formatDate;
 
@@ -69,6 +72,7 @@ export default function CommunityScreen({ visible, onClose, account }: {
   const [selected, setSelected] = useState<Submission | null>(null);
   const [editing, setEditing] = useState<Submission | undefined>();
   const [draft, setDraft] = useState<Draft>(newDraft);
+  const mapDrafts = useRef<Partial<Record<Kind,MapDraftData>>>({});
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -109,12 +113,13 @@ export default function CommunityScreen({ visible, onClose, account }: {
     }
     if (screen === 'form') {
       const discard = () => { setDraft(newDraft()); setEditing(undefined); setError(''); setScreen('home'); };
-      if (draft.title || draft.body || draft.image || editing) Alert.alert('放弃这次编辑？', '未提交的修改不会保存。', [{ text: '继续编辑', style: 'cancel' }, { text: '放弃编辑', style: 'destructive', onPress: discard }]);
+      if (draft.title || draft.body || draft.location || draft.externalUrl || draft.image || editing || hasMapInput(draft.mapData) || Object.values(mapDrafts.current).some(value => value && hasMapInput(value))) Alert.alert('放弃这次编辑？', '未提交的修改不会保存。', [{ text: '继续编辑', style: 'cancel' }, { text: '放弃编辑', style: 'destructive', onPress: discard }]);
       else discard();
     } else if (screen === 'detail' || screen === 'security' || screen === 'recover') { setScreen('home'); setError(''); }
     else onClose();
   };
   const begin = async (item?: Submission) => {
+    mapDrafts.current = {};
     if (item?.status === 'approved' && token) {
       setBusy(true);
       try { item = (await fetchSubmission(token, item.id)).submission; }
@@ -132,11 +137,12 @@ export default function CommunityScreen({ visible, onClose, account }: {
     setEditing(item); setError('');
     const content = item?.status === 'approved' ? item.publishedContent : item;
     setDraft(item && content ? { ...newDraft(), kind: item.kind, title: content.title, body: content.body,
-      location: content.location, externalUrl: content.externalUrl, existingImage: content.imageUrl } : newDraft());
+      location: content.location, externalUrl: content.externalUrl, existingImage: content.imageUrl, mapData: editMapDraft(content.mapData) } : newDraft());
     setScreen('form');
   };
   const update = (patch: Partial<Draft>) => setDraft(current => ({ ...current, ...patch }));
-  const pickImage = async () => {
+  const chooseKind = (kind: Kind) => { mapDrafts.current[draft.kind] = draft.mapData; update({ kind, mapData: mapDrafts.current[kind] || emptyMapDraft(kind) }); };
+  const pickImage = async (stepIndex?: number) => {
     setError('');
     try {
       const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.85,
@@ -144,13 +150,17 @@ export default function CommunityScreen({ visible, onClose, account }: {
       if (result.canceled || !result.assets[0]) return;
       const asset = result.assets[0];
       if (asset.fileSize && asset.fileSize > 5 * 1024 * 1024) { setError('图片需小于 5 MB，请选择较小的图片。'); return; }
-      update({ image: { uri: asset.uri, name: asset.fileName || 'photo.jpg', type: asset.mimeType || 'image/jpeg' }, removeImage: false });
+      const picked = { uri: asset.uri, name: asset.fileName || 'photo.jpg', type: asset.mimeType || 'image/jpeg' };
+      if (stepIndex === undefined) update({ image: picked, removeImage: false });
+      else setDraft(current => ({ ...current, mapData: { ...current.mapData, steps: current.mapData.steps?.map((step,index) => index === stepIndex ? { ...step, image: picked, removeImage: false } : step) } }));
     } catch { setError('暂时无法选择图片，请重试。'); }
   };
   const submit = async () => {
     if (!token || busy) return;
     Keyboard.dismiss(); setError('');
-    if (draft.title.trim().length < 3 || draft.body.trim().length < 10) { setError('标题至少 3 个字，正文至少 10 个字。'); return; }
+    if (draft.title.trim().length < (draft.kind === 'new_place' ? 1 : 3) || draft.body.trim().length < 10) { setError(draft.kind === 'new_place' ? '请填写地点名称，地点介绍至少 10 个字。' : '标题至少 3 个字，正文至少 10 个字。'); return; }
+    const mapError = validateMapDraft(draft.kind,draft.mapData);
+    if (mapError) { setError(mapError); return; }
     if ((draft.kind === 'place' || draft.kind === 'route') && !draft.location.trim()) { setError('请写明需要纠正的地点或路线。'); return; }
     if (draft.kind === 'group' && !draft.externalUrl.trim()) { setError('请填写娱乐群的有效邀请链接。'); return; }
     if (draft.externalUrl && !/^https?:\/\//i.test(draft.externalUrl.trim())) { setError('链接需要以 http:// 或 https:// 开头。'); return; }
@@ -200,17 +210,18 @@ export default function CommunityScreen({ visible, onClose, account }: {
             {editing?.reviewNote ? <View style={s.feedback}><Text style={s.label}>管理员建议</Text><Text raw style={s.copy}>{editing.reviewNote}</Text></View> : null}
             {editing?.status === 'approved' ? <Text style={s.copy}>提交的是一个新版本。审核通过前，大家仍会看到当前已发布的内容。</Text> : null}
             <Text style={s.label}>投稿类型</Text>
-            <View style={s.kindGrid}>{kinds.map(kind => <Pressable key={kind.key} disabled={busy || !!(editing && (editing.status === 'approved' || editing.isEdit))} accessibilityRole="radio" accessibilityState={{ checked: draft.kind === kind.key }} onPress={() => update({ kind: kind.key })}
+            <View style={s.kindGrid}>{kinds.map(kind => <Pressable key={kind.key} disabled={busy || !!(editing && (editing.status === 'approved' || editing.isEdit))} accessibilityRole="radio" accessibilityState={{ checked: draft.kind === kind.key }} onPress={() => chooseKind(kind.key)}
               style={[s.kind, draft.kind === kind.key && s.kindActive]}><AppIcon name={kind.icon} size={19} color={draft.kind === kind.key ? '#fff' : green} /><Text style={[s.kindText, draft.kind === kind.key && s.white]}>{kind.label}</Text></Pressable>)}</View>
-            <Field label="标题" value={draft.title} maxLength={160} editable={!busy} onChangeText={title => update({ title })} placeholder="例如：午间饭堂的一份好味道" />
-            <Field label={draft.kind === 'place' || draft.kind === 'route' ? '相关地点或路线（必填）' : '相关地点（选填）'} value={draft.location} editable={!busy} maxLength={160} onChangeText={location => update({ location })} placeholder="建筑、楼层、入口或起终点" />
+            <Field label={draft.kind === 'new_place' ? '地点名称' : draft.kind === 'new_route' ? '路线名称' : '标题'} value={draft.title} maxLength={160} editable={!busy} onChangeText={title => update({ title })} placeholder={draft.kind === 'new_place' ? '例如：图书馆侧门' : draft.kind === 'new_route' ? '例如：港大站到图书馆的步行路线' : '例如：午间饭堂的一份好味道'} />
+            {draft.kind !== 'new_place' && draft.kind !== 'new_route' ? <Field label={draft.kind === 'place' || draft.kind === 'route' ? '相关地点或路线（必填）' : '相关地点（选填）'} value={draft.location} editable={!busy} maxLength={160} onChangeText={location => update({ location })} placeholder="建筑、楼层、入口或起终点" /> : null}
             <Field label="正文" hint="至少 10 个字。写明亲身体验、资料来源或需要修改的地方。" value={draft.body} multiline textAlignVertical="top" editable={!busy} maxLength={8000} onChangeText={body => update({ body })} />
+            <MapSubmissionFields kind={draft.kind} data={draft.mapData} onChange={mapData => update({ mapData })} disabled={busy} onPickStep={index => void pickImage(index)} token={token} />
             <Field label={draft.kind === 'group' ? '邀请链接（必填）' : '相关链接（选填）'} value={draft.externalUrl} editable={!busy} maxLength={1000} autoCapitalize="none" autoCorrect={false} keyboardType="url" onChangeText={externalUrl => update({ externalUrl })} placeholder="https://" />
-            <Text style={[s.label, { marginTop: 18 }]}>配图（选填）</Text><Text style={s.hint}>一张 JPEG、PNG 或 WebP，最多 5 MB。</Text>
+            <Text style={[s.label, { marginTop: 18 }]}>{draft.kind === 'new_route' ? '封面配图（选填）' : draft.kind === 'new_place' ? '地点照片（选填）' : '配图（选填）'}</Text><Text style={s.hint}>一张 JPEG、PNG 或 WebP，最多 5 MB。</Text>
             {image ? <Image source={contributionImageSource(image, draft.image ? undefined : token)} style={s.photo} resizeMode="cover" accessibilityLabel="投稿配图预览" /> : null}
             <View style={s.photoActions}><Pressable accessibilityRole="button" disabled={busy} onPress={() => void pickImage()} style={s.textButton}><Text style={s.linkText}>{image ? '更换图片' : '从相册选择图片'}</Text></Pressable>
               {image ? <Pressable accessibilityRole="button" disabled={busy} onPress={() => update({ image: null, removeImage: true })} style={s.textButton}><Text style={s.removeText}>移除图片</Text></Pressable> : null}</View>
-            <Text style={s.note}>投稿和配图经审核后公开，请仅提交可以分享的内容。地点与路线纠错通过后会先作为指南提示发布，地图目前仍为演示。</Text>
+            <Text style={s.note}>新地点和新路线审核通过后进入地图和路线列表；地点纠错与路线纠错仍作为指南提示发布。投稿和照片通过审核后公开，请仅提交可以分享的内容。</Text>
             <Button label={editing?.status === 'approved' ? '提交修改申请' : editing ? '重新提交审核' : '提交审核'} busy={busy} onPress={() => void submit()} />
           </ScrollView>
         ) : selected ? (
@@ -219,9 +230,10 @@ export default function CommunityScreen({ visible, onClose, account }: {
             <Text raw accessibilityRole="header" style={[s.title, s.detailTitle]}>{selected.title}</Text>
             <Text style={s.hint}>{selected.isEdit ? '内容修改申请 · ' : ''}{kinds.find(kind => kind.key === selected.kind)?.label} · {dateText(selected.createdAt)}</Text>
             <View style={s.feedback}><Text style={s.label}>{selected.status === 'pending' ? '已收到，等待管理员审核' : selected.status === 'approved' ? '审核通过' : '修改后可以重新提交'}</Text>
-              <Text style={s.copy}>{selected.reviewNote ? <Text raw>{selected.reviewNote}</Text> : (selected.status === 'pending' ? '审核结果会显示在这里，下拉即可刷新。' : '内容已发布到对应的学生指南分类。')}</Text></View>
+              <Text style={s.copy}>{selected.reviewNote ? <Text raw>{selected.reviewNote}</Text> : (selected.status === 'pending' ? '审核结果会显示在这里，下拉即可刷新。' : selected.kind === 'new_place' || selected.kind === 'new_route' ? '内容已发布到地图或路线列表，也可在学生指南查看。' : '内容已发布到对应的学生指南分类。')}</Text></View>
             {selected.location ? <Text style={s.location}>相关地点或路线：<Text raw>{selected.location}</Text></Text> : null}
             <Text raw selectable style={s.detailBody}>{selected.body}</Text>
+            <SubmittedMapData data={selected.mapData} token={token} />
             {selected.imageUrl ? <Image source={contributionImageSource(selected.imageUrl, token)} style={s.photo} resizeMode="cover" accessibilityLabel="投稿配图" /> : null}
             {selected.externalUrl ? <Text raw selectable style={s.copy}>{selected.externalUrl}</Text> : null}
             {selected.status === 'changes_requested' ? <Button label="按建议修改并重交" onPress={() => void begin(selected)} /> : null}

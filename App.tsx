@@ -7,11 +7,15 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon, { IconName } from './AppIcon';
 import CampusMap, { MapRequest, MapView } from './CampusMap';
 import usePlaces from './usePlaces';
-import { Category, Place } from './campus';
+import { Category, getCampusRoute, getPlace, Place } from './campus';
 import { LanguageProvider, useLanguage } from './LanguageProvider';
 import { colors } from './theme';
-import { GuideScreen, MoreScreen, SavedScreen } from './GuideScreens';
-import { GuideKey } from './guideApi';
+import { GuideScreen, MoreScreen } from './GuideScreens';
+import SavedScreen from './SavedScreen';
+import { GuideEntry, GuideKey } from './guideApi';
+import useCampus from './useCampus';
+import useSavedRoutes from './useSavedRoutes';
+import { RouteBookmark } from './routeBookmarks';
 import useGuide from './useGuide';
 import useAccount from './useAccount';
 import CommunityScreen from './CommunityScreen';
@@ -32,6 +36,8 @@ function MainApp() {
   const [ready, setReady] = useState(false);
   const saveQueue = useRef(Promise.resolve());
   const data = useGuide();
+  const campus = useCampus();
+  const routes = useSavedRoutes();
   const account = useAccount();
   const [communityVisible, setCommunityVisible] = useState(false);
   const records = usePlaces();
@@ -51,6 +57,19 @@ function MainApp() {
   };
   const openMap = (category: Category) => { setTab('map'); setMapRequest({ serial: Date.now(), view: 'home', category }); };
   const openPlace = (place: Place) => { setTab('map'); setMapRequest({ serial: Date.now(), view: 'detail', placeId: place.id, fromSaved: true }); };
+  const openRoute = (route: RouteBookmark, fromSaved = true) => { setTab('map'); setMapRequest({ serial: Date.now(), view: 'route', route, fromSaved }); };
+  const openContent = (entry: GuideEntry) => {
+    if (entry.mapType === 'place') {
+      const place = getPlace('community-place-' + entry.id);
+      if (place) { setTab('map'); setMapRequest({ serial: Date.now(), view: 'detail', placeId: place.id, fromSaved: tab === 'saved' }); return; }
+    } else if (entry.mapType === 'route') {
+      const route = getCampusRoute('community-route-' + entry.id);
+      if (route) { openRoute({ id: route.id, originId: route.originId, destinationId: route.destinationId, source: 'community' }, tab === 'saved'); return; }
+    }
+    Alert.alert('内容暂不可用', '地点或路线已下线，请刷新后重试。');
+  };
+  const refreshAll = async () => { await Promise.all([data.reload(), campus.reload()]); };
+  const guideData = { ...data, reload: refreshAll };
 
   useEffect(() => {
     let active = true;
@@ -75,11 +94,11 @@ function MainApp() {
   return (
     <SafeAreaView style={s.shell}>
       <StatusBar style="dark" />
-      <View style={[s.content, tab !== 'map' && s.hidden]}><CampusMap active={tab === 'map'} records={records} sampleLocation={sampleLocation} request={mapRequest} onViewChange={setMapView} onReturnSaved={() => setTab('saved')} /></View>
-      {tab === 'guide' ? <GuideScreen data={data} bookmarks={bookmarks} selected={category} onSelect={setCategory} onContribute={() => setCommunityVisible(true)} onMap={openMap} /> : null}
-      {tab === 'saved' ? <SavedScreen data={data} bookmarks={bookmarks} records={records} onOpenPlace={openPlace} /> : null}
-      {tab === 'more' ? <MoreScreen data={data} onContribute={() => setCommunityVisible(true)} sampleLocation={sampleLocation} onSampleLocation={chooseSampleLocation} /> : null}
-      <CommunityScreen visible={communityVisible} onClose={() => { setCommunityVisible(false); void data.reload(); }} account={account} />
+      <View style={[s.content, tab !== 'map' && s.hidden]}><CampusMap active={tab === 'map'} records={records} routes={routes} campus={campus} sampleLocation={sampleLocation} request={mapRequest} onViewChange={setMapView} onReturnSaved={() => setTab('saved')} /></View>
+      {tab === 'guide' ? <GuideScreen data={guideData} bookmarks={bookmarks} selected={category} onSelect={setCategory} onContribute={() => setCommunityVisible(true)} onMap={openMap} onOpenContent={openContent} /> : null}
+      {tab === 'saved' ? <SavedScreen data={data} campus={campus} bookmarks={bookmarks} records={records} routes={routes} onOpenPlace={openPlace} onOpenRoute={openRoute} onOpenContent={openContent} /> : null}
+      {tab === 'more' ? <MoreScreen data={guideData} onContribute={() => setCommunityVisible(true)} sampleLocation={sampleLocation} onSampleLocation={chooseSampleLocation} /> : null}
+      <CommunityScreen visible={communityVisible} onClose={() => { setCommunityVisible(false); void refreshAll(); }} account={account} />
       {tab !== 'map' || mapView === 'home' ? <View style={s.nav} accessibilityRole="tablist">
         {tabs.map(item => (
           <Pressable key={item.key} testID={`tab-${item.key}`} accessibilityRole="tab" accessibilityLabel={item.label}

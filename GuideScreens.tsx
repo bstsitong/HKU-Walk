@@ -10,7 +10,6 @@ import { languages, t } from './localization';
 import { colors } from './theme';
 import { PlaceRecords } from './usePlaces';
 import { Category, Place, findPlace } from './campus';
-import { PlaceRow } from './CampusMap';
 import AppIcon, { IconName } from './AppIcon';
 import { ADMIN_URL, GuideCategory, GuideEntry, GuideKey } from './guideApi';
 import useGuide from './useGuide';
@@ -59,7 +58,7 @@ function Feedback({ data }: { data: GuideData }) {
   return null;
 }
 
-function EntryCard({ entry, category, bookmarks, first = false, onMap }: { entry: GuideEntry; category: GuideKey; bookmarks: Bookmarks; first?: boolean; onMap?: (category: Category) => void }) {
+export function EntryCard({ entry, category, bookmarks, first = false, onMap, onOpenContent }: { entry: GuideEntry; category: GuideKey; bookmarks: Bookmarks; first?: boolean; onMap?: (category: Category) => void; onOpenContent?: (entry: GuideEntry) => void }) {
   const [expanded, setExpanded] = useState(category === 'links' || first);
   const [imageFailed, setImageFailed] = useState(false);
   useEffect(() => setImageFailed(false), [entry.imageUrl]);
@@ -89,6 +88,7 @@ function EntryCard({ entry, category, bookmarks, first = false, onMap }: { entry
       {expanded && !isLink ? (
         <View style={s.entryBody}>
           <Text raw={entry.isCommunity !== false} style={s.body}>{entry.body}</Text>
+          {entry.mapType && onOpenContent ? <Pressable accessibilityRole="button" onPress={() => onOpenContent(entry)} style={s.smallAction}><AppIcon name={entry.mapType === 'route' ? 'walk' : 'pin'} size={17} /><Text style={s.actionText}>{entry.mapType === 'route' ? '查看这条路线' : '在地图查看地点'}</Text></Pressable> : null}
           {entry.imageUrl && !imageFailed ? (
             <Image source={{ uri: entry.imageUrl }} accessibilityLabel={t('内容配图：{title}', { title: entry.isCommunity === false ? t(entry.title) : entry.title })} style={s.contentImage}
               resizeMode="cover" onError={() => setImageFailed(true)} />
@@ -107,8 +107,8 @@ function EntryCard({ entry, category, bookmarks, first = false, onMap }: { entry
   );
 }
 
-export function GuideScreen({ data, bookmarks, selected, onSelect, onContribute, onMap }: {
-  data: GuideData; bookmarks: Bookmarks; selected: GuideKey | null; onSelect: (key: GuideKey | null) => void; onContribute: () => void; onMap: (category: Category) => void;
+export function GuideScreen({ data, bookmarks, selected, onSelect, onContribute, onMap, onOpenContent }: {
+  data: GuideData; bookmarks: Bookmarks; selected: GuideKey | null; onSelect: (key: GuideKey | null) => void; onContribute: () => void; onMap: (category: Category) => void; onOpenContent: (entry: GuideEntry) => void;
 }) {
   const [foodFilter, setFoodFilter] = useState<number | null>(null);
   useEffect(() => setFoodFilter(null), [selected]);
@@ -147,7 +147,7 @@ export function GuideScreen({ data, bookmarks, selected, onSelect, onContribute,
           <>
             {category.key === 'food' ? <View style={s.foodFilters}>{foodTags.map((tag, index) => <Pressable key={tag} accessibilityRole="button" accessibilityState={{ selected: foodFilter === index }} onPress={() => setFoodFilter(foodFilter === index ? null : index)} style={[s.foodFilter, foodFilter === index && s.selectedLanguage]}><Text style={[s.meta, foodFilter === index && s.white]}>{tag}</Text></Pressable>)}</View> : null}
             {entries.length ? entries.map((entry, index) => (
-              <EntryCard key={entry.id} entry={entry} category={category.key} bookmarks={bookmarks} first={index === 0} onMap={onMap} />
+              <EntryCard key={entry.id} entry={entry} category={category.key} bookmarks={bookmarks} first={index === 0} onMap={onMap} onOpenContent={onOpenContent} />
             )) : <Text style={s.body}>{category.entries.length ? '当前筛选没有内容，再点一次标签可以查看全部。' : '这个分类还没有发布内容。'}</Text>}
             {category.key === 'food' ? <Pressable accessibilityRole="link" onPress={() => void openLink('https://catering.hku.hk/en/')} style={s.settingRow}><Text style={s.settingTitle}>查看校内餐饮目录</Text><AppIcon name="external" size={17} /></Pressable> : null}
           </>
@@ -177,26 +177,6 @@ export function GuideScreen({ data, bookmarks, selected, onSelect, onContribute,
   );
 }
 
-export function SavedScreen({ data, bookmarks, records, onOpenPlace }: { data: GuideData; bookmarks: Bookmarks; records: PlaceRecords; onOpenPlace: (place: Place) => void }) {
-  const [section, setSection] = useState<'saved' | 'recent'>('saved');
-  const [confirmClear, setConfirmClear] = useState(false);
-  const entries = data.categories.flatMap(category => category.entries
-    .filter(entry => bookmarks.saved.includes(entry.id)).map(entry => ({ entry, category: category.key })));
-  return (
-    <ScrollView style={s.flex} contentContainerStyle={s.page}
-      refreshControl={<RefreshControl refreshing={data.loading} onRefresh={() => void data.reload()} tintColor={green} />}>
-      <Text accessibilityRole="header" style={s.title}>熟悉的地方</Text>
-      <Text style={s.subtitle}>把常去的地方，留在手边。</Text>
-      <View style={s.savedTabs} accessibilityRole="tablist">{(['saved', 'recent'] as const).map(key => <Pressable key={key} accessibilityRole="tab" accessibilityState={{ selected: key === section }} onPress={() => { setSection(key); setConfirmClear(false); }} style={[s.savedTab, key === section && s.savedTabActive]}><Text style={[s.savedTabText, key === section && s.actionText]}>{key === 'saved' ? '我的收藏' : '最近浏览'} {key === 'saved' ? records.saved.length : records.recent.length}</Text></Pressable>)}</View>
-      {(section === 'saved' ? records.saved : records.recent).map(id => <PlaceRow key={id} place={findPlace(id)} onPress={() => onOpenPlace(findPlace(id))} trailing={<Pressable accessibilityRole="button" accessibilityLabel={records.saved.includes(id) ? '取消收藏' : '收藏地点'} disabled={!records.ready} onPress={() => records.toggle(id)} style={s.iconButton}><AppIcon name="bookmark" size={19} color={records.saved.includes(id) ? green : muted} /></Pressable>} />)}
-      {!(section === 'saved' ? records.saved : records.recent).length ? <View style={s.empty}><AppIcon name={section === 'saved' ? 'bookmark' : 'history'} size={28} /><Text style={s.body}>{section === 'saved' ? '还没有收藏地点。在地点旁点书签试试。' : '还没有浏览记录。打开地点详情后会出现在这里。'}</Text></View> : null}
-      {section === 'recent' && records.recent.length ? <View style={s.clearHistory}>{confirmClear ? <><Text style={s.body}>清空这台设备的浏览记录？</Text><View style={s.headingRow}><Pressable accessibilityRole="button" onPress={() => setConfirmClear(false)} style={s.smallAction}><Text style={s.actionText}>取消</Text></Pressable><Pressable accessibilityRole="button" onPress={() => { records.clearRecent(); setConfirmClear(false); }} style={s.smallAction}><Text style={s.actionText}>确认清空</Text></Pressable></View></> : <Pressable accessibilityRole="button" onPress={() => setConfirmClear(true)} style={s.smallAction}><AppIcon name="trash" size={17} /><Text style={s.actionText}>清空浏览记录</Text></Pressable>}</View> : null}
-      {section === 'saved' ? <><Text style={s.sectionTitle}>学生指南收藏</Text><Feedback data={data} />{entries.map(({ entry, category }) => <EntryCard key={entry.id} entry={entry} category={category} bookmarks={bookmarks} />)}{!entries.length ? <Text style={s.body}>在学生指南中点书签，把常用内容留在这里。</Text> : null}</> : null}
-      <View style={s.localNotice}><AppIcon name="shield" size={15} /><Text style={[s.meta, s.flex]}>收藏和浏览记录仅保存在当前设备，无需登录。</Text></View>
-    </ScrollView>
-  );
-}
-
 export function MoreScreen({ data, onContribute, sampleLocation, onSampleLocation }: { data: GuideData; onContribute: () => void; sampleLocation: boolean; onSampleLocation: (value: boolean) => void }) {
   const { language, chooseLanguage } = useLanguage();
   const [help, setHelp] = useState(false);
@@ -206,7 +186,6 @@ export function MoreScreen({ data, onContribute, sampleLocation, onSampleLocatio
     <ScrollView style={s.flex} contentContainerStyle={s.page}>
       <Text accessibilityRole="header" style={s.title}>更多</Text>
       <Text style={s.subtitle}>轻装出发，慢慢熟悉校园。</Text>
-      <View style={s.intro}><View style={s.brandSymbol}><AppIcon name="map" color="#fff" size={28} /></View><View style={s.flex}><Text style={s.introTitle}>随时打开，直接使用</Text><Text style={s.meta}>看地图、找地点和查路线，都不需要注册账号。</Text></View></View>
       <Text style={s.sectionTitle}>使用偏好</Text>
       <View style={s.preference}><View style={s.settingLabel}><AppIcon name="globe" size={20} /><Text style={s.settingTitle}>界面语言</Text></View><View style={s.languageOptions} accessibilityRole="radiogroup">{languages.map(item => <Pressable key={item.code} testID={`language-${item.code}`} accessibilityRole="radio" accessibilityState={{ checked: language === item.code }} onPress={() => chooseLanguage(item.code)} style={[s.language, language === item.code && s.selectedLanguage]}><Text raw style={[s.languageText, language === item.code && s.white]}>{item.label}</Text></Pressable>)}</View></View>
       <View style={s.settingRow}><AppIcon name="locate" /><View style={s.flex}><Text style={s.introTitle}>显示演示位置</Text><Text style={s.meta}>仅展示蓝点效果，GPS 实时定位待接入。</Text></View><Switch accessibilityLabel={t('显示演示位置')} value={sampleLocation} onValueChange={onSampleLocation} trackColor={{ false: '#c5cec3', true: green }} thumbColor="#fff" /></View>

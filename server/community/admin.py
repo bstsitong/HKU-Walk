@@ -1,8 +1,9 @@
+import json
 from django import forms
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
 
 from .models import Submission
 from .services import ReviewConflict, review_submission
@@ -40,9 +41,9 @@ class SubmissionAdmin(admin.ModelAdmin):
     list_filter = ("status", "kind")
     search_fields = ("title", "body", "author__username", "location")
     ordering = ("-created_at",)
-    fields = ("author", "kind", "edit_of", "published_version", "title", "body", "location", "external_url", "image_preview",
+    fields = ("author", "kind", "edit_of", "published_version", "title", "body", "map_preview", "step_images_preview", "location", "external_url", "image_preview",
         "status", "decision", "review_note", "review_version", "reviewer", "reviewed_at", "created_at", "public_entry")
-    readonly_fields = ("author", "kind", "edit_of", "published_version", "title", "body", "location", "external_url", "image_preview",
+    readonly_fields = ("author", "kind", "edit_of", "published_version", "title", "body", "map_preview", "step_images_preview", "location", "external_url", "image_preview",
         "status", "reviewer", "reviewed_at", "created_at", "public_entry")
     actions = None
 
@@ -68,6 +69,15 @@ class SubmissionAdmin(admin.ModelAdmin):
             return "未上传图片"
         return format_html('<a href="{}" target="_blank" rel="noopener"><img src="{}" style="max-width:320px;max-height:260px" alt="投稿配图"></a>',
             reverse("submission-image", args=[obj.pk]), reverse("submission-image", args=[obj.pk]))
+
+    @admin.display(description="地点位置或路线步骤")
+    def map_preview(self, obj):
+        return format_html('<pre style="white-space:pre-wrap">{}</pre>', json.dumps(obj.map_data, ensure_ascii=False, indent=2)) if obj.map_data else "—"
+
+    @admin.display(description="每步配图")
+    def step_images_preview(self, obj):
+        return format_html_join('', '<p>步骤 {}<br><a href="{}" target="_blank" rel="noopener"><img src="{}" style="max-width:280px;max-height:220px" alt="步骤配图"></a></p>',
+            ((image.step_index + 1, reverse("submission-step-image", args=[image.pk]), reverse("submission-step-image", args=[image.pk])) for image in obj.step_images.all())) or "未上传步骤配图"
 
     def save_model(self, request, obj, form, change):
         result = review_submission(obj.pk, form.cleaned_data["review_version"],
