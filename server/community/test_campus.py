@@ -13,11 +13,10 @@ from .images import clean_image
 class CampusContributionTests(CommunityFixture):
     def image_status(self, client, path):
         response = client.get(path)
-        status = response.status_code
         if response.streaming:
+            # Django's test iterator closes the response without closing the test transaction.
             b''.join(response.streaming_content)
-        response.close()
-        return status
+        return response.status_code
     def route_data(self, **extra):
         return {**self.payload, "kind": "new_route", "title": "图书馆入口路线", "map_data": {
             "originId": "gate", "destinationId": "library", "steps": [
