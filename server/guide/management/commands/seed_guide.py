@@ -3,7 +3,7 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from guide.legacy_catalog import seed_builtin_places
+from guide.campus_map import seed_current_places
 from guide.models import CampusPlace, GuideCategory, GuidePost, Publication
 
 class Command(BaseCommand):
@@ -21,5 +21,5 @@ class Command(BaseCommand):
                 key = entry.pop("key")
                 publication, _ = Publication.objects.get_or_create(key=key, defaults={"sort_order": position})
                 GuidePost.objects.get_or_create(publication=publication, defaults={**entry, "category": group})
-        seed_builtin_places(Publication, CampusPlace)
+        seed_current_places(Publication, CampusPlace)
         self.stdout.write("学生指南初始内容已就绪，已有修改已保留。")

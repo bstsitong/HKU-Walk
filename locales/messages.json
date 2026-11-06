@@ -2387,6 +2387,126 @@
     "en": "The title needs at least 3 characters.",
     "zh-Hant": "標題至少 3 個字。"
   },
+  "本部大楼 · HKU": {
+    "en": "Main Building · HKU",
+    "zh-Hant": "本部大樓 · HKU"
+  },
+  "校园地图资料": {
+    "en": "Campus map reference",
+    "zh-Hant": "校園地圖資料"
+  },
+  "图标标出地点或所在楼宇，入口与开放情况以现场为准。": {
+    "en": "Pins mark each location or its building. Check entrances and access on site.",
+    "zh-Hant": "圖標標出地點或所在樓宇，入口與開放情況以現場為準。"
+  },
+  "从地图搜索框输入名称、英文或简称，也可以直接点击地图标记。打开地点详情后查看步行路线；起点和终点可以更换，每一步右侧都有配图位置。收藏及浏览记录保存在本机。地图提供校园概览，距离和步行步骤为演示，GPS 待接入。": {
+    "en": "Search by Chinese name, English name or abbreviation, or tap a pin. Open a place to see an example walking route. You can change either endpoint and view illustrations alongside the steps. Bookmarks and history are stored on your device. The map is a campus overview. Distances and steps are examples, and GPS is pending.",
+    "zh-Hant": "從地圖搜索框輸入名稱、英文或簡稱，也可以直接點擊地圖標記。打開地點詳情後查看步行路線；起點和終點可以更換，每一步右側都有配圖位置。收藏及瀏覽記錄保存在本機。地圖提供校園概覽，距離和步行步驟為演示，GPS 待接入。"
+  },
+  "独立校园地图与学生指南项目，并非香港大学官方应用。校园照片来自 HKU Wallpapers；地点与楼宇名称参考港大校园地图，部分入口资料尚待补充。投稿经管理员审核后发布，原文不会随界面语言改变。": {
+    "en": "An independent campus map and student guide. Campus photos come from HKU Wallpapers. Place and building names reference HKU campus maps. Some entrances still need details. Contributions are reviewed before publication and appear in their original language.",
+    "zh-Hant": "獨立校園地圖與學生指南項目，並非香港大學官方應用。校園照片來自 HKU Wallpapers；地點與樓宇名稱參考港大校園地圖，部分入口資料尚待補充。投稿經管理員審核後發佈，原文不會隨界面語言改變。"
+  },
+  "本部及百周年校园地图": {
+    "en": "Main and Centennial Campus Map",
+    "zh-Hant": "本部及百週年校園地圖"
+  },
+  "港大物业处 · 25.2 版（2025 年 4 月）": {
+    "en": "HKU Estates Office · v25.2 (April 2025)",
+    "zh-Hant": "港大物業處 · 25.2 版（2025 年 4 月）"
+  },
+  "大学街与校园出入口图": {
+    "en": "University Street and campus entrances",
+    "zh-Hant": "大學街與校園出入口圖"
+  },
+  "校园楼宇编号与简称": {
+    "en": "Campus building numbers and abbreviations",
+    "zh-Hant": "校園樓宇編號與簡稱"
+  },
+  "同系列早期版 · 百周年校园建成前": {
+    "en": "Earlier edition · before Centennial Campus opened",
+    "zh-Hant": "同系列早期版 · 百週年校園建成前"
+  },
+  "App 底图的道路、楼宇轮廓与开放数据许可": {
+    "en": "Roads, building footprints and open data licence",
+    "zh-Hant": "App 底圖的道路、樓宇輪廓與開放數據許可"
+  },
+  "旧版点位待重新标记": {
+    "en": "Pin needs updating on the new map",
+    "zh-Hant": "舊版點位待重新標記"
+  },
+  "点击校园地图放置标记，可用方向按钮微调。": {
+    "en": "Tap the campus map to place a pin, then adjust it with the arrow buttons.",
+    "zh-Hant": "點擊校園地圖放置標記，可用方向按鈕微調。"
+  },
+  "起点与终点 · © OpenStreetMap": {
+    "en": "Route endpoints · © OpenStreetMap",
+    "zh-Hant": "起點與終點 · © OpenStreetMap"
+  },
+  "经行人天桥连接黄克竞楼。": {
+    "en": "The footbridge leads to Haking Wong Building.",
+    "zh-Hant": "經行人天橋連接黃克競樓。"
+  },
+  "黄克竞楼 5/F": {
+    "en": "Haking Wong Building, 5/F",
+    "zh-Hant": "黃克競樓 5/F"
+  },
+  "位于图书馆大楼旧翼。": {
+    "en": "In the Library Building Old Wing.",
+    "zh-Hant": "位於圖書館大樓舊翼。"
+  },
+  "可经行人天桥前往百周年校园。": {
+    "en": "The footbridge leads to Centennial Campus.",
+    "zh-Hant": "可經行人天橋前往百週年校園。"
+  },
+  "5/F 连上层大学街，4/F 连下层大学街。": {
+    "en": "5/F connects to Upper University Street; 4/F connects to Lower University Street.",
+    "zh-Hant": "5/F 連上層大學街，4/F 連下層大學街。"
+  },
+  "位于庄月明文化中心。": {
+    "en": "In the Chong Yuet Ming Cultural Centre.",
+    "zh-Hant": "位於莊月明文化中心。"
+  },
+  "位于庄月明文娱中心。": {
+    "en": "In the Chong Yuet Ming Amenities Centre.",
+    "zh-Hant": "位於莊月明文娛中心。"
+  },
+  "位于赛马会教学楼。": {
+    "en": "In The Jockey Club Tower.",
+    "zh-Hant": "位於賽馬會教學樓。"
+  },
+  "位于太古楼方树泉文娱中心。": {
+    "en": "In Fong Shu Chuen Amenities Centre, Swire Building.",
+    "zh-Hant": "位於太古樓方樹泉文娛中心。"
+  },
+  "港大校园地图网站 · 2015 年参考图": {
+    "en": "HKU Campus Map website · 2015 reference",
+    "zh-Hant": "港大校園地圖網站 · 2015 年參考圖"
+  },
+  "同学分享的路线 · 请按图文步骤核对。": {
+    "en": "Student-shared route · follow the illustrated steps.",
+    "zh-Hant": "同學分享的路線 · 請按圖文步驟核對。"
+  },
+  "百周年校园": {
+    "en": "Centennial Campus",
+    "zh-Hant": "百週年校園"
+  },
+  "薄扶林道": {
+    "en": "Pok Fu Lam Road",
+    "zh-Hant": "薄扶林道"
+  },
+  "般咸道": {
+    "en": "Bonham Road",
+    "zh-Hant": "般鹹道"
+  },
+  "大学道": {
+    "en": "University Drive",
+    "zh-Hant": "大學道"
+  },
+  "百周年校园平台层设有多个入口。": {
+    "en": "There are several entrances on the Centennial Campus podium levels.",
+    "zh-Hant": "百週年校園平台層設有多個入口。"
+  },
   "本部大樓": {
     "en": "Main Building",
     "zh-Hant": "本部大樓"
@@ -2450,5 +2570,545 @@
   "廁所 洗手間 wc 厕所": {
     "en": "廁所 洗手間 wc 厕所",
     "zh-Hant": "廁所 洗手間 wc 廁所"
+  },
+  "陆佑堂 Loke Yew Hall 校史 红砖": {
+    "en": "陆佑堂 Loke Yew Hall 校史 红砖",
+    "zh-Hant": "陸佑堂 Loke Yew Hall 校史 紅磚"
+  },
+  "圖書館 总图书馆 總圖 学习 自习 图书": {
+    "en": "圖書館 总图书馆 總圖 学习 自习 图书",
+    "zh-Hant": "圖書館 總圖書館 總圖 學習 自習 圖書"
+  },
+  "智华馆": {
+    "en": "Chi Wah Learning Commons",
+    "zh-Hant": "智華館"
+  },
+  "智華館": {
+    "en": "Chi Wah Learning Commons",
+    "zh-Hant": "智華館"
+  },
+  "智华学习共享空间 智華館 自习 学习空间": {
+    "en": "智华学习共享空间 智華館 自习 学习空间",
+    "zh-Hant": "智華學習共享空間 智華館 自習 學習空間"
+  },
+  "鈕魯詩樓 建筑学院": {
+    "en": "鈕魯詩樓 建筑学院",
+    "zh-Hant": "鈕魯詩樓 建築學院"
+  },
+  "港大站校园入口（A2）": {
+    "en": "HKU Station Exit A2",
+    "zh-Hant": "港大站校園入口（A2）"
+  },
+  "港大站校園入口（A2）": {
+    "en": "HKU Station Exit A2",
+    "zh-Hant": "港大站校園入口（A2）"
+  },
+  "港大站 港鐵港大站 港铁 地铁 MTR HKU 香港大學站": {
+    "en": "港大站 港鐵港大站 港铁 地铁 MTR HKU 香港大學站",
+    "zh-Hant": "港大站 港鐵港大站 港鐵 地鐵 MTR HKU 香港大學站"
+  },
+  "百周年花园": {
+    "en": "Centennial Garden",
+    "zh-Hant": "百週年花園"
+  },
+  "百週年花園": {
+    "en": "Centennial Garden",
+    "zh-Hant": "百週年花園"
+  },
+  "百周年校园花园 花園": {
+    "en": "百周年校园花园 花園",
+    "zh-Hant": "百週年校園花園 花園"
+  },
+  "Urban Coffee Roaster（港大）": {
+    "en": "Urban Coffee Roaster",
+    "zh-Hant": "Urban Coffee Roaster（港大）"
+  },
+  "咖啡 咖啡店 coffee cafe": {
+    "en": "咖啡 咖啡店 coffee cafe",
+    "zh-Hant": "咖啡 咖啡店 coffee cafe"
+  },
+  "旭龢道公厕": {
+    "en": "Kotewall Road Public Toilet",
+    "zh-Hant": "旭龢道公廁"
+  },
+  "旭龢道公廁": {
+    "en": "Kotewall Road Public Toilet",
+    "zh-Hant": "旭龢道公廁"
+  },
+  "公廁 廁所 洗手間 wc 厕所 公共洗手间": {
+    "en": "公廁 廁所 洗手間 wc 厕所 公共洗手间",
+    "zh-Hant": "公廁 廁所 洗手間 wc 廁所 公共洗手間"
+  },
+  "港大站 A1 出口": {
+    "en": "HKU Station Exit A1",
+    "zh-Hant": "港大站 A1 出口"
+  },
+  "港铁 MTR 薄扶林道": {
+    "en": "港铁 MTR 薄扶林道",
+    "zh-Hant": "港鐵 MTR 薄扶林道"
+  },
+  "港大站 C1 出口": {
+    "en": "HKU Station Exit C1",
+    "zh-Hant": "港大站 C1 出口"
+  },
+  "港铁 MTR 百周年校区 地铁": {
+    "en": "港铁 MTR 百周年校区 地铁",
+    "zh-Hant": "港鐵 MTR 百週年校區 地鐵"
+  },
+  "东闸": {
+    "en": "East Gate",
+    "zh-Hant": "東閘"
+  },
+  "東閘": {
+    "en": "East Gate",
+    "zh-Hant": "東閘"
+  },
+  "东门 東閘 东闸电梯 般咸道": {
+    "en": "东门 東閘 东闸电梯 般咸道",
+    "zh-Hant": "東門 東閘 東閘電梯 般鹹道"
+  },
+  "西闸": {
+    "en": "West Gate",
+    "zh-Hant": "西閘"
+  },
+  "西閘": {
+    "en": "West Gate",
+    "zh-Hant": "西閘"
+  },
+  "西门 西閘 薄扶林道": {
+    "en": "西门 西閘 薄扶林道",
+    "zh-Hant": "西門 西閘 薄扶林道"
+  },
+  "百周年校园出入口": {
+    "en": "Centennial Gate",
+    "zh-Hant": "百週年校園出入口"
+  },
+  "百週年校園出入口": {
+    "en": "Centennial Gate",
+    "zh-Hant": "百週年校園出入口"
+  },
+  "百周年闸 百周年校园": {
+    "en": "百周年闸 百周年校园",
+    "zh-Hant": "百週年閘 百週年校園"
+  },
+  "大学街": {
+    "en": "University Street",
+    "zh-Hant": "大學街"
+  },
+  "大學街": {
+    "en": "University Street",
+    "zh-Hant": "大學街"
+  },
+  "大學街 上层大学街 下层大学街 Upper Lower": {
+    "en": "大學街 上层大学街 下层大学街 Upper Lower",
+    "zh-Hant": "大學街 上層大學街 下層大學街 Upper Lower"
+  },
+  "大学道一号": {
+    "en": "University Lodge",
+    "zh-Hant": "大學道一號"
+  },
+  "大學道一號": {
+    "en": "University Lodge",
+    "zh-Hant": "大學道一號"
+  },
+  "柏立基学院": {
+    "en": "Robert Black College",
+    "zh-Hant": "柏立基學院"
+  },
+  "柏立基學院": {
+    "en": "Robert Black College",
+    "zh-Hant": "柏立基學院"
+  },
+  "研究生堂": {
+    "en": "Graduate House",
+    "zh-Hant": "研究生堂"
+  },
+  "明华综合大楼": {
+    "en": "Meng Wah Complex",
+    "zh-Hant": "明華綜合大樓"
+  },
+  "明華綜合大樓": {
+    "en": "Meng Wah Complex",
+    "zh-Hant": "明華綜合大樓"
+  },
+  "梅堂": {
+    "en": "May Hall",
+    "zh-Hant": "梅堂"
+  },
+  "仪礼堂": {
+    "en": "Eliot Hall",
+    "zh-Hant": "儀禮堂"
+  },
+  "儀禮堂": {
+    "en": "Eliot Hall",
+    "zh-Hant": "儀禮堂"
+  },
+  "邵仁枚楼": {
+    "en": "Runme Shaw Building",
+    "zh-Hant": "邵仁枚樓"
+  },
+  "邵仁枚樓": {
+    "en": "Runme Shaw Building",
+    "zh-Hant": "邵仁枚樓"
+  },
+  "黄丽松讲堂": {
+    "en": "Rayson Huang Theatre",
+    "zh-Hant": "黃麗松講堂"
+  },
+  "黃麗松講堂": {
+    "en": "Rayson Huang Theatre",
+    "zh-Hant": "黃麗松講堂"
+  },
+  "邵逸夫楼": {
+    "en": "Run Run Shaw Building",
+    "zh-Hant": "邵逸夫樓"
+  },
+  "邵逸夫樓": {
+    "en": "Run Run Shaw Building",
+    "zh-Hant": "邵逸夫樓"
+  },
+  "厉树雄科学馆": {
+    "en": "James Hsioung Lee Science Building",
+    "zh-Hant": "厲樹雄科學館"
+  },
+  "厲樹雄科學館": {
+    "en": "James Hsioung Lee Science Building",
+    "zh-Hant": "厲樹雄科學館"
+  },
+  "许爱周科学馆": {
+    "en": "Hui Oi Chow Science Building",
+    "zh-Hant": "許愛周科學館"
+  },
+  "許愛周科學館": {
+    "en": "Hui Oi Chow Science Building",
+    "zh-Hant": "許愛周科學館"
+  },
+  "庄月明文娱中心": {
+    "en": "Chong Yuet Ming Amenities Centre",
+    "zh-Hant": "莊月明文娛中心"
+  },
+  "莊月明文娛中心": {
+    "en": "Chong Yuet Ming Amenities Centre",
+    "zh-Hant": "莊月明文娛中心"
+  },
+  "莊月明文化中心 Chong Yuet Ming Cultural Centre": {
+    "en": "莊月明文化中心 Chong Yuet Ming Cultural Centre",
+    "zh-Hant": "莊月明文化中心 Chong Yuet Ming Cultural Centre"
+  },
+  "庄月明化学楼": {
+    "en": "Chong Yuet Ming Chemistry Building",
+    "zh-Hant": "莊月明化學樓"
+  },
+  "莊月明化學樓": {
+    "en": "Chong Yuet Ming Chemistry Building",
+    "zh-Hant": "莊月明化學樓"
+  },
+  "庄月明物理楼": {
+    "en": "Chong Yuet Ming Physics Building",
+    "zh-Hant": "莊月明物理樓"
+  },
+  "莊月明物理樓": {
+    "en": "Chong Yuet Ming Physics Building",
+    "zh-Hant": "莊月明物理樓"
+  },
+  "黄克竞楼": {
+    "en": "Haking Wong Building",
+    "zh-Hant": "黃克競樓"
+  },
+  "黃克競樓": {
+    "en": "Haking Wong Building",
+    "zh-Hant": "黃克競樓"
+  },
+  "黃克競樓 大学街 港铁": {
+    "en": "黃克競樓 大学街 港铁",
+    "zh-Hant": "黃克競樓 大學街 港鐵"
+  },
+  "李国贤堂": {
+    "en": "Simon K.Y. Lee Hall",
+    "zh-Hant": "李國賢堂"
+  },
+  "李國賢堂": {
+    "en": "Simon K.Y. Lee Hall",
+    "zh-Hant": "李國賢堂"
+  },
+  "综合大楼": {
+    "en": "Composite Building",
+    "zh-Hant": "綜合大樓"
+  },
+  "綜合大樓": {
+    "en": "Composite Building",
+    "zh-Hant": "綜合大樓"
+  },
+  "周亦卿楼": {
+    "en": "Chow Yei Ching Building",
+    "zh-Hant": "周亦卿樓"
+  },
+  "周亦卿樓": {
+    "en": "Chow Yei Ching Building",
+    "zh-Hant": "周亦卿樓"
+  },
+  "赛马会教学楼": {
+    "en": "The Jockey Club Tower",
+    "zh-Hant": "賽馬會教學樓"
+  },
+  "賽馬會教學樓": {
+    "en": "The Jockey Club Tower",
+    "zh-Hant": "賽馬會教學樓"
+  },
+  "社会科学学院 Faculty of Social Sciences": {
+    "en": "社会科学学院 Faculty of Social Sciences",
+    "zh-Hant": "社會科學學院 Faculty of Social Sciences"
+  },
+  "郑裕彤教学楼": {
+    "en": "Cheng Yu Tung Tower",
+    "zh-Hant": "鄭裕彤教學樓"
+  },
+  "鄭裕彤教學樓": {
+    "en": "Cheng Yu Tung Tower",
+    "zh-Hant": "鄭裕彤教學樓"
+  },
+  "法律学院 Law": {
+    "en": "法律学院 Law",
+    "zh-Hant": "法律學院 Law"
+  },
+  "逸夫教学楼": {
+    "en": "Run Run Shaw Tower",
+    "zh-Hant": "逸夫教學樓"
+  },
+  "逸夫教學樓": {
+    "en": "Run Run Shaw Tower",
+    "zh-Hant": "逸夫教學樓"
+  },
+  "文学院 Arts": {
+    "en": "文学院 Arts",
+    "zh-Hant": "文學院 Arts"
+  },
+  "邓志昂楼": {
+    "en": "Tang Chi Ngong Building",
+    "zh-Hant": "鄧志昂樓"
+  },
+  "鄧志昂樓": {
+    "en": "Tang Chi Ngong Building",
+    "zh-Hant": "鄧志昂樓"
+  },
+  "太古楼": {
+    "en": "Swire Building",
+    "zh-Hant": "太古樓"
+  },
+  "太古樓": {
+    "en": "Swire Building",
+    "zh-Hant": "太古樓"
+  },
+  "太古堂": {
+    "en": "Swire Hall",
+    "zh-Hant": "太古堂"
+  },
+  "方树泉文娱中心": {
+    "en": "Fong Shu Chuen Amenities Centre",
+    "zh-Hant": "方樹泉文娛中心"
+  },
+  "方樹泉文娛中心": {
+    "en": "Fong Shu Chuen Amenities Centre",
+    "zh-Hant": "方樹泉文娛中心"
+  },
+  "梁銶琚楼": {
+    "en": "K.K. Leung Building",
+    "zh-Hant": "梁銶琚樓"
+  },
+  "梁銶琚樓": {
+    "en": "K.K. Leung Building",
+    "zh-Hant": "梁銶琚樓"
+  },
+  "图书馆大楼旧翼": {
+    "en": "Library Building (Old Wing)",
+    "zh-Hant": "圖書館大樓舊翼"
+  },
+  "圖書館大樓舊翼": {
+    "en": "Library Building (Old Wing)",
+    "zh-Hant": "圖書館大樓舊翼"
+  },
+  "旧翼 舊翼 LBO Main": {
+    "en": "旧翼 舊翼 LBO Main",
+    "zh-Hant": "舊翼 舊翼 LBO Main"
+  },
+  "图书馆大楼新翼": {
+    "en": "Library Building (New Wing)",
+    "zh-Hant": "圖書館大樓新翼"
+  },
+  "圖書館大樓新翼": {
+    "en": "Library Building (New Wing)",
+    "zh-Hant": "圖書館大樓新翼"
+  },
+  "新翼 New Wing": {
+    "en": "新翼 New Wing",
+    "zh-Hant": "新翼 New Wing"
+  },
+  "嘉道理生物科学大楼": {
+    "en": "Kadoorie Biological Sciences Building",
+    "zh-Hant": "嘉道理生物科學大樓"
+  },
+  "嘉道理生物科學大樓": {
+    "en": "Kadoorie Biological Sciences Building",
+    "zh-Hant": "嘉道理生物科學大樓"
+  },
+  "徐展堂楼": {
+    "en": "T.T. Tsui Building",
+    "zh-Hant": "徐展堂樓"
+  },
+  "徐展堂樓": {
+    "en": "T.T. Tsui Building",
+    "zh-Hant": "徐展堂樓"
+  },
+  "美术博物馆 UMAG Art Gallery": {
+    "en": "美术博物馆 UMAG Art Gallery",
+    "zh-Hant": "美術博物館 UMAG Art Gallery"
+  },
+  "冯平山楼": {
+    "en": "Fung Ping Shan Building",
+    "zh-Hant": "馮平山樓"
+  },
+  "馮平山樓": {
+    "en": "Fung Ping Shan Building",
+    "zh-Hant": "馮平山樓"
+  },
+  "大学博物馆 University Museum": {
+    "en": "大学博物馆 University Museum",
+    "zh-Hant": "大學博物館 University Museum"
+  },
+  "孔庆荧楼": {
+    "en": "Hung Hing Ying Building",
+    "zh-Hant": "孔慶熒樓"
+  },
+  "孔慶熒樓": {
+    "en": "Hung Hing Ying Building",
+    "zh-Hant": "孔慶熒樓"
+  },
+  "包兆龙楼": {
+    "en": "Pao Siu Loong Building",
+    "zh-Hant": "包兆龍樓"
+  },
+  "包兆龍樓": {
+    "en": "Pao Siu Loong Building",
+    "zh-Hant": "包兆龍樓"
+  },
+  "任白楼": {
+    "en": "Yam Pak Building",
+    "zh-Hant": "任白樓"
+  },
+  "任白樓": {
+    "en": "Yam Pak Building",
+    "zh-Hant": "任白樓"
+  },
+  "李兆基会议中心": {
+    "en": "Lee Shau Kee Lecture Centre",
+    "zh-Hant": "李兆基會議中心"
+  },
+  "李兆基會議中心": {
+    "en": "Lee Shau Kee Lecture Centre",
+    "zh-Hant": "李兆基會議中心"
+  },
+  "大会堂 Grand Hall": {
+    "en": "大会堂 Grand Hall",
+    "zh-Hant": "大會堂 Grand Hall"
+  },
+  "逸夫苑": {
+    "en": "Run Run Shaw Heritage House",
+    "zh-Hant": "逸夫苑"
+  },
+  "大学出版社 University Press": {
+    "en": "大学出版社 University Press",
+    "zh-Hant": "大學出版社 University Press"
+  },
+  "港大访客中心": {
+    "en": "HKU Visitor Centre",
+    "zh-Hant": "港大訪客中心"
+  },
+  "港大訪客中心": {
+    "en": "HKU Visitor Centre",
+    "zh-Hant": "港大訪客中心"
+  },
+  "香港大学访客中心 Visitor and Information Centre": {
+    "en": "香港大学访客中心 Visitor and Information Centre",
+    "zh-Hant": "香港大學訪客中心 Visitor and Information Centre"
+  },
+  "荷花池": {
+    "en": "Lily Pond",
+    "zh-Hant": "荷花池"
+  },
+  "莲花池": {
+    "en": "莲花池",
+    "zh-Hant": "蓮花池"
+  },
+  "中山广场": {
+    "en": "Sun Yat-sen Place",
+    "zh-Hant": "中山廣場"
+  },
+  "中山廣場": {
+    "en": "Sun Yat-sen Place",
+    "zh-Hant": "中山廣場"
+  },
+  "孙中山像 中山阶": {
+    "en": "孙中山像 中山阶",
+    "zh-Hant": "孫中山像 中山階"
+  },
+  "龙虎山环境教育中心": {
+    "en": "Lung Fu Shan Environmental Education Centre",
+    "zh-Hant": "龍虎山環境教育中心"
+  },
+  "龍虎山環境教育中心": {
+    "en": "龍虎山環境教育中心",
+    "zh-Hant": "龍虎山環境教育中心"
+  },
+  "庄月明饭堂": {
+    "en": "CYM Canteen",
+    "zh-Hant": "莊月明飯堂"
+  },
+  "莊月明飯堂": {
+    "en": "CYM Canteen",
+    "zh-Hant": "莊月明飯堂"
+  },
+  "食堂 餐厅 饭堂 粤菜": {
+    "en": "食堂 餐厅 饭堂 粤菜",
+    "zh-Hant": "食堂 餐廳 飯堂 粵菜"
+  },
+  "so330（庄月明）": {
+    "en": "so330",
+    "zh-Hant": "so330（莊月明）"
+  },
+  "so330（莊月明）": {
+    "en": "so330",
+    "zh-Hant": "so330（莊月明）"
+  },
+  "咖啡 三明治 沙拉 轻食": {
+    "en": "咖啡 三明治 沙拉 轻食",
+    "zh-Hant": "咖啡 三明治 沙拉 輕食"
+  },
+  "谭仔三哥": {
+    "en": "TamJai SamGor",
+    "zh-Hant": "譚仔三哥"
+  },
+  "譚仔三哥": {
+    "en": "TamJai SamGor",
+    "zh-Hant": "譚仔三哥"
+  },
+  "譚仔三哥 米线 粉面 餐厅": {
+    "en": "譚仔三哥 米线 粉面 餐厅",
+    "zh-Hant": "譚仔三哥 米線 粉面 餐廳"
+  },
+  "alfafa bistro": {
+    "en": "alfafa bistro",
+    "zh-Hant": "alfafa bistro"
+  },
+  "简餐 轻食 外带 意面 三明治": {
+    "en": "简餐 轻食 外带 意面 三明治",
+    "zh-Hant": "簡餐 輕食 外帶 意麪 三明治"
+  },
+  "聚英台": {
+    "en": "JuYing Tai",
+    "zh-Hant": "聚英台"
+  },
+  "聚英臺 餐厅 饭堂": {
+    "en": "聚英臺 餐厅 饭堂",
+    "zh-Hant": "聚英台 餐廳 飯堂"
   }
 }

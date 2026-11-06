@@ -195,7 +195,7 @@ export function MoreScreen({ data, onContribute, sampleLocation, onSampleLocatio
       <Pressable accessibilityRole="button" onPress={() => setOriginalMap(true)} style={s.settingRow}><AppIcon name="map" /><Text style={s.settingTitle}>查看校园地图原图</Text><AppIcon name="chevron" size={17} /></Pressable>
       <Text style={s.sectionTitle}>了解更多</Text>
       <Pressable accessibilityRole="button" accessibilityState={{ expanded: help }} onPress={() => setHelp(value => !value)} style={s.settingRow}><AppIcon name="info" /><Text style={s.settingTitle}>使用说明</Text><AppIcon name="chevron" size={17} /></Pressable>
-      {help ? <Text style={s.helpCopy}>从地图搜索框输入名称、英文或简称，也可以直接点击地图标记。打开地点详情后查看步行路线；起点和终点可以更换，每一步右侧都有配图位置。收藏及浏览记录保存在本机。地图、距离和路线目前为演示，暂未接入 GPS。</Text> : null}
+      {help ? <Text style={s.helpCopy}>从地图搜索框输入名称、英文或简称，也可以直接点击地图标记。打开地点详情后查看步行路线；起点和终点可以更换，每一步右侧都有配图位置。收藏及浏览记录保存在本机。地图提供校园概览，距离和步行步骤为演示，GPS 待接入。</Text> : null}
       <Pressable accessibilityRole="button" onPress={onContribute} style={s.settingRow}>
         <AppIcon name="groups" /><Text style={s.settingTitle}>校园共建与我的投稿</Text><AppIcon name="chevron" size={17} />
       </Pressable>
@@ -204,10 +204,27 @@ export function MoreScreen({ data, onContribute, sampleLocation, onSampleLocatio
       </Pressable>
       <Text style={s.note}>管理员登录后，可以编辑和发布指南内容。</Text>
       <Pressable accessibilityRole="button" accessibilityState={{ expanded: about }} onPress={() => setAbout(value => !value)} style={s.settingRow}><AppIcon name="leaf" /><Text style={s.settingTitle}>关于港大漫游</Text><AppIcon name="chevron" size={17} /></Pressable>
-      {about ? <Text style={s.helpCopy}>独立校园地图与学生指南项目，并非香港大学官方应用。校园照片来自 HKU Wallpapers；地图、入口、距离和路线资料目前仅为演示。投稿经管理员审核后发布，原文不会随界面语言改变。</Text> : null}
-      <Modal visible={originalMap} animationType="slide" onRequestClose={() => setOriginalMap(false)}><SafeAreaView style={{ flex: 1, backgroundColor: colors.app }}><View style={s.topBar}><Pressable accessibilityRole="button" accessibilityLabel="返回" onPress={() => setOriginalMap(false)} style={s.iconButton}><AppIcon name="back" /></Pressable><Text style={s.topTitle}>校园地图原图</Text></View><ScrollView horizontal maximumZoomScale={3} minimumZoomScale={1}><ScrollView><Image source={require('./assets/hku-campus-map.png')} style={{ width: 1080, height: 765 }} resizeMode="contain" accessibilityLabel="香港大学校园地图原图" /></ScrollView></ScrollView></SafeAreaView></Modal>
+      {about ? <Text style={s.helpCopy}>独立校园地图与学生指南项目，并非香港大学官方应用。校园照片来自 HKU Wallpapers；地点与楼宇名称参考港大校园地图，部分入口资料尚待补充。投稿经管理员审核后发布，原文不会随界面语言改变。</Text> : null}
+      <Modal visible={originalMap} animationType="slide" onRequestClose={() => setOriginalMap(false)}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: colors.app }}>
+          <View style={s.topBar}><Pressable accessibilityRole="button" accessibilityLabel="返回" onPress={() => setOriginalMap(false)} style={s.iconButton}><AppIcon name="back" /></Pressable><Text style={s.topTitle}>校园地图原图</Text></View>
+          <ScrollView contentContainerStyle={s.page}>
+            <MapSource title="本部及百周年校园地图" note="港大物业处 · 25.2 版（2025 年 4 月）" url="https://www.estates.hku.hk/download_file/view_inline/674" />
+            <MapSource title="大学街与校园出入口图" note="港大校园地图网站 · 2015 年参考图" url="https://www.maps.hku.hk/downloads/201501hkumap.jpg" />
+            <MapSource title="校园楼宇编号与简称" note="同系列早期版 · 百周年校园建成前" url="https://law1a.nus.edu.sg/asli/6th_asli_conf/e_main_map.pdf" />
+            <MapSource title="© OpenStreetMap contributors" note="App 底图的道路、楼宇轮廓与开放数据许可" url="https://www.openstreetmap.org/copyright" />
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
     </ScrollView>
   );
+}
+
+function MapSource({ title, note, url }: { title: string; note: string; url?: string }) {
+  const copy = <><AppIcon name="map" /><View style={s.flex}><Text style={s.introTitle}>{title}</Text><Text style={s.meta}>{note}</Text></View>{url ? <AppIcon name="external" size={17} /> : null}</>;
+  return url
+    ? <Pressable accessibilityRole="link" onPress={() => void openLink(url)} style={s.settingRow}>{copy}</Pressable>
+    : <View style={s.settingRow}>{copy}</View>;
 }
 
 const s = StyleSheet.create({

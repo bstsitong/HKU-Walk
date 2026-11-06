@@ -90,6 +90,7 @@ class CampusPlace(ContentFields):
     category = models.CharField("地点类别", max_length=10, choices=Category.choices)
     map_x = models.FloatField("地图横坐标", validators=[MinValueValidator(0), MaxValueValidator(360)])
     map_y = models.FloatField("地图纵坐标", validators=[MinValueValidator(0), MaxValueValidator(580)])
+    map_version = models.PositiveSmallIntegerField("底图版本", choices=[(1, "旧版示意图"), (2, "校园地图")], default=1)
     entrance = models.TextField("入口说明", blank=True, max_length=1000)
     floor = models.CharField("楼层说明", blank=True, max_length=500)
     is_builtin = models.BooleanField("内置演示地点", default=False)

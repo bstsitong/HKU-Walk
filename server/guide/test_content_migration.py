@@ -35,6 +35,7 @@ class SeparateContentMigrationTests(TransactionTestCase):
             MigrationExecutor(connection).migrate(latest)
 
         from community.models import Submission
+        from .campus_map import current_places
         from .models import CampusPlace, CampusRoute, GuidePost, Publication
 
         self.assertEqual(GuidePost.objects.get(pk=post.pk).title, "Existing post")
@@ -48,4 +49,6 @@ class SeparateContentMigrationTests(TransactionTestCase):
         self.assertEqual(Submission.objects.get(pk=contribution.pk).public_entry_id, route.pk)
         self.assertEqual(Submission.objects.get(pk=edit.pk).edit_of_id, route.pk)
         self.assertFalse(GuidePost.objects.filter(pk__in=[place.pk, route.pk]).exists())
-        self.assertEqual(Publication.objects.count(), 11)
+        self.assertEqual(Publication.objects.count(), len(current_places()) + 3)
+        self.assertEqual(CampusPlace.objects.get(pk=place_code).map_version, 1)
+        self.assertEqual(CampusPlace.objects.get(pk="gate").map_version, 2)

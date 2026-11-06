@@ -1,6 +1,7 @@
 import copy
 from django.urls import reverse
 from rest_framework.exceptions import ValidationError
+from guide.campus_map import MAP_VERSION
 from guide.models import CampusPlace
 
 PLACE_CATEGORIES = set(CampusPlace.Category.values)
@@ -30,6 +31,10 @@ def validate_map_data(kind, data):
             coordinates[key] = round(value, 3)
         result = {"type": "place", "category": category, **coordinates,
             "english": text(data, "english", 160), "entrance": text(data, "entrance", 1000), "floor": text(data, "floor", 500)}
+        version = data.get("mapVersion", 1)
+        if type(version) is not int or version not in (1, MAP_VERSION):
+            raise ValidationError({"map_data": "底图版本不支持，请重新选择地点位置。"})
+        result["mapVersion"] = version
         if "abbreviation" in data:
             result["abbreviation"] = text(data, "abbreviation", 40)
         return result

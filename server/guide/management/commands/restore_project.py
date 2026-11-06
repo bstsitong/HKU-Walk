@@ -13,8 +13,9 @@ from django.db import transaction
 from django.core.files.storage import default_storage
 from django.core.files import File
 from community.models import Submission
+from guide.campus_map import seed_current_places
 from guide.legacy_backup import upgrade_legacy_fixture
-from guide.models import GuideCategory, Publication
+from guide.models import CampusPlace, GuideCategory, Publication
 
 def storage_has_files(path=""):
     try:
@@ -74,6 +75,8 @@ class Command(BaseCommand):
             try:
                 with transaction.atomic():
                     call_command("loaddata", str(fixture), verbosity=0)
+                    if CampusPlace.objects.filter(is_builtin=True, map_version=1).exists():
+                        seed_current_places(Publication, CampusPlace)
                     for source in (stage / "uploads").rglob("*"):
                         if source.is_file():
                             target = (media / source.relative_to(stage / "uploads")).resolve()

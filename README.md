@@ -53,7 +53,9 @@ python -m venv .venv
 
 在「更多 → 界面语言」选择简体中文、繁體中文或 English，切换即时生效并保留到下次打开。内置指南和地点资料提供对应翻译；同学投稿、管理员审核意见、账号及输入内容保留原文。新增系统文案后，编辑 `locales/app-en.json`，运行 `node scripts/build-locales.cjs` 生成英语与香港繁体字典。手机端也会在搜索时用 OpenCC 统一简繁写法。
 
-示意地图沿用原型 SVG；校园照片沿用原型中署名 HKU Wallpapers 的两张图片。「更多 → 查看校园地图原图」保留香港大学 Estates Office 的[本部及百周年校园彩色地图，25.2 版](https://www.estates.hku.hk/download_file/view_inline/674)。位置、入口、距离与路线仍为演示数据。GPS 接入提示说明后续定位用途；「显示演示位置」只控制示例蓝点。
+App 内置可离线查看的本部及百周年校园底图，大学街用金色标示。道路及楼宇轮廓来自 [OpenStreetMap contributors（ODbL）](https://www.openstreetmap.org/copyright)，[底图数据区域](https://api.openstreetmap.org/api/0.6/map?bbox=114.1328,22.2800,114.1417,22.28495)。地点名称、简称和出入口参考[港大物业处 25.2 版校园地图](https://www.estates.hku.hk/download_file/view_inline/674)与[港大 2015 年大学街原图](https://www.maps.hku.hk/downloads/201501hkumap.jpg)。餐饮楼层参考[港大餐饮目录](https://catering.hku.hk/en/eateries/)。这些校园地图可以从「更多 → 查看校园地图原图」打开。路线的距离和步骤仍为演示。
+
+底图点位独立于 GPS，经横向 0–360 和纵向 0–580 的比例坐标储存。新 App 以 `/api/campus/?mapVersion=2` 获取地图地点。旧版点位会保留，重新在新版底图上标记前只显示文字资料。
 
 ## 配置与检查
 
@@ -72,4 +74,4 @@ python -m venv .venv
 
 已通过公网 HTTPS 验证四类指南、管理员登录、注册、登录、修改密码、恢复码找回、旧会话撤销、图片上传与受控读取、已发布内容修改审核。生成的联调账号已停用，测试指南已取消发布。云端数据库的初始备份已在维护者本机保存并校验摘要；备份不进入仓库。后台凭据存放在本机忽略目录的私有文件中。
 
-连接线上数据进行手机测试：`./Start-Phone-Test.ps1 -ApiUrl https://hku-walk-api.onrender.com`。地图仍使用演示数据，GPS 和真实路线没有接入。安卓和 iPhone 真实手机测试、正式安装包仍待完成。
+连接线上数据进行手机测试：`./Start-Phone-Test.ps1 -ApiUrl https://hku-walk-api.onrender.com`。步行步骤仍为演示，GPS 待接入。安卓和 iPhone 真实手机测试、正式安装包仍待完成。

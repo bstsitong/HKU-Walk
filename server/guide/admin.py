@@ -97,13 +97,16 @@ class PostAdmin(PublishedContentAdmin):
 class PlaceAdmin(PublishedContentAdmin):
     publication_kind = Publication.Kind.PLACE
     list_display = ("name_zh", "name_en", "abbreviation_en", "category", "is_published")
-    list_filter = ("category", "publication__published", "is_builtin")
+    list_filter = ("category", "publication__published", "is_builtin", "map_version")
     search_fields = ("name_zh", "name_en", "abbreviation_en", "keywords")
     readonly_fields = ("code", "is_builtin", "updated_at")
     fields = (
-        "code", "name_zh", "name_en", "abbreviation_en", "keywords", "category", "map_x", "map_y",
+        "code", "name_zh", "name_en", "abbreviation_en", "keywords", "category", "map_version", "map_x", "map_y",
         "entrance", "floor", "body", "external_url", "image_url", "published", "sort_order", "is_builtin", "updated_at",
     )
+
+    def get_changeform_initial_data(self, request):
+        return {**super().get_changeform_initial_data(request), "map_version": 2}
 
     def has_delete_permission(self, request, obj=None):
         return not (obj and obj.is_builtin) and super().has_delete_permission(request, obj)

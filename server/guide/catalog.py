@@ -34,6 +34,7 @@ def publication_map_data(request, publication, content):
     if publication.kind == Publication.Kind.PLACE:
         return {
             "type": "place", "category": content.category, "x": content.map_x, "y": content.map_y,
+            "mapVersion": content.map_version,
             "english": content.name_en, "abbreviation": content.abbreviation_en,
             "entrance": content.entrance, "floor": content.floor,
         }

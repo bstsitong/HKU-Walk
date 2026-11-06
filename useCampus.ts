@@ -4,7 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE } from './guideApi';
 import { setCommunityCampus } from './campus';
 import { CampusCatalog, readCampus } from './campusCatalog';
-const cacheKey = 'hku-walk.campus.v1';
+import { CAMPUS_MAP_VERSION } from './MapArtwork';
+const cacheKey = `hku-walk.campus.v${CAMPUS_MAP_VERSION}`;
 export default function useCampus() {
   const [catalog, setCatalog] = useState<CampusCatalog>({ places: [], routes: [] });
   const [loading, setLoading] = useState(false);
@@ -21,7 +22,7 @@ export default function useCampus() {
     const timeout = setTimeout(() => abort.abort(), 75000);
     setLoading(true); setError('');
     try {
-      const response = await fetch(API_BASE + '/api/campus/', { signal: abort.signal, headers: { Accept: 'application/json' }, cache: 'no-store' });
+      const response = await fetch(API_BASE + `/api/campus/?mapVersion=${CAMPUS_MAP_VERSION}`, { signal: abort.signal, headers: { Accept: 'application/json' }, cache: 'no-store' });
       if (!response.ok) throw new Error('Campus request failed');
       const next = readCampus(await response.json());
       if (current === generation.current) {

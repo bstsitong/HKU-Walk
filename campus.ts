@@ -1,7 +1,7 @@
 import { getLanguage, t, translate } from './localization';
 import type { IconName } from './AppIcon';
 import { matchCampusPlaces } from './placeMatching';
-import fallbackPlaces from './server/guide/base_places_v1.json';
+import fallbackPlaces from './server/guide/base_places_v2.json';
 export const categories = [
   { id: 'all', label: '全部' },
   { id: 'building', label: '教学楼' },
@@ -28,9 +28,10 @@ export type Place = {
   floor?: string;
   imageUrl?: string;
   isCommunity?: boolean;
+  mapPositionPending?: boolean;
 };
 
-// These coordinates are in the prototype's drawing, separate from GPS coordinates.
+// These coordinates are normalized to the campus map, separate from GPS coordinates.
 export const basePlaces: Place[] = fallbackPlaces.map(place => ({
   ...place, category: place.category as Place['category'],
 }));

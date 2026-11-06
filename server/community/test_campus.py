@@ -63,6 +63,22 @@ class CampusContributionTests(CommunityFixture):
             self.assertEqual(self.api.post('/api/submissions/', self.route_data(map_data=route), format='json').status_code, 400)
         self.assertEqual(Submission.objects.count(), 0)
 
+    def test_catalog_keeps_old_positions_separate_from_current_positions(self):
+        for version in (1, 2):
+            item = self.submit(kind="new_place", title=f"地图版本 {version}", request_key=f"map_version_{version}", map_data={
+                "category": "study", "x": 100, "y": 200, "mapVersion": version,
+            })
+            review_submission(item.pk, 1, "approved", "", self.admin)
+        old = self.anon.get("/api/campus/").json()
+        current = self.anon.get("/api/campus/?mapVersion=2").json()
+        self.assertEqual(old["mapVersion"], 1)
+        self.assertEqual(current["mapVersion"], 2)
+        self.assertEqual(len(old["basePlaces"]), 8)
+        self.assertGreater(len(current["basePlaces"]), 50)
+        self.assertEqual([place["name"] for place in old["places"]], ["地图版本 1"])
+        self.assertEqual({place["name"]: place["mapPositionPending"] for place in current["places"]},
+                         {"地图版本 1": True, "地图版本 2": False})
+
     def test_step_images_are_private_sanitized_then_public_and_follow_unpublishing(self):
         item = self.route()
         content = self.api.get(f'/api/submissions/{item.pk}/').json()['submission']

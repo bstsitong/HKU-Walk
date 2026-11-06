@@ -71,7 +71,7 @@ class GuideTests(TestCase):
         self.client.force_login(self.admin_user)
         result = self.client.post("/admin/guide/campusplace/add/", {
             "name_zh": "研讨室", "name_en": "Seminar Room", "abbreviation_en": "SR",
-            "category": "study", "map_x": 100, "map_y": 200, "body": "测试地点说明",
+            "category": "study", "map_version": 2, "map_x": 100, "map_y": 200, "body": "测试地点说明",
             "published": "on", "sort_order": 100,
         })
         self.assertEqual(result.status_code, 302)
@@ -86,4 +86,4 @@ class GuideTests(TestCase):
         route = CampusRoute.objects.get(title="去研讨室")
         self.assertEqual(route.destination_id, place.pk)
         self.assertEqual(route.steps.get().title, "出发")
-        self.assertEqual(self.client.get("/api/campus/").json()["places"][0]["abbreviation"], "SR")
+        self.assertEqual(self.client.get("/api/campus/?mapVersion=2").json()["places"][0]["abbreviation"], "SR")

@@ -5,6 +5,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
 
 from .catalog import content_image, published_routes, route_steps_data
+from .campus_map import LEGACY_PLACES, MAP_VERSION
 from .models import CampusPlace, GuideCategory, GuidePost, Publication, RouteStep
 
 
@@ -48,6 +49,7 @@ def guide_content(request):
 @require_GET
 @never_cache
 def campus_content(request):
+    version = MAP_VERSION if request.GET.get("mapVersion") == str(MAP_VERSION) else 1
     places, base_places = [], []
     place_query = CampusPlace.objects.filter(publication__published=True).select_related("publication__current_submission")
     for place in place_query.order_by("publication__sort_order", "publication_id"):
@@ -58,7 +60,15 @@ def campus_content(request):
             "entrance": place.entrance, "floor": place.floor, "imageUrl": content_image(request, place, place.publication),
             "isCommunity": not place.is_builtin,
         }
+        if version == 1:
+            if place.is_builtin and place.pk in LEGACY_PLACES:
+                data.update(LEGACY_PLACES[place.pk])
+            elif place.map_version != 1:
+                continue
+        else:
+            data["mapPositionPending"] = place.map_version != version
         (base_places if place.is_builtin else places).append(data)
+    visible_ids = {place["id"] for place in base_places + places}
     route_query = published_routes().select_related("publication").prefetch_related(
         Prefetch("steps", queryset=RouteStep.objects.select_related("photo")),
     ).order_by("publication__sort_order", "publication_id")
@@ -67,8 +77,8 @@ def campus_content(request):
         "body": route.body, "originId": route.origin_id, "destinationId": route.destination_id,
         "steps": route_steps_data(request, route), "isCommunity": True,
         "updatedAt": route.publication.updated_at.isoformat(),
-    } for route in route_query]
-    return JsonResponse({"places": places, "routes": routes, "basePlaces": base_places}, json_dumps_params={"ensure_ascii": False})
+    } for route in route_query if route.origin_id in visible_ids and route.destination_id in visible_ids]
+    return JsonResponse({"mapVersion": version, "places": places, "routes": routes, "basePlaces": base_places}, json_dumps_params={"ensure_ascii": False})
 
 
 @require_GET

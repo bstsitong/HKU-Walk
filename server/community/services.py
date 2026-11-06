@@ -200,6 +200,7 @@ def publish_content(item):
     common = {"body": body, "external_url": item.external_url, "image_url": item.inherited_image_url}
     if kind == Publication.Kind.PLACE:
         details = place_fields(data)
+        details["map_version"] = data["mapVersion"]
         # Older app versions omit this field when editing a published place.
         if "abbreviation" not in data and item.edit_of_id:
             details.pop("abbreviation_en")

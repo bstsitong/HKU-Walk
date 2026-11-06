@@ -10,13 +10,13 @@ const cases = [
   ['Main Lib','library'], ['Main Libary','library'], ['Main Librray','library'], ['图书官','library'],
   ['tu shu guan','library'], ['tushuguan','library'], ['daxuetushu','library'],
   [' CWLC ','chiwah'], ['C.W.L.C.','chiwah'], ['钮鲁诗','knowles'], ['鈕魯詩','knowles'],
-  ['mAiN bUiLdInG','main'], ['地铁','gate'], ['港鐵港大站','gate'], ['花園','garden'], ['wc','toilet'],
+  ['mAiN bUiLdInG','main'], ['LBO','library-old'], ['LBN','library-new'], ['CJT','jockey-club-tower'], ['港大站 C1','mtr-c1'], ['黄克竞','haking-wong'], ['地铁','gate'], ['港鐵港大站','gate'], ['花園','garden'], ['wc','toilet'],
 ];
 for (const language of ['zh-Hans','zh-Hant','en']) {
   setCurrentLanguage(language);
-  for (const [query, expected] of cases) assert.deepEqual(filterPlaces('all', query).map(p => p.id), [expected], `${language}: ${query}`);
-  assert.equal(filterPlaces('all').length, 8);
-  assert.equal(filterPlaces('building').length, 2);
+  for (const [query, expected] of cases) assert.equal(filterPlaces('all', query)[0]?.id, expected, `${language}: ${query}`);
+  assert.equal(filterPlaces('all').length, places.length);
+  assert.ok(filterPlaces('building').length > 30);
   assert.equal(filterPlaces('food', 'library').length, 0);
   assert.equal(filterPlaces('food', 'Main Libary').length, 0);
   assert.equal(filterPlaces('all', 'no such place').length, 0);
@@ -47,6 +47,7 @@ for (const [key, value] of Object.entries(messages)) {
 console.log('Passed: multilingual search, category and empty results, route text, validation messages, all built-in guide content, and translation placeholders.');
 const { readRouteBookmarks, demoRouteId } = require('../routeBookmarks.ts');
 const { emptyMapDraft, serializeMapDraft, validateMapDraft, editMapDraft } = require('../mapSubmission.ts');
+const { CAMPUS_MAP_VERSION } = require('../MapArtwork.ts');
 const { readCampus } = require('../campusCatalog.ts');
 const { setCommunityCampus, getPlace, getCampusRoute } = require('../campus.ts');
 const demo = { id: demoRouteId('gate','library'), originId: 'gate', destinationId: 'library', source: 'demo' };
@@ -66,7 +67,7 @@ const changed = serializeMapDraft('new_route',edit);
 assert.deepEqual(changed.removed,[0]); assert.deepEqual(changed.inherit,{}); assert.equal(changed.uploads[0].index,1);
 const newPlace = {id:'community-place-35',entryId:'35',name:'更多',english:'New study place',abbreviation:'NSP',keywords:'',category:'study',x:100,y:200,isCommunity:true};
 const newRoute = {id:'community-route-42',entryId:'42',title:'My route',body:'Route details',originId:'gate',destinationId:newPlace.id,steps:[{title:'Step',body:'Walk to the entrance'}],isCommunity:true,updatedAt:'2026-11-06'};
-const checked = readCampus({places:[newPlace,{...newPlace,id:'community-place-36',x:-1}],routes:[newRoute,{...newRoute,id:'community-route-43',destinationId:'missing'}]});
+const checked = readCampus({ mapVersion: CAMPUS_MAP_VERSION,places:[newPlace,{...newPlace,id:'community-place-36',x:-1}],routes:[newRoute,{...newRoute,id:'community-route-43',destinationId:'missing'}]});
 assert.equal(checked.places.length,1); assert.equal(checked.routes.length,1);
 setCommunityCampus(checked.places,checked.routes);
 setCurrentLanguage('en');
@@ -75,6 +76,10 @@ assert.equal(filterPlaces('all','New study place')[0].id,newPlace.id);
 assert.equal(filterPlaces('all','nsp')[0].id,newPlace.id);
 assert.equal(serializeMapDraft('new_place', { ...newPlace }).data.abbreviation, 'NSP');
 assert.equal(getCampusRoute(newRoute.id).steps.length,1);
+assert.throws(() => readCampus({ mapVersion: 1, places: [newPlace], routes: [] }));
+assert.equal(serializeMapDraft('new_place', newPlace).data.mapVersion, CAMPUS_MAP_VERSION);
+assert.equal(editMapDraft({ type: 'place', mapVersion: 1, x: 20, y: 60 }).x, null);
+assert.equal(editMapDraft({ type: 'place', mapVersion: CAMPUS_MAP_VERSION, x: 20, y: 60 }).x, 20);
 const room = { ...newPlace, id: 'community-place-36', name: '學生研討室', english: 'Seminar Room 102', abbreviation: '',
   keywords: '小組討論室, Team Room', description: '这里比较宁静，座位旁有电源插口。', entrance: '东门旁设有电梯。', floor: '三楼' };
 const annex = { ...newPlace, id: 'community-place-37', name: '图书馆附楼', english: 'Main Library Annex', abbreviation: '', keywords: '' };
@@ -84,7 +89,7 @@ const nailong = { ...canteen, id: 'community-place-40', name: '奶龙', english:
   description: '供应汉堡和快餐，可外带，也有榴莲千层。' };
 const noSockets = { ...room, id: 'community-place-41', name: '榕树学习室', english: 'Banyan Study Room',
   keywords: '', description: '学习空间很安静，不过没有插座。', entrance: '这个入口没有电梯。', floor: '二楼' };
-const updatedCatalog = readCampus({ places: [newPlace, room, annex, canteen, takeaway, nailong, noSockets], routes: [] });
+const updatedCatalog = readCampus({ mapVersion: CAMPUS_MAP_VERSION, places: [newPlace, room, annex, canteen, takeaway, nailong, noSockets], routes: [] });
 setCommunityCampus(updatedCatalog.places, updatedCatalog.routes);
 assert.equal(filterPlaces('all', '学生研讨室')[0].id, room.id);
 assert.equal(filterPlaces('all', 'xiaozutaolunshi')[0].id, room.id);
@@ -92,7 +97,7 @@ assert.equal(filterPlaces('all', 'Team Room')[0].id, room.id);
 assert.deepEqual(filterPlaces('all', 'Seminar Room 101'), []);
 assert.equal(filterPlaces('all', 'Main Library', [annex.id])[0].id, 'library');
 assert.equal(filterPlaces('all', 'Main Lib', [annex.id])[0].id, annex.id);
-const foodIds = ['cafe', canteen.id, takeaway.id, nailong.id];
+const foodIds = [...places.filter(place => place.category === 'food' && !place.isCommunity).map(place => place.id), canteen.id, takeaway.id, nailong.id].sort();
 for (const query of ['吃饭的地方', '想找个地方吃饭', '請問附近有沒有吃飯的地方？', '想在港大吃饭',
   '附近有什么好吃的', '想找能垫垫肚子的地方', '食嘢', '找吃的', 'Where can I eat on campus?', 'Find me something to eat']) {
   assert.deepEqual(filterPlaces('all', query).map(place => place.id).sort(), foodIds, query);
@@ -104,9 +109,10 @@ assert.deepEqual(filterPlaces('all', '快餐店').map(place => place.id), [takea
 for (const query of ['哪里能吃汉堡？', 'any burgers on campus', '想找能买榴莲千层的地方', '我想去奶龙']) {
   assert.deepEqual(filterPlaces('all', query).map(place => place.id), [nailong.id], query);
 }
-for (const query of ['我想找个安静有插座的地方自习', 'I want somewhere to study with power sockets', '哪里有升降机', '想找在三楼的地点']) {
+for (const query of ['我想找个安静有插座的地方自习', 'I want somewhere to study with power sockets', '想找在三楼的地点']) {
   assert.deepEqual(filterPlaces('all', query).map(place => place.id), [room.id], query);
 }
+assert.deepEqual(filterPlaces('all', '哪里有升降机').map(place => place.id), ['east-gate', room.id]);
 assert.deepEqual(filterPlaces('all', 'Where is a restroom?').map(place => place.id), ['toilet']);
 assert.ok(filterPlaces('all', '我想找地方自习').every(place => place.category === 'study'));
 assert.ok(filterPlaces('all', '我想找地方自习').some(place => place.id === room.id));
