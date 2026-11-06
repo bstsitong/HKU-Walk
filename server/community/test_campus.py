@@ -1,9 +1,11 @@
 import json
+import tempfile
 import zipfile
 from pathlib import Path
+from django.contrib.auth import get_user_model
 from django.core.files.storage import default_storage
 from django.core.management import call_command
-from django.test import override_settings
+from django.test import TransactionTestCase, override_settings
 from rest_framework.test import APIClient
 from .tests import CommunityFixture, photo
 from .models import Submission, SubmissionStepImage, StoredMedia, MediaQuota
@@ -146,15 +148,6 @@ class CampusContributionTests(CommunityFixture):
         item.refresh_from_db()
         self.assertEqual(item.status, 'pending')
 
-    def test_step_photos_are_included_in_portable_backup(self):
-        item = self.route()
-        output = Path(self.directory.name).parent / ('campus-backup-' + str(item.pk) + '.zip')
-        self.addCleanup(lambda: output.unlink(missing_ok=True))
-        call_command('backup_project', output=str(output), verbosity=0)
-        with zipfile.ZipFile(output) as backup:
-            for image in item.step_images.all():
-                self.assertIn('uploads/' + image.image.name, backup.namelist())
-
     def test_admin_reordering_preserves_photo_association_and_removed_photos_stop_being_public(self):
         item = review_submission(self.route().pk, 1, 'approved', '', self.admin)
         old = self.anon.get('/api/campus/').json()['routes'][0]
@@ -180,3 +173,16 @@ class CampusContributionTests(CommunityFixture):
             self.assertFalse(Submission.objects.exists())
             self.assertFalse(StoredMedia.objects.exists())
             self.assertEqual(MediaQuota.objects.get(pk=1).used_bytes, 0)
+
+
+class CampusBackupTests(TransactionTestCase):
+    def test_step_photos_are_included_in_portable_backup(self):
+        # The command starts its own repeatable-read transaction on PostgreSQL.
+        with tempfile.TemporaryDirectory() as directory, override_settings(MEDIA_ROOT=Path(directory) / 'media'):
+            author = get_user_model().objects.create_user('campus_backup_fixture')
+            item = Submission.objects.create(author=author, kind=Submission.Kind.NEW_ROUTE, title='Backup route')
+            step_photo = SubmissionStepImage.objects.create(submission=item, step_index=0, image=photo())
+            output = Path(directory) / 'backup.zip'
+            call_command('backup_project', output=str(output), verbosity=0)
+            with zipfile.ZipFile(output) as backup:
+                self.assertTrue(backup.read('uploads/' + step_photo.image.name).startswith(b'\xff\xd8'))
