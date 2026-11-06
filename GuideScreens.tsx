@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator, BackHandler, Linking, Modal, Switch,
+  ActivityIndicator, BackHandler, Linking, Switch,
   RefreshControl, ScrollView, StyleSheet, View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Alert, Image, Pressable, Text } from './ui';
 import { useLanguage } from './LanguageProvider';
 import { languages, t } from './localization';
@@ -177,11 +176,9 @@ export function GuideScreen({ data, bookmarks, selected, onSelect, onContribute,
   );
 }
 
-export function MoreScreen({ data, onContribute, sampleLocation, onSampleLocation }: { data: GuideData; onContribute: () => void; sampleLocation: boolean; onSampleLocation: (value: boolean) => void }) {
+export function MoreScreen({ onContribute, sampleLocation, onSampleLocation }: { onContribute: () => void; sampleLocation: boolean; onSampleLocation: (value: boolean) => void }) {
   const { language, chooseLanguage } = useLanguage();
-  const [help, setHelp] = useState(false);
   const [about, setAbout] = useState(false);
-  const [originalMap, setOriginalMap] = useState(false);
   return (
     <ScrollView style={s.flex} contentContainerStyle={s.page}>
       <Text accessibilityRole="header" style={s.title}>更多</Text>
@@ -189,13 +186,7 @@ export function MoreScreen({ data, onContribute, sampleLocation, onSampleLocatio
       <Text style={s.sectionTitle}>使用偏好</Text>
       <View style={s.preference}><View style={s.settingLabel}><AppIcon name="globe" size={20} /><Text style={s.settingTitle}>界面语言</Text></View><View style={s.languageOptions} accessibilityRole="radiogroup">{languages.map(item => <Pressable key={item.code} testID={`language-${item.code}`} accessibilityRole="radio" accessibilityState={{ checked: language === item.code }} onPress={() => chooseLanguage(item.code)} style={[s.language, language === item.code && s.selectedLanguage]}><Text raw style={[s.languageText, language === item.code && s.white]}>{item.label}</Text></Pressable>)}</View></View>
       <View style={s.settingRow}><AppIcon name="locate" /><View style={s.flex}><Text style={s.introTitle}>显示演示位置</Text><Text style={s.meta}>关闭实时定位后可查看演示蓝点。</Text></View><Switch accessibilityLabel={t('显示演示位置')} value={sampleLocation} onValueChange={onSampleLocation} trackColor={{ false: '#c5cec3', true: green }} thumbColor="#fff" /></View>
-      <Text style={s.sectionTitle}>地图资料</Text>
-      <Pressable accessibilityRole="button" onPress={() => void data.reload()} disabled={data.loading} style={s.settingRow}><AppIcon name="refresh" /><View style={s.flex}><Text style={s.introTitle}>检查资料更新</Text><Text style={s.meta}>{data.loading ? '正在更新学生指南…' : '刷新学生指南和已发布的投稿内容'}</Text></View>{data.loading ? <ActivityIndicator color={green} /> : <AppIcon name="refresh" size={17} />}</Pressable>
-      <Feedback data={data} />
-      <Pressable accessibilityRole="button" onPress={() => setOriginalMap(true)} style={s.settingRow}><AppIcon name="map" /><Text style={s.settingTitle}>查看校园地图原图</Text><AppIcon name="chevron" size={17} /></Pressable>
       <Text style={s.sectionTitle}>了解更多</Text>
-      <Pressable accessibilityRole="button" accessibilityState={{ expanded: help }} onPress={() => setHelp(value => !value)} style={s.settingRow}><AppIcon name="info" /><Text style={s.settingTitle}>使用说明</Text><AppIcon name="chevron" size={17} /></Pressable>
-      {help ? <Text style={s.helpCopy}>搜索名称、英文或简称，或点地图标记查看地点。打开地点详情可看配图步行示例。收藏和浏览记录保存在本机。在地图首页开启定位后，蓝点显示当前位置，圆圈表示估计误差范围。</Text> : null}
       <Pressable accessibilityRole="button" onPress={onContribute} style={s.settingRow}>
         <AppIcon name="groups" /><Text style={s.settingTitle}>校园共建与我的投稿</Text><AppIcon name="chevron" size={17} />
       </Pressable>
@@ -204,27 +195,14 @@ export function MoreScreen({ data, onContribute, sampleLocation, onSampleLocatio
       </Pressable>
       <Text style={s.note}>管理员登录后，可以编辑和发布指南内容。</Text>
       <Pressable accessibilityRole="button" accessibilityState={{ expanded: about }} onPress={() => setAbout(value => !value)} style={s.settingRow}><AppIcon name="leaf" /><Text style={s.settingTitle}>关于港大漫游</Text><AppIcon name="chevron" size={17} /></Pressable>
-      {about ? <Text style={s.helpCopy}>独立校园地图与学生指南项目，并非香港大学官方应用。校园照片来自 HKU Wallpapers；地点与楼宇名称参考港大校园地图，部分入口资料尚待补充。投稿经管理员审核后发布，原文不会随界面语言改变。</Text> : null}
-      <Modal visible={originalMap} animationType="slide" onRequestClose={() => setOriginalMap(false)}>
-        <SafeAreaView style={{ flex: 1, backgroundColor: colors.app }}>
-          <View style={s.topBar}><Pressable accessibilityRole="button" accessibilityLabel="返回" onPress={() => setOriginalMap(false)} style={s.iconButton}><AppIcon name="back" /></Pressable><Text style={s.topTitle}>校园地图原图</Text></View>
-          <ScrollView contentContainerStyle={s.page}>
-            <MapSource title="本部及百周年校园地图" note="港大物业处 · 25.2 版（2025 年 4 月）" url="https://www.estates.hku.hk/download_file/view_inline/674" />
-            <MapSource title="大学街与校园出入口图" note="港大校园地图网站 · 2015 年参考图" url="https://www.maps.hku.hk/downloads/201501hkumap.jpg" />
-            <MapSource title="校园楼宇编号与简称" note="同系列早期版 · 百周年校园建成前" url="https://law1a.nus.edu.sg/asli/6th_asli_conf/e_main_map.pdf" />
-            <MapSource title="© OpenStreetMap contributors" note="App 底图的道路、楼宇轮廓与开放数据许可" url="https://www.openstreetmap.org/copyright" />
-          </ScrollView>
-        </SafeAreaView>
-      </Modal>
+      {about ? <>
+        <Text style={s.aboutCopy}>独立校园地图与学生指南项目，并非香港大学官方应用。校园照片来自 HKU Wallpapers；地点与楼宇名称参考港大校园地图，部分入口资料尚待补充。投稿经管理员审核后发布，原文不会随界面语言改变。</Text>
+        <Pressable accessibilityRole="link" onPress={() => void openLink('https://www.openstreetmap.org/copyright')} style={s.settingRow}>
+          <AppIcon name="map" /><Text raw style={s.settingTitle}>© OpenStreetMap contributors</Text><AppIcon name="external" size={17} />
+        </Pressable>
+      </> : null}
     </ScrollView>
   );
-}
-
-function MapSource({ title, note, url }: { title: string; note: string; url?: string }) {
-  const copy = <><AppIcon name="map" /><View style={s.flex}><Text style={s.introTitle}>{title}</Text><Text style={s.meta}>{note}</Text></View>{url ? <AppIcon name="external" size={17} /> : null}</>;
-  return url
-    ? <Pressable accessibilityRole="link" onPress={() => void openLink(url)} style={s.settingRow}>{copy}</Pressable>
-    : <View style={s.settingRow}>{copy}</View>;
 }
 
 const s = StyleSheet.create({
@@ -276,6 +254,6 @@ const s = StyleSheet.create({
   brandSymbol: { width: 46, height: 48, borderRadius: 12, backgroundColor: green, alignItems: 'center', justifyContent: 'center' },
   preference: { backgroundColor: '#fff', borderRadius: 10, padding: 13, marginBottom: 8 }, settingLabel: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
   languageOptions: { flexDirection: 'row', gap: 5, backgroundColor: colors.tint, padding: 4, borderRadius: 9 }, language: { flex: 1, minHeight: 44, paddingHorizontal: 3, paddingVertical: 10, alignItems: 'center', justifyContent: 'center', borderRadius: 7 }, selectedLanguage: { backgroundColor: green }, languageText: { fontSize: 12, color: green, lineHeight: 20 },
-  helpCopy: { fontSize: 13, lineHeight: 23, color: muted, padding: 13, paddingTop: 4, marginBottom: 13 },
+  aboutCopy: { fontSize: 13, lineHeight: 23, color: muted, padding: 13, paddingTop: 4, marginBottom: 13 },
   foodSymbol: { backgroundColor: colors.rustLight }, foodFilters: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 }, foodFilter: { minHeight: 44, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 8, backgroundColor: colors.tint, justifyContent: 'center' },
 });

@@ -97,7 +97,7 @@ function MainApp() {
       <View style={[s.content, tab !== 'map' && s.hidden]}><CampusMap active={tab === 'map'} records={records} routes={routes} campus={campus} sampleLocation={sampleLocation} request={mapRequest} onViewChange={setMapView} onReturnSaved={() => setTab('saved')} /></View>
       {tab === 'guide' ? <GuideScreen data={guideData} bookmarks={bookmarks} selected={category} onSelect={setCategory} onContribute={() => setCommunityVisible(true)} onMap={openMap} onOpenContent={openContent} /> : null}
       {tab === 'saved' ? <SavedScreen data={data} campus={campus} bookmarks={bookmarks} records={records} routes={routes} onOpenPlace={openPlace} onOpenRoute={openRoute} onOpenContent={openContent} /> : null}
-      {tab === 'more' ? <MoreScreen data={guideData} onContribute={() => setCommunityVisible(true)} sampleLocation={sampleLocation} onSampleLocation={chooseSampleLocation} /> : null}
+      {tab === 'more' ? <MoreScreen onContribute={() => setCommunityVisible(true)} sampleLocation={sampleLocation} onSampleLocation={chooseSampleLocation} /> : null}
       <CommunityScreen visible={communityVisible} onClose={() => { setCommunityVisible(false); void refreshAll(); }} account={account} />
       {tab !== 'map' || mapView === 'home' ? <View style={s.nav} accessibilityRole="tablist">
         {tabs.map(item => (

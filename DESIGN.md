@@ -10,6 +10,6 @@ The user has chosen the existing HTML preview. Its composition, forest-green ide
 - Search is a separate screen with quick searches, category exploration, results and an empty state. Details use the original HKU photo, entrance notes and mini map.
 - Routes show origin/destination selectors and swap, a schematic route, one walking itinerary with lift steps, and a thumbnail on the right of every step.
 - Saved places and recent history use divided rows and underlined tabs; student-guide bookmarks remain available on the same saved page.
-- More contains the three-language selector, demonstration location preference, refresh, help, community/account access and administrator access.
-- Reuse the prototype's two HKU wallpaper photos with attribution and original vector artwork. Preserve the original full campus image as an available map layer.
+- More contains the three-language selector, demonstration location preference, community/account access, administrator access and app information. Map and guide data refresh when the app opens or returns to the foreground.
+- Reuse the prototype's two HKU wallpaper photos with attribution and retain the OpenStreetMap attribution in the app information.
 - Native controls expose roles, labels and state; touch areas are at least 48 points. Do not reproduce desktop preview controls or hardware frames inside the phone UI.

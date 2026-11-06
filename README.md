@@ -53,7 +53,7 @@ python -m venv .venv
 
 在「更多 → 界面语言」选择简体中文、繁體中文或 English，切换即时生效并保留到下次打开。内置指南和地点资料提供对应翻译；同学投稿、管理员审核意见、账号及输入内容保留原文。新增系统文案后，编辑 `locales/app-en.json`，运行 `node scripts/build-locales.cjs` 生成英语与香港繁体字典。手机端也会在搜索时用 OpenCC 统一简繁写法。
 
-App 内置可离线查看的本部及百周年校园底图，大学街用金色标示。道路及楼宇轮廓来自 [OpenStreetMap contributors（ODbL）](https://www.openstreetmap.org/copyright)，[底图数据区域](https://api.openstreetmap.org/api/0.6/map?bbox=114.1328,22.2800,114.1417,22.28495)。地点名称、简称和出入口参考[港大物业处 25.2 版校园地图](https://www.estates.hku.hk/download_file/view_inline/674)与[港大 2015 年大学街原图](https://www.maps.hku.hk/downloads/201501hkumap.jpg)。餐饮楼层参考[港大餐饮目录](https://catering.hku.hk/en/eateries/)。这些校园地图可以从「更多 → 查看校园地图原图」打开。路线的距离和步骤仍为演示。
+App 内置可离线查看的本部及百周年校园底图，大学街用金色标示。道路及楼宇轮廓来自 [OpenStreetMap contributors（ODbL）](https://www.openstreetmap.org/copyright)，[底图数据区域](https://api.openstreetmap.org/api/0.6/map?bbox=114.1328,22.2800,114.1417,22.28495)。地点名称、简称和出入口参考[港大物业处 25.2 版校园地图](https://www.estates.hku.hk/download_file/view_inline/674)与[港大 2015 年大学街原图](https://www.maps.hku.hk/downloads/201501hkumap.jpg)。餐饮楼层参考[港大餐饮目录](https://catering.hku.hk/en/eateries/)。地图地点和学生指南会在 App 打开或回到前台时自动刷新。路线的距离和步骤仍为演示。
 
 底图点位独立于 GPS，经横向 0–360 和纵向 0–580 的比例坐标储存。新 App 以 `/api/campus/?mapVersion=2` 获取地图地点。旧版点位会保留，重新在新版底图上标记前只显示文字资料。
 
