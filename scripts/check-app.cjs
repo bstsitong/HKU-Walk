@@ -5,14 +5,23 @@ const ts = require('typescript');
 require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true } }).outputText, filename);
 const { filterPlaces, places, placeName } = require('../campus.ts');
 const { setCurrentLanguage, translate, t } = require('../localization.ts');
-const cases = [['图书馆','library'],['圖書館','library'],['ｌｉｂｒａｒｙ','library'],[' CWLC ','chiwah'],['钮鲁诗','knowles'],['鈕魯詩','knowles'],['mAiN bUiLdInG','main'],['地铁','gate'],['花園','garden'],['wc','toilet']];
+const cases = [
+  ['图书馆','library'], ['圖書館','library'], ['總圖','library'], ['ｌｉｂｒａｒｙ','library'],
+  ['Main Lib','library'], ['Main Libary','library'], ['Main Librray','library'], ['图书官','library'],
+  ['tu shu guan','library'], ['tushuguan','library'], ['daxuetushu','library'],
+  [' CWLC ','chiwah'], ['C.W.L.C.','chiwah'], ['钮鲁诗','knowles'], ['鈕魯詩','knowles'],
+  ['mAiN bUiLdInG','main'], ['地铁','gate'], ['港鐵港大站','gate'], ['花園','garden'], ['wc','toilet'],
+];
 for (const language of ['zh-Hans','zh-Hant','en']) {
   setCurrentLanguage(language);
   for (const [query, expected] of cases) assert.deepEqual(filterPlaces('all', query).map(p => p.id), [expected], `${language}: ${query}`);
   assert.equal(filterPlaces('all').length, 8);
   assert.equal(filterPlaces('building').length, 2);
   assert.equal(filterPlaces('food', 'library').length, 0);
+  assert.equal(filterPlaces('food', 'Main Libary').length, 0);
   assert.equal(filterPlaces('all', 'no such place').length, 0);
+  assert.equal(filterPlaces('all', '故书').length, 0);
+  assert.equal(filterPlaces('all', '---').length, 0);
   for (const place of places) assert.ok(placeName(place));
 }
 setCurrentLanguage('en');
@@ -66,6 +75,15 @@ assert.equal(filterPlaces('all','New study place')[0].id,newPlace.id);
 assert.equal(filterPlaces('all','nsp')[0].id,newPlace.id);
 assert.equal(serializeMapDraft('new_place', { ...newPlace }).data.abbreviation, 'NSP');
 assert.equal(getCampusRoute(newRoute.id).steps.length,1);
+const room = { ...newPlace, id: 'community-place-36', name: '學生研討室', english: 'Seminar Room 102', abbreviation: '', keywords: '小組討論室, Team Room' };
+const annex = { ...newPlace, id: 'community-place-37', name: '图书馆附楼', english: 'Main Library Annex', abbreviation: '', keywords: '' };
+setCommunityCampus([newPlace, room, annex], []);
+assert.equal(filterPlaces('all', '学生研讨室')[0].id, room.id);
+assert.equal(filterPlaces('all', 'xiaozutaolunshi')[0].id, room.id);
+assert.equal(filterPlaces('all', 'Team Room')[0].id, room.id);
+assert.deepEqual(filterPlaces('all', 'Seminar Room 101'), []);
+assert.equal(filterPlaces('all', 'Main Library', [annex.id])[0].id, 'library');
+assert.equal(filterPlaces('all', 'Main Lib', [annex.id])[0].id, annex.id);
 setCommunityCampus([],[]);
 assert.equal(getPlace(newPlace.id),undefined);
 assert.deepEqual(readRouteBookmarks([shared]),[shared]);

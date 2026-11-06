@@ -75,7 +75,7 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
   }, [campus.catalog]);
   const saved = records.saved.includes(selected.id);
   const saveButton = <IconButton testID="save-place" icon="bookmark" label={saved ? '取消收藏' : '收藏地点'} selected={saved} disabled={!records.ready} onPress={() => records.toggle(selected.id)} />;
-  if (view === 'search') return <PlaceSearch onBack={back} onChoose={detail} />;
+  if (view === 'search') return <PlaceSearch onBack={back} onChoose={detail} recentPlaceIds={records.recent} />;
   if (view === 'detail') return <View style={s.flex}>
     <ScrollView contentContainerStyle={s.detailPage}>
       <View style={s.hero}>{selected.isCommunity && !selected.imageUrl ? <MapCanvas selected={selected} variant="mini" /> : <Image source={placePhoto(selected)} style={s.heroPhoto} resizeMode="cover" accessibilityLabel="校园地点照片" />}<View style={s.heroActions}><View style={s.floating}><IconButton icon="back" label="返回" onPress={back} /></View><View style={s.floating}>{saveButton}</View></View><Text style={s.credit}>{selected.isCommunity ? t(selected.imageUrl ? '投稿配图' : '位置示意') : t(selected.id === 'main' ? '本部大楼' : '校园实景') + ' · HKU'}</Text></View>
@@ -90,7 +90,7 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
       </View>
     </ScrollView><View style={s.footer}>{saveButton}<Action testID="detail-route" icon="walk" label="查看步行路线" onPress={startRoute} /></View>
   </View>;
-  if (view === 'route') return <RouteScreen initialOrigin={origin} initialDestination={destination} initialRouteId={preferredRoute?.source === 'community' ? preferredRoute.id : undefined} preferDemo={preferredRoute?.source === 'demo'} records={routes} onBack={back} onMap={(place?: Place) => { if (place) setSelected(place); setFromSaved(false); setCategory('all'); changeView('home'); }} catalogVersion={campus.catalog} />;
+  if (view === 'route') return <RouteScreen initialOrigin={origin} initialDestination={destination} initialRouteId={preferredRoute?.source === 'community' ? preferredRoute.id : undefined} preferDemo={preferredRoute?.source === 'demo'} records={routes} recentPlaceIds={records.recent} onBack={back} onMap={(place?: Place) => { if (place) setSelected(place); setFromSaved(false); setCategory('all'); changeView('home'); }} catalogVersion={campus.catalog} />;
   return <View style={s.flex}>
     <View style={s.mapHome}>
       <MapCanvas selected={selected} category={category} zoom={zoom} onSelect={setSelected} sampleLocation={sampleLocation} centerTick={centerTick} />

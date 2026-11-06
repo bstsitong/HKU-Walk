@@ -15,13 +15,15 @@ export function PlaceRow({ place, onPress, trailing }: { place: Place; onPress: 
       <Text raw style={s.meta}>{language === 'en' && !place.isCommunity ? place.name : place.english}</Text><Text style={s.meta}>{categoryLabel(place.category)}</Text>
     </View>{!trailing ? <AppIcon name="chevron" size={17} color={c.muted} /> : null}</Pressable>{trailing}</View>;
 }
-export default function PlaceSearch({ onBack, onChoose, title }: { onBack: () => void; onChoose: (place: Place) => void; title?: string }) {
+export default function PlaceSearch({ onBack, onChoose, title, recentPlaceIds }: {
+  onBack: () => void; onChoose: (place: Place) => void; title?: string; recentPlaceIds?: readonly string[];
+}) {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<Category>('all');
-  const results = filterPlaces(category, query);
+  const results = filterPlaces(category, query, recentPlaceIds);
   return <View style={s.flex}><View style={s.searchHeader}>
     <Pressable accessibilityRole="button" accessibilityLabel="返回" onPress={onBack} style={s.iconButton}><AppIcon name="back" /></Pressable>
-    <View style={s.searchInput}><AppIcon name="search" size={18} color={c.muted} /><TextInput testID="place-search" accessibilityLabel={title || '搜索校园地点'} placeholder={title || '搜索名称、英文或简称'} value={query} onChangeText={setQuery} returnKeyType="search" autoCorrect={false} style={s.input} onSubmitEditing={Keyboard.dismiss} />
+    <View style={s.searchInput}><AppIcon name="search" size={18} color={c.muted} /><TextInput testID="place-search" accessibilityLabel={title || '搜索校园地点'} placeholder={title || '搜索名称、英文或简称'} value={query} onChangeText={setQuery} maxLength={120} returnKeyType="search" autoCorrect={false} style={s.input} onSubmitEditing={Keyboard.dismiss} />
       {query ? <Pressable accessibilityRole="button" accessibilityLabel="清空搜索" onPress={() => setQuery('')} style={s.iconButton}><AppIcon name="close" /></Pressable> : null}</View></View>
     <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={s.page}>
       {title ? <Text accessibilityRole="header" style={s.sectionTitle}>{title}</Text> : null}

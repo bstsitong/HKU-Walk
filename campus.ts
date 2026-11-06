@@ -1,5 +1,6 @@
 import { getLanguage, t, translate } from './localization';
 import type { IconName } from './AppIcon';
+import { matchCampusPlaces } from './placeMatching';
 import fallbackPlaces from './server/guide/base_places_v1.json';
 export const categories = [
   { id: 'all', label: '全部' },
@@ -61,14 +62,8 @@ export const placeIcon = (place: Place): IconName => ({ building: 'building', st
 export const categoryIcon = (category: Category): IconName => category === 'all' ? 'map' : placeIcon({ category } as Place);
 export const placePhoto = (place: Place) => place.imageUrl ? { uri: place.imageUrl } : place.id === 'main' ? require('./assets/hku-main.webp') : require('./assets/hku-campus.webp');
 export const hasPlacePhoto = (place: Place) => Boolean(place.imageUrl) || (!place.isCommunity && ['main', 'chiwah', 'garden'].includes(place.id));
-const traditionalNames: Record<string, string> = { main: '本部大樓', library: '大學圖書館', chiwah: '智華學習共享空間', knowles: '鈕魯詩樓', gate: '港大站校園入口', garden: '百周年校園花園', cafe: '校園咖啡點（示例）', toilet: '公共洗手間（示例）' };
-
-export function filterPlaces(category: Category, query = '') {
-  const terms = query.normalize('NFKC').toLowerCase().trim().split(/\s+/).filter(Boolean);
-  return places.filter(place => {
-    const names = `${place.name} ${place.english} ${place.abbreviation ?? ''} ${place.keywords} ${traditionalNames[place.id] ?? ''}`.normalize('NFKC').toLowerCase();
-    return (category === 'all' || place.category === category) && terms.every(term => names.includes(term));
-  });
+export function filterPlaces(category: Category, input = '', recentIds: readonly string[] = []) {
+  return matchCampusPlaces(places, category, input, recentIds);
 }
 
 export const routeSteps = [
