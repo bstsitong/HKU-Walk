@@ -188,14 +188,14 @@ export function MoreScreen({ data, onContribute, sampleLocation, onSampleLocatio
       <Text style={s.subtitle}>轻装出发，慢慢熟悉校园。</Text>
       <Text style={s.sectionTitle}>使用偏好</Text>
       <View style={s.preference}><View style={s.settingLabel}><AppIcon name="globe" size={20} /><Text style={s.settingTitle}>界面语言</Text></View><View style={s.languageOptions} accessibilityRole="radiogroup">{languages.map(item => <Pressable key={item.code} testID={`language-${item.code}`} accessibilityRole="radio" accessibilityState={{ checked: language === item.code }} onPress={() => chooseLanguage(item.code)} style={[s.language, language === item.code && s.selectedLanguage]}><Text raw style={[s.languageText, language === item.code && s.white]}>{item.label}</Text></Pressable>)}</View></View>
-      <View style={s.settingRow}><AppIcon name="locate" /><View style={s.flex}><Text style={s.introTitle}>显示演示位置</Text><Text style={s.meta}>仅展示蓝点效果，GPS 实时定位待接入。</Text></View><Switch accessibilityLabel={t('显示演示位置')} value={sampleLocation} onValueChange={onSampleLocation} trackColor={{ false: '#c5cec3', true: green }} thumbColor="#fff" /></View>
+      <View style={s.settingRow}><AppIcon name="locate" /><View style={s.flex}><Text style={s.introTitle}>显示演示位置</Text><Text style={s.meta}>关闭实时定位后可查看演示蓝点。</Text></View><Switch accessibilityLabel={t('显示演示位置')} value={sampleLocation} onValueChange={onSampleLocation} trackColor={{ false: '#c5cec3', true: green }} thumbColor="#fff" /></View>
       <Text style={s.sectionTitle}>地图资料</Text>
       <Pressable accessibilityRole="button" onPress={() => void data.reload()} disabled={data.loading} style={s.settingRow}><AppIcon name="refresh" /><View style={s.flex}><Text style={s.introTitle}>检查资料更新</Text><Text style={s.meta}>{data.loading ? '正在更新学生指南…' : '刷新学生指南和已发布的投稿内容'}</Text></View>{data.loading ? <ActivityIndicator color={green} /> : <AppIcon name="refresh" size={17} />}</Pressable>
       <Feedback data={data} />
       <Pressable accessibilityRole="button" onPress={() => setOriginalMap(true)} style={s.settingRow}><AppIcon name="map" /><Text style={s.settingTitle}>查看校园地图原图</Text><AppIcon name="chevron" size={17} /></Pressable>
       <Text style={s.sectionTitle}>了解更多</Text>
       <Pressable accessibilityRole="button" accessibilityState={{ expanded: help }} onPress={() => setHelp(value => !value)} style={s.settingRow}><AppIcon name="info" /><Text style={s.settingTitle}>使用说明</Text><AppIcon name="chevron" size={17} /></Pressable>
-      {help ? <Text style={s.helpCopy}>从地图搜索框输入名称、英文或简称，也可以直接点击地图标记。打开地点详情后查看步行路线；起点和终点可以更换，每一步右侧都有配图位置。收藏及浏览记录保存在本机。地图提供校园概览，距离和步行步骤为演示，GPS 待接入。</Text> : null}
+      {help ? <Text style={s.helpCopy}>搜索名称、英文或简称，或点地图标记查看地点。打开地点详情可看配图步行示例。收藏和浏览记录保存在本机。在地图首页开启定位后，蓝点显示当前位置，圆圈表示估计误差范围。</Text> : null}
       <Pressable accessibilityRole="button" onPress={onContribute} style={s.settingRow}>
         <AppIcon name="groups" /><Text style={s.settingTitle}>校园共建与我的投稿</Text><AppIcon name="chevron" size={17} />
       </Pressable>

@@ -8,6 +8,7 @@ import { Pressable, Text } from './ui';
 import { useLanguage } from './LanguageProvider';
 import { colors as c } from './theme';
 import { translate } from './localization';
+import type { CampusLocation, MapPoint } from './campusLocation';
 
 const background = '#edf0e5';
 const mapY = (point: { y: number }) => point.y / MAP_Y_MAX * MAP_HEIGHT;
@@ -22,9 +23,9 @@ const labels = [
 const svgText = (text: string) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const priority = ['main', 'library', 'gate', 'mtr-c1', 'garden', 'university-street', 'knowles', 'chiwah', 'meng-wah', 'graduate-house'];
 
-export default function MapCanvas({ selected, category = 'all', zoom = 1, onSelect, variant = 'home', origin, sampleLocation = false, centerTick = 0 }: {
+export default function MapCanvas({ selected, category = 'all', zoom = 1, onSelect, variant = 'home', origin, sampleLocation = false, livePosition, centerTick = 0 }: {
   selected: Place; category?: Category; zoom?: number; onSelect?: (place: Place) => void;
-  variant?: 'home' | 'route' | 'mini'; origin?: Place; sampleLocation?: boolean; centerTick?: number;
+  variant?: 'home' | 'route' | 'mini'; origin?: Place; sampleLocation?: boolean; livePosition?: CampusLocation; centerTick?: number;
 }) {
   const { language } = useLanguage();
   const [viewport, setViewport] = useState({ width: 360, height: 540 });
@@ -42,10 +43,12 @@ export default function MapCanvas({ selected, category = 'all', zoom = 1, onSele
     ? { x: 0, y: -topInset * MAP_WIDTH / width, width: MAP_WIDTH, height: height * MAP_WIDTH / width }
     : detailBox(endpoints, width, height);
 
-  const toScreen = (p: Place) => ({
+  const toScreen = (p: MapPoint) => ({
     x: (p.x - box.x) / box.width * width,
     y: (mapY(p) - box.y) / box.height * height,
   });
+  const liveScreen = home && livePosition ? toScreen(livePosition) : null;
+  const liveRadius = (livePosition?.radius ?? 0) / box.width * width;
   const pins: { x: number; y: number; place: Place }[] = [];
   const visible = home ? filterPlaces(category) : endpoints;
   const ordered = home
@@ -75,14 +78,18 @@ export default function MapCanvas({ selected, category = 'all', zoom = 1, onSele
       vertical.current?.scrollTo({ y: 0, animated: true });
       return;
     }
-    const focus = locating && sampleLocation ? samplePoint : selected;
-    const point = toScreen(focus.mapPositionPending ? samplePoint : focus);
+    const fallback = selected.mapPositionPending ? samplePoint : selected;
+    const focus = locating ? livePosition ?? (sampleLocation ? samplePoint : fallback) : fallback;
+    const point = toScreen(focus);
     horizontal.current?.scrollTo({ x: Math.max(0, point.x - viewport.width / 2), animated: true });
     vertical.current?.scrollTo({ y: Math.max(0, point.y - viewport.height / 2), animated: true });
   }, [zoom, centerTick, viewport.width, viewport.height]);
 
   const artwork = <View style={{ width, height }}>
     <SvgXml xml={xml} width={width} height={height} accessible={false} />
+    {liveScreen && liveRadius > 0 ? <View pointerEvents="none" style={{ position: 'absolute', top: topInset, width, height: width * MAP_HEIGHT / MAP_WIDTH, overflow: 'hidden' }}>
+      <View style={[s.accuracy, { left: liveScreen.x - liveRadius, top: liveScreen.y - topInset - liveRadius, width: liveRadius * 2, height: liveRadius * 2, borderRadius: liveRadius }]} />
+    </View> : null}
     {pins.map(({ place, x, y }) => {
       const active = place.id === selected.id;
       const label = active || !home ? placeName(place, language) : place.abbreviation;
@@ -93,6 +100,8 @@ export default function MapCanvas({ selected, category = 'all', zoom = 1, onSele
         {label ? <View pointerEvents="none" style={[s.label, (active || !home) && s.fullLabel]}><Text raw numberOfLines={2} style={s.labelText}>{label}</Text></View> : null}
       </Pressable>;
     })}
+    {liveScreen ? <View pointerEvents="none" accessible accessibilityLabel={translate('我的位置', language)} testID="live-location-dot"
+      style={[s.liveDot, { left: liveScreen.x - 8, top: liveScreen.y - 8 }]} /> : null}
   </View>;
   return <View onLayout={({ nativeEvent: { layout } }) => setViewport({ width: Math.max(1, layout.width), height: Math.max(1, layout.height) })} style={s.frame}>
     {home ? <ScrollView ref={horizontal} horizontal nestedScrollEnabled showsHorizontalScrollIndicator={false} bounces={false}>
@@ -120,6 +129,8 @@ const s = StyleSheet.create({
   activeHit: { zIndex: 1 },
   pin: { width: 23, height: 23, borderRadius: 12, borderWidth: 2, borderColor: '#fff', backgroundColor: c.green, alignItems: 'center', justifyContent: 'center' },
   selected: { backgroundColor: c.rust, width: 32, height: 32, borderRadius: 16 },
+  accuracy: { position: 'absolute', backgroundColor: '#367fc626', borderColor: '#367fc680', borderWidth: 1 },
+  liveDot: { position: 'absolute', zIndex: 2, width: 16, height: 16, borderRadius: 8, backgroundColor: '#256cb1', borderWidth: 2, borderColor: '#fff' },
   label: { position: 'absolute', top: 34, width: 43, alignItems: 'center' },
   fullLabel: { width: 138, top: 40 },
   labelText: { color: c.ink, backgroundColor: '#fffdf6', borderRadius: 3, paddingHorizontal: 3, fontSize: 10, lineHeight: 14, fontWeight: '600', textAlign: 'center' },

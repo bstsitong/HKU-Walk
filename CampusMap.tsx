@@ -13,6 +13,21 @@ import RouteScreen from './RouteScreen';
 import { RouteRecords } from './useSavedRoutes';
 import { RouteBookmark } from './routeBookmarks';
 import useCampus from './useCampus';
+import useCampusLocation from './useCampusLocation';
+
+const locationMessages = {
+  idle: '授权后在校园地图上显示当前位置',
+  requesting: '等待定位权限',
+  searching: '正在获取当前位置…',
+  slow: '暂未获取位置，可到室外再试',
+  located: '已找到当前位置',
+  outside: '你的位置在校园底图范围外',
+  imprecise: '定位精度较低，可到室外再试',
+  denied: '未获得定位权限，点此重试',
+  blocked: '请在系统设置中允许定位',
+  disabled: '请开启手机的定位服务后重试',
+  unavailable: '暂时无法获取位置，点此重试',
+} as const;
 
 export type MapView = 'home' | 'search' | 'detail' | 'route';
 export type MapRequest = { serial: number; view: 'home' | 'detail' | 'route'; route?: RouteBookmark; placeId?: string; category?: Category; fromSaved?: boolean };
@@ -37,6 +52,16 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
   const [routeReturn, setRouteReturn] = useState<MapView>('home');
   const [returnView, setReturnView] = useState<MapView>('home');
   const [fromSaved, setFromSaved] = useState(false);
+  const location = useCampusLocation(active && view === 'home');
+  const locating = location.status === 'requesting';
+  const showDemo = sampleLocation && location.status === 'idle';
+  const hasLocation = Boolean(location.point);
+  const centerLocation = () => { setZoom(value => Math.max(1.4, value)); setCenterTick(value => value + 1); };
+  useEffect(() => { if (hasLocation) centerLocation(); }, [hasLocation]);
+  const accuracy = location.point?.accuracy;
+  const locationMessage = showDemo ? t('演示蓝点，点此开启实时定位') : accuracy == null
+    ? t(locationMessages[location.status]) : t('定位精度约 {meters} 米', { meters: Math.max(1, Math.round(accuracy)) });
+  const locationAction = location.tracking ? '停止定位' : location.status === 'blocked' ? '去设置' : '开启定位';
   const changeView = (next: MapView) => { Keyboard.dismiss(); setView(next); onViewChange(next); };
   const detail = (place: Place) => { setFromSaved(false); setSelected(place); records.visit(place.id); setReturnView(view === 'search' ? 'search' : 'home'); changeView('detail'); };
   const back = () => {
@@ -92,24 +117,32 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
         <View style={s.infoRow}><AppIcon name="building" size={20} /><View style={s.flex}><Text style={s.rowTitle}>入口位置</Text><Text raw={selected.isCommunity && Boolean(selected.entrance)} style={s.body}>{selected.entrance || '入口资料待补充'}</Text></View></View>
         <View style={s.infoRow}><AppIcon name="lift" size={20} /><View style={s.flex}><Text style={s.rowTitle}>楼层与升降机</Text><Text raw={selected.isCommunity && Boolean(selected.floor)} style={s.body}>{selected.floor || '楼层资料待补充'}</Text></View></View>
         {selected.id === 'main' || selected.imageUrl ? <><View style={s.divider} /><Text style={s.sectionTitle}>地图位置</Text><View style={s.miniMap}><MapCanvas selected={selected} variant="mini" /></View></> : null}
-        <Text style={s.note}>{selected.isCommunity ? '地点位置由投稿人点选，GPS 尚未接入。' : '图标标出地点或所在楼宇，入口与开放情况以现场为准。'}</Text>
+        <Text style={s.note}>{selected.isCommunity ? '地点位置由投稿人点选。' : '图标标出地点或所在楼宇，入口与开放情况以现场为准。'}</Text>
       </View>
     </ScrollView><View style={s.footer}>{saveButton}<Action testID="detail-route" icon="walk" label="查看步行路线" onPress={startRoute} /></View>
   </View>;
   if (view === 'route') return <RouteScreen initialOrigin={origin} initialDestination={destination} initialRouteId={preferredRoute?.source === 'community' ? preferredRoute.id : undefined} preferDemo={preferredRoute?.source === 'demo'} records={routes} recentPlaceIds={records.recent} onBack={back} onMap={(place?: Place) => { if (place) setSelected(place); setFromSaved(false); setCategory('all'); changeView('home'); }} catalogVersion={campus.catalog} />;
   return <View style={s.flex}>
     <View style={s.mapHome}>
-      <MapCanvas selected={selected} category={category} zoom={zoom} onSelect={setSelected} sampleLocation={sampleLocation} centerTick={centerTick} />
+      <MapCanvas selected={selected} category={category} zoom={zoom} onSelect={setSelected} sampleLocation={showDemo} livePosition={location.point} centerTick={centerTick} />
       <View pointerEvents="box-none" style={s.homeTop}><View style={s.brandRow}><Text accessibilityRole="header" style={s.brand}>港大漫游</Text><Text style={s.small}>本部 · 百周年</Text></View>
         <Pressable testID="open-search" accessibilityRole="button" onPress={() => { setFromSaved(false); changeView('search'); }} style={s.searchLauncher}><AppIcon name="search" size={20} color={c.muted} /><Text style={[s.body, s.flex]}>想去哪里？搜索校园地点</Text></Pressable>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.homeCategories}>{categories.map(item => <Pressable testID={`filter-${item.id}`} key={item.id} accessibilityRole="button" accessibilityState={{ selected: category === item.id }} onPress={() => setCategory(item.id)} style={[s.homeChip, category === item.id && s.selectedChip]}><AppIcon name={categoryIcon(item.id)} size={15} color={category === item.id ? '#fff' : c.muted} /><Text style={[s.chipText, category === item.id && s.white]}>{item.label}</Text></Pressable>)}</ScrollView>
       </View>
-      <View style={s.mapTools}><View style={s.compass}><Text style={s.compassArrow}>▲</Text><Text style={s.small}>N</Text></View><View style={s.toolBox}><IconButton icon="plus" label="放大地图" disabled={zoom >= 4} onPress={() => setZoom(Math.min(4, zoom * 1.4))} /><View style={s.toolDivider} /><IconButton icon="minus" label="缩小地图" disabled={zoom <= 1} onPress={() => setZoom(Math.max(1, zoom / 1.4))} /></View><View style={s.toolBox}><IconButton icon="locate" label="回到演示位置" onPress={() => { setZoom(value => Math.max(1.4, value)); setCenterTick(value => value + 1); }} /></View></View>
+      <View style={s.mapTools}><View style={s.compass}><Text style={s.compassArrow}>▲</Text><Text style={s.small}>N</Text></View><View style={s.toolBox}><IconButton icon="plus" label="放大地图" disabled={zoom >= 4} onPress={() => setZoom(Math.min(4, zoom * 1.4))} /><View style={s.toolDivider} /><IconButton icon="minus" label="缩小地图" disabled={zoom <= 1} onPress={() => setZoom(Math.max(1, zoom / 1.4))} /></View>
+        <View style={s.toolBox}><IconButton testID="locate-me" icon="locate" label={showDemo ? '回到演示位置' : hasLocation ? '回到我的位置' : '开启定位'} disabled={locating || (location.tracking && !hasLocation)}
+          onPress={() => { if (hasLocation || showDemo) centerLocation(); else void location.start(); }} /></View>
+      </View>
       <View style={s.placeSheet}><View style={s.sheetSummary}>{hasPlacePhoto(selected) ? <Image source={placePhoto(selected)} style={s.sheetPhoto} resizeMode="cover" accessibilityLabel="校园地点照片" /> : <View style={[s.sheetPhoto, s.placeSymbol]}><AppIcon name={placeIcon(selected)} /></View>}<View style={s.flex}><Text raw={selected.isCommunity} style={s.rowTitle}>{placeName(selected)}</Text><Text raw style={s.meta}>{language === 'en' && !selected.isCommunity ? selected.name : selected.english}</Text><Text style={[s.badge, s.sheetBadge]}>{categoryLabel(selected.category)}</Text></View>{saveButton}</View><View style={s.sheetActions}><Action secondary label="地点详情" onPress={() => detail(selected)} /><Action icon="walk" label="查看路线" onPress={startRoute} /></View></View>
       <Text pointerEvents="none" style={s.homeMapNote}>© OpenStreetMap</Text>
     </View>
     {campus.error ? <Pressable accessibilityRole="button" onPress={() => void campus.reload()} style={{ padding: 10, backgroundColor: c.rustLight }}><Text style={s.meta}>{campus.error}</Text><Text style={s.meta}>点击重新加载</Text></Pressable> : null}
-    <Pressable testID="gps-info" accessibilityRole="button" accessibilityLabel="GPS 定位接入说明" onPress={() => Alert.alert('GPS 实时定位', '后续接入 GPS 并获得定位授权后，可在地图上查看自己的实时位置。当前仅显示演示位置，尚未开启实时定位。')} style={s.gpsRow}><View style={s.gpsIcon}><AppIcon name="locate" size={20} /></View><View style={s.flex}><Text style={s.gpsTitle}>GPS 实时定位</Text><Text style={s.small}>接入后查看自己的实时位置</Text></View><Text style={s.rustBadge}>待接入</Text></Pressable>
+    <Pressable testID="gps-info" accessibilityRole="button" accessibilityLabel={locationAction} accessibilityHint={locationMessage} disabled={locating}
+      onPress={() => { if (location.tracking) location.stop(); else void location.start(); }} style={s.gpsRow}>
+      <View style={s.gpsIcon}><AppIcon name="locate" size={20} /></View>
+      <View style={s.flex}><Text style={s.gpsTitle}>GPS 实时定位</Text><Text raw accessibilityLiveRegion="polite" style={s.small}>{locationMessage}</Text></View>
+      <Text style={hasLocation ? s.badge : s.rustBadge}>{locating ? '等待授权' : locationAction}</Text>
+    </Pressable>
   </View>;
 }
 

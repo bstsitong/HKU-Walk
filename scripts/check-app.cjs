@@ -120,3 +120,19 @@ setCommunityCampus([],[]);
 assert.equal(getPlace(newPlace.id),undefined);
 assert.deepEqual(readRouteBookmarks([shared]),[shared]);
 console.log('Passed: conversational category and detail search for newly published places, route bookmarks, catalog validation, map drafts and step photos.');
+
+// Known OSM entrance coordinates used in drawing the campus map.
+const { projectCampusLocation } = require('../campusLocation.ts');
+for (const [id, lat, lon] of [['gate', 22.2832689, 114.1367440], ['mtr-c1', 22.2844548, 114.1346392]]) {
+  const point = projectCampusLocation(lat, lon, 25);
+  const entrance = getPlace(id);
+  assert.ok(Math.abs(point.x - entrance.x) < 0.01 && Math.abs(point.y - entrance.y) < 0.03, id);
+  assert.equal(point.accuracy, 25);
+  assert.ok(point.radius > 10 && point.radius < 11);
+}
+assert.deepEqual(projectCampusLocation(22.28491, 114.13283, null), { x: 0, y: 0, accuracy: null, radius: null });
+assert.deepEqual(projectCampusLocation(22.28028, 114.14104, -1), { x: 360, y: 580, accuracy: null, radius: null });
+assert.equal(projectCampusLocation(22.29, 114.137, 10), null);
+assert.equal(projectCampusLocation(22.283, 114.15, 10), null);
+assert.equal(projectCampusLocation(NaN, 114.137, 10), null);
+console.log('Passed: entrance alignment, map boundaries and GPS accuracy scaling.');

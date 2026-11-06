@@ -2507,6 +2507,94 @@
     "en": "There are several entrances on the Centennial Campus podium levels.",
     "zh-Hant": "百週年校園平台層設有多個入口。"
   },
+  "授权后在校园地图上显示当前位置": {
+    "en": "Allow location to see where you are on the campus map",
+    "zh-Hant": "授權後在校園地圖上顯示當前位置"
+  },
+  "演示蓝点，点此开启实时定位": {
+    "en": "Sample position. Tap to enable live location.",
+    "zh-Hant": "演示藍點，點此開啓實時定位"
+  },
+  "等待定位权限": {
+    "en": "Waiting for location permission",
+    "zh-Hant": "等待定位權限"
+  },
+  "正在获取当前位置…": {
+    "en": "Finding your location…",
+    "zh-Hant": "正在獲取當前位置…"
+  },
+  "暂未获取位置，可到室外再试": {
+    "en": "Still waiting for a location. Try going outdoors.",
+    "zh-Hant": "暫未獲取位置，可到室外再試"
+  },
+  "已找到当前位置": {
+    "en": "Location found",
+    "zh-Hant": "已找到當前位置"
+  },
+  "你的位置在校园底图范围外": {
+    "en": "Your location is outside this campus map",
+    "zh-Hant": "你的位置在校園底圖範圍外"
+  },
+  "定位精度较低，可到室外再试": {
+    "en": "Location accuracy is low. Try going outdoors.",
+    "zh-Hant": "定位精度較低，可到室外再試"
+  },
+  "未获得定位权限，点此重试": {
+    "en": "Location permission denied. Tap to try again.",
+    "zh-Hant": "未獲得定位權限，點此重試"
+  },
+  "请在系统设置中允许定位": {
+    "en": "Allow location in your phone settings",
+    "zh-Hant": "請在系統設置中允許定位"
+  },
+  "请开启手机的定位服务后重试": {
+    "en": "Enable location services on your phone and retry",
+    "zh-Hant": "請開啓手機的定位服務後重試"
+  },
+  "暂时无法获取位置，点此重试": {
+    "en": "Location unavailable. Tap to try again.",
+    "zh-Hant": "暫時無法獲取位置，點此重試"
+  },
+  "定位精度约 {meters} 米": {
+    "en": "Location accuracy about {meters} m",
+    "zh-Hant": "定位精度約 {meters} 米"
+  },
+  "停止定位": {
+    "en": "Stop location",
+    "zh-Hant": "停止定位"
+  },
+  "开启定位": {
+    "en": "Enable location",
+    "zh-Hant": "開啓定位"
+  },
+  "去设置": {
+    "en": "Open settings",
+    "zh-Hant": "去設置"
+  },
+  "等待授权": {
+    "en": "Waiting for permission",
+    "zh-Hant": "等待授權"
+  },
+  "回到我的位置": {
+    "en": "Centre on my location",
+    "zh-Hant": "回到我的位置"
+  },
+  "我的位置": {
+    "en": "My location",
+    "zh-Hant": "我的位置"
+  },
+  "地点位置由投稿人点选。": {
+    "en": "The contributor placed this pin on the map.",
+    "zh-Hant": "地點位置由投稿人點選。"
+  },
+  "关闭实时定位后可查看演示蓝点。": {
+    "en": "Show a sample blue dot when live location is off.",
+    "zh-Hant": "關閉實時定位後可查看演示藍點。"
+  },
+  "搜索名称、英文或简称，或点地图标记查看地点。打开地点详情可看配图步行示例。收藏和浏览记录保存在本机。在地图首页开启定位后，蓝点显示当前位置，圆圈表示估计误差范围。": {
+    "en": "Search by name or abbreviation, or tap a pin. Place details have illustrated walking examples. Bookmarks and history stay on your device. When location is on, the blue dot shows where you are and the circle shows the estimated uncertainty.",
+    "zh-Hant": "搜索名稱、英文或簡稱，或點地圖標記查看地點。打開地點詳情可看配圖步行示例。收藏和瀏覽記錄保存在本機。在地圖首頁開啓定位後，藍點顯示當前位置，圓圈表示估計誤差範圍。"
+  },
   "香港大学官网": {
     "en": "The University of Hong Kong",
     "zh-Hant": "香港大學官網"

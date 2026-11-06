@@ -6,7 +6,7 @@ The user has chosen the existing HTML preview. Its composition, forest-green ide
 
 - App background #fbfcf8; primary #184d3e; ink #203a31; secondary #637169; lines #e6eae2; pale sage #eaf1e8; warm accent #b85238 and #fae9e1.
 - Restrained 20–24 point page headings, 14–15 point body text, 12–13 point secondary copy; system CJK fonts. Content-driven heights accommodate English and larger device text.
-- Map home: overlaid heading, search and category chips; right map controls; a lower destination sheet; a clearly marked GPS demonstration notice; four bottom tabs.
+- Map home has an overlaid heading, search and category chips, map controls on the right, a lower destination sheet, a location control and four bottom tabs. The blue dot shows the phone's location with an accuracy circle.
 - Search is a separate screen with quick searches, category exploration, results and an empty state. Details use the original HKU photo, entrance notes and mini map.
 - Routes show origin/destination selectors and swap, a schematic route, one walking itinerary with lift steps, and a thumbnail on the right of every step.
 - Saved places and recent history use divided rows and underlined tabs; student-guide bookmarks remain available on the same saved page.

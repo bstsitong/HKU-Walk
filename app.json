@@ -29,6 +29,16 @@
           "microphonePermission": false
         }
       ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "允许港大漫游在使用地图时显示你的当前位置。",
+          "locationAlwaysAndWhenInUsePermission": false,
+          "locationAlwaysPermission": false,
+          "locationFullAccuracyPermission": false,
+          "motionUsagePermission": false
+        }
+      ],
       "expo-secure-store",
       "expo-status-bar"
     ]
