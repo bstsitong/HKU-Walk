@@ -32,8 +32,8 @@ assert.equal(translate('请确保这个字段不能多于 160 个字符。'), 'U
 assert.equal(translate('同学自己写的内容 test'), '同学自己写的内容 test');
 setCurrentLanguage('zh-Hant');
 assert.equal(translate('本部大楼'), '本部大樓');
-for (const category of require('../server/guide/seed.json')) {
-  for (const text of [category.title, category.subtitle, category.introduction, ...category.entries.flatMap(entry => [entry.title, entry.body])]) {
+for (const category of [...require('../server/guide/seed.json'), ...require('../server/guide/student_guide_hku_v1.json')]) {
+  for (const text of [category.title, category.subtitle, category.introduction, ...category.entries.flatMap(entry => [entry.title, entry.body])].filter(Boolean)) {
     assert.ok(translate(text, 'en') && !/[\u3400-\u9fff]/.test(translate(text,'en')), `Missing guide translation: ${text}`);
   }
 }

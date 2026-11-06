@@ -17,6 +17,7 @@ function visit(value) {
 for (const name of fs.readdirSync('.').filter(name => /\.tsx?$/.test(name))) visit(parser.parse(fs.readFileSync(name, 'utf8'), { sourceType: 'module', plugins: ['typescript','jsx'] }));
 function strings(value) { if (typeof value === 'string' && chinese.test(value)) found.add(value); else if (Array.isArray(value)) value.forEach(strings); else if (value && typeof value === 'object') Object.values(value).forEach(strings); }
 strings(JSON.parse(fs.readFileSync('server/guide/seed.json','utf8')));
+strings(require('../server/guide/student_guide_hku_v1.json'));
 for (const place of require('../server/guide/base_places_v2.json')) strings([place.name, place.entrance, place.floor]);
 const missing = [...found].filter(text => !dictionary[text]);
 fs.mkdirSync('.local', { recursive: true });

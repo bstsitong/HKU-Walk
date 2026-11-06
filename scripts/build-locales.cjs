@@ -1,7 +1,7 @@
 const fs = require('fs');
 const OpenCC = require('opencc-js');
 const toTraditional = OpenCC.Converter({ from: 'cn', to: 'hk' });
-const pairs = { ...require('../locales/prototype-en.json'), ...require('../locales/app-en.json'), ...require('../locales/errors-en.json'), ...require('../locales/map-features-en.json') };
+const pairs = { ...require('../locales/prototype-en.json'), ...require('../locales/app-en.json'), ...require('../locales/errors-en.json'), ...require('../locales/map-features-en.json'), ...require('../locales/student-guide-en.json') };
 // Search aliases and language autonyms are not rendered as translatable copy.
 for (const { name, english, keywords } of [...require('../server/guide/base_places_v1.json'), ...require('../server/guide/base_places_v2.json')]) {
   pairs[name] = english;
