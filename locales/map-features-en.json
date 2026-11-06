@@ -137,6 +137,8 @@
   "等待授权": "Waiting for permission",
   "回到我的位置": "Centre on my location",
   "我的位置": "My location",
+  "演示位置": "Sample position",
+  "北方在地图下方": "North points down on the map",
   "地点位置由投稿人点选。": "The contributor placed this pin on the map.",
   "关闭实时定位后可查看演示蓝点。": "Show a sample blue dot when live location is off.",
   "搜索名称、英文或简称，或点地图标记查看地点。打开地点详情可看配图步行示例。收藏和浏览记录保存在本机。在地图首页开启定位后，蓝点显示当前位置，圆圈表示估计误差范围。": "Search by name or abbreviation, or tap a pin. Place details have illustrated walking examples. Bookmarks and history stay on your device. When location is on, the blue dot shows where you are and the circle shows the estimated uncertainty."

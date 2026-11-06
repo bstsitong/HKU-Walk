@@ -1,0 +1,73 @@
+import { MAP_HEIGHT, MAP_WIDTH, MAP_Y_MAX } from './MapArtwork';
+import type { Category, Place } from './campus';
+import type { MapPoint } from './campusLocation';
+
+export const MIN_MAP_ZOOM = 1;
+export const MAX_MAP_ZOOM = 4;
+export type MapViewport = { width: number; height: number };
+export type MapCamera = MapPoint & { zoom: number };
+
+const landmarks = ['main', 'library', 'gate', 'mtr-c1', 'chiwah', 'cym-amenities', 'garden', 'university-street', 'knowles'];
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+export function toMapView(point: MapPoint): MapPoint {
+  return { x: MAP_WIDTH - point.x, y: MAP_HEIGHT * (1 - point.y / MAP_Y_MAX) };
+}
+
+export function fromMapView(point: MapPoint): MapPoint {
+  return {
+    x: Math.round(clamp(MAP_WIDTH - point.x, 0, MAP_WIDTH)),
+    y: Math.round(clamp((1 - point.y / MAP_HEIGHT) * MAP_Y_MAX, 0, MAP_Y_MAX)),
+  };
+}
+
+export function mapBand(viewport: MapViewport) {
+  const top = Math.min(146, viewport.height * 0.36);
+  const bottom = viewport.height - Math.min(159, viewport.height * 0.38);
+  return { top, height: bottom - top };
+}
+
+export function mapScreenCentre(viewport: MapViewport): MapPoint {
+  const band = mapBand(viewport);
+  return { x: viewport.width / 2, y: band.top + band.height / 2 };
+}
+
+export function boundMapCamera(camera: MapCamera, viewport: MapViewport): MapCamera {
+  const zoom = clamp(camera.zoom, MIN_MAP_ZOOM, MAX_MAP_ZOOM);
+  const width = viewport.width * zoom;
+  const height = width * MAP_HEIGHT / MAP_WIDTH;
+  const band = mapBand(viewport);
+  return {
+    zoom,
+    x: clamp(camera.x, viewport.width - width, 0),
+    y: height < band.height ? band.top + (band.height - height) / 2 : clamp(camera.y, band.top + band.height - height, band.top),
+  };
+}
+
+export function centreMapOn(point: MapPoint, zoom: number, viewport: MapViewport): MapCamera {
+  const focus = toMapView(point);
+  const centre = mapScreenCentre(viewport);
+  const scale = viewport.width * zoom / MAP_WIDTH;
+  return boundMapCamera({ zoom, x: centre.x - focus.x * scale, y: centre.y - focus.y * scale }, viewport);
+}
+
+export function moveMapCamera(camera: MapCamera, zoom: number, from: MapPoint, to: MapPoint, viewport: MapViewport): MapCamera {
+  const nextZoom = clamp(zoom, MIN_MAP_ZOOM, MAX_MAP_ZOOM);
+  const ratio = nextZoom / camera.zoom;
+  return boundMapCamera({ zoom: nextZoom, x: to.x - (from.x - camera.x) * ratio, y: to.y - (from.y - camera.y) * ratio }, viewport);
+}
+
+export function mapCandidates(places: Place[], selectedId: string, category: Category, zoom: number): Place[] {
+  const available = new Map(places.filter(place => !place.mapPositionPending).map(place => [place.id, place]));
+  const ordered = new Set([selectedId, ...landmarks]);
+  for (const place of available.values()) {
+    if (category !== 'all' || zoom >= 2.15
+      || (zoom >= 1.4 && !place.isCommunity && ['building', 'access', 'study', 'space'].includes(place.category))) {
+      ordered.add(place.id);
+    }
+  }
+  return [...ordered].flatMap(id => {
+    const place = available.get(id);
+    return place ? [place] : [];
+  });
+}

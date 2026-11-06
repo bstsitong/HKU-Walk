@@ -14,6 +14,7 @@ import { RouteRecords } from './useSavedRoutes';
 import { RouteBookmark } from './routeBookmarks';
 import useCampus from './useCampus';
 import useCampusLocation from './useCampusLocation';
+import { MAX_MAP_ZOOM, MIN_MAP_ZOOM } from './mapCamera';
 
 const locationMessages = {
   idle: '授权后在校园地图上显示当前位置',
@@ -44,7 +45,7 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
   const [view, setView] = useState<MapView>('home');
   const [selected, setSelected] = useState(findPlace('main'));
   const [category, setCategory] = useState<Category>('all');
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(MIN_MAP_ZOOM);
   const [centerTick, setCenterTick] = useState(0);
   const [origin, setOrigin] = useState(findPlace('gate'));
   const [destination, setDestination] = useState(findPlace('main'));
@@ -124,12 +125,12 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
   if (view === 'route') return <RouteScreen initialOrigin={origin} initialDestination={destination} initialRouteId={preferredRoute?.source === 'community' ? preferredRoute.id : undefined} preferDemo={preferredRoute?.source === 'demo'} records={routes} recentPlaceIds={records.recent} onBack={back} onMap={(place?: Place) => { if (place) setSelected(place); setFromSaved(false); setCategory('all'); changeView('home'); }} catalogVersion={campus.catalog} />;
   return <View style={s.flex}>
     <View style={s.mapHome}>
-      <MapCanvas selected={selected} category={category} zoom={zoom} onSelect={setSelected} sampleLocation={showDemo} livePosition={location.point} centerTick={centerTick} />
+      <MapCanvas selected={selected} category={category} zoom={zoom} onZoomChange={setZoom} onSelect={setSelected} sampleLocation={showDemo} livePosition={location.point} centerTick={centerTick} />
       <View pointerEvents="box-none" style={s.homeTop}><View style={s.brandRow}><Text accessibilityRole="header" style={s.brand}>港大漫游</Text><Text style={s.small}>本部 · 百周年</Text></View>
         <Pressable testID="open-search" accessibilityRole="button" onPress={() => { setFromSaved(false); changeView('search'); }} style={s.searchLauncher}><AppIcon name="search" size={20} color={c.muted} /><Text style={[s.body, s.flex]}>想去哪里？搜索校园地点</Text></Pressable>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.homeCategories}>{categories.map(item => <Pressable testID={`filter-${item.id}`} key={item.id} accessibilityRole="button" accessibilityState={{ selected: category === item.id }} onPress={() => setCategory(item.id)} style={[s.homeChip, category === item.id && s.selectedChip]}><AppIcon name={categoryIcon(item.id)} size={15} color={category === item.id ? '#fff' : c.muted} /><Text style={[s.chipText, category === item.id && s.white]}>{item.label}</Text></Pressable>)}</ScrollView>
       </View>
-      <View style={s.mapTools}><View style={s.compass}><Text style={s.compassArrow}>▲</Text><Text style={s.small}>N</Text></View><View style={s.toolBox}><IconButton icon="plus" label="放大地图" disabled={zoom >= 4} onPress={() => setZoom(Math.min(4, zoom * 1.4))} /><View style={s.toolDivider} /><IconButton icon="minus" label="缩小地图" disabled={zoom <= 1} onPress={() => setZoom(Math.max(1, zoom / 1.4))} /></View>
+      <View style={s.mapTools}><View style={s.compass} accessible accessibilityLabel={t('北方在地图下方')}><Text style={s.compassArrow}>▼</Text><Text style={s.small}>N</Text></View><View style={s.toolBox}><IconButton icon="plus" label="放大地图" disabled={zoom >= MAX_MAP_ZOOM} onPress={() => setZoom(Math.min(MAX_MAP_ZOOM, zoom * 1.4))} /><View style={s.toolDivider} /><IconButton icon="minus" label="缩小地图" disabled={zoom <= MIN_MAP_ZOOM} onPress={() => setZoom(Math.max(MIN_MAP_ZOOM, zoom / 1.4))} /></View>
         <View style={s.toolBox}><IconButton testID="locate-me" icon="locate" label={showDemo ? '回到演示位置' : hasLocation ? '回到我的位置' : '开启定位'} disabled={locating || (location.tracking && !hasLocation)}
           onPress={() => { if (hasLocation || showDemo) centerLocation(); else void location.start(); }} /></View>
       </View>

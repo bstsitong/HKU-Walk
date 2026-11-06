@@ -2583,6 +2583,14 @@
     "en": "My location",
     "zh-Hant": "我的位置"
   },
+  "演示位置": {
+    "en": "Sample position",
+    "zh-Hant": "演示位置"
+  },
+  "北方在地图下方": {
+    "en": "North points down on the map",
+    "zh-Hant": "北方在地圖下方"
+  },
   "地点位置由投稿人点选。": {
     "en": "The contributor placed this pin on the map.",
     "zh-Hant": "地點位置由投稿人點選。"

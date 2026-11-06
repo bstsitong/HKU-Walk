@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Modal, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
-import { CAMPUS_MAP_VERSION, MAP_ART, MAP_WIDTH, MAP_HEIGHT, MAP_Y_MAX } from './MapArtwork';
+import { CAMPUS_MAP_VERSION, campusMapSvg, MAP_WIDTH, MAP_HEIGHT, MAP_Y_MAX } from './MapArtwork';
 import { Pressable, Image, Text } from './ui';
 import { Field } from './CommunityUI';
 import AppIcon from './AppIcon';
@@ -10,21 +10,31 @@ import PlaceSearch from './PlaceSearch';
 import { categories, getPlace, placeName } from './campus';
 import { Kind, contributionImageSource } from './communityApi';
 import { MapDraftData, RouteStepDraft } from './mapSubmission';
-import { t } from './localization';
+import { t, translate } from './localization';
+import { useLanguage } from './LanguageProvider';
 import { colors as c } from './theme';
 import MapCanvas from './MapCanvas';
+import { fromMapView, toMapView } from './mapCamera';
 
 function PointPicker({ data, disabled, onChange }: { data: MapDraftData; disabled: boolean; onChange: (patch: Partial<MapDraftData>) => void }) {
   const [size, setSize] = useState({ width: 300, height: 199 });
-  const selected = typeof data.x === 'number' && typeof data.y === 'number';
-  const move = (dx: number, dy: number) => onChange({ x: Math.max(0,Math.min(360,(data.x ?? 180) + dx)), y: Math.max(0,Math.min(580,(data.y ?? 290) + dy)) });
+  const { language } = useLanguage();
+  const svg = useMemo(() => campusMapSvg(label => translate(label, language)), [language]);
+  const marker = typeof data.x === 'number' && typeof data.y === 'number' ? toMapView({ x: data.x, y: data.y }) : null;
+  const move = (dx: number, dy: number) => onChange({
+    x: Math.max(0, Math.min(MAP_WIDTH, (data.x ?? MAP_WIDTH / 2) - dx)),
+    y: Math.max(0, Math.min(MAP_Y_MAX, (data.y ?? MAP_Y_MAX / 2) - dy)),
+  });
   return <View><Text style={s.label}>在地图上点选位置</Text><Text style={s.copy}>点击校园地图放置标记，可用方向按钮微调。</Text>
-    <Pressable testID="new-place-map" accessibilityRole="button" accessibilityLabel="点选新地点位置" disabled={disabled} onLayout={event => setSize(event.nativeEvent.layout)} onPress={event => { const { locationX, locationY } = event.nativeEvent; onChange({ x: Math.round(Math.max(0, Math.min(1, locationX / size.width)) * MAP_WIDTH), y: Math.round(Math.max(0, Math.min(1, locationY / size.height)) * MAP_Y_MAX) }); }} style={s.picker}>
-      <SvgXml pointerEvents="none" xml={`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MAP_WIDTH} ${MAP_HEIGHT}">${MAP_ART}</svg>`} width="100%" height="100%" accessible={false} />
-      {selected ? <View pointerEvents="none" style={[s.marker,{ left: data.x! / 360 * size.width - 16, top: data.y! / 580 * size.height - 16 }]}><AppIcon name="pin" color="#fff" size={20} /></View> : null}
+    <Pressable testID="new-place-map" accessibilityRole="button" accessibilityLabel="点选新地点位置" disabled={disabled} onLayout={event => setSize(event.nativeEvent.layout)} onPress={event => {
+      const { locationX, locationY } = event.nativeEvent;
+      onChange(fromMapView({ x: locationX / size.width * MAP_WIDTH, y: locationY / size.height * MAP_HEIGHT }));
+    }} style={s.picker}>
+      <View pointerEvents="none" style={s.flex}><SvgXml xml={svg} width="100%" height="100%" accessible={false} /></View>
+      {marker ? <View pointerEvents="none" style={[s.marker,{ left: marker.x / MAP_WIDTH * size.width - 16, top: marker.y / MAP_HEIGHT * size.height - 16 }]}><AppIcon name="pin" color="#fff" size={20} /></View> : null}
     </Pressable>
     <Text raw style={s.attribution}>© OpenStreetMap</Text>
-    <Text style={s.copy}>{selected ? '已选好地点位置' : '尚未选点'}</Text>
+    <Text style={s.copy}>{marker ? '已选好地点位置' : '尚未选点'}</Text>
     <View style={s.row}>{[[-3,0,'left'],[0,-3,'up'],[0,3,'down'],[3,0,'right']].map(([dx,dy,direction]) => <Pressable key={String(direction)} accessibilityRole="button" accessibilityLabel={t('向{direction}微调', { direction: t(direction === 'left' ? '左' : direction === 'right' ? '右' : direction === 'up' ? '上' : '下') })} disabled={disabled} onPress={() => move(Number(dx),Number(dy))} style={s.nudge}><Text raw style={s.nudgeText}>{direction === 'left' ? '←' : direction === 'right' ? '→' : direction === 'up' ? '↑' : '↓'}</Text></Pressable>)}</View>
   </View>;
 }

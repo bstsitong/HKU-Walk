@@ -3,7 +3,29 @@ export const MAP_WIDTH = 360;
 export const MAP_HEIGHT = 219.4;
 export const MAP_Y_MAX = 580;
 export const CAMPUS_MAP_VERSION = 2;
-export const MAP_ART = `
+const labels = [
+  { x: 59, y: 129, name: '百周年校园', size: 8 },
+  { x: 246, y: 163, name: '本部校园', size: 8 },
+  { x: 157, y: 117, name: '大学街', size: 6, color: '#885619' },
+  { x: 101, y: 45, name: '薄扶林道', size: 5.5 },
+  { x: 282, y: 35, name: '般咸道', size: 5.5 },
+  { x: 267, y: 176, name: '大学道', size: 5.5 },
+];
+const xmlText = (text: string) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+export function campusMapSvg(labelFor: (name: string) => string) {
+  const text = labels.map(({ x, y, name, size, color }) =>
+    `<text x="${MAP_WIDTH - x}" y="${MAP_HEIGHT - y}" font-size="${size}" fill="${color ?? '#50664c'}" font-weight="600" text-anchor="middle">${xmlText(labelFor(name))}</text>`).join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MAP_WIDTH} ${MAP_HEIGHT}">
+    <defs><clipPath id="campus-extent"><rect width="${MAP_WIDTH}" height="${MAP_HEIGHT}"/></clipPath></defs>
+    <g clip-path="url(#campus-extent)">
+      <g transform="rotate(180 ${MAP_WIDTH / 2} ${MAP_HEIGHT / 2})">${MAP_ART}</g>
+      ${text}
+    </g>
+  </svg>`;
+}
+
+const MAP_ART = `
 <g fill="#d5e3cc" stroke="#cbdac2" stroke-width=".25">
 <path d="M254.2,9.08 267.03,15.98 270.71,9.22 257.88,2.28 254.2,9.08Z"/>
 <path d="M120.12,-0.19 118.69,2.27 118.04,4.2 117.65,4.78 117.06,5.64 116.02,7.16 114.81,8.16 112.09,19.8 113.87,21.75 115.48,24.67 117.83,24.67 127.35,26.58 128.26,15.09 130.67,1.73 125.16,0.68 120.12,-0.19Z"/>
