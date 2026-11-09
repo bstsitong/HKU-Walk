@@ -1,7 +1,11 @@
+from uuid import uuid4
+
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.core.exceptions import ValidationError
 from django.test import Client, TestCase
+
+from community.authentication import create_session
 
 from .models import CampusPlace, CampusRoute, GuideCategory, GuidePost
 
@@ -20,6 +24,51 @@ class GuideTests(TestCase):
         content = self.client.get("/api/guide/")
         self.assertContains(content, "管理员更新后的入学安排")
         self.assertIn("no-store", content.headers["Cache-Control"])
+
+    def test_initial_feed_contains_the_four_source_articles(self):
+        articles = self.client.get("/api/guide/").json()["articles"]
+        self.assertEqual([article["title"] for article in articles], ["快捷链接", "HKU 指南", "HKU美食分享", "娱乐群"])
+        self.assertTrue(all(article["body"] and article["publishedAt"] and article["markdown"] for article in articles))
+        self.assertEqual(len(articles[1]["sourcePages"]), 3)
+        self.assertEqual(len(articles[2]["sourcePages"]), 2)
+        self.assertEqual(articles[3]["body"].count("![](/static/guide-originals/"), 11)
+
+    def test_guest_comment_login_and_two_users_can_read_and_reply(self):
+        article = GuidePost.objects.get(publication__key="student-guide-hku")
+        url = f"/api/guide/articles/{article.pk}/comments/"
+        first = {"body": "感谢整理", "request_id": str(uuid4())}
+        self.assertEqual(self.client.post(url, first, content_type="application/json").status_code, 401)
+
+        author = get_user_model().objects.create_user("guide_author")
+        reader = get_user_model().objects.create_user("guide_reader")
+        author_auth = {"HTTP_AUTHORIZATION": f"Bearer {create_session(author)}"}
+        reader_auth = {"HTTP_AUTHORIZATION": f"Bearer {create_session(reader)}"}
+        self.assertEqual(self.client.post(url, first, content_type="application/json", **author_auth).status_code, 201)
+        self.assertEqual(self.client.post(url, first, content_type="application/json", **author_auth).status_code, 200)
+        second = {"body": "同问八校通", "request_id": str(uuid4())}
+        self.assertEqual(self.client.post(url, second, content_type="application/json", **reader_auth).status_code, 201)
+        for auth in (author_auth, reader_auth):
+            result = self.client.get(url, **auth).json()
+            self.assertEqual(result["count"], 2)
+            self.assertEqual([item["author"] for item in result["comments"]], ["guide_reader", "guide_author"])
+
+    def test_like_is_idempotent_private_to_viewer_and_unpublished_articles_are_hidden(self):
+        article = GuidePost.objects.get(publication__key="student-guide-links")
+        url = f"/api/guide/articles/{article.pk}/like/"
+        user = get_user_model().objects.create_user("guide_liker")
+        auth = {"HTTP_AUTHORIZATION": f"Bearer {create_session(user)}"}
+        self.assertEqual(self.client.put(url, {"liked": True}, content_type="application/json").status_code, 401)
+        for _ in range(2):
+            response = self.client.put(url, {"liked": True}, content_type="application/json", **auth)
+            self.assertEqual(response.json(), {"liked": True, "likeCount": 1})
+        self.assertTrue(self.client.get("/api/guide/", **auth).json()["articles"][0]["liked"])
+        self.assertFalse(self.client.get("/api/guide/").json()["articles"][0]["liked"])
+        response = self.client.put(url, {"liked": False}, content_type="application/json", **auth)
+        self.assertEqual(response.json(), {"liked": False, "likeCount": 0})
+        article.publication.published = False
+        article.publication.save(update_fields=["published"])
+        self.assertEqual(self.client.put(url, {"liked": True}, content_type="application/json", **auth).status_code, 404)
+        self.assertEqual(self.client.get(f"/api/guide/articles/{article.pk}/comments/").status_code, 404)
 
     def test_unpublished_content_is_private(self):
         entry = GuidePost.objects.get(publication__key="tips-1")

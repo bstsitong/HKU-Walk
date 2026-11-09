@@ -1,12 +1,15 @@
 from django.conf import settings
-from django.db.models import Prefetch
+from django.db.models import Count, Exists, OuterRef, Prefetch, Value
 from django.http import JsonResponse
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 
 from .catalog import content_image, published_routes, route_steps_data
 from .campus_map import LEGACY_PLACES, MAP_VERSION
-from .models import CampusPlace, GuideCategory, GuidePost, Publication, RouteStep
+from .articles import ARTICLE_KEYS, ARTICLE_SCOPE
+from .models import CampusPlace, GuideCategory, GuideLike, GuidePost, Publication, RouteStep
 
 
 def guide_card(request, content, map_type=""):
@@ -19,11 +22,25 @@ def guide_card(request, content, map_type=""):
     }
 
 
-@require_GET
+def article_card(request, post):
+    publication = post.publication
+    submission = publication.current_submission
+    published_at = post.published_at or (submission.reviewed_at if submission else None)
+    return {
+        **guide_card(request, post),
+        "contributor": post.contributor or (submission.author.get_username() if submission else ""),
+        "sourcePages": post.source_pages, "markdown": publication.key in ARTICLE_KEYS,
+        "publishedAt": published_at.isoformat() if published_at else None,
+        "likeCount": post.like_count, "commentCount": post.comment_count, "liked": post.viewer_liked,
+    }
+
+
 @never_cache
+@api_view(["GET"])
+@permission_classes([AllowAny])
 def guide_content(request):
     posts = GuidePost.objects.filter(publication__published=True).select_related("publication__current_submission")
-    categories = GuideCategory.objects.prefetch_related(Prefetch("posts", queryset=posts, to_attr="public_posts"))
+    categories = GuideCategory.objects.prefetch_related(Prefetch("posts", queryset=posts.exclude(publication__key__in=ARTICLE_KEYS), to_attr="public_posts"))
     # Keep the existing guide shortcuts and bookmarks for shared places and routes.
     map_items = [
         *CampusPlace.objects.filter(publication__published=True, is_builtin=False).select_related("publication__current_submission"),
@@ -43,7 +60,12 @@ def guide_content(request):
                 for item in entries
             ],
         })
-    return JsonResponse({"categories": result}, json_dumps_params={"ensure_ascii": False})
+    liked = Exists(GuideLike.objects.filter(post_id=OuterRef("pk"), user=request.user)) if request.user.is_authenticated else Value(False)
+    articles = posts.filter(ARTICLE_SCOPE).select_related("publication__current_submission__author").annotate(
+        like_count=Count("likes", distinct=True), comment_count=Count("comments", distinct=True), viewer_liked=liked,
+    ).order_by("publication__sort_order", "publication_id")
+    return JsonResponse({"categories": result, "articles": [article_card(request, post) for post in articles]},
+                        json_dumps_params={"ensure_ascii": False})
 
 
 @require_GET

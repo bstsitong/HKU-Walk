@@ -222,7 +222,7 @@ def publish_content(item):
         category = {Submission.Kind.FOOD: "food", Submission.Kind.GROUP: "groups"}.get(item.kind, "tips")
         GuidePost.objects.update_or_create(
             publication=publication, defaults={"title": item.title, **common},
-            create_defaults={"title": item.title, "category_id": category, **common},
+            create_defaults={"title": item.title, "category_id": category, "published_at": publication.updated_at, **common},
         )
     return publication
 

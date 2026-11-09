@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.urls import include, path
 
 from guide.views import guide_content, health, campus_content
+from guide.discussion import ArticleComments, ArticleLike
 
 admin.site.site_header = "港大漫游 · 内容维护"
 admin.site.site_title = "港大漫游"
@@ -11,6 +12,8 @@ urlpatterns = [
     path("", lambda request: HttpResponseRedirect("/admin/")),
     path("admin/", admin.site.urls),
     path("api/guide/", guide_content, name="guide-content"),
+    path("api/guide/articles/<int:pk>/comments/", ArticleComments.as_view()),
+    path("api/guide/articles/<int:pk>/like/", ArticleLike.as_view()),
     path("api/health/", health, name="health"),
     path("api/campus/", campus_content, name="campus-content"),
     path("api/", include("community.urls")),

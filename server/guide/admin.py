@@ -90,7 +90,7 @@ class PostAdmin(PublishedContentAdmin):
     list_display = ("title", "category", "is_published", "is_example", "updated_at")
     list_filter = ("category", "publication__published", "is_example")
     search_fields = ("title", "body", "publication__key")
-    fields = ("key", "category", "title", "body", "external_url", "image_url", "is_example", "published", "sort_order", "updated_at")
+    fields = ("key", "category", "title", "body", "contributor", "published_at", "external_url", "image_url", "is_example", "published", "sort_order", "updated_at")
 
 
 @admin.register(CampusPlace)

@@ -1,4 +1,5 @@
 import uuid
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator, URLValidator
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -63,6 +64,9 @@ class GuidePost(ContentFields):
     category = models.ForeignKey(GuideCategory, on_delete=models.PROTECT, related_name="posts", verbose_name="分类")
     title = models.CharField("标题", max_length=160)
     is_example = models.BooleanField("示例内容", default=False)
+    contributor = models.CharField("贡献者", max_length=120, blank=True)
+    published_at = models.DateTimeField("发布时间", null=True, blank=True)
+    source_pages = models.JSONField("原文子页", default=dict, blank=True, editable=False)
 
     class Meta:
         verbose_name = "指南帖子"
@@ -70,6 +74,26 @@ class GuidePost(ContentFields):
 
     def __str__(self):
         return self.title
+
+
+class GuideLike(models.Model):
+    post = models.ForeignKey(GuidePost, on_delete=models.CASCADE, related_name="likes")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["post", "user"], name="one_like_per_guide_post")]
+
+
+class GuideComment(models.Model):
+    post = models.ForeignKey(GuidePost, on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    body = models.TextField(max_length=1000)
+    request_id = models.UUIDField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        constraints = [models.UniqueConstraint(fields=["post", "author", "request_id"], name="unique_guide_comment_request")]
 
 
 class CampusPlace(ContentFields):
