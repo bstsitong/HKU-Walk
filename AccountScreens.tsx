@@ -21,8 +21,8 @@ export function RecoveryCodeScreen({ account }: { account: Account }) {
   </ScrollView>;
 }
 
-export function AccountSecurityScreen({ account, mode, onDone, onBusy }: {
-  account: Account; mode: 'security' | 'recover'; onDone: () => void; onBusy: (value: boolean) => void;
+export function AccountSecurityScreen({ account, mode, onDone, onBusy, onSignOut }: {
+  account: Account; mode: 'security' | 'recover'; onDone: () => void; onBusy: (value: boolean) => void; onSignOut?: () => void;
 }) {
   const [current, setCurrent] = useState('');
   const [password, setPassword] = useState('');
@@ -63,6 +63,7 @@ export function AccountSecurityScreen({ account, mode, onDone, onBusy }: {
       <Text style={s.copy}>{account.session?.user.hasRecoveryCode ? '需要更换恢复码时，输入上方的当前密码，再生成新码。旧码随后失效。' : '这个账号还没有恢复码。输入上方的当前密码后生成一份，便于之后找回账号。'}</Text>
       <Button label={account.session?.user.hasRecoveryCode ? '生成新的恢复码' : '生成恢复码'} secondary busy={busy}
         onPress={() => { if (!current) { setError('请先在上方输入当前密码。'); return; } void run(() => account.regenerateRecoveryCode(current)); }} />
+      {onSignOut ? <Button label="退出登录" secondary disabled={busy} onPress={onSignOut} /> : null}
     </View> : <Text style={s.note}>没有保存恢复码且无法登录时，请联系项目管理员核实账号。管理员不能查看原密码。</Text>}
   </ScrollView>;
 }

@@ -791,6 +791,194 @@
     "en": "Choose different start and destination places",
     "zh-Hant": "請為起點和終點選擇不同地點"
   },
+  "我的": {
+    "en": "Me",
+    "zh-Hant": "我的"
+  },
+  "访客": {
+    "en": "Guest",
+    "zh-Hant": "訪客"
+  },
+  "登录或注册": {
+    "en": "Sign in or register",
+    "zh-Hant": "登錄或註冊"
+  },
+  "注册": {
+    "en": "Register",
+    "zh-Hant": "註冊"
+  },
+  "登录后使用个人功能": {
+    "en": "Sign in to use your personal space",
+    "zh-Hant": "登錄後使用個人功能"
+  },
+  "投稿、收藏和查看历史记录都需要登录。": {
+    "en": "Sign in to submit, save favourites, and see your history.",
+    "zh-Hant": "投稿、收藏和查看歷史記錄都需要登錄。"
+  },
+  "登录后可用": {
+    "en": "Available after sign-in",
+    "zh-Hant": "登錄後可用"
+  },
+  "提交新地点、路线或指南帖子": {
+    "en": "Submit new places, routes, or guide posts",
+    "zh-Hant": "提交新地點、路線或指南帖子"
+  },
+  "保存常用地点、路线和帖子": {
+    "en": "Save your favourite places, routes, and posts",
+    "zh-Hant": "保存常用地點、路線和帖子"
+  },
+  "找回看过的地点、路线和帖子": {
+    "en": "Revisit places, routes, and posts",
+    "zh-Hant": "找回看過的地點、路線和帖子"
+  },
+  "已登录": {
+    "en": "Signed in",
+    "zh-Hant": "已登錄"
+  },
+  "新建投稿": {
+    "en": "New submission",
+    "zh-Hant": "新建投稿"
+  },
+  "历史记录": {
+    "en": "History",
+    "zh-Hant": "歷史記錄"
+  },
+  "设置": {
+    "en": "Settings",
+    "zh-Hant": "設置"
+  },
+  "项目演示": {
+    "en": "Project demo",
+    "zh-Hant": "項目演示"
+  },
+  "常用链接": {
+    "en": "Useful links",
+    "zh-Hant": "常用鏈接"
+  },
+  "新生入学": {
+    "en": "Getting started",
+    "zh-Hant": "新生入學"
+  },
+  "搜索学生指南": {
+    "en": "Search the student guide",
+    "zh-Hant": "搜索學生指南"
+  },
+  "搜索帖子、校园生活与服务": {
+    "en": "Search posts and campus services",
+    "zh-Hant": "搜索帖子、校園生活與服務"
+  },
+  "没有找到相关帖子": {
+    "en": "No matching posts",
+    "zh-Hant": "沒有找到相關帖子"
+  },
+  "试试其他关键词，或切换分类。": {
+    "en": "Try a different keyword or category.",
+    "zh-Hant": "試試其他關鍵詞，或切換分類。"
+  },
+  "查看全部帖子": {
+    "en": "View all posts",
+    "zh-Hant": "查看全部帖子"
+  },
+  "点赞": {
+    "en": "Like",
+    "zh-Hant": "點贊"
+  },
+  "取消点赞": {
+    "en": "Unlike",
+    "zh-Hant": "取消點贊"
+  },
+  "评论": {
+    "en": "Comments",
+    "zh-Hant": "評論"
+  },
+  "已收藏": {
+    "en": "Saved",
+    "zh-Hant": "已收藏"
+  },
+  "腾讯文档原文": {
+    "en": "Original in Tencent Docs",
+    "zh-Hant": "騰訊文檔原文"
+  },
+  "登录后才能评论": {
+    "en": "Sign in to comment",
+    "zh-Hant": "登錄後才能評論"
+  },
+  "登录后才能点赞": {
+    "en": "Sign in to like this post",
+    "zh-Hant": "登錄後才能點贊"
+  },
+  "去登录": {
+    "en": "Sign in",
+    "zh-Hant": "去登錄"
+  },
+  "评论发送失败": {
+    "en": "Comment could not be posted",
+    "zh-Hant": "評論發送失敗"
+  },
+  "点赞失败": {
+    "en": "Could not update your like",
+    "zh-Hant": "點贊失敗"
+  },
+  "还没有评论": {
+    "en": "No comments yet",
+    "zh-Hant": "還沒有評論"
+  },
+  "查看更多评论": {
+    "en": "Load more comments",
+    "zh-Hant": "查看更多評論"
+  },
+  "写评论": {
+    "en": "Write a comment",
+    "zh-Hant": "寫評論"
+  },
+  "发布评论": {
+    "en": "Post comment",
+    "zh-Hant": "發佈評論"
+  },
+  "请稍后重试。": {
+    "en": "Please try again later.",
+    "zh-Hant": "請稍後重試。"
+  },
+  "投稿": {
+    "en": "Submissions",
+    "zh-Hant": "投稿"
+  },
+  "浏览记录": {
+    "en": "History",
+    "zh-Hant": "瀏覽記錄"
+  },
+  "登录后查看投稿和审核进度。": {
+    "en": "Sign in to see your submissions and their review status.",
+    "zh-Hant": "登錄後查看投稿和審核進度。"
+  },
+  "这个分类还没有投稿。": {
+    "en": "No submissions in this category yet.",
+    "zh-Hant": "這個分類還沒有投稿。"
+  },
+  "暂时无法读取投稿。": {
+    "en": "Submissions could not be loaded.",
+    "zh-Hant": "暫時無法讀取投稿。"
+  },
+  "还没有浏览过帖子。": {
+    "en": "You have not opened any posts yet.",
+    "zh-Hant": "還沒有瀏覽過帖子。"
+  },
+  "还没有浏览过路线。": {
+    "en": "You have not opened any routes yet.",
+    "zh-Hant": "還沒有瀏覽過路線。"
+  },
+  "清空此分类的浏览记录？": {
+    "en": "Clear browsing history for this category?",
+    "zh-Hant": "清空此分類的瀏覽記錄？"
+  },
+  "浏览记录暂时无法读取": {
+    "en": "Browsing history could not be loaded",
+    "zh-Hant": "瀏覽記錄暫時無法讀取"
+  },
+  "浏览记录暂时无法保存": {
+    "en": "Browsing history could not be saved",
+    "zh-Hant": "瀏覽記錄暫時無法保存"
+  },
   "已保存这份恢复码？": {
     "en": "Have you saved this recovery code?",
     "zh-Hant": "已保存這份恢復碼？"

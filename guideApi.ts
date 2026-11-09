@@ -20,6 +20,12 @@ export type GuideCategory = {
   introduction: string;
   entries: GuideEntry[];
 };
+export type GuideSourcePage = { title: string; body: string };
+export type GuideArticle = GuideEntry & {
+  contributor: string; publishedAt: string | null; likeCount: number; commentCount: number; liked: boolean;
+  sourcePages: Record<string, GuideSourcePage>; markdown: boolean;
+};
+export type GuideComment = { id: string; author: string; body: string; createdAt: string };
 
 function defaultHost() {
   const hostUri = Constants.expoConfig?.hostUri;
@@ -32,16 +38,17 @@ function defaultHost() {
 }
 
 export const API_BASE = (process.env.EXPO_PUBLIC_API_URL || `http://${defaultHost()}:8000`).replace(/\/$/, '');
-export const ADMIN_URL = API_BASE + '/admin/';
 
-export async function fetchGuide(signal: AbortSignal): Promise<GuideCategory[]> {
-  const response = await fetch(API_BASE + '/api/guide/', {
+export async function fetchGuide(signal: AbortSignal, token?: string): Promise<{ categories: GuideCategory[]; articles: GuideArticle[] }> {
+  const get = (auth?: string) => fetch(API_BASE + '/api/guide/', {
     signal,
-    headers: { Accept: 'application/json' },
+    headers: { Accept: 'application/json', ...(auth ? { Authorization: `Bearer ${auth}` } : {}) },
     cache: 'no-store',
   });
+  let response = await get(token);
+  if (token && response.status === 401) response = await get();
   if (!response.ok) throw new Error('Guide request failed');
   const data = await response.json();
   if (!Array.isArray(data.categories)) throw new Error('Invalid guide response');
-  return data.categories;
+  return { categories: data.categories, articles: Array.isArray(data.articles) ? data.articles : [] };
 }

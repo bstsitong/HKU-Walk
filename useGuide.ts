@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
-import { fetchGuide, GuideCategory } from './guideApi';
+import { fetchGuide, GuideArticle, GuideCategory } from './guideApi';
 
-export default function useGuide() {
+export default function useGuide(token?: string) {
   const [categories, setCategories] = useState<GuideCategory[]>([]);
+  const [articles, setArticles] = useState<GuideArticle[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const request = useRef(0);
@@ -19,15 +20,15 @@ export default function useGuide() {
     setLoading(true);
     setError('');
     try {
-      const result = await fetchGuide(controller.signal);
-      if (id === request.current) setCategories(result);
+      const result = await fetchGuide(controller.signal, token);
+      if (id === request.current) { setCategories(result.categories); setArticles(result.articles); }
     } catch {
       if (id === request.current) setError('暂时无法连接学生指南，请稍后重试。');
     } finally {
       clearTimeout(timeout);
       if (id === request.current) setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     void reload();
@@ -41,5 +42,8 @@ export default function useGuide() {
     };
   }, [reload]);
 
-  return { categories, loading, error, reload };
+  const updateArticle = (id: string, changes: Partial<Pick<GuideArticle, 'liked' | 'likeCount' | 'commentCount'>>) => {
+    setArticles(items => items.map(item => item.id === id ? { ...item, ...changes } : item));
+  };
+  return { categories, articles, loading, error, reload, updateArticle };
 }

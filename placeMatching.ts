@@ -10,7 +10,7 @@ const english = /^[a-z]+$/;
 const aliasesByPlace: Readonly<Record<string, string[]>> = campusAliases;
 let simplify: ReturnType<typeof Converter> | undefined;
 
-function normalize(value: string) {
+export function normalizeSearchText(value: string) {
   const text = value.normalize('NFKC').toLowerCase();
   const simplified = han.test(text) ? (simplify ??= Converter({ from: 'hk', to: 'cn' }))(text) : text;
   return simplified.normalize('NFD')
@@ -32,7 +32,7 @@ function descriptorsFor(place: Place) {
   if (cached) return cached;
   const descriptions = [place.name, place.english, place.keywords, place.description, place.entrance, place.floor]
     .flatMap(value => typeof value === 'string' ? value.split(/[。！？；\n!?;]+/u) : []);
-  const descriptors = unique(descriptions.map(normalize));
+  const descriptors = unique(descriptions.map(normalizeSearchText));
   descriptorsByPlace.set(place, descriptors);
   return descriptors;
 }
@@ -40,12 +40,12 @@ function descriptorsFor(place: Place) {
 function profileFor(place: Place): Profile {
   const cached = profiles.get(place);
   if (cached) return cached;
-  const names = unique([place.name, place.english, typeof place.abbreviation === 'string' ? place.abbreviation : ''].map(normalize));
+  const names = unique([place.name, place.english, typeof place.abbreviation === 'string' ? place.abbreviation : ''].map(normalizeSearchText));
   const keywords = typeof place.keywords === 'string' ? place.keywords.split(/[,;|，；、\n]+/) : [];
-  const aliases = unique([...keywords, ...keywords.flatMap(value => value.split(/\s+/)), ...(aliasesByPlace[place.id] ?? [])].map(normalize));
+  const aliases = unique([...keywords, ...keywords.flatMap(value => value.split(/\s+/)), ...(aliasesByPlace[place.id] ?? [])].map(normalizeSearchText));
   const texts = [...names, ...aliases];
   const romanized = unique(texts.filter(text => han.test(text))
-    .map(text => compact(normalize(pinyin(text, { toneType: 'none', nonZh: 'consecutive' })))));
+    .map(text => compact(normalizeSearchText(pinyin(text, { toneType: 'none', nonZh: 'consecutive' })))));
   const profile = {
     names: unique(names.map(compact)), aliases: unique(aliases.map(compact)), romanized,
     words: unique(texts.flatMap(text => text.split(' '))),
@@ -92,7 +92,7 @@ function correctionScore(profile: Profile, query: string) {
 export function matchCampusPlaces(places: Place[], category: Category, input: string, recentIds: readonly string[] = []): Place[] {
   const candidates = category === 'all' ? places : places.filter(place => place.category === category);
   if (!input.trim()) return candidates;
-  const normalized = normalize(input.slice(0, 120));
+  const normalized = normalizeSearchText(input.slice(0, 120));
   if (!normalized) return [];
   const core = placeQueryCore(normalized) || normalized;
   const intendedCategory = placeCategoryForQuery(normalized, core);

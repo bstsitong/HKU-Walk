@@ -1,5 +1,5 @@
 export type RouteBookmark = { id: string; originId: string; destinationId: string; source: 'demo' | 'community' };
-const placeId = (id: unknown): id is string => typeof id === 'string' && /^(main|library|chiwah|knowles|gate|garden|cafe|toilet|community-place-\d+)$/.test(id);
+const placeId = (id: unknown): id is string => typeof id === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id);
 export const demoRouteId = (originId: string, destinationId: string) => `demo:${originId}>${destinationId}`;
 export function readRouteBookmarks(value: unknown): RouteBookmark[] {
   if (!Array.isArray(value)) return [];

@@ -48,8 +48,7 @@ function AuthForm({ account, onRecover, onBusy }: { account: ReturnType<typeof u
   };
   return <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={s.page}>
     <View style={s.bigSymbol}><AppIcon name="groups" size={34} /></View>
-    <Text accessibilityRole="header" style={s.title}>{mode === 'register' ? '一起补全校园生活' : '登录后，分享你的发现'}</Text>
-    <Text style={s.copy}>账号用于投稿和查看审核结果。地图与学生指南随时可看。</Text>
+    <Text accessibilityRole="header" style={s.title}>{mode === 'register' ? '注册' : '登录'}</Text>
     <Field label="账号" hint="3–32 位字母、数字或下划线，不区分大小写" value={username} onChangeText={setUsername}
       autoCapitalize="none" autoCorrect={false} maxLength={32} editable={!busy} textContentType="username" autoComplete="username" />
     <Field label="密码" hint={mode === 'register' ? '至少 8 位，避免使用常见密码或纯数字' : undefined} value={password} onChangeText={setPassword}
@@ -63,8 +62,8 @@ function AuthForm({ account, onRecover, onBusy }: { account: ReturnType<typeof u
   </ScrollView>;
 }
 
-export default function CommunityScreen({ visible, onClose, account }: {
-  visible: boolean; onClose: () => void; account: ReturnType<typeof useAccount>;
+export default function CommunityScreen({ visible, initialScreen, initialSubmission, onClose, account }: {
+  visible: boolean; initialScreen: 'home' | 'security' | 'login' | 'form'; initialSubmission?: Submission; onClose: () => void; account: ReturnType<typeof useAccount>;
 }) {
   const [screen, setScreen] = useState<'home' | 'form' | 'detail' | 'security' | 'recover'>('home');
   const [items, setItems] = useState<Submission[]>([]);
@@ -100,9 +99,21 @@ export default function CommunityScreen({ visible, onClose, account }: {
   };
   useEffect(() => {
     generation.current++; setItems([]); setNextPage(null); setSelected(null); setEditing(undefined);
-    setDraft(newDraft()); setScreen('home'); setError(''); setLoading(false);
+    mapDrafts.current = {};
+    setDraft(newDraft()); setScreen(initialScreen === 'form' ? 'form' : 'home'); setError(''); setLoading(false);
   }, [token]);
-  useEffect(() => { if (visible && token) void load(); return () => { generation.current++; }; }, [visible, token]);
+  useEffect(() => {
+    if (visible) {
+      setSelected(initialSubmission ?? null);
+      setScreen(initialSubmission ? 'detail' : initialScreen === 'login' ? 'home' : initialScreen);
+      if (initialScreen === 'form') { mapDrafts.current = {}; setDraft(newDraft()); setEditing(undefined); }
+      setError('');
+    }
+  }, [visible, initialScreen, initialSubmission]);
+  useEffect(() => { if (visible && token && initialScreen !== 'login') void load(); return () => { generation.current++; }; }, [visible, token, initialScreen]);
+  useEffect(() => {
+    if (visible && initialScreen === 'login' && token && !busy && !account.recoveryCode) onClose();
+  }, [visible, initialScreen, token, busy, account.recoveryCode, onClose]);
   const leave = () => {
     if (busy) return;
     Keyboard.dismiss();
@@ -112,10 +123,14 @@ export default function CommunityScreen({ visible, onClose, account }: {
       ]); return;
     }
     if (screen === 'form') {
-      const discard = () => { setDraft(newDraft()); setEditing(undefined); setError(''); setScreen('home'); };
+      const discard = () => {
+        setDraft(newDraft()); setEditing(undefined); setError(''); setScreen('home');
+        if (initialScreen === 'form') onClose();
+      };
       if (draft.title || draft.body || draft.location || draft.externalUrl || draft.image || editing || hasMapInput(draft.mapData) || Object.values(mapDrafts.current).some(value => value && hasMapInput(value))) Alert.alert('放弃这次编辑？', '未提交的修改不会保存。', [{ text: '继续编辑', style: 'cancel' }, { text: '放弃编辑', style: 'destructive', onPress: discard }]);
       else discard();
-    } else if (screen === 'detail' || screen === 'security' || screen === 'recover') { setScreen('home'); setError(''); }
+    } else if ((screen === 'security' && initialScreen === 'security') || (screen === 'detail' && (initialSubmission || initialScreen === 'form'))) onClose();
+    else if (screen === 'detail' || screen === 'security' || screen === 'recover') { setScreen('home'); setError(''); }
     else onClose();
   };
   const begin = async (item?: Submission) => {
@@ -172,23 +187,23 @@ export default function CommunityScreen({ visible, onClose, account }: {
     } catch (error) { await handleError(error); }
     finally { setBusy(false); }
   };
-  const logout = () => Alert.alert('退出当前账号？', '下次投稿时需要重新登录。', [
-    { text: '取消', style: 'cancel' }, { text: '退出登录', onPress: () => { setBusy(true); void account.signOut().catch(handleError).finally(() => setBusy(false)); } },
+  const logout = () => Alert.alert('退出当前账号？', undefined, [
+    { text: '取消', style: 'cancel' }, { text: '退出登录', onPress: () => { setBusy(true); void account.signOut().then(onClose).catch(handleError).finally(() => setBusy(false)); } },
   ]);
   const image = draft.image?.uri || (!draft.removeImage ? draft.existingImage : '');
   return <Modal visible={visible} animationType="slide" onRequestClose={leave} presentationStyle="fullScreen">
     <SafeAreaView style={s.shell}>
       <View style={s.topbar}>
-        <Pressable accessibilityRole="button" accessibilityLabel={screen === 'home' ? '返回 App' : '返回我的投稿'} disabled={busy} onPress={leave} style={s.iconButton}><AppIcon name="back" /></Pressable>
-        <Text style={s.topTitle}>{account.recoveryCode ? '保存恢复码' : screen === 'security' ? '账号与安全' : screen === 'recover' ? '找回账号' : screen === 'form' ? (editing?.status === 'approved' ? '申请修改已发布内容' : editing ? '修改投稿' : '新投稿') : screen === 'detail' ? '投稿详情' : '校园共建'}</Text>
-        {token && (screen === 'home' || screen === 'detail') && !account.recoveryCode ? <Pressable accessibilityRole="button" accessibilityLabel="刷新投稿状态" disabled={loading || busy} onPress={() => void load()} style={s.iconButton}>
+        <Pressable accessibilityRole="button" accessibilityLabel={screen === 'home' || initialScreen === 'security' || initialScreen === 'form' ? '返回 App' : '返回我的投稿'} disabled={busy} onPress={leave} style={s.iconButton}><AppIcon name="back" /></Pressable>
+        <Text style={s.topTitle}>{account.recoveryCode ? '保存恢复码' : screen === 'recover' ? '找回账号' : !token ? '登录或注册' : screen === 'security' ? '账号与安全' : screen === 'form' ? (editing?.status === 'approved' ? '申请修改已发布内容' : editing ? '修改投稿' : '新投稿') : screen === 'detail' ? '投稿详情' : '校园共建'}</Text>
+        {token && initialScreen !== 'login' && (screen === 'home' || screen === 'detail') && !account.recoveryCode ? <Pressable accessibilityRole="button" accessibilityLabel="刷新投稿状态" disabled={loading || busy} onPress={() => void load()} style={s.iconButton}>
           {loading ? <ActivityIndicator color={green} /> : <AppIcon name="refresh" />}</Pressable> : <View style={s.iconButton} />}
       </View>
       {account.storageError ? <Text style={s.error}>{account.storageError}</Text> : null}
       {error ? <Text accessibilityRole="alert" style={s.error}>{error}</Text> : null}
       <KeyboardAvoidingView style={s.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {!account.ready ? <View style={s.empty}><ActivityIndicator color={green} /><Text style={s.copy}>正在读取登录信息…</Text></View> : account.recoveryCode ? <RecoveryCodeScreen account={account} /> : screen === 'security' || screen === 'recover' ?
-          <AccountSecurityScreen key={screen} account={account} mode={screen} onDone={() => setScreen('home')} onBusy={setBusy} /> : !token ?
+          <AccountSecurityScreen key={screen} account={account} mode={screen} onDone={() => setScreen('home')} onBusy={setBusy} onSignOut={screen === 'security' ? logout : undefined} /> : !token ?
           <AuthForm account={account} onRecover={() => { setScreen('recover'); setError(''); }} onBusy={setBusy} /> : screen === 'home' ? (
           <ScrollView contentContainerStyle={s.page} refreshControl={<RefreshControl refreshing={loading} onRefresh={() => void load()} tintColor={green} />}>
             <Text accessibilityRole="header" style={s.title}>你的发现，大家受用</Text>
@@ -239,7 +254,7 @@ export default function CommunityScreen({ visible, onClose, account }: {
             {selected.status === 'changes_requested' ? <Button label="按建议修改并重交" onPress={() => void begin(selected)} /> : null}
             {selected.status === 'approved' && selected.publishedContent?.published ? <Button label={selected.openEditId ? '查看当前修改申请' : '申请修改已发布内容'} busy={busy} onPress={() => void begin(selected)} /> : null}
             {selected.status === 'approved' && selected.publishedContent && !selected.publishedContent.published ? <Text style={s.note}>此内容已下线，目前不会显示在公共指南中。</Text> : null}
-            <Button label="返回我的投稿" secondary onPress={() => { setScreen('home'); setError(''); void load(); }} />
+            <Button label="返回我的投稿" secondary onPress={() => { if (initialSubmission) onClose(); else { setScreen('home'); setError(''); void load(); } }} />
           </ScrollView>
         ) : null}
       </KeyboardAvoidingView>

@@ -18,8 +18,8 @@ function StepPhoto({ uri, index, label }: { uri?: string; index: number; label: 
   useEffect(() => setFailed(false), [uri]);
   return <View style={s.stepPhoto}>{uri && !failed ? <Image source={{ uri }} accessibilityLabel={t('路线第 {step} 步配图', { step: index + 1 })} style={s.realPhoto} resizeMode="cover" onError={() => setFailed(true)} /> : <StepIllustration step={Math.min(index, 5)} />}<Text style={s.photoLabel}>{uri && !failed ? '步骤实拍' : label}</Text>{!uri || failed ? <Text style={s.small}>{failed ? '配图暂时无法加载' : '配图待补'}</Text> : null}</View>;
 }
-export default function RouteScreen({ initialOrigin, initialDestination, initialRouteId, preferDemo, records, recentPlaceIds, onBack, onMap, catalogVersion }: {
-  initialOrigin: Place; initialDestination: Place; initialRouteId?: string; preferDemo?: boolean; records: RouteRecords; recentPlaceIds: readonly string[]; onBack: () => void; onMap: (destination?: Place) => void; catalogVersion: unknown;
+export default function RouteScreen({ initialOrigin, initialDestination, initialRouteId, preferDemo, records, recentPlaceIds, onBack, onMap, active, onVisit, catalogVersion }: {
+  initialOrigin: Place; initialDestination: Place; initialRouteId?: string; preferDemo?: boolean; records: RouteRecords; recentPlaceIds: readonly string[]; onBack: () => void; onMap: (destination?: Place) => void; active: boolean; onVisit: (route: RouteBookmark) => void; catalogVersion: unknown;
 }) {
   useLanguage();
   const [origin, setOrigin] = useState(initialOrigin);
@@ -31,6 +31,8 @@ export default function RouteScreen({ initialOrigin, initialDestination, initial
   const choices = campusRoutes.filter(route => route.originId === origin.id && route.destinationId === destination.id);
   useEffect(() => { if (routeId && !getCampusRoute(routeId)) setRouteId(null); }, [catalogVersion]);
   const bookmark: RouteBookmark = { id: shared?.id || demoRouteId(origin.id, destination.id), originId: origin.id, destinationId: destination.id, source: shared ? 'community' : 'demo' };
+  const { id, originId, destinationId, source } = bookmark;
+  useEffect(() => { if (active) onVisit({ id, originId, destinationId, source }); }, [active, id, originId, destinationId, source, onVisit]);
   const saved = records.saved.some(item => item.id === bookmark.id);
   const steps = shared ? shared.steps.map(step => ({ title: step.title, copy: step.body, photo: '步骤配图', imageUrl: step.imageUrl })) : routeSteps.map((step, index) => ({ ...step, imageUrl: '', title: index === 0 ? t('从 {place} 出发', { place: placeName(origin) }) : index === 4 ? t('找到 {place} 入口', { place: placeName(destination) }) : index === 5 ? t('到达 {place}', { place: placeName(destination) }) : t(step.title) }));
   const expanded = allSteps || steps.length <= 3;

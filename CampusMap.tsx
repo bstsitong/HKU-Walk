@@ -38,8 +38,8 @@ function IconButton({ icon, label, onPress, selected = false, disabled = false, 
 function Action({ label, onPress, secondary = false, icon, testID }: { label: string; onPress: () => void; secondary?: boolean; icon?: IconName; testID?: string }) {
   return <Pressable testID={testID} accessibilityRole="button" onPress={onPress} style={[s.action, secondary && s.secondary]}>{icon ? <AppIcon name={icon} color={secondary ? c.green : '#fff'} size={18} /> : null}<Text style={[s.actionLabel, secondary && s.secondaryLabel]}>{label}</Text></Pressable>;
 }
-export default function CampusMap({ active, records, routes, campus, sampleLocation, request, onViewChange, onReturnSaved }: {
-  active: boolean; records: PlaceRecords; routes: RouteRecords; campus: ReturnType<typeof useCampus>; sampleLocation: boolean; request: MapRequest | null; onViewChange: (view: MapView) => void; onReturnSaved: () => void;
+export default function CampusMap({ active, records, routes, campus, sampleLocation, request, onViewChange, onReturnSaved, onVisitRoute }: {
+  active: boolean; records: PlaceRecords; routes: RouteRecords; campus: ReturnType<typeof useCampus>; sampleLocation: boolean; request: MapRequest | null; onViewChange: (view: MapView) => void; onReturnSaved: () => void; onVisitRoute: (route: RouteBookmark) => void;
 }) {
   const { language } = useLanguage();
   const [view, setView] = useState<MapView>('home');
@@ -122,7 +122,7 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
       </View>
     </ScrollView><View style={s.footer}>{saveButton}<Action testID="detail-route" icon="walk" label="查看步行路线" onPress={startRoute} /></View>
   </View>;
-  if (view === 'route') return <RouteScreen initialOrigin={origin} initialDestination={destination} initialRouteId={preferredRoute?.source === 'community' ? preferredRoute.id : undefined} preferDemo={preferredRoute?.source === 'demo'} records={routes} recentPlaceIds={records.recent} onBack={back} onMap={(place?: Place) => { if (place) setSelected(place); setFromSaved(false); setCategory('all'); changeView('home'); }} catalogVersion={campus.catalog} />;
+  if (view === 'route') return <RouteScreen initialOrigin={origin} initialDestination={destination} initialRouteId={preferredRoute?.source === 'community' ? preferredRoute.id : undefined} preferDemo={preferredRoute?.source === 'demo'} records={routes} recentPlaceIds={records.recent} onBack={back} onMap={(place?: Place) => { if (place) setSelected(place); setFromSaved(false); setCategory('all'); changeView('home'); }} active={active} onVisit={onVisitRoute} catalogVersion={campus.catalog} />;
   return <View style={s.flex}>
     <View style={s.mapHome}>
       <MapCanvas selected={selected} category={category} zoom={zoom} onZoomChange={setZoom} onSelect={setSelected} sampleLocation={showDemo} livePosition={location.point} centerTick={centerTick} />

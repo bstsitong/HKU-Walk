@@ -1,4 +1,4 @@
-import { API_BASE } from './guideApi';
+import { API_BASE, GuideComment } from './guideApi';
 import { MapDraftData, serializeMapDraft } from './mapSubmission';
 
 export type Account = { token: string; user: { id: string; username: string; hasRecoveryCode?: boolean } };
@@ -66,6 +66,14 @@ export const rotateRecoveryCode = (token: string, password: string) =>
   accountPost<{ recoveryCode: string; user: Account['user'] }>('recovery-code', { current_password: password }, token);
 export const fetchSubmissions = (token: string, page = 1) => request<{ submissions: Submission[]; count: number; nextPage: number | null }>(`/api/submissions/?page=${page}`, {}, token);
 export const fetchSubmission = (token: string, id: string) => request<{ submission: Submission }>(`/api/submissions/${id}/`, {}, token);
+export const fetchGuideComments = (id: string, page = 1) => request<{ comments: GuideComment[]; count: number; nextPage: number | null }>(`/api/guide/articles/${id}/comments/?page=${page}`);
+export const sendGuideComment = (token: string, id: string, body: string, requestId: string) =>
+  request<{ comment: GuideComment; commentCount: number }>(`/api/guide/articles/${id}/comments/`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body, request_id: requestId }),
+  }, token);
+export const setGuideLike = (token: string, id: string, liked: boolean) => request<{ liked: boolean; likeCount: number }>(`/api/guide/articles/${id}/like/`, {
+  method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ liked }),
+}, token);
 export function contributionImageSource(uri: string, token?: string) {
   // Administrator-supplied external image URLs must never receive the mobile credential.
   try {
