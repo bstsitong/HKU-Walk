@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BackHandler, Keyboard, ScrollView, StyleSheet, View } from 'react-native';
 import { Alert, Image, Pressable, Text } from './ui';
 import AppIcon, { IconName } from './AppIcon';
+import { AuthorByline } from './AuthorIdentity';
 import MapCanvas from './MapCanvas';
 import { Category, Place, categories, categoryIcon, categoryLabel, findPlace, getCampusRoute, getPlace, hasPlacePhoto, placeIcon, placeName, placePhoto, places } from './campus';
 import { PlaceRecords } from './usePlaces';
@@ -38,8 +39,9 @@ function IconButton({ icon, label, onPress, selected = false, disabled = false, 
 function Action({ label, onPress, secondary = false, icon, testID }: { label: string; onPress: () => void; secondary?: boolean; icon?: IconName; testID?: string }) {
   return <Pressable testID={testID} accessibilityRole="button" onPress={onPress} style={[s.action, secondary && s.secondary]}>{icon ? <AppIcon name={icon} color={secondary ? c.green : '#fff'} size={18} /> : null}<Text style={[s.actionLabel, secondary && s.secondaryLabel]}>{label}</Text></Pressable>;
 }
-export default function CampusMap({ active, records, routes, campus, sampleLocation, request, onViewChange, onReturnSaved, onVisitRoute }: {
+export default function CampusMap({ active, records, routes, campus, sampleLocation, request, onViewChange, onReturnSaved, onVisitRoute, onCommentPlace }: {
   active: boolean; records: PlaceRecords; routes: RouteRecords; campus: ReturnType<typeof useCampus>; sampleLocation: boolean; request: MapRequest | null; onViewChange: (view: MapView) => void; onReturnSaved: () => void; onVisitRoute: (route: RouteBookmark) => void;
+  onCommentPlace: (place: Place) => void;
 }) {
   const { language } = useLanguage();
   const [view, setView] = useState<MapView>('home');
@@ -113,7 +115,11 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
       </View>
       <View style={s.detailBody}><Text raw={selected.isCommunity} accessibilityRole="header" style={s.title}>{placeName(selected)}</Text><Text raw style={s.meta}>{[language === 'en' && !selected.isCommunity ? selected.name : selected.english, selected.abbreviation].filter(Boolean).join(' · ')}</Text>
         <View style={[s.chips, s.detailBadges]}><Text style={s.badge}>{categoryLabel(selected.category)}</Text><Text style={s.rustBadge}>{selected.isCommunity ? '同学提供' : '校园地图资料'}</Text></View>
+        {selected.authorProfile ? <AuthorByline author={selected.authorProfile} /> : null}
         {selected.description ? <Text raw={selected.isCommunity} style={s.body}>{selected.description}</Text> : null}
+        <Pressable testID="detail-comments" accessibilityRole="button" onPress={() => onCommentPlace(selected)} style={s.commentsLink}>
+          <AppIcon name="comment" size={20} /><Text style={[s.rowTitle, s.flex]}>地点评论</Text><AppIcon name="chevron" size={16} />
+        </Pressable>
         <View style={s.divider} /><View style={s.sectionHeading}><Text style={s.sectionTitle}>怎么进入这里</Text></View>
         <View style={s.infoRow}><AppIcon name="building" size={20} /><View style={s.flex}><Text style={s.rowTitle}>入口位置</Text><Text raw={selected.isCommunity && Boolean(selected.entrance)} style={s.body}>{selected.entrance || '入口资料待补充'}</Text></View></View>
         <View style={s.infoRow}><AppIcon name="lift" size={20} /><View style={s.flex}><Text style={s.rowTitle}>楼层与升降机</Text><Text raw={selected.isCommunity && Boolean(selected.floor)} style={s.body}>{selected.floor || '楼层资料待补充'}</Text></View></View>
@@ -148,6 +154,7 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
 }
 
 const s = StyleSheet.create({
+  commentsLink: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, marginTop: 8 },
   flex: { flex: 1 }, white: { color: '#fff' }, center: { textAlign: 'center' },
   page: { padding: 18, paddingTop: 8, paddingBottom: 28, width: '100%', maxWidth: 650, alignSelf: 'center' },
   title: { fontSize: 24, lineHeight: 32, color: c.ink, fontWeight: '800' },

@@ -70,6 +70,27 @@ class GuideTests(TestCase):
         self.assertEqual(self.client.put(url, {"liked": True}, content_type="application/json", **auth).status_code, 404)
         self.assertEqual(self.client.get(f"/api/guide/articles/{article.pk}/comments/").status_code, 404)
 
+    def test_place_discussion_is_public_and_existing_comments_use_current_nickname(self):
+        user = get_user_model().objects.create_user("place_reader")
+        auth = {"HTTP_AUTHORIZATION": f"Bearer {create_session(user)}"}
+        url = "/api/campus/places/main/comments/"
+        payload = {"body": "从正门进入很方便", "request_id": str(uuid4())}
+        self.assertEqual(self.client.post(url, payload, content_type="application/json").status_code, 401)
+        created = self.client.post(url, payload, content_type="application/json", **auth)
+        self.assertEqual(created.status_code, 201)
+        self.assertEqual(created.json()["comment"]["authorProfile"], {"name": "place_reader", "avatarUrl": ""})
+        self.assertEqual(self.client.post(url, payload, content_type="application/json", **auth).status_code, 200)
+        response = self.client.patch("/api/accounts/me/", {"nickname": "校园向导"}, content_type="application/json", **auth)
+        self.assertEqual(response.status_code, 200)
+        result = self.client.get(url).json()
+        self.assertEqual(result["count"], 1)
+        self.assertEqual(result["comments"][0]["authorProfile"]["name"], "校园向导")
+        self.assertEqual(self.client.get("/api/campus/places/gate/comments/").json()["count"], 0)
+        place = CampusPlace.objects.get(pk="main")
+        place.publication.published = False
+        place.publication.save(update_fields=["published"])
+        self.assertEqual(self.client.get(url).status_code, 404)
+
     def test_unpublished_content_is_private(self):
         entry = GuidePost.objects.get(publication__key="tips-1")
         entry.publication.published = False

@@ -7,7 +7,9 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon, { IconName } from './AppIcon';
 import CampusMap, { MapRequest, MapView } from './CampusMap';
 import usePlaces from './usePlaces';
-import { getCampusRoute, getPlace, Place } from './campus';
+import { getCampusRoute, getPlace, Place, placeName } from './campus';
+import { PlaceDiscussion } from './Discussion';
+import EditProfile from './EditProfile';
 import { LanguageProvider, useLanguage } from './LanguageProvider';
 import { colors } from './theme';
 import { GuideArticles, GuideArticleScreen } from './GuideArticles';
@@ -44,7 +46,10 @@ function MainApp() {
   const token = account.session?.token;
   const data = useGuide(token);
   const [reading, setReading] = useState<{ id: string; comments: boolean } | null>(null);
+  const [commentPlace, setCommentPlace] = useState<Place | null>(null);
+  const [editingProfile, setEditingProfile] = useState(false);
   const article = data.articles.find(item => item.id === reading?.id);
+  const editingUser = editingProfile ? account.session?.user : undefined;
   const [liking, setLiking] = useState<string[]>([]);
   const likeRequests = useRef(new Set<string>());
   const owner = account.session?.user.id;
@@ -123,26 +128,31 @@ function MainApp() {
   return (
     <SafeAreaView style={s.shell}>
       <StatusBar style="dark" />
-      <View style={[s.content, tab !== 'map' && s.hidden]}><CampusMap active={tab === 'map'} records={records} routes={routes} campus={campus} sampleLocation={sampleLocation} request={mapRequest} onViewChange={setMapView} onReturnSaved={() => setTab('profile')} onVisitRoute={history.visitRoute} /></View>
+      <View style={[s.content, (tab !== 'map' || Boolean(commentPlace)) && s.hidden]}><CampusMap active={tab === 'map' && !commentPlace} records={records} routes={routes} campus={campus} sampleLocation={sampleLocation} request={mapRequest} onViewChange={setMapView} onReturnSaved={() => setTab('profile')} onVisitRoute={history.visitRoute} onCommentPlace={setCommentPlace} /></View>
       <View style={[s.content, (tab !== 'guide' || Boolean(article)) && s.hidden]}>
         <GuideArticles data={guideData} bookmarks={bookmarks} liking={liking} onLike={toggleLike} onOpen={openArticle} onContribute={() => setCommunityEntry('form')} />
       </View>
-      <View style={[s.content, (tab !== 'profile' || Boolean(article)) && s.hidden]}>
+      <View style={[s.content, (tab !== 'profile' || Boolean(article) || Boolean(editingUser)) && s.hidden]}>
         <ProfileScreen active={tab === 'profile'} data={data} campus={campus} bookmarks={bookmarks} records={records} routes={routes} history={history}
           session={account.session} accountReady={account.ready} onAccount={() => account.session ? setCommunityEntry('security') : openLogin()}
-          submissionsPaused={communityEntry !== null} onOpenSubmission={setCommunityEntry}
+          submissionsPaused={communityEntry !== null || Boolean(editingUser)} onOpenSubmission={setCommunityEntry} onEditProfile={() => setEditingProfile(true)}
           onContribute={() => setCommunityEntry('form')} sampleLocation={sampleLocation} onSampleLocation={chooseSampleLocation}
           onOpenPlace={openPlace} onOpenRoute={openRoute} onOpenContent={openContent} onOpenArticle={openArticle} />
       </View>
-      {article && reading ? <GuideArticleScreen key={article.id} article={article} initiallyComments={reading.comments} token={token}
+      {article && reading ? <GuideArticleScreen key={article.id} article={article} initiallyComments={reading.comments} session={account.session}
         onBack={() => setReading(null)} onLogin={openDiscussionLogin} bookmarks={bookmarks} liking={liking} onLike={toggleLike}
         onCommentCount={count => data.updateArticle(article.id, { commentCount: count })} /> : null}
+      {commentPlace ? <PlaceDiscussion key={commentPlace.id} id={commentPlace.id} title={placeName(commentPlace)} session={account.session}
+        onBack={() => setCommentPlace(null)} onLogin={openDiscussionLogin} /> : null}
+      {editingUser ? <EditProfile key={editingUser.id} user={editingUser} onBack={() => setEditingProfile(false)}
+        onSave={async draft => { await account.saveProfile(draft); void refreshAll(); }}
+        onExpired={() => { setEditingProfile(false); openDiscussionLogin(true); }} /> : null}
       <CommunityScreen visible={communityEntry !== null} initialScreen={typeof communityEntry === 'string' ? communityEntry : 'home'}
         initialSubmission={typeof communityEntry === 'object' ? communityEntry ?? undefined : undefined} onClose={() => {
         if (communityEntry !== 'security' && communityEntry !== 'login') void refreshAll();
         setCommunityEntry(null);
       }} account={account} />
-      {!article && (tab !== 'map' || mapView === 'home') ? <View style={s.nav} accessibilityRole="tablist">
+      {!article && !commentPlace && !editingUser && (tab !== 'map' || mapView === 'home') ? <View style={s.nav} accessibilityRole="tablist">
         {tabs.map(item => (
           <Pressable key={item.key} testID={`tab-${item.key}`} accessibilityRole="tab" accessibilityLabel={item.label}
             accessibilityState={{ selected: tab === item.key }}

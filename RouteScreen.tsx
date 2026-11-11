@@ -3,6 +3,7 @@ import { Modal, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Alert, Image, Pressable, Text } from './ui';
 import AppIcon from './AppIcon';
+import { AuthorByline } from './AuthorIdentity';
 import PlaceSearch from './PlaceSearch';
 import MapCanvas from './MapCanvas';
 import StepIllustration from './StepIllustration';
@@ -50,7 +51,7 @@ export default function RouteScreen({ initialOrigin, initialDestination, initial
       {choices.length ? <View style={s.routeChoices}><Text style={s.sectionTitle}>选择路线</Text>{choices.map(route => <Pressable key={route.id} accessibilityRole="radio" accessibilityState={{ checked: routeId === route.id }} onPress={() => { setRouteId(route.id); setAllSteps(false); }} style={s.choice}><AppIcon name="walk" size={18} /><Text raw style={[s.rowTitle,s.flex]}>{route.title}</Text>{routeId === route.id ? <AppIcon name="check" size={18} /> : null}</Pressable>)}<Pressable accessibilityRole="radio" accessibilityState={{ checked: !shared }} onPress={() => { setRouteId(null); setAllSteps(false); }} style={s.choice}><Text style={[s.meta,s.flex]}>演示路线</Text>{!shared ? <AppIcon name="check" size={18} /> : null}</Pressable></View> : null}
       <View style={s.routeMap}><MapCanvas selected={destination} origin={origin} variant="route" /><Text style={s.mapNote}>起点与终点 · © OpenStreetMap</Text></View>
       <View style={s.routeBody}>
-        {shared ? <><Text raw style={s.sharedTitle}>{shared.title}</Text><Text raw style={s.body}>{shared.body}</Text><Text style={s.sharedNote}>同学分享的路线 · 请按图文步骤核对。</Text></> : <><View style={s.heading}><View><Text style={s.body}><Text style={s.duration}>8</Text> 分钟 · 示例</Text><Text style={s.meta}>480 m · 演示步行路线</Text></View><Text style={s.badge}>步行</Text></View><Text style={s.meta}>步行途中按指引乘坐电梯或经过楼梯。</Text></>}
+        {shared ? <><Text raw style={s.sharedTitle}>{shared.title}</Text>{shared.authorProfile ? <AuthorByline author={shared.authorProfile} /> : null}<Text raw style={s.body}>{shared.body}</Text><Text style={s.sharedNote}>同学分享的路线 · 请按图文步骤核对。</Text></> : <><View style={s.heading}><View><Text style={s.body}><Text style={s.duration}>8</Text> 分钟 · 示例</Text><Text style={s.meta}>480 m · 演示步行路线</Text></View><Text style={s.badge}>步行</Text></View><Text style={s.meta}>步行途中按指引乘坐电梯或经过楼梯。</Text></>}
         <View style={s.heading}><Text style={s.sectionTitle}>{t('图文路线指引 · {count} 步', { count: steps.length })}</Text>{!shared ? <Text style={s.small}>每步配图待完善</Text> : null}</View>
         {steps.slice(0, expanded ? steps.length : 3).map((step, index) => <View key={(shared?.id || 'demo') + index} style={s.step}><View style={s.track}><View style={s.stepDot}><Text style={s.stepNumber}>{index + 1}</Text></View>{index < steps.length - 1 ? <View style={s.stepLine} /> : null}</View><View style={s.stepCopy}><Text raw style={s.rowTitle}>{step.title}</Text><Text raw={Boolean(shared)} style={s.body}>{step.copy}</Text></View><StepPhoto uri={step.imageUrl} index={index} label={step.photo} /></View>)}
         {!shared ? <Text style={s.note}>距离、用时与通行方式均为演示，请勿据此实际导航。</Text> : null}

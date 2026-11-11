@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, BackHandler, RefreshControl, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { Pressable, Text } from './ui';
 import AppIcon, { IconName } from './AppIcon';
+import { accountAuthor, AuthorByline, Avatar } from './AuthorIdentity';
 import { getCampusRoute, getPlace, Place, placeName } from './campus';
 import { PlaceRow } from './PlaceSearch';
 import { PlaceRecords } from './usePlaces';
@@ -26,13 +27,13 @@ const guestBenefits: { icon: IconName; title: string; description: string }[] = 
   { icon: 'history', title: '历史记录', description: '找回看过的地点、路线和帖子' },
 ];
 
-export default function ProfileScreen({ active, session, accountReady, onAccount, onContribute, sampleLocation, onSampleLocation, data, campus, bookmarks, records, routes, history, submissionsPaused, onOpenSubmission, onOpenPlace, onOpenRoute, onOpenContent, onOpenArticle }: {
+export default function ProfileScreen({ active, session, accountReady, onAccount, onContribute, sampleLocation, onSampleLocation, data, campus, bookmarks, records, routes, history, submissionsPaused, onOpenSubmission, onOpenPlace, onOpenRoute, onOpenContent, onOpenArticle, onEditProfile }: {
   active: boolean; session: Account | null; accountReady: boolean; onAccount: () => void; onContribute: () => void;
   history: ReturnType<typeof useRecentActivity>; submissionsPaused: boolean; onOpenSubmission: (submission: Submission) => void;
   sampleLocation: boolean; onSampleLocation: (value: boolean) => void;
   data: ReturnType<typeof useGuide>; campus: ReturnType<typeof useCampus>; bookmarks: Bookmarks; records: PlaceRecords; routes: RouteRecords;
   onOpenPlace: (place: Place) => void; onOpenRoute: (route: RouteBookmark) => void; onOpenContent: (entry: GuideEntry) => void;
-  onOpenArticle: (id: string) => void;
+  onOpenArticle: (id: string) => void; onEditProfile: () => void;
 }) {
   const [section, setSection] = useState<Section>('places');
   const [panel, setPanel] = useState<keyof typeof panels>('saved');
@@ -79,11 +80,16 @@ export default function ProfileScreen({ active, session, accountReady, onAccount
       </> : <>
       <View style={s.profile} testID="profile-member">
         <View style={s.identity}>
-          <View style={s.avatar}><AppIcon name="user" size={28} color={c.surface} /></View>
+          <Avatar uri={session.user.avatarUrl} size={52} />
           <View style={s.flex}>
-            <Text raw style={s.name}>{session.user.username}</Text>
-            <Text style={s.accountLabel}>已登录</Text>
+            <Text raw style={s.name}>{accountAuthor(session.user).name}</Text>
+            {session.user.bio ? <Text raw style={s.bio}>{session.user.bio}</Text> : null}
           </View>
+        </View>
+        <View style={s.profileActions}>
+          <Pressable testID="profile-edit" accessibilityRole="button" onPress={onEditProfile} style={s.accountAction}>
+            <AppIcon name="edit" size={15} color={c.tint} /><Text style={s.accountLabel}>编辑资料</Text>
+          </Pressable>
           <Pressable testID="profile-account" accessibilityRole="button" onPress={onAccount} style={s.accountAction}>
             <Text style={s.accountLabel}>账号与安全</Text><AppIcon name="chevron" size={14} color={c.tint} />
           </Pressable>
@@ -172,7 +178,9 @@ function SubmissionList({ token, section, onOpen }: { token: string; section: Se
   const visible = items.filter(item => submissionSections[item.kind] === section);
   return <>
     {visible.map(item => <Pressable key={item.id} testID={`profile-submission-${item.id}`} accessibilityRole="button" onPress={() => onOpen(item)} style={s.settingRow}>
-      <Text raw style={[s.rowTitle, s.flex]}>{item.title}</Text><Text style={s.meta}>{submissionStatuses[item.status]}</Text><AppIcon name="chevron" size={16} />
+      <View style={s.flex}><Text raw style={s.rowTitle}>{item.title}</Text>
+        {item.authorProfile ? <AuthorByline author={item.authorProfile} /> : null}
+      </View><Text style={s.meta}>{submissionStatuses[item.status]}</Text><AppIcon name="chevron" size={16} />
     </Pressable>)}
     {loading ? <ActivityIndicator color={c.green} style={s.empty} /> : failed ? <View style={s.empty}>
       <Text style={s.body}>暂时无法读取投稿。</Text><Pressable accessibilityRole="button" onPress={() => setRetry(value => value + 1)} style={s.subTab}><Text style={s.active}>重新加载</Text></Pressable>
@@ -226,9 +234,10 @@ const s = StyleSheet.create({
   createLabel: { color: c.green, fontSize: 15, fontWeight: '700', flexShrink: 1 },
   dim: { opacity: 0.7 },
   identity: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  avatar: { width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center', backgroundColor: '#347461' },
   name: { fontSize: 20, lineHeight: 28, fontWeight: '600', color: c.surface },
-  accountAction: { flexDirection: 'row', alignItems: 'center', gap: 3, minHeight: 48, maxWidth: '40%' },
+  bio: { color: c.tint, fontSize: 13, lineHeight: 19, marginTop: 3 },
+  profileActions: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 18 },
+  accountAction: { flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 48 },
   accountLabel: { flexShrink: 1, fontSize: 13, lineHeight: 20, color: c.tint },
   panelHeader: { width: '100%', maxWidth: 650, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, minHeight: 56 },
   title: { fontSize: 22, lineHeight: 28, color: c.ink, fontWeight: '600', flexShrink: 1 },

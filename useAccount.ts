@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import { Account, AccountResult, ApiError, authenticate, changeAccountPassword, fetchMe, recoverAccount, revokeSession, rotateRecoveryCode } from './communityApi';
+import { Account, AccountResult, ApiError, ProfileDraft, authenticate, changeAccountPassword, fetchMe, recoverAccount, revokeSession, rotateRecoveryCode, updateProfile } from './communityApi';
 
 const storageKey = 'hku-walk.account.v1';
 export default function useAccount() {
@@ -46,6 +46,18 @@ export default function useAccount() {
     async signIn(mode: 'login' | 'register', username: string, password: string) {
       const value = await authenticate(mode, username, password);
       await accept(value);
+    },
+    async saveProfile(draft: ProfileDraft) {
+      const active = current.current;
+      if (!active) throw new ApiError(401, '请先登录。');
+      const { user } = await updateProfile(active.token, draft);
+      if (current.current?.token !== active.token) return;
+      const updated = { token: active.token, user };
+      try { await persist(updated); }
+      catch {
+        current.current = updated;
+        setSession(updated);
+      }
     },
     async changePassword(currentPassword: string, newPassword: string) {
       if (!current.current) throw new Error('请先登录。');

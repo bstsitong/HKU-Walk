@@ -1,5 +1,6 @@
 import { getLanguage, t, translate } from './localization';
 import type { IconName } from './AppIcon';
+import type { AuthorProfile } from './guideApi';
 import { matchCampusPlaces } from './placeMatching';
 import fallbackPlaces from './server/guide/base_places_v2.json';
 export const categories = [
@@ -29,6 +30,7 @@ export type Place = {
   imageUrl?: string;
   isCommunity?: boolean;
   mapPositionPending?: boolean;
+  authorProfile?: AuthorProfile | null;
 };
 
 // These coordinates are normalized to the campus map, separate from GPS coordinates.
@@ -38,7 +40,7 @@ export const basePlaces: Place[] = fallbackPlaces.map(place => ({
 
 export const places: Place[] = [...basePlaces];
 export type CampusRoute = { id: string; entryId: string; title: string; body: string; originId: string; destinationId: string;
-  steps: { title: string; body: string; imageUrl?: string }[]; isCommunity: true; updatedAt: string };
+  steps: { title: string; body: string; imageUrl?: string }[]; isCommunity: true; updatedAt: string; authorProfile?: AuthorProfile | null };
 export const campusRoutes: CampusRoute[] = [];
 export function setCommunityCampus(newPlaces: Place[], newRoutes: CampusRoute[], builtins = basePlaces) {
   places.splice(0, places.length, ...builtins, ...newPlaces);

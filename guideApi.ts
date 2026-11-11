@@ -2,6 +2,7 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
 export type GuideKey = 'links' | 'tips' | 'food' | 'groups';
+export type AuthorProfile = { name: string; avatarUrl: string };
 export type GuideEntry = {
   id: string;
   title: string;
@@ -12,6 +13,7 @@ export type GuideEntry = {
   isCommunity?: boolean;
   mapType?: 'place' | 'route' | '';
   updatedAt: string;
+  authorProfile?: AuthorProfile | null;
 };
 export type GuideCategory = {
   key: GuideKey;
@@ -25,7 +27,7 @@ export type GuideArticle = GuideEntry & {
   contributor: string; publishedAt: string | null; likeCount: number; commentCount: number; liked: boolean;
   sourcePages: Record<string, GuideSourcePage>; markdown: boolean;
 };
-export type GuideComment = { id: string; author: string; body: string; createdAt: string };
+export type DiscussionComment = { id: string; author: string; authorProfile?: AuthorProfile; body: string; createdAt: string };
 
 function defaultHost() {
   const hostUri = Constants.expoConfig?.hostUri;

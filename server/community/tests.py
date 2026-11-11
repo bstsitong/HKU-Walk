@@ -2,6 +2,7 @@ import io
 import tempfile
 from datetime import timedelta
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from PIL import Image
 from django.contrib.auth import get_user_model
@@ -56,6 +57,35 @@ class CommunityFixture(TestCase):
         return Submission.objects.get(pk=response.json()["submission"]["id"])
 
 class CommunityTests(CommunityFixture):
+    def test_profile_updates_existing_submission_identity_and_serves_cleaned_avatar(self):
+        endpoint = "/api/accounts/me/"
+        item = self.submit()
+        review_submission(item.pk, item.revision, "approved", "", self.admin)
+        self.assertEqual(self.anon.patch(endpoint, {"nickname": "访客"}, format="json").status_code, 401)
+        self.assertEqual(self.api.get(endpoint).json()["user"]["nickname"], "")
+        result = self.api.patch(endpoint, {"nickname": "  港大漫游者  ", "bio": "喜欢校园散步", "avatar": photo()}, format="multipart")
+        self.assertEqual(result.status_code, 200, result.content)
+        user = result.json()["user"]
+        self.assertEqual((user["username"], user["nickname"], user["bio"]), ("student_one", "港大漫游者", "喜欢校园散步"))
+        avatar_path = urlsplit(user["avatarUrl"]).path
+        image = self.anon.get(avatar_path)
+        self.assertEqual(image.status_code, 200)
+        self.assertEqual(image.headers["Content-Type"], "image/jpeg")
+        with Image.open(io.BytesIO(b"".join(image.streaming_content))) as cleaned:
+            self.assertEqual(cleaned.size, (256, 256))
+            self.assertFalse(cleaned.getexif())
+        expected = {"name": user["nickname"], "avatarUrl": user["avatarUrl"]}
+        self.assertEqual(self.api.get(f"/api/submissions/{item.pk}/").json()["submission"]["authorProfile"], expected)
+        article = next(article for article in self.anon.get("/api/guide/").json()["articles"] if article["title"] == item.title)
+        self.assertEqual(article["authorProfile"], expected)
+        self.assertEqual(self.api.patch(endpoint, {"nickname": "x" * 33}, format="json").status_code, 400)
+        with self.captureOnCommitCallbacks(execute=True):
+            updated = self.api.patch(endpoint, {"remove_avatar": True}, format="json").json()["user"]
+        self.assertEqual(updated["avatarUrl"], "")
+        self.assertEqual(updated["nickname"], "港大漫游者")
+        self.assertEqual(self.anon.get(avatar_path).status_code, 404)
+        self.assertFalse(list((Path(self.directory.name) / "avatars").glob("*.jpg")))
+
     def test_registration_normalizes_names_hashes_password_and_never_grants_staff(self):
         response = self.anon.post("/api/accounts/register/", {"username": "  New_Student  ", "password": "Study-river-2948", "is_staff": True}, format="json")
         self.assertEqual(response.status_code, 201)

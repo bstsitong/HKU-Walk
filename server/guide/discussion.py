@@ -8,17 +8,19 @@ from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 
 from community.views import PrivateResponseView
+from community.profiles import author_data
 
 from .articles import ARTICLE_SCOPE
-from .models import GuideComment, GuideLike, GuidePost
+from .models import CampusPlace, GuideLike, GuidePost
 
 
 def published_article(pk):
     return get_object_or_404(GuidePost.objects.filter(ARTICLE_SCOPE), pk=pk, publication__published=True)
 
 
-def comment_data(comment):
-    return {"id": str(comment.pk), "author": comment.author.get_username(),
+def comment_data(request, comment):
+    author = author_data(request, comment.author)
+    return {"id": str(comment.pk), "author": author["name"], "authorProfile": author,
             "body": comment.body, "createdAt": comment.created_at.isoformat()}
 
 
@@ -31,33 +33,43 @@ class CommentInput(serializers.Serializer):
     request_id = serializers.UUIDField()
 
 
-class ArticleComments(PrivateResponseView):
+class Comments(PrivateResponseView):
     throttle_classes = [ScopedRateThrottle]
 
     def get_permissions(self):
         return [AllowAny()] if self.request.method in ("GET", "HEAD", "OPTIONS") else [IsAuthenticated()]
 
     def post(self, request, pk):
-        article = published_article(pk)
+        target = self.target(pk)
         data = CommentInput(data=request.data)
         data.is_valid(raise_exception=True)
         body = data.validated_data["body"]
-        comment, created = GuideComment.objects.get_or_create(post=article, author=request.user,
+        comment, created = target.comments.get_or_create(author=request.user,
             request_id=data.validated_data["request_id"], defaults={"body": body})
         if comment.body != body:
             return Response({"detail": "请重新发布评论。"}, status=409)
-        return Response({"comment": comment_data(comment), "commentCount": article.comments.count()}, status=201 if created else 200)
+        return Response({"comment": comment_data(request, comment), "commentCount": target.comments.count()}, status=201 if created else 200)
 
     def get(self, request, pk):
-        article = published_article(pk)
+        target = self.target(pk)
         paginator = CommentsPage()
-        page = paginator.paginate_queryset(article.comments.select_related("author"), request)
-        return Response({"comments": [comment_data(item) for item in page], "count": paginator.page.paginator.count,
+        page = paginator.paginate_queryset(target.comments.select_related("author__profile"), request)
+        return Response({"comments": [comment_data(request, item) for item in page], "count": paginator.page.paginator.count,
                          "nextPage": paginator.page.next_page_number() if paginator.page.has_next() else None})
 
     def get_throttles(self):
         self.throttle_scope = "submit" if self.request.method == "POST" else None
         return super().get_throttles()
+
+
+class ArticleComments(Comments):
+    target = staticmethod(published_article)
+
+
+class PlaceComments(Comments):
+    @staticmethod
+    def target(pk):
+        return get_object_or_404(CampusPlace, pk=pk, publication__published=True)
 
 
 class ArticleLike(PrivateResponseView):

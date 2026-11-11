@@ -134,6 +134,18 @@ class CampusPlace(ContentFields):
         return self.name_zh
 
 
+class PlaceComment(models.Model):
+    place = models.ForeignKey(CampusPlace, on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    body = models.TextField(max_length=1000)
+    request_id = models.UUIDField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        constraints = [models.UniqueConstraint(fields=["place", "author", "request_id"], name="unique_place_comment_request")]
+
+
 class CampusRoute(ContentFields):
     publication = models.OneToOneField(Publication, on_delete=models.CASCADE, primary_key=True, related_name="route")
     title = models.CharField("路线名称", max_length=160)

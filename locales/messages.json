@@ -791,6 +791,46 @@
     "en": "Choose different start and destination places",
     "zh-Hant": "請為起點和終點選擇不同地點"
   },
+  "编辑资料": {
+    "en": "Edit profile",
+    "zh-Hant": "編輯資料"
+  },
+  "选择头像": {
+    "en": "Choose photo",
+    "zh-Hant": "選擇頭像"
+  },
+  "更换头像": {
+    "en": "Change photo",
+    "zh-Hant": "更換頭像"
+  },
+  "移除头像": {
+    "en": "Remove photo",
+    "zh-Hant": "移除頭像"
+  },
+  "头像": {
+    "en": "Profile photo",
+    "zh-Hant": "頭像"
+  },
+  "昵称": {
+    "en": "Display name",
+    "zh-Hant": "暱稱"
+  },
+  "个人简介": {
+    "en": "Bio",
+    "zh-Hant": "個人簡介"
+  },
+  "保存资料": {
+    "en": "Save profile",
+    "zh-Hant": "保存資料"
+  },
+  "地点评论": {
+    "en": "Place comments",
+    "zh-Hant": "地點評論"
+  },
+  "{count} 条评论": {
+    "en": "Comments ({count})",
+    "zh-Hant": "{count} 條評論"
+  },
   "我的": {
     "en": "Me",
     "zh-Hant": "我的"

@@ -5,6 +5,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
+from community.profiles import author_data
 
 from .catalog import content_image, published_routes, route_steps_data
 from .campus_map import LEGACY_PLACES, MAP_VERSION
@@ -12,10 +13,16 @@ from .articles import ARTICLE_KEYS, ARTICLE_SCOPE
 from .models import CampusPlace, GuideCategory, GuideLike, GuidePost, Publication, RouteStep
 
 
+def publication_author(request, publication):
+    source = publication.current_submission
+    return author_data(request, source.author) if source else None
+
+
 def guide_card(request, content, map_type=""):
     publication = content.publication
     return {
         "id": str(publication.pk), "title": content.title, "body": content.body,
+        "authorProfile": publication_author(request, publication),
         "externalUrl": content.external_url, "imageUrl": content_image(request, content, publication),
         "isExample": getattr(content, "is_example", False), "updatedAt": publication.updated_at.isoformat(),
         "isCommunity": bool(map_type) or publication.current_submission_id is not None, "mapType": map_type,
@@ -26,9 +33,11 @@ def article_card(request, post):
     publication = post.publication
     submission = publication.current_submission
     published_at = post.published_at or (submission.reviewed_at if submission else None)
+    card = guide_card(request, post)
+    author = card["authorProfile"]
     return {
-        **guide_card(request, post),
-        "contributor": post.contributor or (submission.author.get_username() if submission else ""),
+        **card,
+        "contributor": post.contributor or (author["name"] if author else ""),
         "sourcePages": post.source_pages, "markdown": publication.key in ARTICLE_KEYS,
         "publishedAt": published_at.isoformat() if published_at else None,
         "likeCount": post.like_count, "commentCount": post.comment_count, "liked": post.viewer_liked,
@@ -39,12 +48,12 @@ def article_card(request, post):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def guide_content(request):
-    posts = GuidePost.objects.filter(publication__published=True).select_related("publication__current_submission")
+    posts = GuidePost.objects.filter(publication__published=True).select_related("publication__current_submission__author__profile")
     categories = GuideCategory.objects.prefetch_related(Prefetch("posts", queryset=posts.exclude(publication__key__in=ARTICLE_KEYS), to_attr="public_posts"))
     # Keep the existing guide shortcuts and bookmarks for shared places and routes.
     map_items = [
-        *CampusPlace.objects.filter(publication__published=True, is_builtin=False).select_related("publication__current_submission"),
-        *published_routes().select_related("publication__current_submission"),
+        *CampusPlace.objects.filter(publication__published=True, is_builtin=False).select_related("publication__current_submission__author__profile"),
+        *published_routes().select_related("publication__current_submission__author__profile"),
     ]
     result = []
     for category in categories:
@@ -61,7 +70,7 @@ def guide_content(request):
             ],
         })
     liked = Exists(GuideLike.objects.filter(post_id=OuterRef("pk"), user=request.user)) if request.user.is_authenticated else Value(False)
-    articles = posts.filter(ARTICLE_SCOPE).select_related("publication__current_submission__author").annotate(
+    articles = posts.filter(ARTICLE_SCOPE).annotate(
         like_count=Count("likes", distinct=True), comment_count=Count("comments", distinct=True), viewer_liked=liked,
     ).order_by("publication__sort_order", "publication_id")
     return JsonResponse({"categories": result, "articles": [article_card(request, post) for post in articles]},
@@ -73,7 +82,7 @@ def guide_content(request):
 def campus_content(request):
     version = MAP_VERSION if request.GET.get("mapVersion") == str(MAP_VERSION) else 1
     places, base_places = [], []
-    place_query = CampusPlace.objects.filter(publication__published=True).select_related("publication__current_submission")
+    place_query = CampusPlace.objects.filter(publication__published=True).select_related("publication__current_submission__author__profile")
     for place in place_query.order_by("publication__sort_order", "publication_id"):
         data = {
             "id": place.pk, "entryId": str(place.publication_id), "name": place.name_zh,
@@ -81,6 +90,7 @@ def campus_content(request):
             "category": place.category, "x": place.map_x, "y": place.map_y, "description": place.body,
             "entrance": place.entrance, "floor": place.floor, "imageUrl": content_image(request, place, place.publication),
             "isCommunity": not place.is_builtin,
+            "authorProfile": publication_author(request, place.publication),
         }
         if version == 1:
             if place.is_builtin and place.pk in LEGACY_PLACES:
@@ -91,11 +101,12 @@ def campus_content(request):
             data["mapPositionPending"] = place.map_version != version
         (base_places if place.is_builtin else places).append(data)
     visible_ids = {place["id"] for place in base_places + places}
-    route_query = published_routes().select_related("publication").prefetch_related(
+    route_query = published_routes().select_related("publication__current_submission__author__profile").prefetch_related(
         Prefetch("steps", queryset=RouteStep.objects.select_related("photo")),
     ).order_by("publication__sort_order", "publication_id")
     routes = [{
         "id": f"community-route-{route.pk}", "entryId": str(route.pk), "title": route.title,
+        "authorProfile": publication_author(request, route.publication),
         "body": route.body, "originId": route.origin_id, "destinationId": route.destination_id,
         "steps": route_steps_data(request, route), "isCommunity": True,
         "updatedAt": route.publication.updated_at.isoformat(),

@@ -1,6 +1,10 @@
 import uuid
 from django.conf import settings
+from django.core.files.storage import default_storage
+from django.db import transaction
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 class MobileSession(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -12,6 +16,18 @@ class RecoveryCredential(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="recovery_credential")
     token_hash = models.CharField(max_length=64, unique=True)
     created_at = models.DateTimeField(auto_now=True)
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile")
+    nickname = models.CharField(max_length=32, blank=True)
+    bio = models.CharField(max_length=160, blank=True)
+    avatar = models.FileField(upload_to="avatars/", blank=True, db_index=True)
+
+
+@receiver(post_delete, sender=UserProfile)
+def delete_profile_avatar(sender, instance, using, **kwargs):
+    if instance.avatar:
+        transaction.on_commit(lambda: default_storage.delete(instance.avatar.name), using=using, robust=True)
 
 class StoredMedia(models.Model):
     """Private image bytes for small, diskless deployments; never exposed by the Data API."""

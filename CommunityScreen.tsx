@@ -7,6 +7,7 @@ import { Alert, Image, Pressable, Text } from './ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import AppIcon, { IconName } from './AppIcon';
+import { accountAuthor, AuthorByline } from './AuthorIdentity';
 import { ApiError, contributionImageSource, Draft, fetchSubmission, fetchSubmissions, Kind, sendSubmission, Submission } from './communityApi';
 import useAccount from './useAccount';
 import { Button, Field } from './CommunityUI';
@@ -222,6 +223,7 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
           </ScrollView>
         ) : screen === 'form' ? (
           <ScrollView contentContainerStyle={s.page} keyboardShouldPersistTaps="handled">
+            {account.session ? <AuthorByline author={accountAuthor(account.session.user)} /> : null}
             {editing?.reviewNote ? <View style={s.feedback}><Text style={s.label}>管理员建议</Text><Text raw style={s.copy}>{editing.reviewNote}</Text></View> : null}
             {editing?.status === 'approved' ? <Text style={s.copy}>提交的是一个新版本。审核通过前，大家仍会看到当前已发布的内容。</Text> : null}
             <Text style={s.label}>投稿类型</Text>
@@ -243,6 +245,7 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
           <ScrollView contentContainerStyle={s.page} refreshControl={<RefreshControl refreshing={loading} onRefresh={() => void load()} tintColor={green} />}>
             <Status value={selected.status} />
             <Text raw accessibilityRole="header" style={[s.title, s.detailTitle]}>{selected.title}</Text>
+            {selected.authorProfile ? <AuthorByline author={selected.authorProfile} /> : null}
             <Text style={s.hint}>{selected.isEdit ? '内容修改申请 · ' : ''}{kinds.find(kind => kind.key === selected.kind)?.label} · {dateText(selected.createdAt)}</Text>
             <View style={s.feedback}><Text style={s.label}>{selected.status === 'pending' ? '已收到，等待管理员审核' : selected.status === 'approved' ? '审核通过' : '修改后可以重新提交'}</Text>
               <Text style={s.copy}>{selected.reviewNote ? <Text raw>{selected.reviewNote}</Text> : (selected.status === 'pending' ? '审核结果会显示在这里，下拉即可刷新。' : selected.kind === 'new_place' || selected.kind === 'new_route' ? '内容已发布到地图或路线列表，也可在学生指南查看。' : '内容已发布到对应的学生指南分类。')}</Text></View>

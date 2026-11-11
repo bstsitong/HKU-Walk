@@ -17,15 +17,18 @@ from guide.catalog import content_image, publication_map_data, published_routes
 from guide.models import Publication
 
 from .authentication import MobileAuthentication, create_session
-from .models import Submission, SubmissionStepImage, RecoveryCredential
+from .models import Submission, SubmissionStepImage, RecoveryCredential, UserProfile
+from .profiles import ProfileInput, author_data, update_profile
 from .map_content import enrich_map_data
 from .serializers import (RegisterInput, AccountInput, SubmissionInput, ChangePasswordInput,
     RecoveryCodeInput, RecoverAccountInput, check_password)
 from .services import submit_new, resubmit, submit_edit
 from .accounts import issue_recovery_code, change_password, rotate_recovery_code, recover_account
 
-def user_data(user):
-    return {"id": str(user.pk), "username": user.username,
+def user_data(request, user):
+    profile = getattr(user, "profile", None)
+    return {"id": str(user.pk), "username": user.username, "nickname": profile.nickname if profile else "",
+        "bio": profile.bio if profile else "", "avatarUrl": author_data(request, user)["avatarUrl"],
         "hasRecoveryCode": RecoveryCredential.objects.filter(user=user).exists()}
 
 def image_url(request, item):
@@ -53,6 +56,7 @@ def published_data(request, item):
 def submission_data(request, item):
     return {
         "id": str(item.pk), "kind": item.kind, "title": item.title, "body": item.body,
+        "authorProfile": author_data(request, item.author),
         "location": item.location, "externalUrl": item.external_url, "imageUrl": image_url(request, item),
         "status": item.status, "reviewNote": item.review_note, "revision": item.revision,
         "createdAt": item.created_at.isoformat(), "updatedAt": item.updated_at.isoformat(),
@@ -84,7 +88,7 @@ class Register(PrivateResponseView):
                 recovery_code = issue_recovery_code(user)
         except IntegrityError:
             raise ValidationError({"username": "这个账号已被使用。"})
-        return Response({"token": token, "user": user_data(user), "recoveryCode": recovery_code}, status=201)
+        return Response({"token": token, "user": user_data(request, user), "recoveryCode": recovery_code}, status=201)
 
 class Login(PrivateResponseView):
     permission_classes = [AllowAny]
@@ -98,11 +102,35 @@ class Login(PrivateResponseView):
         user = authenticate(request=request, **data.validated_data)
         if user is None:
             return Response({"detail": "账号或密码不正确。"}, status=401)
-        return Response({"token": create_session(user), "user": user_data(user)})
+        return Response({"token": create_session(user), "user": user_data(request, user)})
 
 class Me(PrivateResponseView):
+    throttle_classes = [ScopedRateThrottle]
+
+    def get_throttles(self):
+        self.throttle_scope = "profile" if self.request.method == "PATCH" else None
+        return super().get_throttles()
+
     def get(self, request):
-        return Response({"user": user_data(request.user)})
+        return Response({"user": user_data(request, request.user)})
+
+    def patch(self, request):
+        data = ProfileInput(data=request.data)
+        data.is_valid(raise_exception=True)
+        request.user.profile = update_profile(request.user, data.validated_data)
+        return Response({"user": user_data(request, request.user)})
+
+
+class ProfileAvatar(PrivateResponseView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request, key):
+        profile = get_object_or_404(UserProfile, avatar=f"avatars/{key}.jpg", user__is_active=True)
+        try:
+            return FileResponse(profile.avatar.open("rb"), content_type="image/jpeg")
+        except FileNotFoundError:
+            raise Http404
 
 class Logout(PrivateResponseView):
     def post(self, request):
@@ -118,7 +146,7 @@ class ChangePassword(PrivateResponseView):
         data.is_valid(raise_exception=True)
         check_password(data.validated_data["new_password"], request.user)
         user, token = change_password(request.user, **data.validated_data)
-        return Response({"token": token, "user": user_data(user)})
+        return Response({"token": token, "user": user_data(request, user)})
 
 class RotateRecoveryCode(PrivateResponseView):
     throttle_classes = [ScopedRateThrottle]
@@ -128,7 +156,7 @@ class RotateRecoveryCode(PrivateResponseView):
         data = RecoveryCodeInput(data=request.data)
         data.is_valid(raise_exception=True)
         code = rotate_recovery_code(request.user, data.validated_data["current_password"])
-        return Response({"recoveryCode": code, "user": user_data(request.user)})
+        return Response({"recoveryCode": code, "user": user_data(request, request.user)})
 
 class RecoverAccount(PrivateResponseView):
     permission_classes = [AllowAny]
@@ -141,12 +169,13 @@ class RecoverAccount(PrivateResponseView):
         data.is_valid(raise_exception=True)
         user, token, code = recover_account(data.validated_data["recovery_code"],
             data.validated_data["new_password"], check_password)
-        return Response({"token": token, "user": user_data(user), "recoveryCode": code})
+        return Response({"token": token, "user": user_data(request, user), "recoveryCode": code})
 
 def owned_submissions(user):
     active = Submission.objects.filter(edit_of_id=OuterRef("target_entry_id"), status__in=["pending", "changes_requested"])
     targets = ("edit_of", "public_entry")
     return Submission.objects.filter(author=user).select_related(
+        "author__profile",
         *(f"{target}__{child}" for target in targets for child in ("current_submission", "post", "place", "route")),
     ).prefetch_related(
         "step_images", *(f"{target}__route__steps__photo" for target in targets),

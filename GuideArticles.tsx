@@ -1,21 +1,25 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, BackHandler, Keyboard, KeyboardAvoidingView, Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { BackHandler, Keyboard, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import AppIcon, { IconName } from './AppIcon';
-import { ApiError, fetchGuideComments, sendGuideComment } from './communityApi';
-import { GuideArticle, GuideComment } from './guideApi';
+import { AuthorByline } from './AuthorIdentity';
+import type { Account } from './communityApi';
+import Discussion from './Discussion';
+import { GuideArticle } from './guideApi';
 import GuideMarkdown, { guideExcerpt } from './GuideMarkdown';
 import { openLink } from './GuideScreens';
 import { formatDate } from './localization';
 import { normalizeSearchText } from './placeMatching';
 import { colors as c } from './theme';
-import { Alert, Image, Pressable, Text, TextInput } from './ui';
+import { Image, Pressable, Text, TextInput } from './ui';
 import useGuide from './useGuide';
 
 type Bookmarks = { saved: string[]; ready: boolean; toggle: (id: string) => void };
 type Actions = { bookmarks: Bookmarks; liking: readonly string[]; onLike: (article: GuideArticle) => void };
 
 function ArticleMeta({ article }: { article: GuideArticle }) {
-  const meta = [article.contributor, article.publishedAt && formatDate(article.publishedAt)].filter(Boolean).join(' · ');
+  const date = article.publishedAt ? formatDate(article.publishedAt) : undefined;
+  if (article.authorProfile) return <View style={s.byline}><AuthorByline author={article.authorProfile} detail={date} /></View>;
+  const meta = [article.contributor, date].filter(Boolean).join(' · ');
   return meta ? <Text raw style={s.meta}>{meta}</Text> : null;
 }
 
@@ -51,7 +55,7 @@ export function GuideArticles({ data, bookmarks, liking, onLike, onOpen, onContr
   const results = data.articles.filter(article => {
     if (!terms.length) return true;
     const pages = Object.values(article.sourcePages ?? {}).map(page => `${page.title} ${page.body}`).join(' ');
-    const text = normalizeSearchText(`${article.title} ${article.body} ${article.contributor} ${pages}`);
+    const text = normalizeSearchText(`${article.title} ${article.body} ${article.authorProfile?.name || article.contributor} ${pages}`);
     return terms.every(term => text.includes(term));
   });
   const open = (id: string, comments = false) => { Keyboard.dismiss(); onOpen(id, comments); };
@@ -88,8 +92,8 @@ export function GuideArticles({ data, bookmarks, liking, onLike, onOpen, onContr
   </View>;
 }
 
-export function GuideArticleScreen({ article, initiallyComments, token, onBack, onLogin, onCommentCount, bookmarks, liking, onLike }: Actions & {
-  article: GuideArticle; initiallyComments: boolean; token?: string; onBack: () => void;
+export function GuideArticleScreen({ article, initiallyComments, session, onBack, onLogin, onCommentCount, bookmarks, liking, onLike }: Actions & {
+  article: GuideArticle; initiallyComments: boolean; session: Account | null; onBack: () => void;
   onLogin: (expired?: boolean) => void; onCommentCount: (count: number) => void;
 }) {
   const [comments, showComments] = useState(initiallyComments);
@@ -111,7 +115,7 @@ export function GuideArticleScreen({ article, initiallyComments, token, onBack, 
       <Pressable testID="article-back" accessibilityRole="button" accessibilityLabel="返回" onPress={back} style={s.iconButton}><AppIcon name="back" size={20} /></Pressable>
       <Text accessibilityRole="header" style={s.barTitle}>{comments ? '评论' : '学生指南'}</Text>
     </View>
-    {comments ? <Discussion article={article} token={token} onLogin={onLogin} onCount={onCommentCount} /> : (
+    {comments ? <Discussion kind="guide" id={article.id} title={article.title} session={session} onLogin={onLogin} onCount={onCommentCount} /> : (
       <>
         <ScrollView style={[s.flex, sourcePage && s.hidden]} contentContainerStyle={s.page}>
           <Text raw accessibilityRole="header" style={s.title}>{article.title}</Text>
@@ -130,71 +134,6 @@ export function GuideArticleScreen({ article, initiallyComments, token, onBack, 
   </View>;
 }
 
-function Discussion({ article, token, onLogin, onCount }: {
-  article: GuideArticle; token?: string; onLogin: (expired?: boolean) => void; onCount: (count: number) => void;
-}) {
-  const [items, setItems] = useState<GuideComment[]>([]);
-  const [nextPage, setNextPage] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-  const [body, setBody] = useState('');
-  const [sending, setSending] = useState(false);
-  const posting = useRef(false);
-  const fetching = useRef(false);
-  const requestId = useRef<string | null>(null);
-  const load = async (page = 1) => {
-    if (fetching.current || posting.current) return;
-    fetching.current = true;
-    setLoading(true); setFailed(false);
-    try {
-      const result = await fetchGuideComments(article.id, page);
-      setItems(current => page === 1 ? result.comments : [...current, ...result.comments.filter(item => !current.some(previous => previous.id === item.id))]);
-      setNextPage(result.nextPage); onCount(result.count);
-    } catch { setFailed(true); }
-    finally { fetching.current = false; setLoading(false); }
-  };
-  useEffect(() => { void load(); }, [article.id]);
-  const askLogin = (expired = false) => Alert.alert('登录后才能评论', undefined, [{ text: '取消', style: 'cancel' }, { text: '去登录', onPress: () => onLogin(expired) }]);
-  const post = async () => {
-    if (!token) { askLogin(); return; }
-    if (!body.trim() || posting.current || fetching.current) return;
-    posting.current = true; setSending(true);
-    requestId.current ??= 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, value => {
-      const digit = Math.floor(Math.random() * 16);
-      return (value === 'x' ? digit : (digit & 3) | 8).toString(16);
-    });
-    try {
-      const result = await sendGuideComment(token, article.id, body, requestId.current);
-      setItems(current => [result.comment, ...current.filter(item => item.id !== result.comment.id)]);
-      onCount(result.commentCount); setBody(''); requestId.current = null; Keyboard.dismiss();
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 401) askLogin(true);
-      else Alert.alert('评论发送失败', error instanceof Error ? error.message : '请稍后重试。');
-    } finally { posting.current = false; setSending(false); }
-  };
-  return <KeyboardAvoidingView style={s.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-    <ScrollView style={s.flex} contentContainerStyle={s.page} keyboardShouldPersistTaps="handled"
-      refreshControl={<RefreshControl refreshing={loading} onRefresh={() => void load()} tintColor={c.green} />}>
-      <Text raw style={s.cardTitle}>{article.title}</Text>
-      {items.map(item => <View key={item.id} style={s.comment}>
-        <View style={s.commentMeta}><Text raw style={s.author}>{item.author}</Text><Text raw style={s.meta}>{formatDate(item.createdAt)}</Text></View>
-        <Text raw style={s.body}>{item.body}</Text>
-      </View>)}
-      {loading && !items.length ? <ActivityIndicator color={c.green} style={s.empty} /> : null}
-      {failed ? <Action icon="refresh" label="重新加载" onPress={() => void load()} /> : null}
-      {!items.length && !loading && !failed ? <Text style={s.empty}>还没有评论</Text> : null}
-      {nextPage ? <Action icon="comment" label="查看更多评论" disabled={loading} onPress={() => void load(nextPage)} /> : null}
-    </ScrollView>
-    <View style={s.composer}>
-      {token ? <>
-        <TextInput testID="guide-comment-input" accessibilityLabel="写评论" placeholder="写评论" value={body} maxLength={1000} multiline editable={!sending}
-          onChangeText={value => { requestId.current = null; setBody(value); }} style={[s.input, s.commentInput]} />
-        <Action icon="arrow" label="发布评论" testID="guide-comment-submit" disabled={!body.trim() || loading || sending} onPress={() => void post()} />
-      </> : <Action icon="comment" label="写评论" testID="guide-comment-guest" onPress={() => askLogin()} />}
-    </View>
-  </KeyboardAvoidingView>;
-}
-
 const s = StyleSheet.create({
   flex: { flex: 1 },
   hidden: { display: 'none' },
@@ -209,6 +148,7 @@ const s = StyleSheet.create({
   summary: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 16, paddingBottom: 12, minHeight: 64 },
   cardTitle: { fontSize: 18, lineHeight: 24, color: c.ink, fontWeight: '600' },
   meta: { fontSize: 12, lineHeight: 16, color: c.muted, marginTop: 4 },
+  byline: { marginTop: 6 },
   excerpt: { fontSize: 14, lineHeight: 20, color: c.muted, marginTop: 8 },
   body: { fontSize: 14, lineHeight: 22, color: c.ink },
   articleBody: { fontSize: 15, lineHeight: 24, color: c.ink, marginVertical: 12 },
@@ -221,9 +161,4 @@ const s = StyleSheet.create({
   topBar: { width: '100%', maxWidth: 650, alignSelf: 'center', minHeight: 56, flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 4 },
   barTitle: { fontSize: 18, lineHeight: 24, color: c.ink, fontWeight: '600' },
   cover: { width: '100%', aspectRatio: 16 / 9, marginTop: 12, borderRadius: 8 },
-  comment: { borderBottomWidth: 1, borderBottomColor: c.line, gap: 4, paddingVertical: 12 },
-  commentMeta: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 8 },
-  author: { fontSize: 14, color: c.ink, fontWeight: '600' },
-  composer: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 8, borderTopWidth: 1, borderTopColor: c.line, backgroundColor: c.app },
-  commentInput: { borderWidth: 1, borderColor: c.line, borderRadius: 8, backgroundColor: c.surface, maxHeight: 120 },
 });

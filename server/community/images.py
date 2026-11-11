@@ -6,7 +6,7 @@ from django.core.files.base import ContentFile
 from PIL import Image, ImageOps, UnidentifiedImageError
 from rest_framework.exceptions import ValidationError
 
-def clean_image(upload):
+def clean_image(upload, *, avatar=False):
     if upload.size > 5 * 1024 * 1024:
         raise ValidationError("图片请控制在 5 MB 以内。")
     raw = upload.read(5 * 1024 * 1024 + 1)
@@ -22,7 +22,10 @@ def clean_image(upload):
                     raise ValidationError("图片分辨率过大，请缩小后再上传。")
                 image.load()
                 cleaned = ImageOps.exif_transpose(image).convert("RGB")
-                cleaned.thumbnail((1600, 1600))
+                if avatar:
+                    cleaned = ImageOps.fit(cleaned, (256, 256), Image.Resampling.LANCZOS)
+                else:
+                    cleaned.thumbnail((1600, 1600))
                 output = io.BytesIO()
                 cleaned.save(output, format="JPEG", quality=85)
     except (UnidentifiedImageError, OSError, SyntaxError, Image.DecompressionBombError, Image.DecompressionBombWarning):

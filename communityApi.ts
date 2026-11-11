@@ -1,7 +1,7 @@
-import { API_BASE, GuideComment } from './guideApi';
+import { API_BASE, AuthorProfile, DiscussionComment } from './guideApi';
 import { MapDraftData, serializeMapDraft } from './mapSubmission';
 
-export type Account = { token: string; user: { id: string; username: string; hasRecoveryCode?: boolean } };
+export type Account = { token: string; user: { id: string; username: string; hasRecoveryCode?: boolean; nickname?: string; bio?: string; avatarUrl?: string } };
 export type AccountResult = Account & { recoveryCode?: string };
 export type Kind = 'food' | 'group' | 'place' | 'route' | 'new_place' | 'new_route';
 export type Submission = {
@@ -9,11 +9,13 @@ export type Submission = {
   imageUrl: string; status: 'pending' | 'approved' | 'changes_requested'; reviewNote: string;
   revision: number; createdAt: string; updatedAt: string; publicEntryId: string | null;
   isEdit: boolean; openEditId: string | null;
+  authorProfile?: AuthorProfile;
   mapData?: MapDraftData;
   publishedContent: { title: string; body: string; location: string; externalUrl: string; imageUrl: string;
     version: string; published: boolean; mapData?: MapDraftData } | null;
 };
 export type PickedImage = { uri: string; name: string; type: string };
+export type ProfileDraft = { nickname: string; bio: string; avatar: PickedImage | null; removeAvatar: boolean };
 export type Draft = {
   kind: Kind; title: string; body: string; location: string; externalUrl: string;
   image: PickedImage | null; existingImage: string; removeImage: boolean; requestKey: string;
@@ -26,7 +28,7 @@ function errorMessage(value: unknown): string {
   if (typeof value === 'string') return value;
   if (Array.isArray(value)) return value.map(errorMessage).join('\n');
   if (value && typeof value === 'object') {
-    const labels: Record<string, string> = { username: '账号', password: '密码', current_password: '当前密码', new_password: '新密码', recovery_code: '恢复码', title: '标题', body: '正文', image: '图片', location: '地点', external_url: '链接' };
+    const labels: Record<string, string> = { username: '账号', password: '密码', current_password: '当前密码', new_password: '新密码', recovery_code: '恢复码', title: '标题', body: '正文', image: '图片', location: '地点', external_url: '链接', nickname: '昵称', bio: '个人简介', avatar: '头像' };
     return Object.entries(value).map(([key, item]) => `${labels[key] ? labels[key] + '：' : ''}${errorMessage(item)}`).join('\n');
   }
   return '操作暂时未完成，请重试。';
@@ -54,6 +56,14 @@ export function authenticate(mode: 'login' | 'register', username: string, passw
   });
 }
 export const fetchMe = (token: string) => request<{ user: Account['user'] }>('/api/accounts/me/', {}, token);
+export function updateProfile(token: string, draft: ProfileDraft) {
+  const form = new FormData();
+  form.append('nickname', draft.nickname.trim());
+  form.append('bio', draft.bio.trim());
+  form.append('remove_avatar', String(draft.removeAvatar));
+  if (draft.avatar) form.append('avatar', draft.avatar as unknown as Blob);
+  return request<{ user: Account['user'] }>('/api/accounts/me/', { method: 'PATCH', body: form }, token, 90000);
+}
 export const revokeSession = (token: string) => request<void>('/api/accounts/logout/', { method: 'POST' }, token);
 function accountPost<T>(path: string, values: Record<string, string>, token?: string) {
   return request<T>(`/api/accounts/${path}/`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(values) }, token);
@@ -66,9 +76,12 @@ export const rotateRecoveryCode = (token: string, password: string) =>
   accountPost<{ recoveryCode: string; user: Account['user'] }>('recovery-code', { current_password: password }, token);
 export const fetchSubmissions = (token: string, page = 1) => request<{ submissions: Submission[]; count: number; nextPage: number | null }>(`/api/submissions/?page=${page}`, {}, token);
 export const fetchSubmission = (token: string, id: string) => request<{ submission: Submission }>(`/api/submissions/${id}/`, {}, token);
-export const fetchGuideComments = (id: string, page = 1) => request<{ comments: GuideComment[]; count: number; nextPage: number | null }>(`/api/guide/articles/${id}/comments/?page=${page}`);
-export const sendGuideComment = (token: string, id: string, body: string, requestId: string) =>
-  request<{ comment: GuideComment; commentCount: number }>(`/api/guide/articles/${id}/comments/`, {
+export type DiscussionKind = 'guide' | 'place';
+const commentPath = (kind: DiscussionKind, id: string) => `/api/${kind === 'guide' ? 'guide/articles' : 'campus/places'}/${encodeURIComponent(id)}/comments/`;
+export const fetchComments = (kind: DiscussionKind, id: string, page = 1) =>
+  request<{ comments: DiscussionComment[]; count: number; nextPage: number | null }>(`${commentPath(kind, id)}?page=${page}`);
+export const sendComment = (token: string, kind: DiscussionKind, id: string, body: string, requestId: string) =>
+  request<{ comment: DiscussionComment; commentCount: number }>(commentPath(kind, id), {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body, request_id: requestId }),
   }, token);
 export const setGuideLike = (token: string, id: string, liked: boolean) => request<{ liked: boolean; likeCount: number }>(`/api/guide/articles/${id}/like/`, {
