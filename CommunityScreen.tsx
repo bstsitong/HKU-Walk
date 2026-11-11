@@ -3,18 +3,19 @@ import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator, Keyboard, KeyboardAvoidingView, Modal, Platform, RefreshControl, ScrollView, StyleSheet, View,
 } from 'react-native';
-import { Alert, Image, Pressable, Text } from './ui';
+import { Alert, Pressable, Text } from './ui';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import AppIcon, { IconName } from './AppIcon';
 import { accountAuthor, AuthorByline } from './AuthorIdentity';
-import { ApiError, contributionImageSource, Draft, fetchSubmission, fetchSubmissions, Kind, PickedImage, sendSubmission, Submission } from './communityApi';
+import { ApiError, Draft, fetchSubmission, fetchSubmissions, Kind, PickedImage, sendSubmission, Submission } from './communityApi';
 import useAccount from './useAccount';
 import { Button, Field } from './CommunityUI';
 import { AccountSecurityScreen, RecoveryCodeScreen } from './AccountScreens';
 import MapSubmissionFields, { SubmittedMapData } from './MapSubmissionFields';
 import { editMapDraft, emptyMapDraft, hasMapInput, validateMapDraft } from './mapSubmission';
 import BodyEditor, { SubmissionBody } from './SubmissionBody';
+import SubmissionPhoto from './SubmissionPhoto';
 import { editBodyBlocks, newBodyBlock, serializeBodyBlocks } from './submissionBlocks';
 
 const green = '#184d3e';
@@ -269,7 +270,7 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
               <Field label="相关链接（选填）" value={draft.externalUrl} editable={!busy} maxLength={1000} autoCapitalize="none" autoCorrect={false} keyboardType="url" onChangeText={externalUrl => update({ externalUrl })} placeholder="https://" /> : null}
             {draft.kind === 'new_place' || draft.existingImage ? <>
             <Text style={[s.label, { marginTop: 18 }]}>{draft.kind === 'new_place' ? '地点照片（选填）' : '封面配图（选填）'}</Text><Text style={s.hint}>一张 JPEG、PNG 或 WebP，最多 5 MB。</Text>
-            {image ? <Image source={contributionImageSource(image, draft.image ? undefined : token)} style={s.photo} resizeMode="cover" accessibilityLabel="投稿配图预览" /> : null}
+            {image ? <SubmissionPhoto uri={image} token={draft.image ? undefined : token} style={s.photo} resizeMode="cover" accessibilityLabel="投稿配图预览" /> : null}
             <View style={s.photoActions}><Pressable accessibilityRole="button" disabled={busy} onPress={() => void pickImage()} style={s.textButton}><Text style={s.linkText}>{image ? '更换图片' : '从相册选择图片'}</Text></Pressable>
               {image ? <Pressable accessibilityRole="button" disabled={busy} onPress={() => update({ image: null, removeImage: true })} style={s.textButton}><Text style={s.removeText}>移除图片</Text></Pressable> : null}</View>
             </> : null}
@@ -287,7 +288,7 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
             {selected.bodyBlocks?.length ? <SubmissionBody blocks={selected.bodyBlocks} token={token} /> :
               selected.body ? <Text raw selectable style={s.detailBody}>{selected.body}</Text> : null}
             <SubmittedMapData data={selected.mapData} token={token} />
-            {selected.imageUrl ? <Image source={contributionImageSource(selected.imageUrl, token)} style={s.photo} resizeMode="cover" accessibilityLabel="投稿配图" /> : null}
+            {selected.imageUrl ? <SubmissionPhoto uri={selected.imageUrl} token={token} style={s.photo} resizeMode="cover" accessibilityLabel="投稿配图" /> : null}
             {selected.externalUrl ? <Text raw selectable style={s.copy}>{selected.externalUrl}</Text> : null}
             {selected.status === 'changes_requested' ? <Button label="按建议修改并重交" onPress={() => void begin(selected)} /> : null}
             {selected.status === 'approved' && selected.publishedContent?.published ? <Button label={selected.openEditId ? '查看当前修改申请' : '申请修改已发布内容'} busy={busy} onPress={() => void begin(selected)} /> : null}

@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Keyboard, StyleSheet, View } from 'react-native';
 import AppIcon, { IconName } from './AppIcon';
-import { contributionImageSource, PickedImage } from './communityApi';
+import type { PickedImage } from './communityApi';
 import { BodyBlockType, DraftBodyBlock, BodyBlock, maxBodyBlocks, maxBodyImages, newBodyBlock } from './submissionBlocks';
 import { colors as c } from './theme';
-import { Image, Pressable, Text, TextInput } from './ui';
+import SubmissionPhoto from './SubmissionPhoto';
+import { Pressable, Text, TextInput } from './ui';
 
 const types: Record<BodyBlockType, { label: string; placeholder: string; icon: IconName }> = {
   paragraph: { label: '段落', placeholder: '写下正文', icon: 'edit' },
@@ -16,7 +17,7 @@ const types: Record<BodyBlockType, { label: string; placeholder: string; icon: I
 
 function BlockPhoto({ uri, token, label }: { uri: string; token?: string; label?: string }) {
   const [aspect, setAspect] = useState(4 / 3);
-  return <Image source={contributionImageSource(uri, token)} style={[s.photo, { aspectRatio: aspect }]}
+  return <SubmissionPhoto uri={uri} token={token} style={[s.photo, { aspectRatio: aspect }]}
     resizeMode="contain" accessibilityLabel={label} onLoad={event => {
       const { width, height } = event.nativeEvent.source;
       if (width > 0 && height > 0) setAspect(Math.max(0.45, Math.min(4, width / height)));
@@ -29,7 +30,7 @@ export function SubmissionBody({ blocks, token }: { blocks: (BodyBlock & { image
       if (block.type === 'image') {
         const uri = block.image?.uri || block.imageUrl;
         return uri ? <View key={index}>
-          <BlockPhoto key={uri} uri={uri} token={block.image ? undefined : token} />
+          <BlockPhoto key={uri} uri={uri} token={block.image ? undefined : token} label={block.text || '投稿配图'} />
           {block.text ? <Text raw selectable style={s.caption}>{block.text}</Text> : null}
         </View> : null;
       }

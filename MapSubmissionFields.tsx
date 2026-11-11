@@ -3,12 +3,13 @@ import { Keyboard, Modal, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
 import { CAMPUS_MAP_VERSION, campusMapSvg, MAP_WIDTH, MAP_HEIGHT, MAP_Y_MAX } from './MapArtwork';
-import { Pressable, Image, Text } from './ui';
+import { Pressable, Text } from './ui';
 import { Field } from './CommunityUI';
 import AppIcon from './AppIcon';
 import PlaceSearch from './PlaceSearch';
 import { campusRoutes, categories, getPlace, placeName } from './campus';
-import { Kind, contributionImageSource } from './communityApi';
+import type { Kind } from './communityApi';
+import SubmissionPhoto from './SubmissionPhoto';
 import { MapDraftData, RouteStepDraft } from './mapSubmission';
 import { t, translate } from './localization';
 import { useLanguage } from './LanguageProvider';
@@ -88,7 +89,7 @@ export default function MapSubmissionFields({ kind, data, onChange, disabled, on
       <View style={s.row}><Text style={[s.label,s.flex]}>{t('第 {step} 步', { step: index + 1 })}</Text><Pressable accessibilityRole="button" accessibilityLabel="步骤上移" disabled={disabled || index === 0} onPress={() => moveStep(index,-1)} style={[s.iconButton,index === 0 && s.dim]}><Text raw>↑</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel="步骤下移" disabled={disabled || index === (data.steps?.length || 0) - 1} onPress={() => moveStep(index,1)} style={[s.iconButton,index === (data.steps?.length || 0) - 1 && s.dim]}><Text raw>↓</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel="移除此步骤" disabled={disabled || data.steps?.length === 1} onPress={() => patch({ steps: data.steps?.filter((_,i) => i !== index) })} style={s.iconButton}><AppIcon name="trash" size={18} /></Pressable></View>
       <Field label="步骤标题" value={step.title} onChangeText={title => updateStep(index,{ title })} editable={!disabled} maxLength={160} placeholder="例如：乘电梯到连接楼层" />
       <Field label="步骤说明" value={step.body} onChangeText={body => updateStep(index,{ body })} editable={!disabled} multiline maxLength={1500} placeholder="写清方向、地标和楼层，方便同学辨认。" />
-      {uri ? <Image source={contributionImageSource(uri,step.image ? undefined : token)} style={s.photo} resizeMode="cover" accessibilityLabel="步骤配图预览" /> : null}
+      {uri ? <SubmissionPhoto uri={uri} token={step.image ? undefined : token} style={s.photo} resizeMode="cover" accessibilityLabel="步骤配图预览" /> : null}
       <View style={s.row}><Pressable accessibilityRole="button" disabled={disabled} onPress={() => onPickStep(index)} style={s.photoButton}><AppIcon name="photo" size={18} /><Text style={s.link}>{uri ? '更换这一步配图' : '添加这一步配图'}</Text></Pressable>{uri ? <Pressable accessibilityRole="button" disabled={disabled} onPress={() => updateStep(index,{ image: null, removeImage: true })} style={s.photoButton}><Text style={s.link}>移除图片</Text></Pressable> : null}</View>
     </View>; })}
     <Pressable accessibilityRole="button" disabled={disabled || (data.steps?.length || 0) >= 20} onPress={() => patch({ steps: [...(data.steps || []),{ title: '', body: '' }] })} style={s.addStep}><AppIcon name="plus" size={19} /><Text style={s.link}>添加下一步</Text></Pressable>
@@ -103,6 +104,24 @@ export default function MapSubmissionFields({ kind, data, onChange, disabled, on
 }
 export function SubmittedMapData({ data, token }: { data?: MapDraftData; token?: string }) {
   if (data?.type !== 'place' && data?.type !== 'route') return null;
-  return <View style={s.section}>{data.type === 'place' ? <><Text style={s.label}>地点资料</Text><Text raw style={s.copy}>{[data.english, data.abbreviation].filter(Boolean).join(' · ')}</Text><View style={{ height: 180, borderRadius: 10, overflow: 'hidden' }}><MapCanvas selected={{ id: 'submission-location', name: '', english: '', keywords: '', category: data.category || 'space', x: data.x ?? 180, y: data.y ?? 290, isCommunity: true, mapPositionPending: data.mapVersion !== CAMPUS_MAP_VERSION }} variant="mini" /></View><Text raw style={s.copy}>{data.entrance}</Text><Text raw style={s.copy}>{data.floor}</Text></> : <><Text style={s.label}>路线步骤</Text><Text raw style={s.copy}>{getPlace(data.originId || '') ? placeName(getPlace(data.originId || '')!) : data.originId} → {getPlace(data.destinationId || '') ? placeName(getPlace(data.destinationId || '')!) : data.destinationId}</Text>{data.steps?.map((step,index) => <View key={index} style={s.stepCard}><Text raw style={s.label}>{index + 1}. {step.title}</Text><Text raw style={s.copy}>{step.body}</Text>{step.imageUrl ? <Image source={contributionImageSource(step.imageUrl,token)} style={s.photo} accessibilityLabel="投稿步骤配图" resizeMode="cover" /> : null}</View>)}</>}</View>;
+  if (data.type === 'place') return <View style={s.section}>
+    <Text style={s.label}>地点资料</Text>
+    <Text raw style={s.copy}>{[data.english, data.abbreviation].filter(Boolean).join(' · ')}</Text>
+    <View style={{ height: 180, borderRadius: 10, overflow: 'hidden' }}>
+      <MapCanvas selected={{ id: 'submission-location', name: '', english: '', keywords: '', category: data.category || 'space',
+        x: data.x ?? 180, y: data.y ?? 290, isCommunity: true, mapPositionPending: data.mapVersion !== CAMPUS_MAP_VERSION }} variant="mini" />
+    </View>
+    <Text raw style={s.copy}>{data.entrance}</Text><Text raw style={s.copy}>{data.floor}</Text>
+  </View>;
+  const origin = getPlace(data.originId || ''), destination = getPlace(data.destinationId || '');
+  return <View style={s.section}>
+    <Text style={s.label}>路线步骤</Text>
+    <Text raw style={s.copy}>{origin ? placeName(origin) : data.originId} → {destination ? placeName(destination) : data.destinationId}</Text>
+    {data.steps?.map((step, index) => <View key={index} style={s.stepCard}>
+      <Text raw style={s.label}>{index + 1}. {step.title}</Text>
+      <Text raw style={s.copy}>{step.body}</Text>
+      {step.imageUrl ? <SubmissionPhoto uri={step.imageUrl} token={token} style={s.photo} accessibilityLabel="投稿步骤配图" resizeMode="cover" /> : null}
+    </View>)}
+  </View>;
 }
 const s = StyleSheet.create({ attribution: { textAlign: 'right', fontSize: 10, lineHeight: 18, color: c.muted }, flex: { flex: 1 }, section: { marginTop: 16 }, label: { fontSize: 14, lineHeight: 23, fontWeight: '700', color: c.ink }, copy: { fontSize: 12, lineHeight: 21, color: c.muted, marginVertical: 6 }, categories: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 9, marginBottom: 18 }, category: { backgroundColor: c.tint, minHeight: 44, paddingHorizontal: 12, paddingVertical: 11, borderRadius: 9 }, categoryText: { fontSize: 12, lineHeight: 20, color: c.green }, active: { backgroundColor: c.green }, white: { color: '#fff' }, picker: { width: '100%', aspectRatio: MAP_WIDTH / MAP_HEIGHT, backgroundColor: c.tint, marginTop: 10, borderRadius: 12, overflow: 'hidden' }, marker: { position: 'absolute', width: 32, height: 32, borderRadius: 16, backgroundColor: c.rust, borderWidth: 2, borderColor: '#fff', alignItems: 'center', justifyContent: 'center' }, row: { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }, nudge: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center', backgroundColor: c.tint, borderRadius: 8 }, nudgeText: { color: c.green, fontSize: 21 }, endpoints: { borderWidth: 1, borderColor: c.line, backgroundColor: '#fff', borderRadius: 12, marginTop: 10, marginBottom: 22, overflow: 'hidden' }, endpoint: { minHeight: 64, flexDirection: 'row', alignItems: 'center', padding: 13, borderBottomWidth: 1, borderBottomColor: c.line }, stepCard: { marginTop: 14, padding: 14, borderRadius: 13, backgroundColor: c.tint }, iconButton: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }, dim: { opacity: 0.35 }, photo: { width: '100%', height: 170, borderRadius: 10, marginTop: 12, backgroundColor: c.paper }, photoButton: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: 8 }, link: { fontSize: 13, fontWeight: '700', color: c.green, lineHeight: 21 }, addStep: { minHeight: 50, backgroundColor: c.tint, borderRadius: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 16 } });

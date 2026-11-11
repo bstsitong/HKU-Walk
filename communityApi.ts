@@ -105,16 +105,6 @@ export const sendComment = (token: string, kind: DiscussionKind, id: string, bod
 export const setGuideLike = (token: string, id: string, liked: boolean) => request<{ liked: boolean; likeCount: number }>(`/api/guide/articles/${id}/like/`, {
   method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ liked }),
 }, token);
-export function contributionImageSource(uri: string, token?: string) {
-  // Administrator-supplied external image URLs must never receive the mobile credential.
-  try {
-    const url = new URL(uri);
-    if (token && url.origin === new URL(API_BASE).origin && url.pathname.startsWith('/api/images/')) {
-      return { uri, headers: { Authorization: `Bearer ${token}` } };
-    }
-  } catch { /* A local picker URI needs no authorization header. */ }
-  return { uri };
-}
 export function sendSubmission(token: string, draft: Draft, editing?: Submission) {
   const form = new FormData();
   const body = serializeBodyBlocks(draft.bodyBlocks);
