@@ -1,3 +1,4 @@
+import { File } from 'expo-file-system';
 import { API_BASE, AuthorProfile, DiscussionComment } from './guideApi';
 import { MapDraftData, serializeMapDraft } from './mapSubmission';
 
@@ -16,6 +17,10 @@ export type Submission = {
 };
 export type PickedImage = { uri: string; name: string; type: string };
 export type ProfileDraft = { nickname: string; bio: string; avatar: PickedImage | null; removeAvatar: boolean };
+
+function appendPhoto(form: FormData, field: string, image: PickedImage) {
+  form.append(field, new File(image.uri));
+}
 export type Draft = {
   kind: Kind; title: string; body: string; location: string; externalUrl: string;
   image: PickedImage | null; existingImage: string; removeImage: boolean; requestKey: string;
@@ -61,7 +66,7 @@ export function updateProfile(token: string, draft: ProfileDraft) {
   form.append('nickname', draft.nickname.trim());
   form.append('bio', draft.bio.trim());
   form.append('remove_avatar', String(draft.removeAvatar));
-  if (draft.avatar) form.append('avatar', draft.avatar as unknown as Blob);
+  if (draft.avatar) appendPhoto(form, 'avatar', draft.avatar);
   return request<{ user: Account['user'] }>('/api/accounts/me/', { method: 'PATCH', body: form }, token, 90000);
 }
 export const revokeSession = (token: string) => request<void>('/api/accounts/logout/', { method: 'POST' }, token);
@@ -108,12 +113,12 @@ export function sendSubmission(token: string, draft: Draft, editing?: Submission
   if (editing) form.append('revision', String(editing.revision));
   if (editing?.publishedContent) form.append('base_version', editing.publishedContent.version);
   form.append('remove_image', String(draft.removeImage));
-  if (draft.image) form.append('image', draft.image as unknown as Blob);
+  if (draft.image) appendPhoto(form, 'image', draft.image);
   const map = serializeMapDraft(draft.kind, draft.mapData);
   form.append('map_data', JSON.stringify(map.data));
   form.append('inherit_step_images', JSON.stringify(map.inherit));
   form.append('remove_step_images', JSON.stringify(map.removed));
-  for (const { index, image } of map.uploads) form.append('step_image_' + index, image as unknown as Blob);
+  for (const { index, image } of map.uploads) appendPhoto(form, 'step_image_' + index, image);
   const publishedEdit = editing?.status === 'approved';
   return request<{ submission: Submission }>(editing ? `/api/submissions/${editing.id}/${publishedEdit ? 'edits/' : ''}` : '/api/submissions/', {
     method: editing && !publishedEdit ? 'PATCH' : 'POST', body: form,

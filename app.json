@@ -24,7 +24,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "允许港大漫游选择投稿配图。",
+          "photosPermission": "允许港大漫游从相册选择头像和投稿配图。",
           "cameraPermission": false,
           "microphonePermission": false
         }
