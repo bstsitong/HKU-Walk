@@ -77,7 +77,7 @@ export default function Discussion({ kind, id, title, session, onLogin, onCount 
     } finally { posting.current = false; setSending(false); }
   };
 
-  return <KeyboardAvoidingView style={s.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+  return <KeyboardAvoidingView style={s.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <ScrollView style={s.flex} contentContainerStyle={s.page} keyboardShouldPersistTaps="handled"
       refreshControl={<RefreshControl refreshing={loading} onRefresh={() => void load()} tintColor={c.green} />}>
       <View style={s.summary}>

@@ -67,7 +67,7 @@ export default function EditProfile({ user, onSave, onBack, onExpired }: {
     } finally { working.current = false; setBusy(false); }
   }
 
-  return <KeyboardAvoidingView style={s.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+  return <KeyboardAvoidingView style={s.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <View style={s.header}>
       <Pressable testID="profile-edit-back" accessibilityRole="button" accessibilityLabel="返回" disabled={busy} onPress={close} style={s.back}><AppIcon name="back" size={20} /></Pressable>
       <Text accessibilityRole="header" style={s.title}>编辑资料</Text>
