@@ -41,9 +41,9 @@ class SubmissionAdmin(admin.ModelAdmin):
     list_filter = ("status", "kind")
     search_fields = ("title", "body", "author__username", "location")
     ordering = ("-created_at",)
-    fields = ("author", "kind", "edit_of", "published_version", "title", "body", "map_preview", "step_images_preview", "location", "external_url", "image_preview",
+    fields = ("author", "kind", "edit_of", "published_version", "title", "body_preview", "map_preview", "step_images_preview", "location", "external_url", "image_preview",
         "status", "decision", "review_note", "review_version", "reviewer", "reviewed_at", "created_at", "public_entry")
-    readonly_fields = ("author", "kind", "edit_of", "published_version", "title", "body", "map_preview", "step_images_preview", "location", "external_url", "image_preview",
+    readonly_fields = ("author", "kind", "edit_of", "published_version", "title", "body_preview", "map_preview", "step_images_preview", "location", "external_url", "image_preview",
         "status", "reviewer", "reviewed_at", "created_at", "public_entry")
     actions = None
 
@@ -63,6 +63,26 @@ class SubmissionAdmin(admin.ModelAdmin):
             return "首次投稿"
         content = obj.edit_of.content
         return format_html('<strong>{}</strong><p style="white-space:pre-wrap">{}</p>', content.title, content.body) if content else "—"
+
+    @admin.display(description="正文")
+    def body_preview(self, obj):
+        if not obj.body_blocks:
+            return format_html('<p style="white-space:pre-wrap">{}</p>', obj.body)
+        photos = {photo.block_index: photo for photo in obj.body_images.all()}
+        templates = {"heading": "<h3>{}</h3>", "quote": '<blockquote style="white-space:pre-wrap">{}</blockquote>'}
+        rendered = []
+        for index, block in enumerate(obj.body_blocks):
+            text = block["text"]
+            if block["type"] == "image" and index in photos:
+                url = reverse("submission-body-image", args=[photos[index].pk])
+                rendered.append(format_html('<figure><a href="{}" target="_blank" rel="noopener">'
+                    '<img src="{}" style="max-width:420px;max-height:330px" alt=""></a><figcaption>{}</figcaption></figure>',
+                    url, url, text))
+            else:
+                if block["type"] == "list":
+                    text = "\n".join("• " + line for line in text.splitlines() if line.strip())
+                rendered.append(format_html(templates.get(block["type"], '<p style="white-space:pre-wrap">{}</p>'), text))
+        return format_html_join("", "{}", ((block,) for block in rendered))
 
     @admin.display(description="投稿图片")
     def image_preview(self, obj):

@@ -1,4 +1,5 @@
 import io
+import json
 import tempfile
 from datetime import timedelta
 from pathlib import Path
@@ -57,7 +58,100 @@ class CommunityFixture(TestCase):
         self.assertEqual(response.status_code, 201, response.content)
         return Submission.objects.get(pk=response.json()["submission"]["id"])
 
+    def assert_image_status(self, client, path, status):
+        response = client.get(path)
+        try:
+            self.assertEqual(response.status_code, status)
+        finally:
+            response.close()
+
 class CommunityTests(CommunityFixture):
+    def test_illustrated_guide_submission_keeps_layout_and_private_images_through_revision(self):
+        endpoint = "/api/submissions/"
+        blocks = [{"type": "heading", "text": "图书馆"}, {"type": "paragraph", "text": "从入口直走。"},
+                  {"type": "image", "text": "入口照片"}, {"type": "list", "text": "带学生证\n留意开放时间"}]
+
+        def payload():
+            return {"kind": "guide", "title": "图书馆攻略", "body": "", "body_blocks": json.dumps(blocks),
+                    "body_image_2": photo(), "request_key": "rich_guide_submission"}
+
+        response = self.api.post(endpoint, payload(), format="multipart")
+        self.assertEqual(response.status_code, 201, response.content)
+        item = response.json()["submission"]
+        self.assertEqual(self.api.post(endpoint, payload(), format="multipart").status_code, 200)
+        original_path = urlsplit(item["bodyBlocks"][2]["imageUrl"]).path
+        self.assert_image_status(self.api, original_path, 200)
+        self.assertEqual(self.anon.get(original_path).status_code, 404)
+        self.assertNotContains(self.anon.get("/api/guide/"), item["title"])
+        self.client.force_login(self.admin)
+        review = self.client.get(f"/admin/community/submission/{item['id']}/change/")
+        self.assertContains(review, original_path)
+        self.assertContains(review, "<h3>图书馆</h3>", html=True)
+
+        returned = review_submission(item["id"], 1, "changes_requested", "先展示入口照片", self.admin)
+        revised = self.api.patch(endpoint + item["id"] + "/", {
+            "kind": "guide", "title": item["title"], "body": "", "revision": returned.revision,
+            "body_blocks": [blocks[2], blocks[0], blocks[1], blocks[3]], "inherit_body_images": {"0": 2},
+        }, format="json")
+        self.assertEqual(revised.status_code, 200, revised.content)
+        ordered = revised.json()["submission"]["bodyBlocks"]
+        path = urlsplit(ordered[0]["imageUrl"]).path
+        self.assertEqual(self.anon.get(path).status_code, 404)
+        approved = review_submission(item["id"], returned.revision + 1, "approved", "", self.admin)
+        article = next(post for post in self.anon.get("/api/guide/").json()["articles"] if post["id"] == str(approved.public_entry_id))
+        self.assertEqual([block["type"] for block in article["bodyBlocks"]], ["image", "heading", "paragraph", "list"])
+        self.assert_image_status(self.anon, path, 200)
+        self.assertEqual(self.anon.get(original_path).status_code, 404)
+
+        current = self.api.get(endpoint + item["id"] + "/").json()["submission"]["publishedContent"]
+        edit = self.api.post(endpoint + item["id"] + "/edits/", {
+            "kind": "guide", "title": item["title"], "body": "", "base_version": current["version"],
+            "body_blocks": [blocks[0], blocks[2], blocks[1], blocks[3]], "inherit_body_images": {"1": 0},
+            "request_key": "edit_rich_guide",
+        }, format="json")
+        self.assertEqual(edit.status_code, 201, edit.content)
+        replacement = edit.json()["submission"]
+        new_path = urlsplit(replacement["bodyBlocks"][1]["imageUrl"]).path
+        self.assertEqual(self.anon.get(new_path).status_code, 404)
+        review_submission(replacement["id"], 1, "approved", "", self.admin)
+        self.assertEqual(self.anon.get(path).status_code, 404)
+        self.assert_image_status(self.anon, new_path, 200)
+
+    def test_structured_corrections_select_published_targets(self):
+        endpoint = "/api/submissions/"
+        base = {"title": "入口提示", "body": "", "body_blocks": [{"type": "paragraph", "text": "入口标志已经更换。"}]}
+        for kind, target in (("place", {}), ("place", {"placeId": "missing"}),
+                             ("route", {"originId": "gate", "destinationId": "gate"}),
+                             ("route", {"originId": "gate", "destinationId": "main", "routeId": "999999"})):
+            response = self.api.post(endpoint, {**base, "kind": kind, "map_data": target}, format="json")
+            self.assertEqual(response.status_code, 400, response.content)
+        for kind, target in (("place", {"placeId": "main"}), ("route", {"originId": "gate", "destinationId": "main"})):
+            response = self.api.post(endpoint, {**base, "kind": kind, "map_data": target,
+                                                "request_key": f"correction_{kind}"}, format="json")
+            self.assertEqual(response.status_code, 201, response.content)
+            item = response.json()["submission"]
+            self.assertEqual(item["mapData"]["type"], f"{kind}_correction")
+            self.assertTrue(item["location"])
+            approved = review_submission(item["id"], 1, "approved", "", self.admin)
+            article = next(post for post in self.anon.get("/api/guide/").json()["articles"] if post["id"] == str(approved.public_entry_id))
+            self.assertEqual(article["relatedLocation"], item["location"])
+
+    def test_new_route_template_requires_a_photo_per_step(self):
+        data = {"kind": "new_route", "title": "港大站到本部大楼", "body": "", "request_key": "route_template",
+                "map_data": json.dumps({"originId": "gate", "destinationId": "main", "stepPhotosRequired": True,
+                                        "steps": [{"title": "找到指示牌", "body": "沿指示牌向前走。"}]})}
+        self.assertEqual(self.api.post("/api/submissions/", data, format="multipart").status_code, 400)
+        response = self.api.post("/api/submissions/", {**data, "step_image_0": photo()}, format="multipart")
+        self.assertEqual(response.status_code, 201, response.content)
+        item = response.json()["submission"]
+        path = urlsplit(item["mapData"]["steps"][0]["imageUrl"]).path
+        self.assertEqual(self.anon.get(path).status_code, 404)
+        approved = review_submission(item["id"], 1, "approved", "", self.admin)
+        route = next(route for route in self.anon.get("/api/campus/").json()["routes"]
+                     if route["entryId"] == str(approved.public_entry_id))
+        self.assertEqual(urlsplit(route["steps"][0]["imageUrl"]).path, path)
+        self.assert_image_status(self.anon, path, 200)
+
     def test_privacy_controls_hide_public_identity_and_revoke_public_profile(self):
         settings_url = "/api/accounts/privacy/"
         default = {"showPostAuthor": True, "showCommentAuthor": True, "publicProfile": False}

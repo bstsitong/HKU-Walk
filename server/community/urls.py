@@ -17,4 +17,5 @@ urlpatterns = [
     path("submissions/<uuid:pk>/edits/", views.PublishedEdit.as_view()),
     path("images/<uuid:pk>/", views.SubmissionImage.as_view(), name="submission-image"),
     path("images/steps/<uuid:pk>/", views.SubmissionStepImageView.as_view(), name="submission-step-image"),
+    path("images/body/<uuid:pk>/", views.SubmissionBodyImageView.as_view(), name="submission-body-image"),
 ]

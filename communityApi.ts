@@ -1,21 +1,23 @@
 import { File } from 'expo-file-system';
 import { API_BASE, AuthorProfile, DiscussionComment } from './guideApi';
 import { MapDraftData, serializeMapDraft } from './mapSubmission';
+import { BodyBlock, DraftBodyBlock, serializeBodyBlocks } from './submissionBlocks';
 
 export type Account = { token: string; user: { id: string; username: string; hasRecoveryCode?: boolean; nickname?: string; bio?: string; avatarUrl?: string } };
 export type AccountResult = Account & { recoveryCode?: string };
 export type Privacy = { showPostAuthor: boolean; showCommentAuthor: boolean; publicProfile: boolean };
 export type PublicProfile = { name: string; avatarUrl: string; bio: string; posts: { id: string; title: string }[] };
-export type Kind = 'food' | 'group' | 'place' | 'route' | 'new_place' | 'new_route';
+export type Kind = 'guide' | 'food' | 'group' | 'place' | 'route' | 'new_place' | 'new_route';
 export type Submission = {
   id: string; kind: Kind; title: string; body: string; location: string; externalUrl: string;
   imageUrl: string; status: 'pending' | 'approved' | 'changes_requested'; reviewNote: string;
   revision: number; createdAt: string; updatedAt: string; publicEntryId: string | null;
   isEdit: boolean; openEditId: string | null;
   authorProfile?: AuthorProfile;
+  bodyBlocks?: BodyBlock[];
   mapData?: MapDraftData;
   publishedContent: { title: string; body: string; location: string; externalUrl: string; imageUrl: string;
-    version: string; published: boolean; mapData?: MapDraftData } | null;
+    version: string; published: boolean; mapData?: MapDraftData; bodyBlocks?: BodyBlock[] } | null;
 };
 export type PickedImage = { uri: string; name: string; type: string };
 export type ProfileDraft = { nickname: string; bio: string; avatar: PickedImage | null; removeAvatar: boolean };
@@ -27,6 +29,7 @@ export type Draft = {
   kind: Kind; title: string; body: string; location: string; externalUrl: string;
   image: PickedImage | null; existingImage: string; removeImage: boolean; requestKey: string;
   mapData: MapDraftData;
+  bodyBlocks: DraftBodyBlock[];
 };
 export class ApiError extends Error {
   constructor(public status: number, message: string) { super(message); }
@@ -114,9 +117,10 @@ export function contributionImageSource(uri: string, token?: string) {
 }
 export function sendSubmission(token: string, draft: Draft, editing?: Submission) {
   const form = new FormData();
+  const body = serializeBodyBlocks(draft.bodyBlocks);
   form.append('kind', draft.kind);
   form.append('title', draft.title.trim());
-  form.append('body', draft.body.trim());
+  form.append('body', body.data.length ? '' : draft.body.trim());
   form.append('location', draft.kind === 'new_place' || draft.kind === 'new_route' ? '' : draft.location.trim());
   form.append('external_url', draft.externalUrl.trim());
   form.append('request_key', draft.requestKey);
@@ -129,6 +133,11 @@ export function sendSubmission(token: string, draft: Draft, editing?: Submission
   form.append('inherit_step_images', JSON.stringify(map.inherit));
   form.append('remove_step_images', JSON.stringify(map.removed));
   for (const { index, image } of map.uploads) appendPhoto(form, 'step_image_' + index, image);
+  if (body.data.length) {
+    form.append('body_blocks', JSON.stringify(body.data));
+    form.append('inherit_body_images', JSON.stringify(body.inherit));
+    for (const { index, image } of body.uploads) appendPhoto(form, 'body_image_' + index, image);
+  }
   const publishedEdit = editing?.status === 'approved';
   return request<{ submission: Submission }>(editing ? `/api/submissions/${editing.id}/${publishedEdit ? 'edits/' : ''}` : '/api/submissions/', {
     method: editing && !publishedEdit ? 'PATCH' : 'POST', body: form,

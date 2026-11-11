@@ -6,6 +6,7 @@ import type { Account } from './communityApi';
 import Discussion from './Discussion';
 import { GuideArticle } from './guideApi';
 import GuideMarkdown, { guideExcerpt } from './GuideMarkdown';
+import { SubmissionBody } from './SubmissionBody';
 import { openLink } from './GuideScreens';
 import { formatDate } from './localization';
 import { normalizeSearchText } from './placeMatching';
@@ -121,7 +122,9 @@ export function GuideArticleScreen({ article, initiallyComments, session, onBack
           <Text raw accessibilityRole="header" style={s.title}>{article.title}</Text>
           <ArticleMeta article={article} />
           {article.imageUrl ? <Image source={{ uri: article.imageUrl }} style={s.cover} resizeMode="cover" /> : null}
-          {article.markdown ? <GuideMarkdown body={article.body} onOpenPage={openPage} /> : <Text raw style={s.articleBody}>{article.body}</Text>}
+          {article.relatedLocation ? <Text raw style={s.meta}>{article.relatedLocation}</Text> : null}
+          {article.bodyBlocks?.length ? <SubmissionBody blocks={article.bodyBlocks} /> :
+            article.markdown ? <GuideMarkdown body={article.body} onOpenPage={openPage} /> : <Text raw style={s.articleBody}>{article.body}</Text>}
           {article.externalUrl ? <Action icon="external" label="查看相关链接" onPress={() => void openLink(article.externalUrl)} /> : null}
           <ArticleActions article={article} bookmarks={bookmarks} liking={liking} onLike={onLike} onComments={() => showComments(true)} />
         </ScrollView>

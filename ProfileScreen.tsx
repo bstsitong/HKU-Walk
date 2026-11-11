@@ -152,7 +152,7 @@ export default function ProfileScreen({ active, session, accountReady, onAccount
   </View>;
 }
 
-const submissionSections = { place: 'places', new_place: 'places', route: 'routes', new_route: 'routes', food: 'posts', group: 'posts' } as const;
+const submissionSections = { place: 'places', new_place: 'places', route: 'routes', new_route: 'routes', guide: 'posts', food: 'posts', group: 'posts' } as const;
 const submissionStatuses = { pending: '待审核', approved: '已通过', changes_requested: '需修改' } as const;
 
 function SubmissionList({ token, section, onOpen }: { token: string; section: Section; onOpen: (item: Submission) => void }) {

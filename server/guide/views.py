@@ -6,6 +6,7 @@ from django.views.decorators.http import require_GET
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from community.profiles import public_author_data
+from community.body_content import published_body_blocks
 
 from .catalog import content_image, published_routes, route_steps_data
 from .campus_map import LEGACY_PLACES, MAP_VERSION
@@ -35,10 +36,12 @@ def article_card(request, post):
     published_at = post.published_at or (submission.reviewed_at if submission else None)
     card = guide_card(request, post)
     author = card["authorProfile"]
+    blocks = published_body_blocks(request, post, submission)
     return {
         **card,
         "contributor": author["name"] if author else post.contributor,
         "sourcePages": post.source_pages, "markdown": publication.key in ARTICLE_KEYS,
+        "bodyBlocks": blocks, "relatedLocation": submission.location if blocks else "",
         "publishedAt": published_at.isoformat() if published_at else None,
         "likeCount": post.like_count, "commentCount": post.comment_count, "liked": post.viewer_liked,
     }
@@ -70,7 +73,7 @@ def guide_content(request):
             ],
         })
     liked = Exists(GuideLike.objects.filter(post_id=OuterRef("pk"), user=request.user)) if request.user.is_authenticated else Value(False)
-    articles = posts.filter(ARTICLE_SCOPE).annotate(
+    articles = posts.filter(ARTICLE_SCOPE).prefetch_related("publication__current_submission__body_images").annotate(
         like_count=Count("likes", distinct=True), comment_count=Count("comments", distinct=True), viewer_liked=liked,
     ).order_by("publication__sort_order", "publication_id")
     return JsonResponse({"categories": result, "articles": [article_card(request, post) for post in articles]},

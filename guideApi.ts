@@ -1,5 +1,6 @@
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
+import type { BodyBlock } from './submissionBlocks';
 
 export type GuideKey = 'links' | 'tips' | 'food' | 'groups';
 export type AuthorProfile = { name: string; avatarUrl: string; profileId?: string; anonymous?: boolean };
@@ -26,6 +27,7 @@ export type GuideSourcePage = { title: string; body: string };
 export type GuideArticle = GuideEntry & {
   contributor: string; publishedAt: string | null; likeCount: number; commentCount: number; liked: boolean;
   sourcePages: Record<string, GuideSourcePage>; markdown: boolean;
+  bodyBlocks?: BodyBlock[]; relatedLocation?: string;
 };
 export type DiscussionComment = { id: string; author: string; authorProfile?: AuthorProfile; body: string; createdAt: string };
 

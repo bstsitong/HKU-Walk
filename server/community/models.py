@@ -51,6 +51,7 @@ class Submission(models.Model):
         ROUTE = "route", "路线纠错"
         NEW_PLACE = "new_place", "新地点"
         NEW_ROUTE = "new_route", "新路线"
+        GUIDE = "guide", "学生指南"
 
     class Status(models.TextChoices):
         PENDING = "pending", "待审核"
@@ -64,6 +65,7 @@ class Submission(models.Model):
     kind = models.CharField("投稿类型", max_length=12, choices=Kind.choices)
     title = models.CharField("标题", max_length=160)
     body = models.TextField("正文")
+    body_blocks = models.JSONField("正文排版", default=list, db_default=[], blank=True)
     map_data = models.JSONField("地点或路线资料", default=dict, db_default={}, blank=True)
     location = models.CharField("相关地点或路线", max_length=160, blank=True)
     external_url = models.URLField("相关链接", blank=True, max_length=1000)
@@ -105,3 +107,14 @@ class SubmissionStepImage(models.Model):
     class Meta:
         ordering = ["step_index"]
         constraints = [models.UniqueConstraint(fields=["submission", "step_index"], name="one_image_per_route_step")]
+
+
+class SubmissionBodyImage(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name="body_images")
+    block_index = models.PositiveSmallIntegerField()
+    image = models.FileField(upload_to="contributions/body/")
+
+    class Meta:
+        ordering = ["block_index"]
+        constraints = [models.UniqueConstraint(fields=["submission", "block_index"], name="one_image_per_body_block")]

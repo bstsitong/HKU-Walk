@@ -2,6 +2,7 @@ import copy
 from django.urls import reverse
 from rest_framework.exceptions import ValidationError
 from guide.campus_map import MAP_VERSION
+from guide.catalog import published_routes
 from guide.models import CampusPlace
 
 PLACE_CATEGORIES = set(CampusPlace.Category.values)
@@ -38,13 +39,26 @@ def validate_map_data(kind, data):
         if "abbreviation" in data:
             result["abbreviation"] = text(data, "abbreviation", 40)
         return result
-    if kind == "new_route":
+    if kind == "place" and data:
+        place_id = text(data, "placeId", 80, True)
+        if not place_exists(place_id):
+            raise ValidationError({"map_data": "需要纠错的地点已下线，请重新选择。"})
+        return {"type": "place_correction", "placeId": place_id}
+    if kind == "new_route" or (kind == "route" and data):
         origin = text(data, "originId", 80, True)
         destination = text(data, "destinationId", 80, True)
         if origin == destination:
             raise ValidationError({"map_data": "起点和终点不能相同。"})
         if not place_exists(origin) or not place_exists(destination):
             raise ValidationError({"map_data": "起点或终点已下线，请重新选择。"})
+        if kind == "route":
+            route_id = text(data, "routeId", 80)
+            routes = published_routes().filter(origin_id=origin, destination_id=destination)
+            if route_id and (not route_id.isascii() or not route_id.isdecimal() or len(route_id) > 19
+                             or int(route_id) > 9223372036854775807
+                             or not routes.filter(pk=int(route_id)).exists()):
+                raise ValidationError({"map_data": "需要纠错的路线已变化，请重新选择。"})
+            return {"type": "route_correction", "originId": origin, "destinationId": destination, "routeId": route_id}
         steps = data.get("steps")
         if not isinstance(steps, list) or not 1 <= len(steps) <= MAX_ROUTE_STEPS:
             raise ValidationError({"map_data": "路线需要 1–20 个步骤。"})
@@ -53,10 +67,27 @@ def validate_map_data(kind, data):
             if not isinstance(step, dict):
                 raise ValidationError({"map_data": "每一步都需要标题和说明。"})
             clean.append({"title": text(step, "title", 160, True), "body": text(step, "body", 1500, True)})
-        return {"type": "route", "originId": origin, "destinationId": destination, "steps": clean}
+        result = {"type": "route", "originId": origin, "destinationId": destination, "steps": clean}
+        if data.get("stepPhotosRequired") is True:
+            result["stepPhotosRequired"] = True
+        return result
     if data:
         raise ValidationError({"map_data": "此投稿类型不包含地点或路线资料。"})
     return {}
+
+
+def correction_location(data):
+    if data.get("type") == "place_correction":
+        return CampusPlace.objects.filter(pk=data["placeId"]).values_list("name_zh", flat=True).first() or data["placeId"]
+    if data.get("type") == "route_correction":
+        places = CampusPlace.objects.in_bulk([data["originId"], data["destinationId"]])
+        origin, destination = (places[data[key]].name_zh if data[key] in places else data[key] for key in ("originId", "destinationId"))
+        if data["routeId"]:
+            title = published_routes().filter(pk=int(data["routeId"])).values_list("title", flat=True).first()
+            if title:
+                return f"{origin[:42]} → {destination[:42]} · {title[:70]}"
+        return f"{origin[:78]} → {destination[:78]}"
+    return ""
 
 def enrich_map_data(request, data, source):
     result = copy.deepcopy(data or {})

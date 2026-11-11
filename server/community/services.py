@@ -8,7 +8,8 @@ from rest_framework.exceptions import APIException, ValidationError
 
 from guide.legacy_catalog import place_fields
 from guide.models import CampusPlace, CampusRoute, GuidePost, Publication, RouteStep
-from .models import Submission, SubmissionStepImage
+from .body_content import publication_body
+from .models import Submission, SubmissionBodyImage, SubmissionStepImage
 from .map_content import validate_map_data
 from .storage import MediaQuotaExceeded
 
@@ -27,46 +28,47 @@ def prepare_image(data):
         raise ValidationError({"image": "图片空间已满，请先移除配图提交，并联系管理员清理空间。"})
 
 def delete_unreferenced_image(name):
-    if name and not Submission.objects.filter(image=name).exists() and not SubmissionStepImage.objects.filter(image=name).exists():
+    if name and not any(model.objects.filter(image=name).exists() for model in (Submission, SubmissionStepImage, SubmissionBodyImage)):
         default_storage.delete(name)
 
-def store_images(data, uploads):
+def store_images(data, step_uploads, body_uploads):
     names = []
     try:
         cover = prepare_image(data)
         if cover:
             names.append(cover)
-        steps = {}
-        for index, upload in uploads.items():
-            steps[index] = prepare_image({"image": upload})
-            names.append(steps[index])
-        return cover, steps
+        groups = []
+        for uploads in (step_uploads, body_uploads):
+            stored = {}
+            for index, upload in uploads.items():
+                stored[index] = prepare_image({"image": upload})
+                names.append(stored[index])
+            groups.append(stored)
+        return cover, *groups
     except Exception:
         for name in names:
             delete_unreferenced_image(name)
         raise
 
-def step_image_names(source):
-    return {image.step_index: image.image.name for image in source.step_images.all()} if source else {}
+def image_names(source, relation, index_field):
+    return {getattr(image, index_field): image.image.name for image in getattr(source, relation).all()} if source else {}
 
-def planned_step_images(data, source_images, uploads):
-    inherited = data.pop("inherit_step_images", {})
-    removed = set(data.pop("remove_step_images", []))
+def planned_images(inherited, removed, source_images, uploads):
     result = {}
     for target, source in inherited.items():
         target = int(target)
         if target in removed or target in uploads:
             continue
         if source not in source_images:
-            raise ValidationError({"image": "原步骤配图已变化，请刷新后重新编辑。"})
+            raise ValidationError({"image": "原配图已变化，请刷新后重新编辑。"})
         result[target] = source_images[source]
     return result
 
-def create_step_images(item, inherited, stored):
+def create_images(model, index_field, item, inherited, stored):
     names = {**inherited, **stored}
-    SubmissionStepImage.objects.bulk_create([SubmissionStepImage(submission=item, step_index=index, image=name) for index, name in names.items()])
+    model.objects.bulk_create([model(submission=item, image=name, **{index_field: index}) for index, name in names.items()])
 
-def submit_new(user, data, edit_of=None, inherited_image="", inherited_image_url="", base_version=None, inherited_step_images=None):
+def submit_new(user, data, edit_of=None, inherited_image="", inherited_image_url="", base_version=None, source=None):
     request_key = data.pop("request_key", "")
     if not request_key:
         raise ValidationError({"request_key": "缺少投稿编号，请重新打开投稿表单。"})
@@ -74,10 +76,11 @@ def submit_new(user, data, edit_of=None, inherited_image="", inherited_image_url
     remove_image = data.pop("remove_image", False)
     data.pop("base_version", None)
     uploads = data.pop("step_images", {})
+    body_uploads = data.pop("body_images", {})
     digest = hashlib.sha256()
     scalar = {key: value for key, value in data.items() if key != "image"}
     # Keep fingerprints compatible with retries of submissions sent before map fields existed.
-    for field in ("map_data", "inherit_step_images", "remove_step_images"):
+    for field in ("map_data", "inherit_step_images", "remove_step_images", "body_blocks", "inherit_body_images"):
         if not scalar.get(field):
             scalar.pop(field, None)
     scalar.update(edit_of=str(edit_of.pk) if edit_of else None, remove_image=remove_image,
@@ -90,26 +93,34 @@ def submit_new(user, data, edit_of=None, inherited_image="", inherited_image_url
         digest.update(str(index).encode())
         digest.update(image.read())
         image.seek(0)
+    for index, image in sorted(body_uploads.items()):
+        digest.update(f"body:{index}:".encode())
+        digest.update(image.read())
+        image.seek(0)
     fingerprint = digest.hexdigest()
     existing = Submission.objects.filter(author=user, request_key=request_key).first()
     if existing:
         if existing.content_hash != fingerprint:
             raise Conflict("上一次投稿已经收到，请先查看我的投稿。")
         return existing, False
-    inherited_steps = planned_step_images(data, inherited_step_images or {}, uploads)
-    stored, stored_steps = store_images(data, uploads)
+    inherited_steps = planned_images(data.pop("inherit_step_images", {}), data.pop("remove_step_images", []),
+        image_names(source, "step_images", "step_index"), uploads)
+    inherited_body = planned_images(data.pop("inherit_body_images", {}), (),
+        image_names(source, "body_images", "block_index"), body_uploads)
+    stored, stored_steps, stored_body = store_images(data, uploads, body_uploads)
     try:
         with transaction.atomic():
             result = Submission.objects.create(author=user, request_key=request_key, content_hash=fingerprint,
                 image=stored or ("" if remove_image else inherited_image), edit_of=edit_of,
                 inherited_image_url="" if stored or remove_image else inherited_image_url,
                 base_entry_updated_at=base_version, **data)
-            create_step_images(result, inherited_steps, stored_steps)
+            create_images(SubmissionStepImage, "step_index", result, inherited_steps, stored_steps)
+            create_images(SubmissionBodyImage, "block_index", result, inherited_body, stored_body)
         return result, True
     except IntegrityError:
         if stored:
             default_storage.delete(stored)
-        for name in stored_steps.values():
+        for name in (*stored_steps.values(), *stored_body.values()):
             delete_unreferenced_image(name)
         existing = Submission.objects.filter(author=user, request_key=request_key).first()
         if existing and existing.content_hash == fingerprint:
@@ -118,7 +129,7 @@ def submit_new(user, data, edit_of=None, inherited_image="", inherited_image_url
     except Exception:
         if stored:
             default_storage.delete(stored)
-        for name in stored_steps.values():
+        for name in (*stored_steps.values(), *stored_body.values()):
             delete_unreferenced_image(name)
         raise
 
@@ -132,9 +143,11 @@ def submit_edit(user, source, data):
     if data["kind"] != source.kind:
         raise ValidationError({"kind": "修改申请不能更换投稿类型。"})
     current = entry.current_submission
+    if current and current.body_blocks and not data.get("body_blocks"):
+        raise ValidationError({"body": "请使用新版图文编辑器修改这篇投稿。"})
     return submit_new(user, data, edit_of=entry,
         inherited_image=current.image.name if current and current.image else "",
-        inherited_image_url=entry.content.image_url, base_version=expected, inherited_step_images=step_image_names(current))
+        inherited_image_url=entry.content.image_url, base_version=expected, source=current)
 
 def resubmit(item, data):
     expected = data.pop("revision", None)
@@ -142,8 +155,13 @@ def resubmit(item, data):
     remove_image = data.pop("remove_image", False)
     base_version = data.pop("base_version", None)
     uploads = data.pop("step_images", {})
-    inherited_steps = planned_step_images(data, step_image_names(item), uploads)
-    old_step_names = list(step_image_names(item).values())
+    body_uploads = data.pop("body_images", {})
+    if item.body_blocks and not data.get("body_blocks"):
+        raise ValidationError({"body": "请使用新版图文编辑器修改这篇投稿。"})
+    step_sources = image_names(item, "step_images", "step_index")
+    body_sources = image_names(item, "body_images", "block_index")
+    inherited_steps = planned_images(data.pop("inherit_step_images", {}), data.pop("remove_step_images", []), step_sources, uploads)
+    inherited_body = planned_images(data.pop("inherit_body_images", {}), (), body_sources, body_uploads)
     if item.status != Submission.Status.CHANGES or item.revision != expected:
         raise Conflict("请刷新投稿状态，只有需修改的投稿可以重新提交。")
     if item.edit_of_id:
@@ -153,7 +171,7 @@ def resubmit(item, data):
         if data["kind"] != item.kind:
             raise ValidationError({"kind": "修改申请不能更换投稿类型。"})
         data["base_entry_updated_at"] = base_version
-    stored, stored_steps = store_images(data, uploads)
+    stored, stored_steps, stored_body = store_images(data, uploads, body_uploads)
     old_image = item.image.name
     image_name = stored or ("" if remove_image else old_image)
     if stored or remove_image:
@@ -166,15 +184,17 @@ def resubmit(item, data):
             if changed != 1:
                 raise Conflict()
             item.step_images.all().delete()
-            create_step_images(item, inherited_steps, stored_steps)
-            for old_name in old_step_names:
+            item.body_images.all().delete()
+            create_images(SubmissionStepImage, "step_index", item, inherited_steps, stored_steps)
+            create_images(SubmissionBodyImage, "block_index", item, inherited_body, stored_body)
+            for old_name in (*step_sources.values(), *body_sources.values()):
                 transaction.on_commit(lambda name=old_name: delete_unreferenced_image(name))
             if old_image and old_image != image_name:
                 transaction.on_commit(lambda: delete_unreferenced_image(old_image))
     except Exception:
         if stored:
             default_storage.delete(stored)
-        for name in stored_steps.values():
+        for name in (*stored_steps.values(), *stored_body.values()):
             delete_unreferenced_image(name)
         raise
     item.refresh_from_db()
@@ -186,7 +206,8 @@ def publish_content(item):
         data = validate_map_data(item.kind, item.map_data)
     except ValidationError as error:
         raise ReviewConflict(str(error.detail))
-    kind = data.get("type", Publication.Kind.POST)
+    kind = {Submission.Kind.NEW_PLACE: Publication.Kind.PLACE,
+            Submission.Kind.NEW_ROUTE: Publication.Kind.ROUTE}.get(item.kind, Publication.Kind.POST)
     if item.edit_of_id:
         publication = Publication.objects.select_for_update().get(pk=item.edit_of_id)
         if not publication.published or publication.updated_at != item.base_entry_updated_at or publication.kind != kind:
@@ -196,7 +217,7 @@ def publish_content(item):
     else:
         publication = Publication.objects.create(kind=kind, sort_order=100, current_submission=item)
 
-    body = f"相关地点或路线：{item.location}\n\n{item.body}" if item.location else item.body
+    body = publication_body(item)
     common = {"body": body, "external_url": item.external_url, "image_url": item.inherited_image_url}
     if kind == Publication.Kind.PLACE:
         details = place_fields(data)

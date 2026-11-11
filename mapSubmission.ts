@@ -2,9 +2,15 @@ import type { PickedImage } from './communityApi';
 import type { Place } from './campus';
 import { CAMPUS_MAP_VERSION } from './MapArtwork';
 export type RouteStepDraft = { title: string; body: string; image?: PickedImage | null; existingImage?: string; imageUrl?: string; removeImage?: boolean; sourceIndex?: number };
-export type MapDraftData = { type?: 'place' | 'route'; mapVersion?: number; category?: Place['category']; x?: number | null; y?: number | null; english?: string; abbreviation?: string; entrance?: string; floor?: string; originId?: string; destinationId?: string; steps?: RouteStepDraft[] };
+export type MapDraftData = { type?: 'place' | 'route' | 'place_correction' | 'route_correction'; mapVersion?: number;
+  category?: Place['category']; x?: number | null; y?: number | null; english?: string; abbreviation?: string; entrance?: string;
+  floor?: string; placeId?: string; originId?: string; destinationId?: string; routeId?: string; steps?: RouteStepDraft[]; stepPhotosRequired?: boolean };
 export function emptyMapDraft(kind: string): MapDraftData {
-  return kind === 'new_place' ? { type: 'place', mapVersion: CAMPUS_MAP_VERSION, category: 'building', x: null, y: null, english: '', entrance: '', floor: '' } : kind === 'new_route' ? { type: 'route', originId: 'gate', destinationId: 'main', steps: [{ title: '', body: '' }] } : {};
+  if (kind === 'new_place') return { type: 'place', mapVersion: CAMPUS_MAP_VERSION, category: 'building', x: null, y: null, english: '', entrance: '', floor: '' };
+  if (kind === 'new_route') return { type: 'route', steps: [{ title: '', body: '' }], stepPhotosRequired: true };
+  if (kind === 'place') return { type: 'place_correction' };
+  if (kind === 'route') return { type: 'route_correction' };
+  return {};
 }
 export function editMapDraft(value: MapDraftData = {}): MapDraftData {
   const location = value.type === 'place' && value.mapVersion !== CAMPUS_MAP_VERSION
@@ -13,16 +19,20 @@ export function editMapDraft(value: MapDraftData = {}): MapDraftData {
 }
 export function hasMapInput(data: MapDraftData): boolean {
   if (data.type === 'place') return typeof data.x === 'number' || Boolean(data.english || data.abbreviation || data.entrance || data.floor || (data.category && data.category !== 'building'));
-  if (data.type === 'route') return Boolean((data.originId && data.originId !== 'gate') || (data.destinationId && data.destinationId !== 'main') || (data.steps?.length || 0) > 1 || data.steps?.some(step => step.title || step.body || step.image || step.existingImage));
-  return false;
+  return Boolean(data.placeId || data.originId || data.destinationId || (data.steps?.length || 0) > 1 ||
+    data.steps?.some(step => step.title || step.body || step.image || step.existingImage));
 }
 export function validateMapDraft(kind: string, data: MapDraftData): string | null {
   if (kind === 'new_place' && (typeof data.x !== 'number' || typeof data.y !== 'number' || !Number.isFinite(data.x) || !Number.isFinite(data.y) || data.x < 0 || data.x > 360 || data.y < 0 || data.y > 580)) return '请在校园示意图上选择地点位置。';
-  if (kind === 'new_route') {
+  if (kind === 'place' && !data.placeId) return '请选择需要纠错的地点。';
+  if (kind === 'new_route' || kind === 'route') {
     if (!data.originId || !data.destinationId) return '请选择路线的起点和终点。';
     if (data.originId === data.destinationId) return '起点和终点不能相同。';
+  }
+  if (kind === 'new_route') {
     if (!data.steps?.length || data.steps.length > 20) return '路线需要 1–20 个步骤。';
     if (data.steps.some(step => !step.title.trim() || !step.body.trim())) return '每一步都需要标题和说明。';
+    if (data.stepPhotosRequired && data.steps.some(step => !step.image && (step.removeImage || !step.existingImage))) return '请为每个路线步骤添加配图。';
   }
   return null;
 }
@@ -37,7 +47,10 @@ export function serializeMapDraft(kind: string, value: MapDraftData) {
       else if (step.existingImage && typeof step.sourceIndex === 'number') inherit[String(index)] = step.sourceIndex;
       return { title: step.title.trim(), body: step.body.trim() };
     });
-    return { data: { type: 'route', originId: value.originId, destinationId: value.destinationId, steps }, inherit, removed, uploads };
+    return { data: { type: 'route', originId: value.originId, destinationId: value.destinationId, steps,
+      ...(value.stepPhotosRequired ? { stepPhotosRequired: true } : {}) }, inherit, removed, uploads };
   }
+  if (kind === 'place') return { data: { type: 'place_correction', placeId: value.placeId }, inherit, removed, uploads };
+  if (kind === 'route') return { data: { type: 'route_correction', originId: value.originId, destinationId: value.destinationId, routeId: value.routeId || '' }, inherit, removed, uploads };
   return { data: kind === 'new_place' ? { type: 'place', mapVersion: CAMPUS_MAP_VERSION, category: value.category, x: value.x, y: value.y, english: value.english || '', abbreviation: value.abbreviation, entrance: value.entrance || '', floor: value.floor || '' } : {}, inherit, removed, uploads };
 }

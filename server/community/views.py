@@ -17,7 +17,8 @@ from guide.catalog import content_image, publication_map_data, published_routes
 from guide.models import GuidePost, Publication
 
 from .authentication import MobileAuthentication, create_session
-from .models import Submission, SubmissionStepImage, RecoveryCredential, UserProfile
+from .models import Submission, SubmissionBodyImage, SubmissionStepImage, RecoveryCredential, UserProfile
+from .body_content import body_blocks_data, publication_body, published_body_blocks
 from .profiles import PrivacyInput, ProfileInput, author_data, privacy_data, update_privacy, update_profile
 from .map_content import enrich_map_data
 from .serializers import (RegisterInput, AccountInput, SubmissionInput, ChangePasswordInput,
@@ -47,11 +48,16 @@ def published_data(request, item):
     prefix = f"相关地点或路线：{location}\n\n"
     if location and body.startswith(prefix):
         body = body[len(prefix):]
+    map_data = publication_map_data(request, entry, content)
+    if source and source.map_data.get("type") in {"place_correction", "route_correction"}:
+        map_data = source.map_data
+    elif source and source.map_data.get("stepPhotosRequired"):
+        map_data["stepPhotosRequired"] = True
     return {"title": content.title, "body": body, "location": location,
         "externalUrl": content.external_url,
         "imageUrl": content_image(request, content, entry),
         "version": entry.updated_at.isoformat(), "published": entry.published,
-        "mapData": publication_map_data(request, entry, content)}
+        "mapData": map_data, "bodyBlocks": published_body_blocks(request, content, source) if entry.kind == Publication.Kind.POST else []}
 
 def submission_data(request, item):
     return {
@@ -64,6 +70,7 @@ def submission_data(request, item):
         "isEdit": bool(item.edit_of_id), "publishedContent": published_data(request, item),
         "openEditId": str(item.open_edit_id) if getattr(item, "open_edit_id", None) else None,
         "mapData": enrich_map_data(request, item.map_data, item),
+        "bodyBlocks": body_blocks_data(request, item),
     }
 
 class PrivateResponseView(APIView):
@@ -211,7 +218,8 @@ def owned_submissions(user):
         "author__profile",
         *(f"{target}__{child}" for target in targets for child in ("current_submission", "post", "place", "route")),
     ).prefetch_related(
-        "step_images", *(f"{target}__route__steps__photo" for target in targets),
+        "step_images", "body_images", *(f"{target}__route__steps__photo" for target in targets),
+        *(f"{target}__current_submission__body_images" for target in targets),
     ).annotate(
         target_entry_id=Coalesce("edit_of_id", "public_entry_id"), open_edit_id=Subquery(active.values("pk")[:1]))
 
@@ -298,6 +306,26 @@ class SubmissionStepImageView(PrivateResponseView):
             and item.public_entry.current_submission_id == item.pk
             and item.public_entry.kind == Publication.Kind.ROUTE
             and published_routes().filter(pk=item.public_entry_id, steps__photo_id=image.pk).exists())
+        allowed = public or (request.user.is_authenticated and (request.user.pk == item.author_id or request.user.is_staff))
+        if not allowed:
+            raise Http404
+        try:
+            return FileResponse(image.image.open("rb"), content_type="image/jpeg")
+        except FileNotFoundError:
+            raise Http404
+
+
+class SubmissionBodyImageView(PrivateResponseView):
+    permission_classes = [AllowAny]
+    authentication_classes = [MobileAuthentication, SessionAuthentication]
+
+    def get(self, request, pk):
+        image = get_object_or_404(SubmissionBodyImage.objects.select_related("submission__public_entry__post"), pk=pk)
+        item = image.submission
+        entry = item.public_entry
+        public = (item.status == Submission.Status.APPROVED and entry and entry.published
+            and entry.kind == Publication.Kind.POST and entry.current_submission_id == item.pk
+            and entry.content and entry.content.body == publication_body(item))
         allowed = public or (request.user.is_authenticated and (request.user.pk == item.author_id or request.user.is_staff))
         if not allowed:
             raise Http404
