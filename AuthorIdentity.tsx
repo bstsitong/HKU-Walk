@@ -23,7 +23,9 @@ export function Avatar({ uri, size = 36 }: { uri?: string; size?: number }) {
   </View>;
 }
 
-export function AuthorByline({ author, detail, size = 28, link = true }: { author: AuthorProfile; detail?: string; size?: number; link?: boolean }) {
+export function AuthorByline({ author, detail, size = 28, link = true, onOpenProfile }: {
+  author: AuthorProfile; detail?: string; size?: number; link?: boolean; onOpenProfile?: (id: string) => void;
+}) {
   const openProfile = useContext(OpenAuthorProfile);
   const profileId = link ? author.profileId : undefined;
   const identity = <>
@@ -34,7 +36,7 @@ export function AuthorByline({ author, detail, size = 28, link = true }: { autho
     </View>
   </>;
   return profileId ? <Pressable testID={`author-profile-${profileId}`} accessibilityRole="button" accessibilityHint={t('打开作者主页')}
-    onPress={() => openProfile(profileId)} style={[s.row, s.link]}>{identity}</Pressable> : <View style={s.row}>{identity}</View>;
+    onPress={() => (onOpenProfile || openProfile)(profileId)} style={[s.row, s.link]}>{identity}</Pressable> : <View style={s.row}>{identity}</View>;
 }
 
 const s = StyleSheet.create({

@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { useRef, useState } from 'react';
-import { Keyboard, StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { AppState, Keyboard, StyleSheet, View } from 'react-native';
 import { Alert, Pressable, Text } from './ui';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon, { IconName } from './AppIcon';
@@ -8,12 +8,13 @@ import { OpenAuthorProfile } from './AuthorIdentity';
 import CampusMap, { MapRequest, MapView } from './CampusMap';
 import usePlaces from './usePlaces';
 import { getCampusRoute, getPlace, Place, placeName } from './campus';
-import { PlaceDiscussion } from './Discussion';
+import { DiscussionScreen } from './Discussion';
 import EditProfile from './EditProfile';
 import { LanguageProvider, useLanguage } from './LanguageProvider';
 import { colors } from './theme';
 import { GuideArticles, GuideArticleScreen } from './GuideArticles';
 import ProfileScreen from './ProfileScreen';
+import InboxScreen from './InboxScreen';
 import PublicProfileScreen from './PublicProfileScreen';
 import { GuideArticle, GuideEntry } from './guideApi';
 import useCampus from './useCampus';
@@ -22,7 +23,7 @@ import { RouteBookmark } from './routeBookmarks';
 import useGuide from './useGuide';
 import useAccount from './useAccount';
 import CommunityScreen from './CommunityScreen';
-import { ApiError, setGuideLike, Submission } from './communityApi';
+import { ApiError, DiscussionTarget, fetchInboxCount, fetchSubmission, InboxMessage, setGuideLike, Submission } from './communityApi';
 import useRecentActivity from './useRecentActivity';
 import usePersonalStorage from './usePersonalStorage';
 
@@ -55,6 +56,11 @@ function MainApp() {
   const [liking, setLiking] = useState<string[]>([]);
   const likeRequests = useRef(new Set<string>());
   const owner = account.session?.user.id;
+  const [inboxOwner, setInboxOwner] = useState<string>();
+  const [inboxTarget, setInboxTarget] = useState<DiscussionTarget | null>(null);
+  const [badge, setBadge] = useState<{ token: string; unread: number }>();
+  const inboxNavigation = useRef(0);
+  const inboxActive = Boolean(owner && inboxOwner === owner && token);
   const [communityEntry, setCommunityEntry] = useState<'home' | 'security' | 'login' | 'form' | Submission | null>(null);
   const savedRoutes = useSavedRoutes(owner);
   const history = useRecentActivity(owner);
@@ -65,6 +71,50 @@ function MainApp() {
     if (expired) void account.expire().then(openLogin);
     else openLogin();
   };
+  const closeInbox = () => {
+    inboxNavigation.current++;
+    setInboxTarget(null);
+    setInboxOwner(undefined);
+  };
+  const openInbox = () => {
+    if (owner) { setInboxTarget(null); setInboxOwner(owner); }
+    else if (account.ready) openLogin();
+  };
+  const onInboxExpired = () => { closeInbox(); openDiscussionLogin(true); };
+  const openInboxMessage = async (message: InboxMessage) => {
+    const version = ++inboxNavigation.current;
+    if (message.kind !== 'review') {
+      if (message.target) setInboxTarget(message.target);
+      return;
+    }
+    if (!token) return;
+    try {
+      const result = await fetchSubmission(token, message.submissionId);
+      if (version === inboxNavigation.current) setCommunityEntry(result.submission);
+    } catch (error) {
+      if (version !== inboxNavigation.current) return;
+      if (error instanceof ApiError && error.status === 401) onInboxExpired();
+      else Alert.alert('内容暂不可用', error instanceof ApiError && error.status === 404 ? undefined : '请稍后重试。');
+    }
+  };
+  useEffect(() => {
+    if (!token || tab !== 'profile' || inboxActive) return;
+    let live = true;
+    let running = false;
+    const check = async () => {
+      if (running || AppState.currentState === 'background') return;
+      running = true;
+      try {
+        const { unread } = await fetchInboxCount(token);
+        if (live) setBadge({ token, unread });
+      } catch { /* An unavailable badge should not interrupt the profile. */ }
+      finally { running = false; }
+    };
+    void check();
+    const timer = setInterval(check, 30000);
+    const listener = AppState.addEventListener('change', state => { if (state === 'active') void check(); });
+    return () => { live = false; clearInterval(timer); listener.remove(); };
+  }, [token, tab, inboxActive]);
   const requireAccount = <T,>(action: (value: T) => void) => (value: T) => {
     if (account.session) action(value);
     else if (account.ready) openLogin();
@@ -117,6 +167,7 @@ function MainApp() {
   const openProfilePost = (id: string) => {
     setPublicProfileId(null);
     setCommentPlace(null);
+    closeInbox();
     setTab('guide');
     openArticle(id);
     if (!data.articles.some(item => item.id === id)) void data.reload();
@@ -130,18 +181,26 @@ function MainApp() {
       <View style={[s.content, (tab !== 'guide' || Boolean(article)) && s.hidden]}>
         <GuideArticles data={guideData} bookmarks={bookmarks} liking={liking} onLike={toggleLike} onOpen={openArticle} onContribute={() => setCommunityEntry('form')} />
       </View>
-      <View style={[s.content, (tab !== 'profile' || Boolean(article) || Boolean(editingUser)) && s.hidden]}>
-        <ProfileScreen active={tab === 'profile'} data={data} campus={campus} bookmarks={bookmarks} records={records} routes={routes} history={history}
+      <View style={[s.content, (tab !== 'profile' || Boolean(article) || Boolean(editingUser) || inboxActive) && s.hidden]}>
+        <ProfileScreen active={tab === 'profile' && !inboxActive} data={data} campus={campus} bookmarks={bookmarks} records={records} routes={routes} history={history}
           session={account.session} accountReady={account.ready} onAccount={() => account.session ? setCommunityEntry('security') : openLogin()}
           submissionsPaused={communityEntry !== null || Boolean(editingUser)} onOpenSubmission={setCommunityEntry} onEditProfile={() => setEditingProfile(true)}
           onContribute={() => setCommunityEntry('form')} onLogin={openDiscussionLogin} onPrivacySaved={() => void refreshAll()}
-          onOpenPlace={openPlace} onOpenRoute={openRoute} onOpenContent={openContent} onOpenArticle={openArticle} />
+          onOpenPlace={openPlace} onOpenRoute={openRoute} onOpenContent={openContent} onOpenArticle={openArticle}
+          onInbox={openInbox} unread={badge && badge.token === token ? badge.unread : 0} />
       </View>
       {article && reading ? <GuideArticleScreen key={article.id} article={article} initiallyComments={reading.comments} session={account.session}
         onBack={() => setReading(null)} onLogin={openDiscussionLogin} bookmarks={bookmarks} liking={liking} onLike={toggleLike}
         onCommentCount={count => data.updateArticle(article.id, { commentCount: count })} /> : null}
-      {commentPlace ? <PlaceDiscussion key={commentPlace.id} id={commentPlace.id} title={placeName(commentPlace)} session={account.session}
+      {commentPlace ? <DiscussionScreen key={commentPlace.id} kind="place" id={commentPlace.id} title={placeName(commentPlace)} session={account.session}
         onBack={() => setCommentPlace(null)} onLogin={openDiscussionLogin} /> : null}
+      {inboxActive && token && (inboxTarget ?
+        <DiscussionScreen key={`${inboxTarget.kind}-${inboxTarget.commentId}`} kind={inboxTarget.kind}
+          id={inboxTarget.id} title={inboxTarget.title} focusCommentId={inboxTarget.commentId} session={account.session}
+          onBack={() => setInboxTarget(null)} onLogin={expired => { if (expired) onInboxExpired(); else openLogin(); }} /> :
+        <InboxScreen key={owner} token={token} onBack={closeInbox} onOpen={message => void openInboxMessage(message)}
+          onProfile={id => { inboxNavigation.current++; setPublicProfileId(id); }} onExpired={onInboxExpired}
+          onUnread={unread => setBadge({ token, unread })} />)}
       {editingUser ? <EditProfile key={editingUser.id} user={editingUser} onBack={() => setEditingProfile(false)}
         onSave={async draft => { await account.saveProfile(draft); void refreshAll(); }}
         onExpired={() => { setEditingProfile(false); openDiscussionLogin(true); }} /> : null}
@@ -150,7 +209,7 @@ function MainApp() {
         if (communityEntry !== 'security' && communityEntry !== 'login') void refreshAll();
         setCommunityEntry(null);
       }} account={account} />
-      {!article && !commentPlace && !editingUser && (tab !== 'map' || mapView === 'home') ? <View style={s.nav} accessibilityRole="tablist">
+      {!article && !commentPlace && !editingUser && !inboxActive && (tab !== 'map' || mapView === 'home') ? <View style={s.nav} accessibilityRole="tablist">
         {tabs.map(item => (
           <Pressable key={item.key} testID={`tab-${item.key}`} accessibilityRole="tab" accessibilityLabel={item.label}
             accessibilityState={{ selected: tab === item.key }}

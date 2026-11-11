@@ -29,7 +29,8 @@ export type GuideArticle = GuideEntry & {
   sourcePages: Record<string, GuideSourcePage>; markdown: boolean;
   bodyBlocks?: BodyBlock[]; relatedLocation?: string;
 };
-export type DiscussionComment = { id: string; author: string; authorProfile?: AuthorProfile; body: string; createdAt: string };
+export type DiscussionComment = { id: string; author: string; authorProfile?: AuthorProfile; body: string; createdAt: string;
+  replyTo?: { id: string; author: AuthorProfile } | null };
 
 function defaultHost() {
   const hostUri = Constants.expoConfig?.hostUri;

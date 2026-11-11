@@ -27,13 +27,14 @@ const guestBenefits: { icon: IconName; title: string; description: string }[] = 
   { icon: 'history', title: '历史记录', description: '找回看过的地点、路线和帖子' },
 ];
 
-export default function ProfileScreen({ active, session, accountReady, onAccount, onContribute, onLogin, onPrivacySaved, data, campus, bookmarks, records, routes, history, submissionsPaused, onOpenSubmission, onOpenPlace, onOpenRoute, onOpenContent, onOpenArticle, onEditProfile }: {
+export default function ProfileScreen({ active, session, accountReady, onAccount, onContribute, onLogin, onPrivacySaved, data, campus, bookmarks, records, routes, history, submissionsPaused, onOpenSubmission, onOpenPlace, onOpenRoute, onOpenContent, onOpenArticle, onEditProfile, onInbox, unread }: {
   active: boolean; session: Account | null; accountReady: boolean; onAccount: () => void; onContribute: () => void;
   history: ReturnType<typeof useRecentActivity>; submissionsPaused: boolean; onOpenSubmission: (submission: Submission) => void;
   onLogin: (expired?: boolean) => void; onPrivacySaved: () => void;
   data: ReturnType<typeof useGuide>; campus: ReturnType<typeof useCampus>; bookmarks: Bookmarks; records: PlaceRecords; routes: RouteRecords;
   onOpenPlace: (place: Place) => void; onOpenRoute: (route: RouteBookmark) => void; onOpenContent: (entry: GuideEntry) => void;
   onOpenArticle: (id: string) => void; onEditProfile: () => void;
+  onInbox: () => void; unread: number;
 }) {
   const [section, setSection] = useState<Section>('places');
   const [panel, setPanel] = useState<keyof typeof panels>('saved');
@@ -58,9 +59,13 @@ export default function ProfileScreen({ active, session, accountReady, onAccount
   return <View style={s.flex}>
     <ScrollView style={s.flex} contentContainerStyle={s.page} refreshControl={session && panel === 'saved' ? <RefreshControl refreshing={data.loading || campus.loading} onRefresh={() => { void data.reload(); void campus.reload(); }} tintColor={c.green} /> : undefined}>
       <View style={s.header}>
-        <Text accessibilityRole="header" style={s.profileTitle}>我的</Text>
-        <Pressable testID="profile-settings" accessibilityRole="button" style={s.headerAction} onPress={() => setSettings(true)}>
-          <AppIcon name="settings" size={18} /><Text style={s.settingLabel}>设置</Text>
+        <Pressable testID="profile-settings" accessibilityRole="button" accessibilityLabel="设置" style={s.headerAction} onPress={() => setSettings(true)}>
+          <AppIcon name="settings" size={22} />
+        </Pressable>
+        <Pressable testID="profile-inbox" accessibilityRole="button"
+          accessibilityLabel={unread ? t('{count} 条未读消息', { count: unread }) : '消息'} style={s.headerAction} onPress={onInbox}>
+          <AppIcon name="mail" size={22} />
+          {unread ? <View style={s.inboxDot} /> : null}
         </Pressable>
       </View>
       {!accountReady ? <ActivityIndicator color={c.green} style={s.empty} accessibilityLabel="正在读取登录信息…" /> : !session ? <>
@@ -285,9 +290,8 @@ const s = StyleSheet.create({
   page: { width: '100%', maxWidth: 650, alignSelf: 'center', paddingHorizontal: 20, paddingBottom: 28 },
   profile: { backgroundColor: c.green, borderRadius: 12, padding: 14, gap: 12 },
   header: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  profileTitle: { fontSize: 24, lineHeight: 32, fontWeight: '700', color: c.ink },
-  headerAction: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 8 },
-  settingLabel: { color: c.ink, fontSize: 13 },
+  headerAction: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
+  inboxDot: { position: 'absolute', top: 10, right: 9, width: 7, height: 7, borderRadius: 4, backgroundColor: c.rust },
   guestPanel: { backgroundColor: c.tint, padding: 16, borderRadius: 12, gap: 8 },
   guestHeading: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 18, marginBottom: 4 },
   profileButton: { minHeight: 48, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', padding: 9, borderRadius: 8 },

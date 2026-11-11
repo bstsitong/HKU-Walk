@@ -118,3 +118,37 @@ class SubmissionBodyImage(models.Model):
     class Meta:
         ordering = ["block_index"]
         constraints = [models.UniqueConstraint(fields=["submission", "block_index"], name="one_image_per_body_block")]
+
+
+class InboxMessage(models.Model):
+    class Kind(models.TextChoices):
+        REVIEW = "review", "审核结果"
+        COMMENT = "comment", "评论"
+        REPLY = "reply", "回复"
+
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="inbox_messages")
+    kind = models.CharField(max_length=10, choices=Kind.choices)
+    submission = models.ForeignKey(Submission, null=True, blank=True, on_delete=models.CASCADE)
+    guide_comment = models.ForeignKey("guide.GuideComment", null=True, blank=True, on_delete=models.CASCADE)
+    place_comment = models.ForeignKey("guide.PlaceComment", null=True, blank=True, on_delete=models.CASCADE)
+    review_status = models.CharField(max_length=24, blank=True)
+    review_title = models.CharField(max_length=160, blank=True)
+    review_note = models.TextField(blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["recipient", "-id"], name="inbox_recipient_latest"),
+                   models.Index(fields=["recipient", "is_read"], name="inbox_recipient_unread")]
+        constraints = [
+            models.UniqueConstraint(fields=["recipient", "guide_comment"], name="unique_inbox_guide_comment"),
+            models.UniqueConstraint(fields=["recipient", "place_comment"], name="unique_inbox_place_comment"),
+            models.CheckConstraint(
+                condition=(models.Q(kind="review", submission__isnull=False, guide_comment__isnull=True, place_comment__isnull=True)
+                           | (models.Q(kind__in=["comment", "reply"], submission__isnull=True)
+                              & (models.Q(guide_comment__isnull=False, place_comment__isnull=True)
+                                 | models.Q(guide_comment__isnull=True, place_comment__isnull=False)))),
+                name="one_inbox_message_target",
+            ),
+        ]

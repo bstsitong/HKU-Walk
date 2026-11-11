@@ -89,6 +89,7 @@ class GuideComment(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     body = models.TextField(max_length=1000)
     request_id = models.UUIDField()
+    reply_to = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL, related_name="replies")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -139,6 +140,7 @@ class PlaceComment(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     body = models.TextField(max_length=1000)
     request_id = models.UUIDField()
+    reply_to = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL, related_name="replies")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

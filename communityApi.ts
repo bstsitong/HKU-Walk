@@ -95,12 +95,24 @@ export const rotateRecoveryCode = (token: string, password: string) =>
 export const fetchSubmissions = (token: string, page = 1) => request<{ submissions: Submission[]; count: number; nextPage: number | null }>(`/api/submissions/?page=${page}`, {}, token);
 export const fetchSubmission = (token: string, id: string) => request<{ submission: Submission }>(`/api/submissions/${id}/`, {}, token);
 export type DiscussionKind = 'guide' | 'place';
+export type DiscussionTarget = { kind: DiscussionKind; id: string; commentId: string; title: string };
+export type InboxMessage = { id: string; createdAt: string; read: boolean } & (
+  { kind: 'review'; submissionId: string; title: string; reviewStatus: 'approved' | 'changes_requested'; reviewNote: string } |
+  { kind: 'comment' | 'reply'; target: DiscussionTarget | null; author?: AuthorProfile; body?: string }
+);
+export const fetchInbox = (token: string, page = 1) =>
+  request<{ messages: InboxMessage[]; nextPage: number | null; unread: number }>(`/api/inbox/?page=${page}`, { cache: 'no-store' }, token);
+export const fetchInboxCount = (token: string) =>
+  request<{ unread: number }>('/api/inbox/?summary=1', { cache: 'no-store' }, token);
+export const markInboxRead = (token: string, id: string) =>
+  request<{ unread: number }>(`/api/inbox/${encodeURIComponent(id)}/read/`, { method: 'PATCH' }, token);
 const commentPath = (kind: DiscussionKind, id: string) => `/api/${kind === 'guide' ? 'guide/articles' : 'campus/places'}/${encodeURIComponent(id)}/comments/`;
-export const fetchComments = (kind: DiscussionKind, id: string, page = 1) =>
-  request<{ comments: DiscussionComment[]; count: number; nextPage: number | null }>(`${commentPath(kind, id)}?page=${page}`);
-export const sendComment = (token: string, kind: DiscussionKind, id: string, body: string, requestId: string) =>
+export const fetchComments = (kind: DiscussionKind, id: string, page = 1, focus?: string) =>
+  request<{ comments: DiscussionComment[]; focusedComment?: DiscussionComment | null; count: number; nextPage: number | null }>(
+    `${commentPath(kind, id)}?page=${page}${focus ? `&focus=${encodeURIComponent(focus)}` : ''}`);
+export const sendComment = (token: string, kind: DiscussionKind, id: string, body: string, requestId: string, replyTo?: string) =>
   request<{ comment: DiscussionComment; commentCount: number }>(commentPath(kind, id), {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body, request_id: requestId }),
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body, request_id: requestId, reply_to: replyTo }),
   }, token);
 export const setGuideLike = (token: string, id: string, liked: boolean) => request<{ liked: boolean; likeCount: number }>(`/api/guide/articles/${id}/like/`, {
   method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ liked }),

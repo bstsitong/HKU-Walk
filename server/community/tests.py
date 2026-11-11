@@ -15,7 +15,7 @@ from django.test import Client, TestCase, override_settings
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from guide.models import GuidePost
+from guide.models import GuideComment, GuidePost
 from .authentication import create_session
 from .models import MobileSession, Submission
 from .services import ReviewConflict, review_submission
@@ -66,6 +66,94 @@ class CommunityFixture(TestCase):
             response.close()
 
 class CommunityTests(CommunityFixture):
+    def test_review_inbox_keeps_each_decision_and_is_private(self):
+        item = self.submit(title="第一版标题")
+        other = APIClient()
+        other.credentials(HTTP_AUTHORIZATION=f"Bearer {create_session(self.other)}")
+        endpoint = "/api/inbox/"
+        self.assertEqual(self.anon.get(endpoint).status_code, 401)
+        self.assertEqual(self.api.get(endpoint).json()["messages"], [])
+        item = review_submission(item.pk, 1, "changes_requested", "请加入口照片", self.admin)
+        response = self.api.patch(f"/api/submissions/{item.pk}/", {
+            **self.payload, "title": "更新后标题", "revision": item.revision,
+        }, format="json")
+        self.assertEqual(response.status_code, 200, response.content)
+        item = review_submission(item.pk, item.revision + 1, "approved", "", self.admin)
+        with self.assertRaises(ReviewConflict):
+            review_submission(item.pk, item.revision - 1, "approved", "", self.admin)
+        inbox = self.api.get(endpoint).json()
+        self.assertEqual(inbox["unread"], 2)
+        approved, returned = inbox["messages"]
+        self.assertEqual((approved["reviewStatus"], approved["title"]), ("approved", "更新后标题"))
+        self.assertEqual((returned["reviewStatus"], returned["title"], returned["reviewNote"]),
+                         ("changes_requested", "第一版标题", "请加入口照片"))
+        self.assertEqual(returned["submissionId"], str(item.pk))
+        read_url = f"{endpoint}{returned['id']}/read/"
+        self.assertEqual(other.get(endpoint).json()["messages"], [])
+        self.assertEqual(other.patch(read_url).status_code, 404)
+        self.assertEqual(self.anon.patch(read_url).status_code, 401)
+        for _ in range(2):
+            self.assertEqual(self.api.patch(read_url).json()["unread"], 1)
+        self.assertEqual(self.api.get(endpoint, {"summary": "1"}).json(), {"unread": 1})
+
+    def test_comment_and_reply_messages_respect_privacy_and_focus(self):
+        article = self.submit()
+        place = self.submit(kind="new_place", title="测试入口", request_key="inbox_new_place",
+                            map_data={"category": "access", "x": 43, "y": 60, "mapVersion": 2})
+        article = review_submission(article.pk, 1, "approved", "", self.admin).public_entry.post
+        place = review_submission(place.pk, 1, "approved", "", self.admin).public_entry.place
+        sender = APIClient()
+        sender.credentials(HTTP_AUTHORIZATION=f"Bearer {create_session(self.other)}")
+        self.assertEqual(sender.patch("/api/accounts/me/", {"nickname": "校园观察员"}, format="json").status_code, 200)
+        self.assertEqual(sender.patch("/api/accounts/privacy/", {"publicProfile": True}, format="json").status_code, 200)
+        threads = (("guide", f"/api/guide/articles/{article.pk}/comments/"),
+                   ("place", f"/api/campus/places/{place.pk}/comments/"))
+        authored = {}
+        for kind, url in threads:
+            payload = {"body": f"New {kind} comment", "request_id": str(uuid4())}
+            created = sender.post(url, payload, format="json")
+            self.assertEqual(created.status_code, 201, created.content)
+            self.assertEqual(sender.post(url, payload, format="json").status_code, 200)
+            authored[kind] = created.json()["comment"]["id"]
+            reply = self.api.post(url, {"body": f"Reply on {kind}", "request_id": str(uuid4()), "reply_to": authored[kind]}, format="json")
+            self.assertEqual(reply.status_code, 201, reply.content)
+            self.assertEqual(reply.json()["comment"]["replyTo"]["id"], authored[kind])
+
+        comments = [item for item in self.api.get("/api/inbox/").json()["messages"] if item["kind"] == "comment"]
+        self.assertEqual(len(comments), 2)
+        self.assertEqual({item["target"]["kind"]: item["target"]["commentId"] for item in comments}, authored)
+        self.assertTrue(all(item["author"]["name"] == "校园观察员" and item["author"]["profileId"] for item in comments))
+        self.assertEqual([item["kind"] for item in sender.get("/api/inbox/").json()["messages"]], ["reply", "reply"])
+        self.assertEqual(sender.patch("/api/accounts/privacy/", {"showCommentAuthor": False}, format="json").status_code, 200)
+        comments = [item for item in self.api.get("/api/inbox/").json()["messages"] if item["kind"] == "comment"]
+        for item in comments:
+            self.assertEqual(item["author"], {"name": "匿名用户", "avatarUrl": "", "anonymous": True})
+        self.assertEqual(sender.patch("/api/accounts/privacy/", {"showCommentAuthor": True, "publicProfile": False}, format="json").status_code, 200)
+        comments = [item for item in self.api.get("/api/inbox/").json()["messages"] if item["kind"] == "comment"]
+        self.assertTrue(all(item["author"]["name"] == "校园观察员" and "profileId" not in item["author"] for item in comments))
+
+        guide_url = threads[0][1]
+        GuideComment.objects.bulk_create([
+            GuideComment(post=article, author=self.owner, body="Newer comment", request_id=uuid4()) for _ in range(21)
+        ])
+        focused = self.anon.get(guide_url, {"focus": authored["guide"]}).json()
+        self.assertEqual(focused["focusedComment"]["id"], authored["guide"])
+        self.assertEqual(focused["count"], 23)
+        self.assertNotIn(authored["guide"], [item["id"] for item in focused["comments"]])
+        unrelated = GuidePost.objects.get(publication__key="student-guide-links")
+        denied = sender.post(f"/api/guide/articles/{unrelated.pk}/comments/", {
+            "body": "Wrong thread", "request_id": str(uuid4()), "reply_to": authored["guide"],
+        }, format="json")
+        self.assertEqual(denied.status_code, 400)
+
+        article.publication.published = False
+        article.publication.save(update_fields=["published"])
+        hidden = next(item for item in self.api.get("/api/inbox/").json()["messages"] if item["id"] ==
+                      next(comment["id"] for comment in comments if comment["target"]["kind"] == "guide"))
+        self.assertIsNone(hidden["target"])
+        self.assertNotIn("author", hidden)
+        self.assertNotIn("body", hidden)
+
     def test_admin_review_queue_matches_mobile_types_and_includes_legacy_guide_submissions(self):
         legacy = self.submit(title="旧版美食投稿")
         place = self.submit(kind="place", title="待核对的校园地点", location="本部大楼", request_key="admin_place")

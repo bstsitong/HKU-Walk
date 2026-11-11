@@ -5,8 +5,9 @@ from django.test import TransactionTestCase
 
 class SeparateContentMigrationTests(TransactionTestCase):
     def test_existing_posts_places_routes_and_photo_links_keep_their_ids(self):
-        before = [("guide", "0004_guideentry_map_data"),
-                  ("community", "0004_submission_map_data_alter_submission_kind_and_more")]
+        # Remove newer submission fields before SQLite restores the old guide entry relation.
+        before = [("community", "0004_submission_map_data_alter_submission_kind_and_more"),
+                  ("guide", "0004_guideentry_map_data")]
         executor = MigrationExecutor(connection)
         latest = executor.loader.graph.leaf_nodes()
         executor.migrate(before)

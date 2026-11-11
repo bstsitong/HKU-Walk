@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import inbox, views
 
 urlpatterns = [
     path("accounts/register/", views.Register.as_view()),
@@ -12,6 +12,8 @@ urlpatterns = [
     path("accounts/change-password/", views.ChangePassword.as_view()),
     path("accounts/recovery-code/", views.RotateRecoveryCode.as_view()),
     path("accounts/recover/", views.RecoverAccount.as_view()),
+    path("inbox/", inbox.Inbox.as_view()),
+    path("inbox/<int:pk>/read/", inbox.MarkInboxRead.as_view()),
     path("submissions/", views.Submissions.as_view()),
     path("submissions/<uuid:pk>/", views.SubmissionDetail.as_view()),
     path("submissions/<uuid:pk>/edits/", views.PublishedEdit.as_view()),

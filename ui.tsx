@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
+import { ComponentProps, ReactNode } from 'react';
 import { Alert as NativeAlert, Image as NativeImage, ImageProps, Pressable as NativePressable, PressableProps,
-  Text as NativeText, TextInput as NativeTextInput, TextInputProps, TextProps } from 'react-native';
+  Text as NativeText, TextInput as NativeTextInput, TextProps } from 'react-native';
 import { useLanguage } from './LanguageProvider';
 import { translate, t } from './localization';
 import { colors } from './theme';
@@ -14,7 +14,7 @@ export function Text({ raw = false, children, ...props }: TextProps & { raw?: bo
   const { language } = useLanguage();
   return <NativeText {...props} accessibilityLabel={props.accessibilityLabel ? translate(props.accessibilityLabel, language) : undefined}>{raw ? children : childrenInLanguage(children, language)}</NativeText>;
 }
-export function TextInput(props: TextInputProps) {
+export function TextInput(props: ComponentProps<typeof NativeTextInput>) {
   const { language } = useLanguage();
   return <NativeTextInput placeholderTextColor={colors.muted} selectionColor={colors.green} {...props} accessibilityLabel={props.accessibilityLabel ? translate(props.accessibilityLabel, language) : undefined}
     placeholder={props.placeholder ? translate(props.placeholder, language) : undefined} />;

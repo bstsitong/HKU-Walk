@@ -9,7 +9,7 @@ from rest_framework.exceptions import APIException, ValidationError
 from guide.legacy_catalog import place_fields
 from guide.models import CampusPlace, CampusRoute, GuidePost, Publication, RouteStep
 from .body_content import publication_body
-from .models import Submission, SubmissionBodyImage, SubmissionStepImage
+from .models import InboxMessage, Submission, SubmissionBodyImage, SubmissionStepImage
 from .map_content import validate_map_data
 from .storage import MediaQuotaExceeded
 
@@ -267,5 +267,7 @@ def review_submission(identifier, expected, decision, note, reviewer):
     if decision == Submission.Status.APPROVED:
         publication = publish_content(item)
         Submission.objects.filter(pk=identifier).update(public_entry=publication)
+    InboxMessage.objects.create(recipient_id=item.author_id, kind=InboxMessage.Kind.REVIEW, submission=item,
+                                review_status=decision, review_title=item.title, review_note=note.strip())
     item.refresh_from_db()
     return item
