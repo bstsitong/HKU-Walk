@@ -22,6 +22,9 @@ class UserProfile(models.Model):
     nickname = models.CharField(max_length=32, blank=True)
     bio = models.CharField(max_length=160, blank=True)
     avatar = models.FileField(upload_to="avatars/", blank=True, db_index=True)
+    show_post_author = models.BooleanField(default=True)
+    show_comment_author = models.BooleanField(default=True)
+    public_id = models.UUIDField(unique=True, null=True, blank=True, editable=False)
 
 
 @receiver(post_delete, sender=UserProfile)

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, BackHandler, Keyboard, KeyboardAvoidingView, Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import AppIcon from './AppIcon';
-import { Avatar } from './AuthorIdentity';
+import { AuthorByline, Avatar } from './AuthorIdentity';
 import { Account, ApiError, DiscussionKind, fetchComments, sendComment } from './communityApi';
 import type { DiscussionComment } from './guideApi';
 import { formatDate, t } from './localization';
@@ -85,14 +85,8 @@ export default function Discussion({ kind, id, title, session, onLogin, onCount 
         {count === undefined ? null : <Text style={s.meta}>{t('{count} 条评论', { count })}</Text>}
       </View>
       {items.map(item => <View key={item.id} style={s.comment}>
-        <Avatar uri={item.authorProfile?.avatarUrl} />
-        <View style={s.flex}>
-          <View style={s.byline}>
-            <Text raw style={s.author}>{item.authorProfile?.name || item.author}</Text>
-            <Text raw style={s.meta}>{formatDate(item.createdAt)}</Text>
-          </View>
-          <Text raw style={s.body}>{item.body}</Text>
-        </View>
+        <AuthorByline author={item.authorProfile || { name: item.author, avatarUrl: '' }} detail={formatDate(item.createdAt)} size={36} />
+        <Text raw style={s.body}>{item.body}</Text>
       </View>)}
       {loading && !items.length ? <ActivityIndicator color={c.green} style={s.empty} /> : null}
       {failed ? <Pressable accessibilityRole="button" onPress={() => void load()} style={s.action}><Text style={s.actionText}>重新加载</Text></Pressable> : null}
@@ -120,11 +114,9 @@ const s = StyleSheet.create({
   page: { width: '100%', maxWidth: 650, alignSelf: 'center', paddingHorizontal: 16, paddingBottom: 24 },
   summary: { paddingBottom: 12, gap: 4, borderBottomWidth: 1, borderBottomColor: c.line },
   heading: { color: c.ink, fontSize: 18, fontWeight: '600', lineHeight: 25, flexShrink: 1 },
-  comment: { flexDirection: 'row', gap: 10, borderBottomWidth: 1, borderBottomColor: c.line, paddingVertical: 14 },
-  byline: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 8 },
-  author: { fontSize: 14, lineHeight: 20, color: c.ink, fontWeight: '600', flexShrink: 1 },
+  comment: { borderBottomWidth: 1, borderBottomColor: c.line, paddingVertical: 12 },
   meta: { color: c.muted, fontSize: 13, lineHeight: 20 },
-  body: { fontSize: 15, lineHeight: 22, color: c.ink, marginTop: 2 },
+  body: { fontSize: 15, lineHeight: 22, color: c.ink, marginLeft: 44, marginTop: 2 },
   empty: { paddingVertical: 24, color: c.muted, fontSize: 14 },
   composer: { width: '100%', maxWidth: 650, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 8, borderTopWidth: 1, borderTopColor: c.line, backgroundColor: c.app },
   input: { flex: 1, minHeight: 48, maxHeight: 120, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: c.line, borderRadius: 12, backgroundColor: c.surface, color: c.ink, fontSize: 14 },

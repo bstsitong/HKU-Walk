@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
 export type GuideKey = 'links' | 'tips' | 'food' | 'groups';
-export type AuthorProfile = { name: string; avatarUrl: string };
+export type AuthorProfile = { name: string; avatarUrl: string; profileId?: string; anonymous?: boolean };
 export type GuideEntry = {
   id: string;
   title: string;

@@ -16,9 +16,9 @@ import useGuide from './useGuide';
 type Bookmarks = { saved: string[]; ready: boolean; toggle: (id: string) => void };
 type Actions = { bookmarks: Bookmarks; liking: readonly string[]; onLike: (article: GuideArticle) => void };
 
-function ArticleMeta({ article }: { article: GuideArticle }) {
+function ArticleMeta({ article, link = true }: { article: GuideArticle; link?: boolean }) {
   const date = article.publishedAt ? formatDate(article.publishedAt) : undefined;
-  if (article.authorProfile) return <View style={s.byline}><AuthorByline author={article.authorProfile} detail={date} /></View>;
+  if (article.authorProfile) return <View style={s.byline}><AuthorByline author={article.authorProfile} detail={date} link={link} /></View>;
   const meta = [article.contributor, date].filter(Boolean).join(' · ');
   return meta ? <Text raw style={s.meta}>{meta}</Text> : null;
 }
@@ -80,7 +80,7 @@ export function GuideArticles({ data, bookmarks, liking, onLike, onOpen, onContr
         <Pressable testID={`guide-entry-${article.id}`} accessibilityRole="button" onPress={() => open(article.id)} style={s.summary}>
           <View style={s.flex}>
             <Text raw style={s.cardTitle}>{article.title}</Text>
-            <ArticleMeta article={article} />
+            <ArticleMeta article={article} link={false} />
             {excerpts[article.id] ? <Text raw numberOfLines={2} style={s.excerpt}>{excerpts[article.id]}</Text> : null}
           </View>
           <AppIcon name="chevron" size={18} color={c.muted} />

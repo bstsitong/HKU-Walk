@@ -3,6 +3,7 @@ import tempfile
 from datetime import timedelta
 from pathlib import Path
 from urllib.parse import urlsplit
+from uuid import uuid4
 
 from PIL import Image
 from django.contrib.auth import get_user_model
@@ -57,6 +58,62 @@ class CommunityFixture(TestCase):
         return Submission.objects.get(pk=response.json()["submission"]["id"])
 
 class CommunityTests(CommunityFixture):
+    def test_privacy_controls_hide_public_identity_and_revoke_public_profile(self):
+        settings_url = "/api/accounts/privacy/"
+        default = {"showPostAuthor": True, "showCommentAuthor": True, "publicProfile": False}
+        self.assertEqual(self.anon.get(settings_url).status_code, 401)
+        self.assertEqual(self.anon.patch(settings_url, {"publicProfile": True}, format="json").status_code, 401)
+        self.assertEqual(self.api.get(settings_url).json()["privacy"], default)
+        self.assertEqual(self.api.patch(settings_url, {"showPostAuthor": "unclear"}, format="json").status_code, 400)
+        self.assertEqual(self.api.patch("/api/accounts/me/", {"nickname": "校园漫步者", "bio": "我的简介", "avatar": photo()},
+                                        format="multipart").status_code, 200)
+        item = self.submit()
+        review_submission(item.pk, item.revision, "approved", "", self.admin)
+        item.refresh_from_db()
+        GuidePost.objects.filter(pk=item.public_entry_id).update(contributor=self.owner.username)
+        comment_paths = (f"/api/guide/articles/{item.public_entry_id}/comments/", "/api/campus/places/main/comments/")
+        for url in comment_paths:
+            self.assertEqual(self.api.post(url, {"body": "早期评论", "request_id": str(uuid4())}, format="json").status_code, 201)
+
+        def public_article():
+            return next(article for article in self.anon.get("/api/guide/").json()["articles"] if article["id"] == str(item.public_entry_id))
+
+        self.assertNotIn("profileId", public_article()["authorProfile"])
+        response = self.api.patch(settings_url, {"publicProfile": True}, format="json")
+        self.assertEqual(response.json()["privacy"], {**default, "publicProfile": True})
+        profile_id = public_article()["authorProfile"]["profileId"]
+        profile_path = f"/api/profiles/{profile_id}/"
+        profile = self.anon.get(profile_path).json()["profile"]
+        self.assertEqual(set(profile), {"name", "bio", "avatarUrl", "posts"})
+        self.assertEqual(profile["bio"], "我的简介")
+        self.assertEqual(profile["posts"], [{"id": str(item.public_entry_id), "title": item.title}])
+
+        self.assertEqual(self.api.patch(settings_url, {"showPostAuthor": False}, format="json").status_code, 200)
+        anonymous = {"name": "匿名用户", "avatarUrl": "", "anonymous": True}
+        article = public_article()
+        self.assertEqual(article["authorProfile"], anonymous)
+        self.assertEqual(article["contributor"], "匿名用户")
+        self.assertEqual(self.anon.get(profile_path).json()["profile"]["posts"], [])
+        for url in comment_paths:
+            self.assertEqual(self.anon.get(url).json()["comments"][0]["authorProfile"]["profileId"], profile_id)
+
+        other = APIClient()
+        other.credentials(HTTP_AUTHORIZATION=f"Bearer {create_session(self.other)}")
+        self.assertEqual(other.get(settings_url).json()["privacy"], default)
+        self.assertEqual(self.api.patch(settings_url, {"showCommentAuthor": False, "publicProfile": False},
+                                        format="json").status_code, 200)
+        self.assertEqual(self.anon.get(profile_path).status_code, 404)
+        self.assertEqual(other.get(profile_path).status_code, 404)
+        for url in comment_paths:
+            response = self.api.post(url, {"body": "新的评论", "request_id": str(uuid4())}, format="json")
+            self.assertEqual(response.json()["comment"]["authorProfile"], anonymous)
+            comments = other.get(url).json()["comments"]
+            self.assertEqual([comment["body"] for comment in comments], ["新的评论", "早期评论"])
+            self.assertTrue(all(comment["authorProfile"] == anonymous and comment["author"] == "匿名用户" for comment in comments))
+        self.assertEqual(self.api.get(settings_url).json()["privacy"],
+                         {"showPostAuthor": False, "showCommentAuthor": False, "publicProfile": False})
+        self.assertEqual(self.api.get("/api/accounts/me/").json()["user"]["nickname"], "校园漫步者")
+
     def test_profile_updates_existing_submission_identity_and_serves_cleaned_avatar(self):
         endpoint = "/api/accounts/me/"
         item = self.submit()

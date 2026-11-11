@@ -4,6 +4,8 @@ import { MapDraftData, serializeMapDraft } from './mapSubmission';
 
 export type Account = { token: string; user: { id: string; username: string; hasRecoveryCode?: boolean; nickname?: string; bio?: string; avatarUrl?: string } };
 export type AccountResult = Account & { recoveryCode?: string };
+export type Privacy = { showPostAuthor: boolean; showCommentAuthor: boolean; publicProfile: boolean };
+export type PublicProfile = { name: string; avatarUrl: string; bio: string; posts: { id: string; title: string }[] };
 export type Kind = 'food' | 'group' | 'place' | 'route' | 'new_place' | 'new_route';
 export type Submission = {
   id: string; kind: Kind; title: string; body: string; location: string; externalUrl: string;
@@ -61,6 +63,14 @@ export function authenticate(mode: 'login' | 'register', username: string, passw
   });
 }
 export const fetchMe = (token: string) => request<{ user: Account['user'] }>('/api/accounts/me/', {}, token);
+export const fetchPrivacy = (token: string) =>
+  request<{ privacy: Privacy }>('/api/accounts/privacy/', { cache: 'no-store' }, token);
+export const updatePrivacy = (token: string, patch: Partial<Privacy>) =>
+  request<{ privacy: Privacy }>('/api/accounts/privacy/', {
+    method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(patch),
+  }, token);
+export const fetchPublicProfile = (id: string) =>
+  request<{ profile: PublicProfile }>(`/api/profiles/${encodeURIComponent(id)}/`, { cache: 'no-store' });
 export function updateProfile(token: string, draft: ProfileDraft) {
   const form = new FormData();
   form.append('nickname', draft.nickname.trim());

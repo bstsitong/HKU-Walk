@@ -5,7 +5,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-from community.profiles import author_data
+from community.profiles import public_author_data
 
 from .catalog import content_image, published_routes, route_steps_data
 from .campus_map import LEGACY_PLACES, MAP_VERSION
@@ -15,7 +15,7 @@ from .models import CampusPlace, GuideCategory, GuideLike, GuidePost, Publicatio
 
 def publication_author(request, publication):
     source = publication.current_submission
-    return author_data(request, source.author) if source else None
+    return public_author_data(request, source.author, "show_post_author") if source else None
 
 
 def guide_card(request, content, map_type=""):
@@ -37,7 +37,7 @@ def article_card(request, post):
     author = card["authorProfile"]
     return {
         **card,
-        "contributor": post.contributor or (author["name"] if author else ""),
+        "contributor": author["name"] if author else post.contributor,
         "sourcePages": post.source_pages, "markdown": publication.key in ARTICLE_KEYS,
         "publishedAt": published_at.isoformat() if published_at else None,
         "likeCount": post.like_count, "commentCount": post.comment_count, "liked": post.viewer_liked,

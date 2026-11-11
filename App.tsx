@@ -1,10 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Keyboard, StyleSheet, View } from 'react-native';
 import { Alert, Pressable, Text } from './ui';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon, { IconName } from './AppIcon';
+import { OpenAuthorProfile } from './AuthorIdentity';
 import CampusMap, { MapRequest, MapView } from './CampusMap';
 import usePlaces from './usePlaces';
 import { getCampusRoute, getPlace, Place, placeName } from './campus';
@@ -14,6 +14,7 @@ import { LanguageProvider, useLanguage } from './LanguageProvider';
 import { colors } from './theme';
 import { GuideArticles, GuideArticleScreen } from './GuideArticles';
 import ProfileScreen from './ProfileScreen';
+import PublicProfileScreen from './PublicProfileScreen';
 import { GuideArticle, GuideEntry } from './guideApi';
 import useCampus from './useCampus';
 import useSavedRoutes from './useSavedRoutes';
@@ -48,6 +49,7 @@ function MainApp() {
   const [reading, setReading] = useState<{ id: string; comments: boolean } | null>(null);
   const [commentPlace, setCommentPlace] = useState<Place | null>(null);
   const [editingProfile, setEditingProfile] = useState(false);
+  const [publicProfileId, setPublicProfileId] = useState<string | null>(null);
   const article = data.articles.find(item => item.id === reading?.id);
   const editingUser = editingProfile ? account.session?.user : undefined;
   const [liking, setLiking] = useState<string[]>([]);
@@ -98,18 +100,6 @@ function MainApp() {
   };
   const [mapView, setMapView] = useState<MapView>('home');
   const [mapRequest, setMapRequest] = useState<MapRequest | null>(null);
-  const [sampleLocation, setSampleLocation] = useState(false);
-  const sampleChanges = useRef(0);
-  const sampleQueue = useRef(Promise.resolve());
-  useEffect(() => {
-    let live = true;
-    AsyncStorage.getItem('hku-walk.sample-location.v1').then(value => { if (live && !sampleChanges.current) setSampleLocation(value === 'true'); }).catch(() => {});
-    return () => { live = false; };
-  }, []);
-  const chooseSampleLocation = (value: boolean) => {
-    sampleChanges.current++; setSampleLocation(value);
-    sampleQueue.current = sampleQueue.current.then(() => AsyncStorage.setItem('hku-walk.sample-location.v1', String(value))).catch(() => Alert.alert('设置暂时无法保存', '本次设置仍然有效。'));
-  };
   const openPlace = (place: Place) => { setTab('map'); setMapRequest({ serial: Date.now(), view: 'detail', placeId: place.id, fromSaved: true }); };
   const openRoute = (route: RouteBookmark, fromSaved = true) => { setTab('map'); setMapRequest({ serial: Date.now(), view: 'route', route, fromSaved }); };
   const openContent = (entry: GuideEntry) => {
@@ -124,11 +114,19 @@ function MainApp() {
   };
   const refreshAll = async () => { await Promise.all([data.reload(), campus.reload()]); };
   const guideData = { ...data, reload: refreshAll };
+  const openProfilePost = (id: string) => {
+    setPublicProfileId(null);
+    setCommentPlace(null);
+    setTab('guide');
+    openArticle(id);
+    if (!data.articles.some(item => item.id === id)) void data.reload();
+  };
 
   return (
+    <OpenAuthorProfile.Provider value={setPublicProfileId}>
     <SafeAreaView style={s.shell}>
       <StatusBar style="dark" />
-      <View style={[s.content, (tab !== 'map' || Boolean(commentPlace)) && s.hidden]}><CampusMap active={tab === 'map' && !commentPlace} records={records} routes={routes} campus={campus} sampleLocation={sampleLocation} request={mapRequest} onViewChange={setMapView} onReturnSaved={() => setTab('profile')} onVisitRoute={history.visitRoute} onCommentPlace={setCommentPlace} /></View>
+      <View style={[s.content, (tab !== 'map' || Boolean(commentPlace)) && s.hidden]}><CampusMap active={tab === 'map' && !commentPlace} records={records} routes={routes} campus={campus} sampleLocation={false} request={mapRequest} onViewChange={setMapView} onReturnSaved={() => setTab('profile')} onVisitRoute={history.visitRoute} onCommentPlace={setCommentPlace} /></View>
       <View style={[s.content, (tab !== 'guide' || Boolean(article)) && s.hidden]}>
         <GuideArticles data={guideData} bookmarks={bookmarks} liking={liking} onLike={toggleLike} onOpen={openArticle} onContribute={() => setCommunityEntry('form')} />
       </View>
@@ -136,7 +134,7 @@ function MainApp() {
         <ProfileScreen active={tab === 'profile'} data={data} campus={campus} bookmarks={bookmarks} records={records} routes={routes} history={history}
           session={account.session} accountReady={account.ready} onAccount={() => account.session ? setCommunityEntry('security') : openLogin()}
           submissionsPaused={communityEntry !== null || Boolean(editingUser)} onOpenSubmission={setCommunityEntry} onEditProfile={() => setEditingProfile(true)}
-          onContribute={() => setCommunityEntry('form')} sampleLocation={sampleLocation} onSampleLocation={chooseSampleLocation}
+          onContribute={() => setCommunityEntry('form')} onLogin={openDiscussionLogin} onPrivacySaved={() => void refreshAll()}
           onOpenPlace={openPlace} onOpenRoute={openRoute} onOpenContent={openContent} onOpenArticle={openArticle} />
       </View>
       {article && reading ? <GuideArticleScreen key={article.id} article={article} initiallyComments={reading.comments} session={account.session}
@@ -163,7 +161,9 @@ function MainApp() {
           </Pressable>
         ))}
       </View> : null}
+      {publicProfileId ? <PublicProfileScreen key={publicProfileId} id={publicProfileId} onBack={() => setPublicProfileId(null)} onOpenPost={openProfilePost} /> : null}
     </SafeAreaView>
+    </OpenAuthorProfile.Provider>
   );
 }
 

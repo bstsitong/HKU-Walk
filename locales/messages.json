@@ -1,4 +1,23 @@
 {
+  "隐私设置": { "en": "Privacy", "zh-Hant": "私隱設定" },
+  "登录后可管理投稿、评论和主页隐私。": { "en": "Sign in to manage privacy for submissions, comments and your profile.", "zh-Hant": "登入後可管理投稿、評論和主頁私隱。" },
+  "投稿显示署名": { "en": "Show my name on submissions", "zh-Hant": "投稿顯示署名" },
+  "关闭后，所有投稿都以匿名用户显示。": { "en": "When off, all submissions appear under Anonymous user.", "zh-Hant": "關閉後，所有投稿都以匿名用戶顯示。" },
+  "评论显示署名": { "en": "Show my name on comments", "zh-Hant": "評論顯示署名" },
+  "关闭后，帖子和地点评论都会显示为匿名用户。": { "en": "When off, your comments on posts and places appear under Anonymous user.", "zh-Hant": "關閉後，帖子和地點評論都會顯示為匿名用戶。" },
+  "允许他人查看我的主页": { "en": "Make my profile public", "zh-Hant": "允許他人查看我的主頁" },
+  "开启后，访客可以从你的公开署名查看主页。": { "en": "When on, visitors can open your profile by tapping your name.", "zh-Hant": "開啟後，訪客可以從你的公開署名查看主頁。" },
+  "登录已失效，请重新登录。": { "en": "Your session expired. Sign in again.", "zh-Hant": "登入已失效，請重新登入。" },
+  "暂时无法读取隐私设置。": { "en": "Could not load privacy settings.", "zh-Hant": "暫時無法讀取私隱設定。" },
+  "正在保存…": { "en": "Saving…", "zh-Hant": "正在儲存…" },
+  "隐私设置未能保存，请再试一次。": { "en": "Could not save privacy settings. Try again.", "zh-Hant": "私隱設定未能儲存，請再試一次。" },
+  "个人主页": { "en": "Profile", "zh-Hant": "個人主頁" },
+  "公开帖子": { "en": "Public posts", "zh-Hant": "公開帖子" },
+  "暂无公开帖子": { "en": "No public posts yet", "zh-Hant": "暫無公開帖子" },
+  "此主页未公开。": { "en": "This profile is private.", "zh-Hant": "此主頁未公開。" },
+  "暂时无法读取主页。": { "en": "Could not load this profile.", "zh-Hant": "暫時無法讀取主頁。" },
+  "打开作者主页": { "en": "Opens the author's profile", "zh-Hant": "開啟作者主頁" },
+  "匿名用户": { "en": "Anonymous user", "zh-Hant": "匿名用戶" },
   "校园空间": {
     "en": "Campus space",
     "zh-Hant": "校園空間"

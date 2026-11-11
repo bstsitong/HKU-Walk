@@ -6,6 +6,7 @@ import { setCommunityCampus } from './campus';
 import { CampusCatalog, readCampus } from './campusCatalog';
 import { CAMPUS_MAP_VERSION } from './MapArtwork';
 const cacheKey = `hku-walk.campus.v${CAMPUS_MAP_VERSION}`;
+const omitAuthor = (key: string, value: unknown) => key === 'authorProfile' ? undefined : value;
 export default function useCampus() {
   const [catalog, setCatalog] = useState<CampusCatalog>({ places: [], routes: [] });
   const [loading, setLoading] = useState(false);
@@ -27,14 +28,14 @@ export default function useCampus() {
       const next = readCampus(await response.json());
       if (current === generation.current) {
         fresh.current = true; apply(next);
-        cacheWrites.current = cacheWrites.current.then(() => AsyncStorage.setItem(cacheKey, JSON.stringify(next))).catch(() => {});
+        cacheWrites.current = cacheWrites.current.then(() => AsyncStorage.setItem(cacheKey, JSON.stringify(next, omitAuthor))).catch(() => {});
       }
     } catch { if (current === generation.current) setError('新地点与路线暂时无法更新，当前保留已读取的内容。'); }
     finally { clearTimeout(timeout); if (current === generation.current) setLoading(false); }
   }, []);
   useEffect(() => {
     let live = true;
-    AsyncStorage.getItem(cacheKey).then(raw => { if (live && raw && !fresh.current) apply(readCampus(JSON.parse(raw))); }).catch(() => {});
+    AsyncStorage.getItem(cacheKey).then(raw => { if (live && raw && !fresh.current) apply(readCampus(JSON.parse(raw, omitAuthor))); }).catch(() => {});
     void reload();
     const listener = AppState.addEventListener('change', state => { if (state === 'active') void reload(); });
     return () => { live = false; generation.current++; controller.current?.abort(); listener.remove(); };

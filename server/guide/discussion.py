@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 
 from community.views import PrivateResponseView
-from community.profiles import author_data
+from community.profiles import public_author_data
 
 from .articles import ARTICLE_SCOPE
 from .models import CampusPlace, GuideLike, GuidePost
@@ -19,7 +19,7 @@ def published_article(pk):
 
 
 def comment_data(request, comment):
-    author = author_data(request, comment.author)
+    author = public_author_data(request, comment.author, "show_comment_author")
     return {"id": str(comment.pk), "author": author["name"], "authorProfile": author,
             "body": comment.body, "createdAt": comment.created_at.isoformat()}
 

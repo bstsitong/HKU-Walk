@@ -14,11 +14,11 @@ from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 from guide.catalog import content_image, publication_map_data, published_routes
-from guide.models import Publication
+from guide.models import GuidePost, Publication
 
 from .authentication import MobileAuthentication, create_session
 from .models import Submission, SubmissionStepImage, RecoveryCredential, UserProfile
-from .profiles import ProfileInput, author_data, update_profile
+from .profiles import PrivacyInput, ProfileInput, author_data, privacy_data, update_privacy, update_profile
 from .map_content import enrich_map_data
 from .serializers import (RegisterInput, AccountInput, SubmissionInput, ChangePasswordInput,
     RecoveryCodeInput, RecoverAccountInput, check_password)
@@ -119,6 +119,39 @@ class Me(PrivateResponseView):
         data.is_valid(raise_exception=True)
         request.user.profile = update_profile(request.user, data.validated_data)
         return Response({"user": user_data(request, request.user)})
+
+
+class PrivacySettings(PrivateResponseView):
+    parser_classes = [JSONParser]
+    throttle_classes = [ScopedRateThrottle]
+
+    def get_throttles(self):
+        self.throttle_scope = "profile" if self.request.method == "PATCH" else None
+        return super().get_throttles()
+
+    def get(self, request):
+        return Response({"privacy": privacy_data(getattr(request.user, "profile", None))})
+
+    def patch(self, request):
+        data = PrivacyInput(data=request.data, partial=True)
+        data.is_valid(raise_exception=True)
+        profile = update_privacy(request.user, data.validated_data)
+        return Response({"privacy": privacy_data(profile)})
+
+
+class PublicProfile(PrivateResponseView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request, public_id):
+        profile = get_object_or_404(UserProfile.objects.select_related("user"), public_id=public_id, user__is_active=True)
+        posts = []
+        if profile.show_post_author:
+            published = GuidePost.objects.filter(
+                publication__published=True, publication__current_submission__author_id=profile.user_id,
+            ).order_by("-publication__updated_at", "-pk")
+            posts = [{"id": str(pk), "title": title} for pk, title in published.values_list("pk", "title")]
+        return Response({"profile": {**author_data(request, profile.user), "bio": profile.bio, "posts": posts}})
 
 
 class ProfileAvatar(PrivateResponseView):

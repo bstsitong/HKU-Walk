@@ -15,7 +15,7 @@ import { languages, t } from './localization';
 import useGuide from './useGuide';
 import useCampus from './useCampus';
 import { colors as c } from './theme';
-import { Account, fetchSubmissions, Submission } from './communityApi';
+import { Account, ApiError, fetchPrivacy, fetchSubmissions, Privacy, Submission, updatePrivacy } from './communityApi';
 import useRecentActivity from './useRecentActivity';
 type Bookmarks = { saved: string[]; ready: boolean; toggle: (id: string) => void };
 const panels = { submissions: '投稿', saved: '收藏', recent: '历史记录' } as const;
@@ -27,10 +27,10 @@ const guestBenefits: { icon: IconName; title: string; description: string }[] = 
   { icon: 'history', title: '历史记录', description: '找回看过的地点、路线和帖子' },
 ];
 
-export default function ProfileScreen({ active, session, accountReady, onAccount, onContribute, sampleLocation, onSampleLocation, data, campus, bookmarks, records, routes, history, submissionsPaused, onOpenSubmission, onOpenPlace, onOpenRoute, onOpenContent, onOpenArticle, onEditProfile }: {
+export default function ProfileScreen({ active, session, accountReady, onAccount, onContribute, onLogin, onPrivacySaved, data, campus, bookmarks, records, routes, history, submissionsPaused, onOpenSubmission, onOpenPlace, onOpenRoute, onOpenContent, onOpenArticle, onEditProfile }: {
   active: boolean; session: Account | null; accountReady: boolean; onAccount: () => void; onContribute: () => void;
   history: ReturnType<typeof useRecentActivity>; submissionsPaused: boolean; onOpenSubmission: (submission: Submission) => void;
-  sampleLocation: boolean; onSampleLocation: (value: boolean) => void;
+  onLogin: (expired?: boolean) => void; onPrivacySaved: () => void;
   data: ReturnType<typeof useGuide>; campus: ReturnType<typeof useCampus>; bookmarks: Bookmarks; records: PlaceRecords; routes: RouteRecords;
   onOpenPlace: (place: Place) => void; onOpenRoute: (route: RouteBookmark) => void; onOpenContent: (entry: GuideEntry) => void;
   onOpenArticle: (id: string) => void; onEditProfile: () => void;
@@ -54,7 +54,7 @@ export default function ProfileScreen({ active, session, accountReady, onAccount
   const hasHistory = section === 'places' ? ids.length : section === 'routes' ? routeItems.length : postIds.length;
   const clearHistory = section === 'places' ? records.clearRecent : section === 'routes' ? history.clearRoutes : history.clearPosts;
   const savePlaceButton = (id: string) => <Pressable accessibilityRole="button" accessibilityLabel={records.saved.includes(id) ? '取消收藏' : '收藏地点'} disabled={!records.ready} onPress={() => records.toggle(id)} style={s.iconButton}><AppIcon name="bookmark" size={20} color={records.saved.includes(id) ? c.green : c.muted} /></Pressable>;
-  if (settings) return <Preferences onBack={closeSettings} sampleLocation={sampleLocation} onSampleLocation={onSampleLocation} />;
+  if (settings) return <Preferences onBack={closeSettings} token={session?.token} accountReady={accountReady} onLogin={onLogin} onPrivacySaved={onPrivacySaved} />;
   return <View style={s.flex}>
     <ScrollView style={s.flex} contentContainerStyle={s.page} refreshControl={session && panel === 'saved' ? <RefreshControl refreshing={data.loading || campus.loading} onRefresh={() => { void data.reload(); void campus.reload(); }} tintColor={c.green} /> : undefined}>
       <View style={s.header}>
@@ -197,26 +197,89 @@ function PanelHeader({ title, onBack }: { title: string; onBack: () => void }) {
   </View>;
 }
 
-function Preferences({ onBack, sampleLocation, onSampleLocation }: {
-  onBack: () => void; sampleLocation: boolean; onSampleLocation: (value: boolean) => void;
+function Preferences({ onBack, token, accountReady, onLogin, onPrivacySaved }: {
+  onBack: () => void; token?: string; accountReady: boolean; onLogin: (expired?: boolean) => void; onPrivacySaved: () => void;
 }) {
   const { language, chooseLanguage } = useLanguage();
-  const [expanded, setExpanded] = useState<'demo' | 'about' | null>(null);
+  const [about, setAbout] = useState(false);
   return <View style={s.flex}>
     <PanelHeader title="设置" onBack={onBack} />
     <ScrollView style={s.flex} contentContainerStyle={s.page}>
       <View style={s.settingRow}><AppIcon name="globe" size={18} /><Text style={s.rowTitle}>界面语言</Text></View>
       <View accessibilityRole="radiogroup" style={s.languageOptions}>{languages.map(item => <Pressable key={item.code} testID={`language-${item.code}`} accessibilityRole="radio" accessibilityState={{ checked: language === item.code }} onPress={() => chooseLanguage(item.code)} style={[s.language, language === item.code && s.selectedLanguage]}><Text raw style={[s.body, language === item.code && s.selectedLanguageText]}>{item.label}</Text></Pressable>)}</View>
-      <Pressable accessibilityRole="button" accessibilityState={{ expanded: expanded === 'demo' }} onPress={() => setExpanded(expanded === 'demo' ? null : 'demo')} style={s.settingRow}><AppIcon name="locate" size={18} /><Text style={[s.rowTitle, s.flex]}>项目演示</Text><AppIcon name="chevron" size={16} /></Pressable>
-      {expanded === 'demo' ? <View style={s.settingRow}><View style={s.flex}><Text style={s.rowTitle}>显示演示位置</Text><Text style={s.meta}>关闭实时定位后可查看演示蓝点。</Text></View><Switch accessibilityLabel={t('显示演示位置')} value={sampleLocation} onValueChange={onSampleLocation} trackColor={{ true: c.green }} /></View> : null}
-      <Pressable accessibilityRole="button" accessibilityState={{ expanded: expanded === 'about' }} onPress={() => setExpanded(expanded === 'about' ? null : 'about')} style={s.settingRow}><AppIcon name="info" size={18} /><Text style={[s.rowTitle, s.flex]}>关于港大漫游</Text><AppIcon name="chevron" size={16} /></Pressable>
-      {expanded === 'about' ? <View style={s.about}>
+      <View style={s.privacyHeading}>
+        <AppIcon name="lock" size={18} /><Text accessibilityRole="header" style={[s.rowTitle, s.flex]}>隐私设置</Text>
+      </View>
+      {!accountReady ? <ActivityIndicator color={c.green} style={s.privacyLoading} /> : token ?
+        <PrivacyControls key={token} token={token} onLogin={onLogin} onSaved={onPrivacySaved} /> :
+        <Pressable accessibilityRole="button" onPress={() => onLogin()} style={s.settingRow}>
+          <Text style={[s.body, s.flex]}>登录后可管理投稿、评论和主页隐私。</Text>
+          <Text style={s.active}>去登录</Text><AppIcon name="chevron" size={16} />
+        </Pressable>}
+      <Pressable accessibilityRole="button" accessibilityState={{ expanded: about }} onPress={() => setAbout(!about)} style={s.settingRow}><AppIcon name="info" size={18} /><Text style={[s.rowTitle, s.flex]}>关于港大漫游</Text><AppIcon name="chevron" size={16} /></Pressable>
+      {about ? <View style={s.about}>
         <Text style={s.body}>独立校园地图与学生指南项目，并非香港大学官方应用。校园照片来自 HKU Wallpapers；地点与楼宇名称参考港大校园地图，部分入口资料尚待补充。投稿经管理员审核后发布，原文不会随界面语言改变。</Text>
         <Pressable accessibilityRole="link" onPress={() => void openLink('https://www.openstreetmap.org/copyright')} style={s.settingRow}><Text raw style={[s.body, s.flex]}>© OpenStreetMap contributors</Text><AppIcon name="external" size={16} /></Pressable>
       </View> : null}
     </ScrollView>
   </View>;
 }
+
+const privacyOptions: { key: keyof Privacy; label: string; description: string }[] = [
+  { key: 'showPostAuthor', label: '投稿显示署名', description: '关闭后，所有投稿都以匿名用户显示。' },
+  { key: 'showCommentAuthor', label: '评论显示署名', description: '关闭后，帖子和地点评论都会显示为匿名用户。' },
+  { key: 'publicProfile', label: '允许他人查看我的主页', description: '开启后，访客可以从你的公开署名查看主页。' },
+];
+
+function PrivacyControls({ token, onLogin, onSaved }: {
+  token: string; onLogin: (expired?: boolean) => void; onSaved: () => void;
+}) {
+  const [privacy, setPrivacy] = useState<Privacy>();
+  const [retry, setRetry] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<'load' | 'save' | 'expired'>();
+  useEffect(() => {
+    let live = true;
+    setError(undefined);
+    fetchPrivacy(token).then(({ privacy }) => {
+      if (live) setPrivacy(privacy);
+    }).catch(cause => {
+      if (live) setError(cause instanceof ApiError && cause.status === 401 ? 'expired' : 'load');
+    });
+    return () => { live = false; };
+  }, [token, retry]);
+  const change = async (key: keyof Privacy, value: boolean) => {
+    if (saving) return;
+    setSaving(true);
+    setError(undefined);
+    try {
+      const result = await updatePrivacy(token, { [key]: value });
+      setPrivacy(result.privacy);
+      onSaved();
+    } catch (cause) {
+      setError(cause instanceof ApiError && cause.status === 401 ? 'expired' : 'save');
+    } finally { setSaving(false); }
+  };
+
+  if (error === 'expired' || error === 'load') return <Pressable accessibilityRole="button"
+    onPress={() => error === 'expired' ? onLogin(true) : setRetry(value => value + 1)} style={s.settingRow}>
+    <Text style={[s.body, s.flex]}>{error === 'expired' ? '登录已失效，请重新登录。' : '暂时无法读取隐私设置。'}</Text>
+    <Text style={s.active}>{error === 'expired' ? '去登录' : '重新加载'}</Text>
+  </Pressable>;
+  if (!privacy) return <ActivityIndicator color={c.green} style={s.privacyLoading} />;
+  return <>
+    {privacyOptions.map(({ key, label, description }) => <View key={key} style={[s.settingRow, s.privacyRow]}>
+      <View style={s.flex}>
+        <Text style={s.rowTitle}>{label}</Text><Text style={s.privacyDescription}>{description}</Text>
+      </View>
+      <Switch testID={`privacy-${key}`} accessibilityLabel={t(label)} accessibilityHint={t(description)} disabled={saving}
+        value={privacy[key]} onValueChange={value => void change(key, value)} trackColor={{ true: c.green }} thumbColor={c.surface} />
+    </View>)}
+    {saving ? <Text accessibilityLiveRegion="polite" style={s.privacyFeedback}>正在保存…</Text> : null}
+    {error === 'save' ? <Text accessibilityLiveRegion="polite" style={s.privacyFeedback}>隐私设置未能保存，请再试一次。</Text> : null}
+  </>;
+}
+
 const s = StyleSheet.create({
   flex: { flex: 1 },
   page: { width: '100%', maxWidth: 650, alignSelf: 'center', paddingHorizontal: 20, paddingBottom: 28 },
@@ -265,6 +328,11 @@ const s = StyleSheet.create({
   confirm: { marginTop: 16, gap: 8 },
   subTab: { minHeight: 48, padding: 12, borderRadius: 8, backgroundColor: c.paper },
   settingRow: { minHeight: 56, flexDirection: 'row', gap: 12, alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: c.line },
+  privacyHeading: { minHeight: 48, marginTop: 8, flexDirection: 'row', gap: 12, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: c.line },
+  privacyRow: { paddingVertical: 12 },
+  privacyDescription: { fontSize: 13, lineHeight: 19, color: c.muted, marginTop: 4 },
+  privacyLoading: { minHeight: 56 },
+  privacyFeedback: { color: c.muted, fontSize: 13, lineHeight: 19, marginVertical: 8 },
   languageOptions: { flexDirection: 'row', gap: 8, paddingVertical: 12 },
   language: { flex: 1, minHeight: 48, padding: 8, borderRadius: 8, backgroundColor: c.surface, borderWidth: 1, borderColor: c.line, alignItems: 'center', justifyContent: 'center' },
   selectedLanguage: { backgroundColor: c.tint, borderColor: c.green },

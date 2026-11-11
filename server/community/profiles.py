@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.contrib.auth import get_user_model
 from django.core.files.storage import default_storage
 from django.db import transaction
@@ -16,6 +18,51 @@ def author_data(request, user):
         "avatarUrl": request.build_absolute_uri(reverse("profile-avatar", args=[profile.avatar.name.split("/")[-1][:-4]]))
         if profile and profile.avatar else "",
     }
+
+
+def public_author_data(request, user, visibility_field):
+    profile = getattr(user, "profile", None)
+    if profile and not getattr(profile, visibility_field):
+        return {"name": "匿名用户", "avatarUrl": "", "anonymous": True}
+    author = author_data(request, user)
+    if profile and profile.public_id and user.is_active:
+        author["profileId"] = str(profile.public_id)
+    return author
+
+
+def privacy_data(profile):
+    return {
+        "showPostAuthor": profile.show_post_author if profile else True,
+        "showCommentAuthor": profile.show_comment_author if profile else True,
+        "publicProfile": bool(profile and profile.public_id),
+    }
+
+
+class PrivacyInput(serializers.Serializer):
+    showPostAuthor = serializers.BooleanField(source="show_post_author", required=False)
+    showCommentAuthor = serializers.BooleanField(source="show_comment_author", required=False)
+    publicProfile = serializers.BooleanField(source="public_profile", required=False)
+
+    def validate(self, data):
+        if not data:
+            raise serializers.ValidationError("请选择要修改的隐私选项。")
+        return data
+
+
+@transaction.atomic
+def update_privacy(user, values):
+    get_user_model().objects.select_for_update().get(pk=user.pk)
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    fields = []
+    for field in ("show_post_author", "show_comment_author"):
+        if field in values:
+            setattr(profile, field, values[field])
+            fields.append(field)
+    if "public_profile" in values:
+        profile.public_id = (profile.public_id or uuid4()) if values["public_profile"] else None
+        fields.append("public_id")
+    profile.save(update_fields=fields)
+    return profile
 
 
 class ProfileInput(serializers.Serializer):
