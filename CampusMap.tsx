@@ -117,16 +117,18 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
         <View style={[s.chips, s.detailBadges]}><Text style={s.badge}>{categoryLabel(selected.category)}</Text><Text style={s.rustBadge}>{selected.isCommunity ? '同学提供' : '校园地图资料'}</Text></View>
         {selected.authorProfile ? <AuthorByline author={selected.authorProfile} /> : null}
         {selected.description ? <Text raw={selected.isCommunity} style={s.body}>{selected.description}</Text> : null}
-        <Pressable testID="detail-comments" accessibilityRole="button" onPress={() => onCommentPlace(selected)} style={s.commentsLink}>
-          <AppIcon name="comment" size={20} /><Text style={[s.rowTitle, s.flex]}>地点评论</Text><AppIcon name="chevron" size={16} />
-        </Pressable>
         <View style={s.divider} /><View style={s.sectionHeading}><Text style={s.sectionTitle}>怎么进入这里</Text></View>
         <View style={s.infoRow}><AppIcon name="building" size={20} /><View style={s.flex}><Text style={s.rowTitle}>入口位置</Text><Text raw={selected.isCommunity && Boolean(selected.entrance)} style={s.body}>{selected.entrance || '入口资料待补充'}</Text></View></View>
         <View style={s.infoRow}><AppIcon name="lift" size={20} /><View style={s.flex}><Text style={s.rowTitle}>楼层与升降机</Text><Text raw={selected.isCommunity && Boolean(selected.floor)} style={s.body}>{selected.floor || '楼层资料待补充'}</Text></View></View>
         {selected.id === 'main' || selected.imageUrl ? <><View style={s.divider} /><Text style={s.sectionTitle}>地图位置</Text><View style={s.miniMap}><MapCanvas selected={selected} variant="mini" /></View></> : null}
         <Text style={s.note}>{selected.isCommunity ? '地点位置由投稿人点选。' : '图标标出地点或所在楼宇，入口与开放情况以现场为准。'}</Text>
       </View>
-    </ScrollView><View style={s.footer}>{saveButton}<Action testID="detail-route" icon="walk" label="查看步行路线" onPress={startRoute} /></View>
+    </ScrollView>
+    <View style={s.footer}>
+      {saveButton}
+      <IconButton testID="detail-comments" icon="comment" label="地点评论" onPress={() => onCommentPlace(selected)} />
+      <Action testID="detail-route" icon="walk" label="查看步行路线" onPress={startRoute} />
+    </View>
   </View>;
   if (view === 'route') return <RouteScreen initialOrigin={origin} initialDestination={destination} initialRouteId={preferredRoute?.source === 'community' ? preferredRoute.id : undefined} preferDemo={preferredRoute?.source === 'demo'} records={routes} recentPlaceIds={records.recent} onBack={back} onMap={(place?: Place) => { if (place) setSelected(place); setFromSaved(false); setCategory('all'); changeView('home'); }} active={active} onVisit={onVisitRoute} catalogVersion={campus.catalog} />;
   return <View style={s.flex}>
@@ -154,7 +156,6 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
 }
 
 const s = StyleSheet.create({
-  commentsLink: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, marginTop: 8 },
   flex: { flex: 1 }, white: { color: '#fff' }, center: { textAlign: 'center' },
   page: { padding: 18, paddingTop: 8, paddingBottom: 28, width: '100%', maxWidth: 650, alignSelf: 'center' },
   title: { fontSize: 24, lineHeight: 32, color: c.ink, fontWeight: '800' },
