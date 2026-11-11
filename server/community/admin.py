@@ -1,12 +1,39 @@
-import json
 from django import forms
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
+from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.html import format_html, format_html_join
+from django.utils.html import format_html
+
+from guide.models import CampusPlace, CampusRoute
 
 from .models import Submission
 from .services import ReviewConflict, review_submission
+
+
+Kind = Submission.Kind
+REVIEW_TYPES = (
+    (Kind.NEW_PLACE, "新地点", (Kind.NEW_PLACE,)),
+    (Kind.PLACE, "地点纠错", (Kind.PLACE,)),
+    (Kind.NEW_ROUTE, "新线路", (Kind.NEW_ROUTE,)),
+    (Kind.ROUTE, "线路纠错", (Kind.ROUTE,)),
+    (Kind.GUIDE, "学生指南", (Kind.GUIDE, Kind.FOOD, Kind.GROUP)),
+)
+KINDS_BY_FILTER = {value: kinds for value, _, kinds in REVIEW_TYPES}
+TYPE_LABELS = {kind: label for _, label, kinds in REVIEW_TYPES for kind in kinds}
+
+
+class SubmissionTypeFilter(admin.SimpleListFilter):
+    title = "投稿类型"
+    parameter_name = "type"
+
+    def lookups(self, request, model_admin):
+        return [(value, label) for value, label, _ in REVIEW_TYPES]
+
+    def queryset(self, request, queryset):
+        kinds = KINDS_BY_FILTER.get(self.value())
+        return queryset.filter(kind__in=kinds) if kinds else queryset
+
 
 class ReviewForm(forms.ModelForm):
     decision = forms.ChoiceField(label="审核结果", required=False, choices=[
@@ -22,6 +49,11 @@ class ReviewForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance.pk:
             self.fields["review_version"].initial = self.instance.revision
+        if "review_note" in self.fields:
+            note = self.fields["review_note"]
+            note.label = "给投稿人的审核意见"
+            note.help_text = "退回修改时必填。投稿人可在 App 内查看。"
+            note.widget.attrs["rows"] = 4
 
     def clean(self):
         cleaned = super().clean()
@@ -34,17 +66,20 @@ class ReviewForm(forms.ModelForm):
                 self.add_error("review_note", "请写明需要修改的内容。")
         return cleaned
 
+
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
     form = ReviewForm
-    list_display = ("title", "kind", "is_edit_request", "author", "status", "created_at", "reviewer")
-    list_filter = ("status", "kind")
+    change_list_template = "admin/community/submission/review_list.html"
+    change_form_template = "admin/community/submission/review_form.html"
+    list_display = ("title", "display_kind", "related_target", "status_badge", "author", "created_at", "reviewer")
+    list_filter = ("status", SubmissionTypeFilter)
+    list_select_related = ("author", "reviewer")
     search_fields = ("title", "body", "author__username", "location")
+    search_help_text = "可按标题、正文、投稿人账号或纠错对象搜索。"
     ordering = ("-created_at",)
-    fields = ("author", "kind", "edit_of", "published_version", "title", "body_preview", "map_preview", "step_images_preview", "location", "external_url", "image_preview",
-        "status", "decision", "review_note", "review_version", "reviewer", "reviewed_at", "created_at", "public_entry")
-    readonly_fields = ("author", "kind", "edit_of", "published_version", "title", "body_preview", "map_preview", "step_images_preview", "location", "external_url", "image_preview",
-        "status", "reviewer", "reviewed_at", "created_at", "public_entry")
+    readonly_fields = ("author", "display_kind", "status_badge", "created_at", "submission_content",
+                       "published_version", "reviewer", "reviewed_at")
     actions = None
 
     def has_add_permission(self, request):
@@ -53,54 +88,95 @@ class SubmissionAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-    @admin.display(description="修改申请", boolean=True)
-    def is_edit_request(self, obj):
-        return bool(obj.edit_of_id)
+    def get_fieldsets(self, request, obj=None):
+        fields = [
+            ("稿件信息", {"fields": (("display_kind", "status_badge"), ("author", "created_at"))}),
+            ("稿件预览", {"fields": ("submission_content",)}),
+        ]
+        if obj and obj.edit_of_id:
+            fields.append(("已发布版本", {"fields": ("published_version",)}))
+        if obj and obj.status == Submission.Status.PENDING:
+            fields.append(("审核", {"fields": ("decision", "review_note", "review_version")}))
+        else:
+            fields.append(("审核记录", {"fields": (("reviewer", "reviewed_at"), "review_note")}))
+        return fields
 
-    @admin.display(description="当前公开内容（对照）")
+    def get_readonly_fields(self, request, obj=None):
+        if obj and obj.status != Submission.Status.PENDING:
+            return (*self.readonly_fields, "review_note")
+        return self.readonly_fields
+
+    def changelist_view(self, request, extra_context=None):
+        return super().changelist_view(request, {**(extra_context or {}), "title": "投稿审核"})
+
+    @admin.display(description="投稿类型", ordering="kind")
+    def display_kind(self, obj):
+        label = TYPE_LABELS.get(obj.kind, obj.get_kind_display())
+        return f"{label} · 修改申请" if obj.edit_of_id else label
+
+    @admin.display(description="纠错对象", empty_value="—")
+    def related_target(self, obj):
+        return obj.location if obj.kind in (Kind.PLACE, Kind.ROUTE) else None
+
+    @admin.display(description="审核状态", ordering="status")
+    def status_badge(self, obj):
+        return format_html('<span class="review-status review-status--{}">{}</span>', obj.status, obj.get_status_display())
+
+    @admin.display(description="当前公开内容")
     def published_version(self, obj):
-        if not obj.edit_of_id:
-            return "首次投稿"
         content = obj.edit_of.content
-        return format_html('<strong>{}</strong><p style="white-space:pre-wrap">{}</p>', content.title, content.body) if content else "—"
+        if content is None:
+            return "该版本已不可用。"
+        title = content.name_zh if isinstance(content, CampusPlace) else content.title
+        url = reverse(f"admin:{content._meta.app_label}_{content._meta.model_name}_change", args=[content.pk])
+        return format_html('<div class="review-copy"><a href="{}">{}</a><p>{}</p></div>', url, title, content.body)
 
-    @admin.display(description="正文")
-    def body_preview(self, obj):
-        if not obj.body_blocks:
-            return format_html('<p style="white-space:pre-wrap">{}</p>', obj.body)
-        photos = {photo.block_index: photo for photo in obj.body_images.all()}
-        templates = {"heading": "<h3>{}</h3>", "quote": '<blockquote style="white-space:pre-wrap">{}</blockquote>'}
-        rendered = []
+    @admin.display(description="稿件")
+    def submission_content(self, obj):
+        data = obj.map_data or {}
+        place_fields = []
+        targets = []
+        route = None
+        if obj.kind == Kind.NEW_PLACE:
+            category = dict(CampusPlace.Category.choices).get(data.get("category"))
+            coordinates = None
+            if data.get("x") is not None and data.get("y") is not None:
+                coordinates = f'X {data["x"]} · Y {data["y"]}（底图版本 {data.get("mapVersion", 1)}）'
+            place_fields = [
+                ("地点类别", category), ("英文名称", data.get("english")), ("英文简称", data.get("abbreviation")),
+                ("地图选点", coordinates), ("入口说明", data.get("entrance")), ("楼层说明", data.get("floor")),
+            ]
+        elif obj.kind in (Kind.PLACE, Kind.ROUTE, Kind.NEW_ROUTE):
+            keys = (("纠错地点", "placeId"),) if obj.kind == Kind.PLACE else (("起点", "originId"), ("终点", "destinationId"))
+            places = CampusPlace.objects.select_related("publication").in_bulk(data[key] for _, key in keys if data.get(key))
+            targets = [(label, data[key], places.get(data[key])) for label, key in keys if data.get(key)]
+            if obj.kind == Kind.ROUTE and data.get("routeId"):
+                route = CampusRoute.objects.select_related("publication").filter(pk=data["routeId"]).first()
+
+        body_photos = {photo.block_index: photo.pk for photo in obj.body_images.all()} if obj.body_blocks else {}
+        blocks = []
         for index, block in enumerate(obj.body_blocks):
-            text = block["text"]
-            if block["type"] == "image" and index in photos:
-                url = reverse("submission-body-image", args=[photos[index].pk])
-                rendered.append(format_html('<figure><a href="{}" target="_blank" rel="noopener">'
-                    '<img src="{}" style="max-width:420px;max-height:330px" alt=""></a><figcaption>{}</figcaption></figure>',
-                    url, url, text))
-            else:
-                if block["type"] == "list":
-                    text = "\n".join("• " + line for line in text.splitlines() if line.strip())
-                rendered.append(format_html(templates.get(block["type"], '<p style="white-space:pre-wrap">{}</p>'), text))
-        return format_html_join("", "{}", ((block,) for block in rendered))
+            items = [line.strip() for line in block["text"].splitlines() if line.strip()] if block["type"] == "list" else []
+            blocks.append({**block, "photo": body_photos.get(index), "items": items})
 
-    @admin.display(description="投稿图片")
-    def image_preview(self, obj):
-        if not obj.image:
-            return "未上传图片"
-        return format_html('<a href="{}" target="_blank" rel="noopener"><img src="{}" style="max-width:320px;max-height:260px" alt="投稿配图"></a>',
-            reverse("submission-image", args=[obj.pk]), reverse("submission-image", args=[obj.pk]))
+        steps = []
+        if obj.kind == Kind.NEW_ROUTE:
+            photos = {photo.step_index: photo.pk for photo in obj.step_images.all()}
+            steps = [{**step, "photo": photos.get(step.get("imageIndex", index))}
+                     for index, step in enumerate(data.get("steps", []))]
 
-    @admin.display(description="地点位置或路线步骤")
-    def map_preview(self, obj):
-        return format_html('<pre style="white-space:pre-wrap">{}</pre>', json.dumps(obj.map_data, ensure_ascii=False, indent=2)) if obj.map_data else "—"
-
-    @admin.display(description="每步配图")
-    def step_images_preview(self, obj):
-        return format_html_join('', '<p>步骤 {}<br><a href="{}" target="_blank" rel="noopener"><img src="{}" style="max-width:280px;max-height:220px" alt="步骤配图"></a></p>',
-            ((image.step_index + 1, reverse("submission-step-image", args=[image.pk]), reverse("submission-step-image", args=[image.pk])) for image in obj.step_images.all())) or "未上传步骤配图"
+        body_heading = {
+            Kind.NEW_PLACE: "地点介绍", Kind.NEW_ROUTE: "线路简介",
+            Kind.PLACE: "纠错说明", Kind.ROUTE: "纠错说明",
+        }.get(obj.kind, "正文")
+        return render_to_string("admin/community/submission/content.html", {
+            "submission": obj, "place_fields": place_fields, "targets": targets, "route": route,
+            "route_id": data.get("routeId"), "blocks": blocks, "steps": steps, "body_heading": body_heading,
+        })
 
     def save_model(self, request, obj, form, change):
+        if obj.status != Submission.Status.PENDING:
+            raise ReviewConflict("这条投稿已处理，请返回审核列表。")
         result = review_submission(obj.pk, form.cleaned_data["review_version"],
             form.cleaned_data["decision"], form.cleaned_data.get("review_note", ""), request.user)
         obj.status = result.status
@@ -108,13 +184,8 @@ class SubmissionAdmin(admin.ModelAdmin):
         obj.public_entry = result.public_entry
 
     def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
-        context = dict(extra_context or {})
-        if object_id:
-            item = self.get_object(request, object_id)
-            if item and item.status != Submission.Status.PENDING:
-                context.update(show_save=False, show_save_and_continue=False, show_save_and_add_another=False)
         try:
-            return super().changeform_view(request, object_id, form_url, context)
+            return super().changeform_view(request, object_id, form_url, extra_context)
         except ReviewConflict as error:
             self.message_user(request, str(error), level=messages.ERROR)
             return HttpResponseRedirect(request.path)

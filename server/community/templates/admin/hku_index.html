@@ -1,0 +1,19 @@
+{% extends "admin/index.html" %}
+{% load static %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'community/review.css' %}">{% endblock %}
+{% block content %}
+  {% if perms.community.view_submission or perms.community.change_submission %}
+    {% url 'admin:community_submission_changelist' as review_url %}
+    <section class="review-home" aria-labelledby="review-home-title">
+      <div>
+        <h2 id="review-home-title">投稿审核</h2>
+        <p>新地点、地点纠错、新线路、线路纠错和学生指南。</p>
+      </div>
+      <div class="review-home-actions">
+        <a class="review-primary" href="{{ review_url }}?status__exact=pending">查看待审核</a>
+        <a href="{{ review_url }}">全部投稿</a>
+      </div>
+    </section>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

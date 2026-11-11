@@ -66,6 +66,28 @@ class CommunityFixture(TestCase):
             response.close()
 
 class CommunityTests(CommunityFixture):
+    def test_admin_review_queue_matches_mobile_types_and_includes_legacy_guide_submissions(self):
+        legacy = self.submit(title="旧版美食投稿")
+        place = self.submit(kind="place", title="待核对的校园地点", location="本部大楼", request_key="admin_place")
+        review_submission(place.pk, 1, "approved", "", self.admin)
+        self.client.force_login(self.admin)
+
+        home = self.client.get("/admin/")
+        self.assertContains(home, "查看待审核")
+        self.assertContains(home, "/admin/community/submission/?status__exact=pending")
+        path = "/admin/community/submission/"
+        queue = self.client.get(path, {"status__exact": "pending", "type": "guide"})
+        self.assertContains(queue, legacy.title)
+        self.assertNotContains(queue, place.title)
+        for label in ("新地点", "地点纠错", "新线路", "线路纠错", "学生指南"):
+            self.assertContains(queue, label)
+        self.assertNotContains(queue, "美食推荐")
+        self.assertNotContains(queue, "娱乐群资料")
+
+        detail = self.client.get(f"{path}{place.pk}/change/")
+        self.assertContains(detail, "审核记录")
+        self.assertNotContains(detail, "提交审核结果")
+
     def test_illustrated_guide_submission_keeps_layout_and_private_images_through_revision(self):
         endpoint = "/api/submissions/"
         blocks = [{"type": "heading", "text": "图书馆"}, {"type": "paragraph", "text": "从入口直走。"},
@@ -132,6 +154,11 @@ class CommunityTests(CommunityFixture):
             item = response.json()["submission"]
             self.assertEqual(item["mapData"]["type"], f"{kind}_correction")
             self.assertTrue(item["location"])
+            self.client.force_login(self.admin)
+            detail = self.client.get(f"/admin/community/submission/{item['id']}/change/")
+            self.assertContains(detail, "/admin/guide/campusplace/main/change/")
+            self.assertContains(detail, "纠错说明")
+            self.assertNotContains(detail, "originId")
             approved = review_submission(item["id"], 1, "approved", "", self.admin)
             article = next(post for post in self.anon.get("/api/guide/").json()["articles"] if post["id"] == str(approved.public_entry_id))
             self.assertEqual(article["relatedLocation"], item["location"])
@@ -145,6 +172,12 @@ class CommunityTests(CommunityFixture):
         self.assertEqual(response.status_code, 201, response.content)
         item = response.json()["submission"]
         path = urlsplit(item["mapData"]["steps"][0]["imageUrl"]).path
+        self.client.force_login(self.admin)
+        detail = self.client.get(f"/admin/community/submission/{item['id']}/change/")
+        self.assertContains(detail, "找到指示牌")
+        self.assertContains(detail, "第 1 步配图")
+        self.assertContains(detail, path)
+        self.assertContains(detail, "提交审核结果")
         self.assertEqual(self.anon.get(path).status_code, 404)
         approved = review_submission(item["id"], 1, "approved", "", self.admin)
         route = next(route for route in self.anon.get("/api/campus/").json()["routes"]

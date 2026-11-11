@@ -1,0 +1,103 @@
+<div class="review-preview">
+  {% if place_fields %}
+    <section aria-label="地点资料">
+      <h3>地点资料</h3>
+      <dl class="review-facts">
+        {% for label, value in place_fields %}
+          {% if value %}<dt>{{ label }}</dt><dd>{{ value }}</dd>{% endif %}
+        {% endfor %}
+      </dl>
+    </section>
+  {% endif %}
+
+  {% if targets or route_id or submission.location %}
+    <section aria-label="关联地点或线路">
+      <h3>关联地点或线路</h3>
+      <dl class="review-facts">
+        {% for label, identifier, place in targets %}
+          <dt>{{ label }}</dt>
+          <dd>
+            {% if place %}
+              <a href="{% url 'admin:guide_campusplace_change' place.pk %}" target="_blank" rel="noopener">{{ place.name_zh }}</a>
+              {% if place.name_en %}<small>{{ place.name_en }}</small>{% endif %}
+              {% if not place.publication.published %}<small>已下线</small>{% endif %}
+            {% else %}
+              {{ identifier }} <small>地点已不可用</small>
+            {% endif %}
+          </dd>
+        {% endfor %}
+        {% if route_id %}
+          <dt>关联线路</dt>
+          <dd>
+            {% if route %}
+              <a href="{% url 'admin:guide_campusroute_change' route.pk %}" target="_blank" rel="noopener">{{ route.title }}</a>
+              {% if not route.publication.published %}<small>已下线</small>{% endif %}
+            {% else %}
+              {{ route_id }} <small>线路已不可用</small>
+            {% endif %}
+          </dd>
+        {% endif %}
+        {% if not targets and submission.location %}
+          <dt>投稿人填写</dt><dd>{{ submission.location }}</dd>
+        {% endif %}
+      </dl>
+    </section>
+  {% endif %}
+
+  {% if submission.image %}
+    {% url 'submission-image' submission.pk as cover %}
+    <figure class="review-image">
+      <a href="{{ cover }}" target="_blank" rel="noopener"><img src="{{ cover }}" alt="投稿配图"></a>
+    </figure>
+  {% endif %}
+
+  {% if blocks or submission.body %}
+    <section aria-label="{{ body_heading }}">
+      <h3>{{ body_heading }}</h3>
+      <div class="review-copy">
+        {% for block in blocks %}
+          {% if block.type == "heading" %}
+            <h3>{{ block.text }}</h3>
+          {% elif block.type == "list" %}
+            <ul>{% for item in block.items %}<li>{{ item }}</li>{% endfor %}</ul>
+          {% elif block.type == "quote" %}
+            <blockquote>{{ block.text }}</blockquote>
+          {% elif block.type == "image" and block.photo %}
+            {% url 'submission-body-image' block.photo as image_url %}
+            <figure class="review-image">
+              <a href="{{ image_url }}" target="_blank" rel="noopener"><img src="{{ image_url }}" alt="{{ block.text|default:'正文配图' }}" loading="lazy"></a>
+              {% if block.text %}<figcaption>{{ block.text }}</figcaption>{% endif %}
+            </figure>
+          {% else %}
+            <p>{{ block.text }}</p>
+          {% endif %}
+        {% empty %}
+          <p>{{ submission.body }}</p>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if steps %}
+    <section aria-label="图文步骤">
+      <h3>图文步骤</h3>
+      <ol class="review-steps">
+        {% for step in steps %}
+          <li>
+            <div class="review-copy"><h4>{{ step.title }}</h4><p>{{ step.body }}</p></div>
+            {% if step.photo %}
+              {% url 'submission-step-image' step.photo as step_url %}
+              <a class="review-step-image" href="{{ step_url }}" target="_blank" rel="noopener"><img src="{{ step_url }}" alt="第 {{ forloop.counter }} 步配图" loading="lazy"></a>
+            {% else %}
+              <p class="review-muted">未附步骤照片</p>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ol>
+    </section>
+  {% endif %}
+
+  {% if submission.external_url %}
+    <dl class="review-facts"><dt>相关链接</dt><dd>{{ submission.external_url }}</dd></dl>
+  {% endif %}
+</div>
