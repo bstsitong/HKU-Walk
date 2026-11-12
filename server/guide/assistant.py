@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 
 from django.conf import settings
@@ -16,6 +17,7 @@ from .assistant_sources import AssistantServiceError, DEEPSEEK_BASE_URL, HKU_WEB
 from .models import AssistantUsage, CampusPlace
 
 
+logger = logging.getLogger(__name__)
 LANGUAGES = {"zh-Hans": "Simplified Chinese", "zh-Hant": "Hong Kong Traditional Chinese", "en": "English"}
 NO_SOURCES = {
     "zh-Hans": "我没有找到能确认这个问题的公开资料。你可以试试补充楼名、地点或日期。",
@@ -31,6 +33,26 @@ UNKNOWN_PLACE = {
     "zh-Hans": "我没查到叫「{name}」的校园地点。它可能是昵称，你知道它附近有什么地标吗？",
     "zh-Hant": "我未查到叫「{name}」的校園地點。它可能是暱稱，你知道它附近有甚麼地標嗎？",
     "en": "I couldn't find a campus location called “{name}”. Could it be a nickname? Do you know a nearby landmark?",
+}
+LANDMARK_QUESTION = {
+    "zh-Hans": "我还没能确认「{name}」对应哪个校园地点。你能补充正式名称、英文拼写，或者另一个附近的地标吗？",
+    "zh-Hant": "我未能確認「{name}」對應哪個校園地點。你能補充正式名稱、英文拼寫，或另一個附近的地標嗎？",
+    "en": "I couldn't confirm which campus location “{name}” refers to. Do you know its official name, spelling or another nearby landmark?",
+}
+LANDMARK_FOUND = {
+    "zh-Hans": "我查到了你补充的地标，可以点下方查看步行路线。你原本要找的地点还需要确认。",
+    "zh-Hant": "我查到了你補充的地標，可以點下方查看步行路線。你原本要找的地點還需要確認。",
+    "en": "I found the landmark you mentioned. Select it for walking directions. I still need to confirm the place you originally asked about.",
+}
+WEB_UNAVAILABLE = {
+    "zh-Hans": "我没在 App 里找到相关资料，暂时也无法完成港大官网搜索。你可以补充正式名称或附近的地标。",
+    "zh-Hant": "我未在 App 找到相關資料，暫時也無法完成港大官網搜尋。你可以補充正式名稱或附近的地標。",
+    "en": "I found no matching records in the app, and the HKU website search couldn't finish. Try adding an official name or nearby landmark.",
+}
+SOURCES_ONLY = {
+    "zh-Hans": "我查到了下方资料，可以点开查看详情。",
+    "zh-Hant": "我查到了下方資料，可以點開查看詳情。",
+    "en": "I found the sources below. Select one for details.",
 }
 PLACE_RESULTS = {
     "zh-Hans": "以下是校园地图中查到的地点。选一个地点就能查看步行路线。",
@@ -64,6 +86,11 @@ FRESHNESS_TERMS = ("今天", "今日", "今晚", "现在", "現在", "最新", "
 SITE_CUES = {"catering": ("餐饮官网", "餐飲官網", "catering website"), "library": ("图书馆官网", "圖書館官網", "library website")}
 DIRECT_NAVIGATION = re.compile(
     r"(?:带我去|帶我去|导航到|導航到|take me to\s+|navigate to\s+)\s*(.+?)[。！？.!?]*",
+    re.IGNORECASE,
+)
+LANDMARK_HINT = re.compile(
+    r"(?:(?:[他她它]\s*)?就?在\s*|附近是\s*|(?:it(?:['’]s| is)\s+)?(?:in|near|at)\s+)"
+    r"([^\r\n？?！!。]{1,80}?)[。.!！]?",
     re.IGNORECASE,
 )
 
@@ -146,12 +173,43 @@ def assistant_reply(answer, items):
     return {"answer": answer, "sources": sources}
 
 
+def answer_landmark_hint(question, language, history):
+    if not history or history[-1]["role"] != "assistant":
+        return None
+    previous = history[-1]["content"]
+    if not any(previous.startswith(template.split("{name}", 1)[0])
+               for prompts in (UNKNOWN_PLACE, LANDMARK_QUESTION) for template in prompts.values()):
+        return None
+    hint = LANDMARK_HINT.fullmatch(question)
+    if not hint:
+        return None
+    name = hint[1].strip()
+    if not name:
+        return None
+    places = search_places({}, language, exact_name=name)
+    if places:
+        return assistant_reply(LANDMARK_FOUND[language], places)
+
+    # Preserve the name but allow English results for a label typed as "NIKK楼".
+    english_building = re.fullmatch(r"([a-z0-9]+)\s*[楼樓]", name, re.IGNORECASE)
+    terms = [english_building[1]] if english_building else [name]
+    try:
+        sources = search_web(name, required_terms=terms)
+    except AssistantServiceError:
+        logger.warning("Assistant landmark web search failed")
+        sources = []
+    return assistant_reply(LANDMARK_QUESTION[language].format(name=name), sources)
+
+
 def answer_question(question, language, history):
     navigation = DIRECT_NAVIGATION.fullmatch(question)
     if navigation:
         places = search_places({}, language, exact_name=navigation[1].strip())
         if places:
             return assistant_reply(PLACE_RESULTS[language], places)
+    landmark_reply = answer_landmark_hint(question, language, history)
+    if landmark_reply is not None:
+        return landmark_reply
 
     tools = [PLACE_TOOL, GUIDE_TOOL] + ([WEB_TOOL] if settings.DEEPSEEK_API_KEY else [])
     messages = [{"role": "system", "content": (
@@ -160,6 +218,8 @@ def answer_question(question, language, history):
         'For greetings, simple arithmetic and general questions that do not depend on HKU facts or live information, answer directly '
         'with JSON {"kind":"general","answer":"your short answer"} without tools. '
         "For any question about HKU or an app record, use tools to verify campus facts even when you think the answer is obvious. "
+        "Use the latest conversation turns to interpret short follow-ups. Treat a landmark supplied by the user as a search clue, "
+        "not as evidence that the original place is there. "
         "Do not use the general format for campus answers. Use search_hku if available for time-sensitive facts such as today's opening hours. "
         "For navigation, location or facility searches use find_places. Omit category unless the user explicitly requests one. "
         "If the user asks which buildings have sockets, use category building "
@@ -221,8 +281,9 @@ def answer_question(question, language, history):
         try:
             found = record(search_web(query, site, terms))
         except AssistantServiceError:
+            logger.warning("Assistant campus web search failed")
             if not results:
-                raise
+                return assistant_reply(WEB_UNAVAILABLE[language], [])
             found = []
         by_call[web_call_id or calls[-1][0]["id"]].extend(found)
     if not results:
@@ -237,13 +298,16 @@ def answer_question(question, language, history):
         messages.append({"role": "assistant", "content": first.get("content") or "", "tool_calls": [call for call, _ in calls]})
         messages.extend({"role": "tool", "tool_call_id": call["id"], "content": json.dumps({"results": by_call[call["id"]]}, ensure_ascii=False)}
                         for call, _ in calls)
-        last = model_message(messages, tools, "none", json_output=True).get("content")
         try:
+            last = model_message(messages, tools, "none", json_output=True).get("content")
             response = json.loads(last)
             answer = response["answer"].strip()[:2600]
+            if not isinstance(response["sources"], list):
+                raise ValueError("Expected a list of assistant source references")
             references = {ref for ref in response["sources"] if type(ref) is int}
-        except (TypeError, ValueError, KeyError, AttributeError):
-            raise AssistantServiceError() from None
+        except (AssistantServiceError, TypeError, ValueError, KeyError, AttributeError):
+            logger.warning("Assistant could not summarize campus sources")
+            return assistant_reply(SOURCES_ONLY[language], list(results.values()))
         selected = [item for item in results.values() if item["source"] in references]
         if not answer or not selected:
             return {"answer": NO_SOURCES[language], "sources": []}
@@ -271,4 +335,5 @@ class AskAssistant(APIView):
         try:
             return Response(answer_question(data["question"], data["language"], data.get("history", [])))
         except AssistantServiceError:
+            logger.warning("Assistant could not start a model response")
             return Response({"code": "assistant_unavailable"}, status=502)

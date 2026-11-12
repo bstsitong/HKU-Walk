@@ -5,7 +5,7 @@ from django.core.cache import cache
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from .assistant_sources import search_web
+from .assistant_sources import AssistantServiceError, search_web
 from .models import AssistantUsage, CampusPlace, Publication
 
 
@@ -69,6 +69,54 @@ class AssistantTests(TestCase):
         self.assertEqual(response.json()["sources"], [])
         self.assertIn("奶龙", response.json()["answer"])
         self.assertIn("地标", response.json()["answer"])
+
+    def send_landmark_hint(self, question):
+        return self.client.post(self.url, {"question": question, "history": [
+            {"role": "user", "content": "学校里有叫奶龙的地方吗"},
+            {"role": "assistant", "content": "我没查到叫「奶龙」的校园地点。它可能是昵称，你知道它附近有什么地标吗？"},
+        ]}, content_type="application/json")
+
+    def test_unknown_landmark_followup_asks_for_spelling_even_if_web_search_fails(self):
+        with patch("guide.assistant.search_web", side_effect=AssistantServiceError) as search, patch(
+                "guide.assistant.model_message") as model:
+            response = self.send_landmark_hint("他在 nikk 楼")
+        search.assert_called_once_with("nikk 楼", required_terms=["nikk"])
+        model.assert_not_called()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("nikk 楼", response.json()["answer"])
+        self.assertIn("英文拼写", response.json()["answer"])
+        self.assertEqual(response.json()["sources"], [])
+
+    def test_known_landmark_can_be_opened_without_confirming_the_original_place(self):
+        self.add_place("邵逸夫楼", None)
+        with patch("guide.assistant.model_message") as model:
+            response = self.send_landmark_hint("它在邵逸夫楼。")
+        model.assert_not_called()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["sources"][0]["id"], "邵逸夫楼")
+        self.assertIn("原本要找的地点还需要确认", response.json()["answer"])
+
+    @override_settings(DEEPSEEK_API_KEY="test-only")
+    def test_failed_web_lookup_explains_which_search_failed(self):
+        with patch("guide.assistant.model_message", return_value=tool_call(
+                "search_hku", query="HKU example")), patch("guide.assistant.search_web", side_effect=AssistantServiceError):
+            response = self.client.post(self.url, {"question": "港大官网的最新公告"}, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("无法完成港大官网搜索", response.json()["answer"])
+        self.assertEqual(response.json()["sources"], [])
+
+    @override_settings(DEEPSEEK_API_KEY="test-only")
+    def test_sources_are_kept_if_the_model_returns_an_empty_summary(self):
+        official = {"kind": "web", "id": "https://www.hku.hk/", "url": "https://www.hku.hk/",
+                    "title": "HKU", "detail": "Official page", "evidence": "Official content"}
+        with patch("guide.assistant.model_message", side_effect=[
+            tool_call("search_hku", query="HKU example"), {"content": "   "},
+        ]), patch("guide.assistant.search_web", return_value=[official]):
+            response = self.client.post(self.url, {"question": "港大官网的最新公告"}, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("点开查看", response.json()["answer"])
+        self.assertEqual(response.json()["sources"][0]["url"], official["url"])
+        self.assertNotIn("evidence", response.json()["sources"][0])
 
     def test_facility_results_require_a_published_confirmed_location(self):
         self.add_place("confirmed", True)
