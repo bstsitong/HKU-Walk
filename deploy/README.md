@@ -83,6 +83,12 @@ Render 的临时磁盘不用于持久保存图片。小组演示设置 `DJANGO_S
 
 源站遵循 [Django 的部署检查要求](https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/)。不同免费平台有数据保留、存储和休眠限制，需在选定平台后核实，避免测试结束后数据失效。
 
+## 问港大
+
+在现有 Django 服务的环境变量中设置 `DEEPSEEK_API_KEY`。默认模型为 `deepseek-flash`。Django 使用同一把密钥按需调用港大官网搜索和网页抓取。若换用其他兼容 Chat Completions 工具调用的服务，设置 `ASSISTANT_API_BASE_URL`、`ASSISTANT_API_KEY` 和 `ASSISTANT_MODEL`。密钥放在后端环境变量或对应的 `_FILE` 中。
+
+`ASSISTANT_DAILY_LIMIT` 默认允许全站每天发起 100 次问答，按香港日期计数。部署会运行数据库迁移。管理员可在「校园地点」录入已核实的插座状态和位置，状态留空表示未确认。
+
 ## 已验证范围
 
 `scripts/verify_production.py` 在隔离目录中启动关闭 DEBUG 的 WSGI 服务，检查代理头、静态资源、账号恢复、图片可见范围、已发布内容修改，以及备份校验和恢复。

@@ -1,12 +1,13 @@
 import { formatDate, t } from './localization';
 import { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator, Keyboard, KeyboardAvoidingView, Modal, Platform, RefreshControl, ScrollView, StyleSheet, View,
+  ActivityIndicator, Keyboard, KeyboardAvoidingView, Platform, RefreshControl, ScrollView, StyleSheet, View,
 } from 'react-native';
 import { Alert, Pressable, Text } from './ui';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import AppIcon, { IconName } from './AppIcon';
+import { AppModal } from './Assistant';
 import { accountAuthor, AuthorByline } from './AuthorIdentity';
 import { ApiError, deleteGuideArticle, Draft, fetchSubmission, fetchSubmissions, Kind, PickedImage, sendSubmission, Submission } from './communityApi';
 import useAccount from './useAccount';
@@ -222,7 +223,7 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
   ]);
   const image = draft.image?.uri || (!draft.removeImage ? draft.existingImage : '');
   const isMapDraft = !hasRichBody(draft.kind);
-  return <Modal visible={visible} animationType="slide" onRequestClose={leave} presentationStyle="fullScreen">
+  return <AppModal visible={visible} animationType="slide" onRequestClose={leave} presentationStyle="fullScreen">
     <SafeAreaProvider>
     <SafeAreaView style={s.shell}>
       <View style={s.topbar}>
@@ -321,7 +322,7 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
       </KeyboardAvoidingView>
     </SafeAreaView>
     </SafeAreaProvider>
-  </Modal>;
+  </AppModal>;
 }
 
 const s = StyleSheet.create({

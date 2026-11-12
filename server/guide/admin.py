@@ -97,12 +97,13 @@ class PostAdmin(PublishedContentAdmin):
 class PlaceAdmin(PublishedContentAdmin):
     publication_kind = Publication.Kind.PLACE
     list_display = ("name_zh", "name_en", "abbreviation_en", "category", "is_published")
-    list_filter = ("category", "publication__published", "is_builtin", "map_version")
+    list_filter = ("category", "publication__published", "is_builtin", "map_version", "has_power_outlets")
     search_fields = ("name_zh", "name_en", "abbreviation_en", "keywords")
     readonly_fields = ("code", "is_builtin", "updated_at")
     fields = (
         "code", "name_zh", "name_en", "abbreviation_en", "keywords", "category", "map_version", "map_x", "map_y",
-        "entrance", "floor", "body", "external_url", "image_url", "published", "sort_order", "is_builtin", "updated_at",
+        "entrance", "floor", "has_power_outlets", "power_outlet_location", "body", "external_url", "image_url",
+        "published", "sort_order", "is_builtin", "updated_at",
     )
 
     def get_changeform_initial_data(self, request):

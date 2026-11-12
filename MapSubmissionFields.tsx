@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
-import { Keyboard, Modal, StyleSheet, View } from 'react-native';
+import { Keyboard, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
 import { CAMPUS_MAP_VERSION, campusMapSvg, MAP_WIDTH, MAP_HEIGHT, MAP_Y_MAX } from './MapArtwork';
 import { Pressable, Text } from './ui';
 import { Field } from './CommunityUI';
 import AppIcon from './AppIcon';
+import { AppModal } from './Assistant';
 import PlaceSearch from './PlaceSearch';
 import { campusRoutes, categories, getPlace, placeName } from './campus';
 import type { Kind } from './communityApi';
@@ -124,12 +125,12 @@ export default function MapSubmissionFields({ kind, data, onChange, disabled, on
     </View>; })}
     <Pressable accessibilityRole="button" disabled={disabled || (data.steps?.length || 0) >= 20} onPress={() => patch({ steps: [...(data.steps || []),{ title: '', body: '' }] })} style={s.addStep}><AppIcon name="plus" size={19} /><Text style={s.link}>添加下一步</Text></Pressable>
     </> : null}
-    {selector ? <Modal animationType="slide" onRequestClose={() => setSelector(null)}>
+    {selector ? <AppModal animationType="slide" onRequestClose={() => setSelector(null)}>
       <SafeAreaProvider><SafeAreaView style={[s.flex, { backgroundColor: c.app }]}>
         <PlaceSearch title={selectorTitles[selector]} onBack={() => setSelector(null)}
           onChoose={place => { patch({ [selector]: place.id, routeId: undefined }); setSelector(null); }} />
       </SafeAreaView></SafeAreaProvider>
-    </Modal> : null}
+    </AppModal> : null}
   </View>;
 }
 export function SubmittedMapData({ data, token }: { data?: MapDraftData; token?: string }) {

@@ -41,7 +41,7 @@ class Command(BaseCommand):
                         cursor.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
                 call_command("dumpdata", natural_foreign=True, natural_primary=True,
                     exclude=["contenttypes", "auth.permission", "sessions", "community.mobilesession",
-                        "community.storedmedia", "community.mediaquota"], stdout=handle)
+                        "community.storedmedia", "community.mediaquota", "guide.assistantusage"], stdout=handle)
                 image_names = sorted(set(Submission.objects.exclude(image="").values_list("image", flat=True))
                     | set(SubmissionStepImage.objects.values_list("image", flat=True))
                     | set(SubmissionBodyImage.objects.values_list("image", flat=True))

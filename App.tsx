@@ -4,6 +4,8 @@ import { AppState, Keyboard, StyleSheet, View } from 'react-native';
 import { Alert, Pressable, Text } from './ui';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon, { IconName } from './AppIcon';
+import { AssistantHost, AssistantProvider } from './Assistant';
+import type { AssistantTarget } from './Assistant';
 import { confirmPostRemoval } from './CommunityUI';
 import { OpenAuthorProfile } from './AuthorIdentity';
 import CampusMap, { MapRequest, MapView } from './CampusMap';
@@ -21,6 +23,7 @@ import { GuideArticle, GuideEntry } from './guideApi';
 import useCampus from './useCampus';
 import useSavedRoutes from './useSavedRoutes';
 import { RouteBookmark } from './routeBookmarks';
+import RouteScreen from './RouteScreen';
 import useGuide from './useGuide';
 import useAccount from './useAccount';
 import CommunityScreen from './CommunityScreen';
@@ -189,10 +192,26 @@ function MainApp() {
     openArticle(id);
     if (!data.articles.some(item => item.id === id)) void data.reload();
   };
+  const renderAssistantTarget = (target: AssistantTarget, onBack: () => void, active: boolean) => {
+    if (target.kind === 'route') {
+      const destination = getPlace(target.id);
+      return destination ? <RouteScreen key={destination.id} initialDestination={destination} publishedOnly
+        records={routes} recentPlaceIds={records.recent} onBack={onBack} active={active}
+        onVisit={history.visitRoute} catalogVersion={campus.catalog} /> : null;
+    }
+    const source = data.articles.find(item => item.id === target.id);
+    return source ? <GuideArticleScreen key={`${source.id}:${target.pageKey ?? ''}`} article={source} initiallyComments={false} initialSourcePage={target.pageKey}
+      session={account.session} onBack={onBack} active={active} readOnly bookmarks={bookmarks} liking={liking}
+      onLike={toggleLike} onCommentCount={count => data.updateArticle(source.id, { commentCount: count })}
+      onLogin={openDiscussionLogin} onDelete={() => confirmPostRemoval(() => void removeArticle(source.id))}
+      deleting={deletingArticle} /> : null;
+  };
 
   return (
     <OpenAuthorProfile.Provider value={setPublicProfileId}>
+    <AssistantProvider renderTarget={renderAssistantTarget}>
     <SafeAreaView style={s.shell}>
+      <AssistantHost restingBottom={tab === 'map' && mapView === 'home' && !article && !commentPlace ? 274 : undefined}>
       <StatusBar style="dark" />
       <View style={[s.content, (tab !== 'map' || Boolean(commentPlace)) && s.hidden]}><CampusMap active={tab === 'map' && !commentPlace} records={records} routes={routes} campus={campus} sampleLocation={false} request={mapRequest} onViewChange={setMapView} onReturnSaved={() => setTab('profile')} onVisitRoute={history.visitRoute} onCommentPlace={setCommentPlace} /></View>
       <View style={[s.content, (tab !== 'guide' || Boolean(article)) && s.hidden]}>
@@ -239,7 +258,9 @@ function MainApp() {
         ))}
       </View> : null}
       {publicProfileId ? <PublicProfileScreen key={publicProfileId} id={publicProfileId} onBack={() => setPublicProfileId(null)} onOpenPost={openProfilePost} /> : null}
+      </AssistantHost>
     </SafeAreaView>
+    </AssistantProvider>
     </OpenAuthorProfile.Provider>
   );
 }

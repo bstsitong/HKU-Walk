@@ -140,12 +140,18 @@ if os.environ.get("DJANGO_TRUST_PROXY", "0") == "1":
 SECURE_CONTENT_TYPE_NOSNIFF = True
 MEDIA_ROOT = LOCAL_DIR / "uploads"
 MAINTENANCE = os.environ.get("DJANGO_MAINTENANCE", "0") == "1"
+ASSISTANT_API_BASE_URL = os.environ.get("ASSISTANT_API_BASE_URL", "https://api.deepseek.com").strip().rstrip("/")
+uses_deepseek = ASSISTANT_API_BASE_URL in {"https://api.deepseek.com", "https://api.deepseek.com/v1"}
+ASSISTANT_MODEL = os.environ.get("ASSISTANT_MODEL", "deepseek-flash" if uses_deepseek else "").strip()
+DEEPSEEK_API_KEY = secret_value("DEEPSEEK_API_KEY").strip()
+ASSISTANT_API_KEY = secret_value("ASSISTANT_API_KEY").strip() or (DEEPSEEK_API_KEY if uses_deepseek else "")
+ASSISTANT_DAILY_LIMIT = max(0, int(os.environ.get("ASSISTANT_DAILY_LIMIT", "100")))
 DATA_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ["community.authentication.MobileAuthentication"],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
-    "DEFAULT_THROTTLE_RATES": {"auth": "12/min", "submit": "12/min", "recovery": "5/min", "guide_like": "60/min", "profile": "12/min"},
+    "DEFAULT_THROTTLE_RATES": {"auth": "12/min", "submit": "12/min", "recovery": "5/min", "guide_like": "60/min", "profile": "12/min", "assistant": "5/min"},
     "EXCEPTION_HANDLER": "community.api_errors.handle_exception",
     "NUM_PROXIES": 1 if os.environ.get("DJANGO_TRUST_PROXY", "0") == "1" else 0,
 }

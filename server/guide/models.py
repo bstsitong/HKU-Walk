@@ -121,6 +121,8 @@ class CampusPlace(ContentFields):
     map_version = models.PositiveSmallIntegerField("底图版本", choices=[(1, "旧版示意图"), (2, "校园地图")], default=1)
     entrance = models.TextField("入口说明", blank=True, max_length=1000)
     floor = models.CharField("楼层说明", blank=True, max_length=500)
+    has_power_outlets = models.BooleanField("有可用插座", null=True, blank=True, default=None)
+    power_outlet_location = models.CharField("插座位置", blank=True, max_length=300, db_default="")
     is_builtin = models.BooleanField("内置演示地点", default=False)
 
     class Meta:
@@ -136,6 +138,11 @@ class CampusPlace(ContentFields):
     @property
     def title(self):
         return self.name_zh
+
+
+class AssistantUsage(models.Model):
+    day = models.DateField(primary_key=True)
+    requests = models.PositiveIntegerField(default=0)
 
 
 class PlaceComment(models.Model):

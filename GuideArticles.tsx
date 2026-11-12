@@ -93,13 +93,13 @@ export function GuideArticles({ data, bookmarks, liking, onLike, onOpen, onContr
   </View>;
 }
 
-export function GuideArticleScreen({ article, initiallyComments, session, onBack, onLogin, onCommentCount, bookmarks, liking, onLike, onDelete, deleting }: Actions & {
+export function GuideArticleScreen({ article, initiallyComments, initialSourcePage, session, onBack, onLogin, onCommentCount, bookmarks, liking, onLike, onDelete, deleting, readOnly = false, active = true }: Actions & {
   article: GuideArticle; initiallyComments: boolean; session: Account | null; onBack: () => void;
   onLogin: (expired?: boolean) => void; onCommentCount: (count: number) => void;
-  onDelete: () => void; deleting: boolean;
+  onDelete: () => void; deleting: boolean; readOnly?: boolean; active?: boolean; initialSourcePage?: string;
 }) {
   const [comments, showComments] = useState(initiallyComments);
-  const [sourceKey, setSourceKey] = useState<string>();
+  const [sourceKey, setSourceKey] = useState<string | undefined>(() => initialSourcePage && Object.hasOwn(article.sourcePages ?? {}, initialSourcePage) ? initialSourcePage : undefined);
   const sourcePage = sourceKey ? article.sourcePages?.[sourceKey] : undefined;
   const openPage = (key: string) => { if (Object.hasOwn(article.sourcePages ?? {}, key)) setSourceKey(key); };
   const back = () => {
@@ -109,14 +109,15 @@ export function GuideArticleScreen({ article, initiallyComments, session, onBack
     else onBack();
   };
   useEffect(() => {
+    if (!active) return;
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => { back(); return true; });
     return () => subscription.remove();
-  }, [comments, initiallyComments, onBack, sourceKey]);
+  }, [active, comments, initiallyComments, onBack, sourceKey]);
   return <View style={s.flex}>
     <View style={s.topBar}>
       <Pressable testID="article-back" accessibilityRole="button" accessibilityLabel="返回" onPress={back} style={s.iconButton}><AppIcon name="back" size={20} /></Pressable>
       <Text accessibilityRole="header" style={s.barTitle}>{comments ? '评论' : '学生指南'}</Text>
-      {article.canDelete && session && !comments && !sourcePage ? <Pressable testID="article-delete"
+      {!readOnly && article.canDelete && session && !comments && !sourcePage ? <Pressable testID="article-delete"
         accessibilityRole="button" accessibilityLabel="删除帖子" onPress={onDelete} disabled={deleting} style={s.iconButton}>
         <AppIcon name="trash" size={19} color={c.rust} />
       </Pressable> : null}
@@ -131,7 +132,7 @@ export function GuideArticleScreen({ article, initiallyComments, session, onBack
           {article.bodyBlocks?.length ? <SubmissionBody blocks={article.bodyBlocks} /> :
             article.markdown ? <GuideMarkdown body={article.body} onOpenPage={openPage} /> : <Text raw style={s.articleBody}>{article.body}</Text>}
           {article.externalUrl ? <Action icon="external" label="查看相关链接" onPress={() => void openLink(article.externalUrl)} /> : null}
-          <ArticleActions article={article} bookmarks={bookmarks} liking={liking} onLike={onLike} onComments={() => showComments(true)} />
+          {!readOnly ? <ArticleActions article={article} bookmarks={bookmarks} liking={liking} onLike={onLike} onComments={() => showComments(true)} /> : null}
         </ScrollView>
         {sourcePage ? <ScrollView key={sourceKey} style={s.flex} contentContainerStyle={s.page}>
           <Text raw accessibilityRole="header" style={s.title}>{sourcePage.title}</Text>

@@ -3941,5 +3941,97 @@
   "聚英臺 餐厅 饭堂": {
     "en": "聚英臺 餐厅 饭堂",
     "zh-Hant": "聚英台 餐廳 飯堂"
+  },
+  "问港大": {
+    "en": "Ask HKU",
+    "zh-Hant": "問港大"
+  },
+  "打开校园助手": {
+    "en": "Open campus assistant",
+    "zh-Hant": "打開校園助手"
+  },
+  "关闭校园助手": {
+    "en": "Close campus assistant",
+    "zh-Hant": "關閉校園助手"
+  },
+  "找校园地点、查学生指南，或查看港大官网资料。": {
+    "en": "Find campus places, student guides or information from official HKU websites.",
+    "zh-Hant": "找校園地點、查學生指南，或查看港大官網資料。"
+  },
+  "哪些教学楼有插座？": {
+    "en": "Which teaching buildings have power outlets?",
+    "zh-Hant": "哪些教學樓有插座？"
+  },
+  "如何申请 JULAC 卡？": {
+    "en": "How do I apply for a JULAC card?",
+    "zh-Hant": "如何申請 JULAC 卡？"
+  },
+  "主图书馆今天几点关门？": {
+    "en": "What time does the Main Library close today?",
+    "zh-Hant": "主圖書館今天幾點關門？"
+  },
+  "来源与地点": {
+    "en": "Sources and places",
+    "zh-Hant": "來源與地點"
+  },
+  "去这里": {
+    "en": "Get directions",
+    "zh-Hant": "去這裏"
+  },
+  "打开指南": {
+    "en": "Open guide",
+    "zh-Hant": "打開指南"
+  },
+  "查看官网": {
+    "en": "Open official website",
+    "zh-Hant": "查看官網"
+  },
+  "暂时无法打开来源": {
+    "en": "Couldn't open this source",
+    "zh-Hant": "暫時無法打開來源"
+  },
+  "重试": {
+    "en": "Try again",
+    "zh-Hant": "重試"
+  },
+  "正在查找校园资料…": {
+    "en": "Looking up campus information…",
+    "zh-Hant": "正在查找校園資料…"
+  },
+  "输入校园问题": {
+    "en": "Ask about campus",
+    "zh-Hant": "輸入校園問題"
+  },
+  "发送问题": {
+    "en": "Send question",
+    "zh-Hant": "發送問題"
+  },
+  "这条校园资料暂时无法打开。": {
+    "en": "This campus item is currently unavailable.",
+    "zh-Hant": "這條校園資料暫時無法打開。"
+  },
+  "校园助手尚未启用。": {
+    "en": "The campus assistant hasn't been enabled yet.",
+    "zh-Hant": "校園助手尚未啓用。"
+  },
+  "提问次数已达上限，请稍后再试。": {
+    "en": "You've reached the question limit. Please try again later.",
+    "zh-Hant": "提問次數已達上限，請稍後再試。"
+  },
+  "校园助手暂时无法回答，请重试。": {
+    "en": "The campus assistant couldn't answer. Please try again.",
+    "zh-Hant": "校園助手暫時無法回答，請重試。"
+  },
+  "目的地 · © OpenStreetMap": {
+    "en": "Destination · © OpenStreetMap",
+    "zh-Hant": "目的地 · © OpenStreetMap"
+  },
+  "这两个地点之间暂时没有已发布的步行指引。": {
+    "en": "No walking directions have been published between these places yet.",
+    "zh-Hant": "這兩個地點之間暫時沒有已發佈的步行指引。"
+  },
+  "终点已填好。选择起点后可查看已发布的步行指引。": {
+    "en": "Your destination is set. Choose a starting point to see published walking directions.",
+    "zh-Hant": "終點已填好。選擇起點後可查看已發佈的步行指引。"
   }
 }

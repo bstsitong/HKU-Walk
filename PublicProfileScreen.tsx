@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from './AppIcon';
+import { AppModal } from './Assistant';
 import { Avatar } from './AuthorIdentity';
 import { ApiError, fetchPublicProfile, PublicProfile } from './communityApi';
 import { colors as c } from './theme';
@@ -24,7 +25,7 @@ export default function PublicProfileScreen({ id, onBack, onOpenPost }: {
     return () => { live = false; };
   }, [id, retry]);
 
-  return <Modal animationType="slide" onRequestClose={onBack}>
+  return <AppModal animationType="slide" onRequestClose={onBack}>
     <SafeAreaView style={s.shell} accessibilityViewIsModal>
       <View style={s.header}>
         <Pressable accessibilityRole="button" accessibilityLabel="返回" onPress={onBack} style={s.back}>
@@ -51,7 +52,7 @@ export default function PublicProfileScreen({ id, onBack, onOpenPost }: {
           </Pressable> : <ActivityIndicator color={c.green} />}
       </ScrollView>
     </SafeAreaView>
-  </Modal>;
+  </AppModal>;
 }
 
 const s = StyleSheet.create({
