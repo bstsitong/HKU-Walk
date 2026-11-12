@@ -8,9 +8,9 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import AppIcon, { IconName } from './AppIcon';
 import { accountAuthor, AuthorByline } from './AuthorIdentity';
-import { ApiError, Draft, fetchSubmission, fetchSubmissions, Kind, PickedImage, sendSubmission, Submission } from './communityApi';
+import { ApiError, deleteGuideArticle, Draft, fetchSubmission, fetchSubmissions, Kind, PickedImage, sendSubmission, Submission } from './communityApi';
 import useAccount from './useAccount';
-import { Button, Field } from './CommunityUI';
+import { Button, confirmPostRemoval, Field } from './CommunityUI';
 import { AccountSecurityScreen, RecoveryCodeScreen } from './AccountScreens';
 import MapSubmissionFields, { SubmittedMapData } from './MapSubmissionFields';
 import { editMapDraft, emptyMapDraft, hasMapInput, validateMapDraft } from './mapSubmission';
@@ -209,6 +209,14 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
     } catch (error) { await handleError(error); }
     finally { setBusy(false); }
   };
+  const removePublished = async (id: string) => {
+    if (!token || busy) return;
+    setBusy(true);
+    setError('');
+    try { await deleteGuideArticle(token, id); onClose(); }
+    catch (error) { await handleError(error); }
+    finally { setBusy(false); }
+  };
   const logout = () => Alert.alert('退出当前账号？', undefined, [
     { text: '取消', style: 'cancel' }, { text: '退出登录', onPress: () => { setBusy(true); void account.signOut().then(onClose).catch(handleError).finally(() => setBusy(false)); } },
   ]);
@@ -293,6 +301,11 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
             {selected.status === 'changes_requested' ? <Button label="按建议修改并重交" onPress={() => void begin(selected)} /> : null}
             {selected.status === 'approved' && selected.publishedContent?.published ? <Button label={selected.openEditId ? '查看当前修改申请' : '申请修改已发布内容'} busy={busy} onPress={() => void begin(selected)} /> : null}
             {selected.status === 'approved' && selected.publishedContent && !selected.publishedContent.published ? <Text style={s.note}>此内容已下线，目前不会显示在公共指南中。</Text> : null}
+            {selected.status === 'approved' && selected.publicEntryId && selected.publishedContent?.canDeletePost ?
+              <Pressable testID="submission-delete-post" accessibilityRole="button" disabled={busy} style={s.textButton}
+                onPress={() => confirmPostRemoval(() => void removePublished(selected.publicEntryId!))}>
+                <Text style={s.removeText}>删除帖子</Text>
+              </Pressable> : null}
             <Button label="返回我的投稿" secondary onPress={() => { if (initialSubmission) onClose(); else { setScreen('home'); setError(''); void load(); } }} />
           </ScrollView>
         ) : null}

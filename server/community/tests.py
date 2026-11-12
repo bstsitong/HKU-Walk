@@ -66,6 +66,70 @@ class CommunityFixture(TestCase):
             response.close()
 
 class CommunityTests(CommunityFixture):
+    def test_only_author_can_delete_published_post(self):
+        submission = self.submit()
+        self.api.patch("/api/accounts/privacy/", {"publicProfile": True}, format="json")
+        article = review_submission(submission.pk, 1, "approved", "", self.admin).public_entry.post
+        url = f"/api/guide/articles/{article.pk}/"
+        submission_url = f"/api/submissions/{submission.pk}/"
+        other = APIClient()
+        other.credentials(HTTP_AUTHORIZATION=f"Bearer {create_session(self.other)}")
+
+        def article_card(client):
+            return next((item for item in client.get("/api/guide/").json()["articles"]
+                         if item["id"] == str(article.pk)), None)
+
+        card = article_card(self.api)
+        profile_url = f"/api/profiles/{card['authorProfile']['profileId']}/"
+        self.assertTrue(card["canDelete"])
+        self.assertTrue(self.api.get(submission_url).json()["submission"]["publishedContent"]["canDeletePost"])
+        self.assertFalse(article_card(other)["canDelete"])
+        self.assertEqual(self.anon.delete(url).status_code, 401)
+        self.assertEqual(other.delete(url).status_code, 404)
+        system = GuidePost.objects.get(publication__key="student-guide-links")
+        self.assertEqual(self.api.delete(f"/api/guide/articles/{system.pk}/").status_code, 404)
+        self.assertEqual(other.post(f"{url}comments/", {
+            "body": "This belongs to the post discussion.", "request_id": str(uuid4()),
+        }, format="json").status_code, 201)
+        self.assertTrue(self.anon.get(profile_url).json()["profile"]["posts"])
+
+        self.assertEqual(self.api.delete(url).status_code, 204)
+        self.assertEqual(self.api.delete(url).status_code, 204)
+        self.assertIsNone(article_card(self.anon))
+        self.assertEqual(self.anon.get(f"{url}comments/").status_code, 404)
+        self.assertEqual(self.anon.get(profile_url).json()["profile"]["posts"], [])
+        self.assertEqual(self.api.get(submission_url).status_code, 404)
+        self.assertEqual(self.api.get("/api/submissions/").json()["submissions"], [])
+
+    def test_only_author_can_delete_comment_on_guide_or_place(self):
+        article = GuidePost.objects.get(publication__key="student-guide-links")
+        other = APIClient()
+        other.credentials(HTTP_AUTHORIZATION=f"Bearer {create_session(self.other)}")
+        self.api.patch("/api/accounts/privacy/", {"showCommentAuthor": False}, format="json")
+
+        for url in (f"/api/guide/articles/{article.pk}/comments/", "/api/campus/places/main/comments/"):
+            with self.subTest(url=url):
+                created = self.api.post(url, {"body": "Temporary comment", "request_id": str(uuid4())}, format="json")
+                self.assertEqual(created.status_code, 201, created.content)
+                comment = created.json()["comment"]
+                comment_url = f"{url}{comment['id']}/"
+                self.assertTrue(comment["canDelete"])
+                self.assertTrue(self.api.get(url).json()["comments"][0]["canDelete"])
+                self.assertFalse(other.get(url).json()["comments"][0]["canDelete"])
+                self.assertEqual(self.anon.delete(comment_url).status_code, 401)
+                self.assertEqual(other.delete(comment_url).status_code, 404)
+
+                reply = other.post(url, {
+                    "body": "Reply from another account", "request_id": str(uuid4()), "reply_to": comment["id"],
+                }, format="json")
+                self.assertEqual(reply.status_code, 201, reply.content)
+                removed = self.api.delete(comment_url)
+                self.assertEqual(removed.status_code, 200, removed.content)
+                self.assertEqual(removed.json()["commentCount"], 1)
+                remaining = self.anon.get(url).json()["comments"]
+                self.assertEqual([item["id"] for item in remaining], [reply.json()["comment"]["id"]])
+                self.assertIsNone(remaining[0]["replyTo"])
+
     def test_profile_card_cover_is_private_and_can_be_replaced_or_removed(self):
         endpoint = "/api/accounts/me/cover/"
         self.assertEqual(self.anon.put(endpoint, {"image": photo()}, format="multipart").status_code, 401)

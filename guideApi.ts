@@ -28,8 +28,10 @@ export type GuideArticle = GuideEntry & {
   contributor: string; publishedAt: string | null; likeCount: number; commentCount: number; liked: boolean;
   sourcePages: Record<string, GuideSourcePage>; markdown: boolean;
   bodyBlocks?: BodyBlock[]; relatedLocation?: string;
+  canDelete?: boolean;
 };
 export type DiscussionComment = { id: string; author: string; authorProfile?: AuthorProfile; body: string; createdAt: string;
+  canDelete?: boolean;
   replyTo?: { id: string; author: AuthorProfile } | null };
 
 function defaultHost() {

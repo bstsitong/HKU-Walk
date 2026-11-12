@@ -93,9 +93,10 @@ export function GuideArticles({ data, bookmarks, liking, onLike, onOpen, onContr
   </View>;
 }
 
-export function GuideArticleScreen({ article, initiallyComments, session, onBack, onLogin, onCommentCount, bookmarks, liking, onLike }: Actions & {
+export function GuideArticleScreen({ article, initiallyComments, session, onBack, onLogin, onCommentCount, bookmarks, liking, onLike, onDelete, deleting }: Actions & {
   article: GuideArticle; initiallyComments: boolean; session: Account | null; onBack: () => void;
   onLogin: (expired?: boolean) => void; onCommentCount: (count: number) => void;
+  onDelete: () => void; deleting: boolean;
 }) {
   const [comments, showComments] = useState(initiallyComments);
   const [sourceKey, setSourceKey] = useState<string>();
@@ -115,6 +116,10 @@ export function GuideArticleScreen({ article, initiallyComments, session, onBack
     <View style={s.topBar}>
       <Pressable testID="article-back" accessibilityRole="button" accessibilityLabel="返回" onPress={back} style={s.iconButton}><AppIcon name="back" size={20} /></Pressable>
       <Text accessibilityRole="header" style={s.barTitle}>{comments ? '评论' : '学生指南'}</Text>
+      {article.canDelete && session && !comments && !sourcePage ? <Pressable testID="article-delete"
+        accessibilityRole="button" accessibilityLabel="删除帖子" onPress={onDelete} disabled={deleting} style={s.iconButton}>
+        <AppIcon name="trash" size={19} color={c.rust} />
+      </Pressable> : null}
     </View>
     {comments ? <Discussion kind="guide" id={article.id} title={article.title} session={session} onLogin={onLogin} onCount={onCommentCount} /> : (
       <>
@@ -162,6 +167,6 @@ const s = StyleSheet.create({
   feedback: { padding: 12, backgroundColor: c.paper, marginBottom: 12, borderRadius: 8 },
   empty: { paddingVertical: 24, fontSize: 14, color: c.muted },
   topBar: { width: '100%', maxWidth: 650, alignSelf: 'center', minHeight: 56, flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 4 },
-  barTitle: { fontSize: 18, lineHeight: 24, color: c.ink, fontWeight: '600' },
+  barTitle: { flex: 1, fontSize: 18, lineHeight: 24, color: c.ink, fontWeight: '600' },
   cover: { width: '100%', aspectRatio: 16 / 9, marginTop: 12, borderRadius: 8 },
 });

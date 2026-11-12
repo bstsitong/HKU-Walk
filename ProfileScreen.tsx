@@ -128,7 +128,6 @@ export default function ProfileScreen({ active, session, accountReady, onAccount
       <View style={s.profile} testID="profile-member">
         {cover ? <View pointerEvents="none" accessible={false} importantForAccessibility="no-hide-descendants" style={StyleSheet.absoluteFill}>
           <SubmissionPhoto uri={cover} token={session.token} showStatus={false} style={s.coverImage} resizeMode="cover" />
-          <View style={[StyleSheet.absoluteFill, s.coverShade]} />
         </View> : null}
         <Pressable testID="profile-cover" accessibilityRole="button" accessibilityLabel="资料卡背景"
           accessibilityState={{ busy: coverBusy, disabled: coverBusy }} disabled={coverBusy} onPress={chooseCover}
@@ -136,19 +135,22 @@ export default function ProfileScreen({ active, session, accountReady, onAccount
         <View style={s.identity} pointerEvents="none">
           <Avatar uri={session.user.avatarUrl} size={52} />
           <View style={s.flex}>
-            <Text raw style={s.name}>{accountAuthor(session.user).name}</Text>
-            {session.user.bio ? <Text raw style={s.bio}>{session.user.bio}</Text> : null}
+            <View style={cover && s.coverIdentity}>
+              <Text raw style={[s.name, cover && s.coverText]}>{accountAuthor(session.user).name}</Text>
+              {session.user.bio ? <Text raw style={[s.bio, cover && s.coverText]}>{session.user.bio}</Text> : null}
+            </View>
           </View>
-          <View style={s.coverIcon}>
-            {coverBusy ? <ActivityIndicator color={c.surface} size="small" /> : <AppIcon name="photo" size={18} color={c.surface} />}
+          <View style={[s.coverIcon, cover && s.coverIconOnPhoto]}>
+            {coverBusy ? <ActivityIndicator color={cover ? c.green : c.surface} size="small" /> :
+              <AppIcon name="photo" size={18} color={cover ? c.green : c.surface} />}
           </View>
         </View>
-        <View style={s.profileActions} pointerEvents="box-none">
+        <View style={[s.profileActions, cover && s.coverActions]} pointerEvents="box-none">
           <Pressable testID="profile-edit" accessibilityRole="button" onPress={onEditProfile} style={s.accountAction}>
-            <AppIcon name="edit" size={15} color={c.tint} /><Text style={s.accountLabel}>编辑资料</Text>
+            <AppIcon name="edit" size={15} color={cover ? c.green : c.tint} /><Text style={[s.accountLabel, cover && s.coverText]}>编辑资料</Text>
           </Pressable>
           <Pressable testID="profile-account" accessibilityRole="button" onPress={onAccount} style={s.accountAction}>
-            <Text style={s.accountLabel}>账号与安全</Text><AppIcon name="chevron" size={14} color={c.tint} />
+            <Text style={[s.accountLabel, cover && s.coverText]}>账号与安全</Text><AppIcon name="chevron" size={14} color={cover ? c.green : c.tint} />
           </Pressable>
         </View>
         <Pressable testID="profile-submissions" accessibilityRole="button" onPress={onContribute}
@@ -342,8 +344,11 @@ const s = StyleSheet.create({
   page: { width: '100%', maxWidth: 650, alignSelf: 'center', paddingHorizontal: 20, paddingBottom: 28 },
   profile: { backgroundColor: c.green, borderRadius: 12, padding: 14, gap: 12, overflow: 'hidden' },
   coverImage: { width: '100%', height: '100%' },
-  coverShade: { backgroundColor: 'rgba(7, 30, 21, 0.65)' },
+  coverIdentity: { backgroundColor: c.app, alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+  coverText: { color: c.ink },
+  coverActions: { backgroundColor: c.app, alignSelf: 'flex-start', maxWidth: '100%', paddingHorizontal: 8, borderRadius: 8 },
   coverIcon: { width: 34, height: 34, borderRadius: 17, alignSelf: 'flex-start', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff24' },
+  coverIconOnPhoto: { backgroundColor: c.app },
   header: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   headerAction: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   inboxDot: { position: 'absolute', top: 10, right: 9, width: 7, height: 7, borderRadius: 4, backgroundColor: c.rust },

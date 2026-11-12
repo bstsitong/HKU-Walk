@@ -31,6 +31,7 @@ class Publication(models.Model):
     kind = models.CharField(max_length=5, choices=Kind.choices, default=Kind.POST, db_default=Kind.POST)
     key = models.SlugField("内容标识", unique=True, max_length=80, default=uuid.uuid4)
     published = models.BooleanField("发布到 App", default=True)
+    removed_by_author = models.BooleanField(default=False, db_default=False, editable=False)
     sort_order = models.PositiveIntegerField("显示顺序", default=0)
     updated_at = models.DateTimeField("更新时间", auto_now=True)
     current_submission = models.ForeignKey("community.Submission", null=True, blank=True,
@@ -40,6 +41,8 @@ class Publication(models.Model):
         ordering = ["sort_order", "id"]
         verbose_name = "发布记录"
         verbose_name_plural = "发布记录"
+        constraints = [models.CheckConstraint(condition=models.Q(removed_by_author=False) | models.Q(published=False),
+                                              name="author_removed_publication_is_hidden")]
 
     @property
     def content(self):

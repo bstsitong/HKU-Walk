@@ -1,6 +1,13 @@
 import { ComponentProps } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { Pressable, Text, TextInput } from './ui';
+import { Alert, Pressable, Text, TextInput } from './ui';
+
+export function confirmPostRemoval(onDelete: () => void) {
+  Alert.alert('删除帖子？', '删除后，帖子和里面的评论将无法查看。', [
+    { text: '取消', style: 'cancel' },
+    { text: '删除', style: 'destructive', onPress: onDelete },
+  ]);
+}
 
 export function Button({ label, onPress, busy = false, secondary = false, disabled = false }: {
   label: string; onPress: () => void; busy?: boolean; secondary?: boolean; disabled?: boolean;

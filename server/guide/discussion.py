@@ -13,7 +13,7 @@ from community.models import InboxMessage
 from community.profiles import public_author_data
 
 from .articles import ARTICLE_SCOPE
-from .models import CampusPlace, GuideLike, GuidePost
+from .models import CampusPlace, GuideLike, GuidePost, Publication
 
 
 def published_article(pk):
@@ -26,7 +26,8 @@ def comment_data(request, comment):
     parent = comment.reply_to
     reply_to = {"id": str(parent.pk), "author": public_author_data(request, parent.author, "show_comment_author")} if parent else None
     return {"id": str(comment.pk), "author": author["name"], "authorProfile": author,
-            "body": comment.body, "createdAt": comment.created_at.isoformat(), "replyTo": reply_to}
+            "body": comment.body, "createdAt": comment.created_at.isoformat(), "replyTo": reply_to,
+            "canDelete": request.user.is_authenticated and comment.author_id == request.user.pk}
 
 
 class CommentsPage(PageNumberPagination):
@@ -54,7 +55,7 @@ class Comments(PrivateResponseView):
         parent_id = data.validated_data.get("reply_to")
         parent = None
         if parent_id:
-            parent = target.comments.select_related("author__profile").filter(pk=parent_id).first()
+            parent = target.comments.select_for_update().filter(pk=parent_id).first()
             if not parent:
                 raise serializers.ValidationError({"reply_to": "这条评论已不可用，请刷新后重试。"})
         comment, created = target.comments.get_or_create(author=request.user,
@@ -107,6 +108,35 @@ class PlaceComments(Comments):
     @staticmethod
     def target(pk):
         return get_object_or_404(CampusPlace.objects.select_related("publication__current_submission"), pk=pk, publication__published=True)
+
+
+class DeleteComment(PrivateResponseView):
+    @transaction.atomic
+    def delete(self, request, pk, comment_id):
+        target = self.target(pk)
+        owned = target.comments.select_for_update().filter(author=request.user)
+        get_object_or_404(owned, pk=comment_id).delete()
+        return Response({"commentCount": target.comments.count()})
+
+
+class DeleteArticleComment(DeleteComment):
+    target = staticmethod(published_article)
+
+
+class DeletePlaceComment(DeleteComment):
+    target = staticmethod(PlaceComments.target)
+
+
+class DeleteArticle(PrivateResponseView):
+    @transaction.atomic
+    def delete(self, request, pk):
+        publication = get_object_or_404(Publication.objects.select_for_update(of=("self",)).filter(
+            kind=Publication.Kind.POST, current_submission__author=request.user, post__isnull=False), pk=pk)
+        if not publication.removed_by_author:
+            publication.published = False
+            publication.removed_by_author = True
+            publication.save(update_fields=["published", "removed_by_author", "updated_at"])
+        return Response(status=204)
 
 
 class ArticleLike(PrivateResponseView):

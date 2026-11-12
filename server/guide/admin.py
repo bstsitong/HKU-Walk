@@ -58,7 +58,7 @@ class PublishedContentAdmin(admin.ModelAdmin):
         return obj.publication.updated_at if obj.publication_id else None
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related("publication")
+        return super().get_queryset(request).filter(publication__removed_by_author=False).select_related("publication")
 
     def save_model(self, request, obj, form, change):
         values = {field: form.cleaned_data[field] for field in ("published", "sort_order")}

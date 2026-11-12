@@ -85,6 +85,9 @@ class SubmissionAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).exclude(public_entry__removed_by_author=True).exclude(edit_of__removed_by_author=True)
+
     def has_delete_permission(self, request, obj=None):
         return False
 

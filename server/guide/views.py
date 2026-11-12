@@ -43,6 +43,7 @@ def article_card(request, post):
         "sourcePages": post.source_pages, "markdown": publication.key in ARTICLE_KEYS,
         "bodyBlocks": blocks, "relatedLocation": submission.location if blocks else "",
         "publishedAt": published_at.isoformat() if published_at else None,
+        "canDelete": bool(submission and request.user.is_authenticated and submission.author_id == request.user.pk),
         "likeCount": post.like_count, "commentCount": post.comment_count, "liked": post.viewer_liked,
     }
 

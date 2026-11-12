@@ -2,7 +2,7 @@ import { ComponentRef, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, BackHandler, Keyboard, KeyboardAvoidingView, Platform, RefreshControl, ScrollView, StyleSheet, TextInput as NativeTextInput, View } from 'react-native';
 import AppIcon from './AppIcon';
 import { AuthorByline, Avatar } from './AuthorIdentity';
-import { Account, ApiError, DiscussionKind, fetchComments, sendComment } from './communityApi';
+import { Account, ApiError, deleteComment, DiscussionKind, fetchComments, sendComment } from './communityApi';
 import type { AuthorProfile, DiscussionComment } from './guideApi';
 import { formatDate, t } from './localization';
 import { colors as c } from './theme';
@@ -54,7 +54,7 @@ export default function Discussion({ kind, id, title, session, onLogin, onCount,
     const version = ++generation.current;
     setLoading(true); setFailed(false);
     try {
-      const result = await fetchComments(kind, id, page, focus);
+      const result = await fetchComments(kind, id, page, focus, token);
       if (version !== generation.current) return;
       setFocused(result.focusedComment ?? null);
       setItems(current => page === 1 ? result.comments : [...current, ...result.comments.filter(item => !current.some(previous => previous.id === item.id))]);
@@ -63,7 +63,7 @@ export default function Discussion({ kind, id, title, session, onLogin, onCount,
     } catch { if (version === generation.current) setFailed(true); }
     finally { if (version === generation.current) setLoading(false); }
   };
-  useEffect(() => { void load(); return () => { generation.current++; }; }, [kind, id, focus]);
+  useEffect(() => { void load(); return () => { generation.current++; }; }, [kind, id, focus, token]);
 
   const askLogin = (expired = false) => Alert.alert('登录后才能评论', undefined, [{ text: '取消', style: 'cancel' }, { text: '去登录', onPress: () => onLogin(expired) }]);
   const selectReply = (comment: DiscussionComment | null) => {
@@ -92,6 +92,28 @@ export default function Discussion({ kind, id, title, session, onLogin, onCount,
       else Alert.alert('评论发送失败', error instanceof Error ? error.message : '请稍后重试。');
     } finally { posting.current = false; setSending(false); }
   };
+  const remove = async (commentId: string) => {
+    if (!token || posting.current || loading) return;
+    posting.current = true;
+    setSending(true);
+    try {
+      const result = await deleteComment(token, kind, id, commentId);
+      const clearParent = (item: DiscussionComment) => item.replyTo?.id === commentId ? { ...item, replyTo: null } : item;
+      setItems(current => current.filter(item => item.id !== commentId).map(clearParent));
+      setFocused(current => current && current.id !== commentId ? clearParent(current) : null);
+      if (reply?.id === commentId) { setReply(null); requestId.current = null; }
+      updateCount(result.commentCount);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) askLogin(true);
+      else Alert.alert('评论删除失败', error instanceof Error ? error.message : '请稍后重试。');
+      return;
+    } finally { posting.current = false; setSending(false); }
+    void load();
+  };
+  const confirmDelete = (commentId: string) => Alert.alert('删除评论？', undefined, [
+    { text: '取消', style: 'cancel' },
+    { text: '删除', style: 'destructive', onPress: () => void remove(commentId) },
+  ]);
 
   const renderComment = (item: DiscussionComment, highlighted = false) => (
     <View key={item.id} testID={`${kind}-comment-${item.id}`} style={[s.comment, highlighted && s.highlighted]}>
@@ -102,9 +124,15 @@ export default function Discussion({ kind, id, title, session, onLogin, onCount,
         <Text raw style={s.actionText}>{t('回复 {name}', { name: displayName(item.replyTo.author) })}</Text>
       </Pressable> : null}
       <Text raw style={s.body}>{item.body}</Text>
-      <Pressable testID={`${kind}-reply-${item.id}`} accessibilityRole="button" disabled={sending} style={s.replyAction} onPress={() => selectReply(item)}>
-        <Text style={s.actionText}>回复</Text>
-      </Pressable>
+      <View style={s.commentActions}>
+        <Pressable testID={`${kind}-reply-${item.id}`} accessibilityRole="button" disabled={sending} style={s.commentAction} onPress={() => selectReply(item)}>
+          <Text style={s.actionText}>回复</Text>
+        </Pressable>
+        {item.canDelete && session ? <Pressable testID={`${kind}-delete-${item.id}`} accessibilityRole="button"
+          accessibilityLabel="删除评论" disabled={sending || loading} style={s.commentAction} onPress={() => confirmDelete(item.id)}>
+          <Text style={s.removeText}>删除</Text>
+        </Pressable> : null}
+      </View>
     </View>
   );
 
@@ -152,6 +180,9 @@ const s = StyleSheet.create({
   highlighted: { backgroundColor: c.tint, borderRadius: 12, paddingHorizontal: 10, marginTop: 8 },
   focusLabel: { color: c.green, fontSize: 12, fontWeight: '600', marginBottom: 6 },
   replyAction: { minHeight: 48, alignSelf: 'flex-start', justifyContent: 'center', marginLeft: 44, paddingRight: 12 },
+  commentActions: { flexDirection: 'row', marginLeft: 44, gap: 10 },
+  commentAction: { minHeight: 48, minWidth: 48, paddingRight: 12, justifyContent: 'center' },
+  removeText: { color: c.rust, fontSize: 13, lineHeight: 20, fontWeight: '600' },
   replyBar: { width: '100%', maxWidth: 650, alignSelf: 'center', paddingLeft: 16, borderTopWidth: 1, borderTopColor: c.line, flexDirection: 'row', alignItems: 'center' },
   meta: { color: c.muted, fontSize: 13, lineHeight: 20 },
   body: { fontSize: 15, lineHeight: 22, color: c.ink, marginLeft: 44, marginTop: 2 },

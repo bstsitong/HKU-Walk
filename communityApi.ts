@@ -17,7 +17,7 @@ export type Submission = {
   bodyBlocks?: BodyBlock[];
   mapData?: MapDraftData;
   publishedContent: { title: string; body: string; location: string; externalUrl: string; imageUrl: string;
-    version: string; published: boolean; mapData?: MapDraftData; bodyBlocks?: BodyBlock[] } | null;
+    version: string; published: boolean; canDeletePost?: boolean; mapData?: MapDraftData; bodyBlocks?: BodyBlock[] } | null;
 };
 export type PickedImage = { uri: string; name: string; type: string };
 export type ProfileDraft = { nickname: string; bio: string; avatar: PickedImage | null; removeAvatar: boolean };
@@ -114,9 +114,19 @@ export const fetchInboxCount = (token: string) =>
 export const markInboxRead = (token: string, id: string) =>
   request<{ unread: number }>(`/api/inbox/${encodeURIComponent(id)}/read/`, { method: 'PATCH' }, token);
 const commentPath = (kind: DiscussionKind, id: string) => `/api/${kind === 'guide' ? 'guide/articles' : 'campus/places'}/${encodeURIComponent(id)}/comments/`;
-export const fetchComments = (kind: DiscussionKind, id: string, page = 1, focus?: string) =>
-  request<{ comments: DiscussionComment[]; focusedComment?: DiscussionComment | null; count: number; nextPage: number | null }>(
-    `${commentPath(kind, id)}?page=${page}${focus ? `&focus=${encodeURIComponent(focus)}` : ''}`);
+export const fetchComments = (kind: DiscussionKind, id: string, page = 1, focus?: string, token?: string) => {
+  const path = `${commentPath(kind, id)}?page=${page}${focus ? `&focus=${encodeURIComponent(focus)}` : ''}`;
+  const get = (auth?: string) => request<{ comments: DiscussionComment[]; focusedComment?: DiscussionComment | null; count: number; nextPage: number | null }>(
+    path, { cache: 'no-store' }, auth);
+  return get(token).catch(error => {
+    if (token && error instanceof ApiError && error.status === 401) return get();
+    throw error;
+  });
+};
+export const deleteComment = (token: string, kind: DiscussionKind, id: string, commentId: string) =>
+  request<{ commentCount: number }>(`${commentPath(kind, id)}${encodeURIComponent(commentId)}/`, { method: 'DELETE' }, token);
+export const deleteGuideArticle = (token: string, id: string) =>
+  request<void>(`/api/guide/articles/${encodeURIComponent(id)}/`, { method: 'DELETE' }, token);
 export const sendComment = (token: string, kind: DiscussionKind, id: string, body: string, requestId: string, replyTo?: string) =>
   request<{ comment: DiscussionComment; commentCount: number }>(commentPath(kind, id), {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body, request_id: requestId, reply_to: replyTo }),

@@ -4,6 +4,7 @@ import { AppState, Keyboard, StyleSheet, View } from 'react-native';
 import { Alert, Pressable, Text } from './ui';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon, { IconName } from './AppIcon';
+import { confirmPostRemoval } from './CommunityUI';
 import { OpenAuthorProfile } from './AuthorIdentity';
 import CampusMap, { MapRequest, MapView } from './CampusMap';
 import usePlaces from './usePlaces';
@@ -23,7 +24,7 @@ import { RouteBookmark } from './routeBookmarks';
 import useGuide from './useGuide';
 import useAccount from './useAccount';
 import CommunityScreen from './CommunityScreen';
-import { ApiError, DiscussionTarget, fetchInboxCount, fetchSubmission, InboxMessage, setGuideLike, Submission } from './communityApi';
+import { ApiError, deleteGuideArticle, DiscussionTarget, fetchInboxCount, fetchSubmission, InboxMessage, setGuideLike, Submission } from './communityApi';
 import useRecentActivity from './useRecentActivity';
 import usePersonalStorage from './usePersonalStorage';
 
@@ -54,6 +55,8 @@ function MainApp() {
   const article = data.articles.find(item => item.id === reading?.id);
   const editingUser = editingProfile ? account.session?.user : undefined;
   const [liking, setLiking] = useState<string[]>([]);
+  const [deletingArticle, setDeletingArticle] = useState(false);
+  const removingArticle = useRef(false);
   const likeRequests = useRef(new Set<string>());
   const owner = account.session?.user.id;
   const [inboxOwner, setInboxOwner] = useState<string>();
@@ -131,6 +134,20 @@ function MainApp() {
     history.visitPost(id);
     setReading({ id, comments });
   };
+  const removeArticle = async (id: string) => {
+    if (!token || removingArticle.current) return;
+    removingArticle.current = true;
+    setDeletingArticle(true);
+    try {
+      await deleteGuideArticle(token, id);
+      data.removeArticle(id);
+      setReading(current => current?.id === id ? null : current);
+      void data.reload();
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) openDiscussionLogin(true);
+      else Alert.alert('帖子删除失败', error instanceof Error ? error.message : '请稍后重试。');
+    } finally { removingArticle.current = false; setDeletingArticle(false); }
+  };
   const toggleLike = async (item: GuideArticle) => {
     if (!token) {
       Alert.alert('登录后才能点赞', undefined, [{ text: '取消', style: 'cancel' }, { text: '去登录', onPress: openLogin }]);
@@ -191,7 +208,8 @@ function MainApp() {
       </View>
       {article && reading ? <GuideArticleScreen key={article.id} article={article} initiallyComments={reading.comments} session={account.session}
         onBack={() => setReading(null)} onLogin={openDiscussionLogin} bookmarks={bookmarks} liking={liking} onLike={toggleLike}
-        onCommentCount={count => data.updateArticle(article.id, { commentCount: count })} /> : null}
+        onCommentCount={count => data.updateArticle(article.id, { commentCount: count })}
+        onDelete={() => confirmPostRemoval(() => void removeArticle(article.id))} deleting={deletingArticle} /> : null}
       {commentPlace ? <DiscussionScreen key={commentPlace.id} kind="place" id={commentPlace.id} title={placeName(commentPlace)} session={account.session}
         onBack={() => setCommentPlace(null)} onLogin={openDiscussionLogin} /> : null}
       {inboxActive && token && (inboxTarget ?

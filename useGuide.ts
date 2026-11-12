@@ -45,5 +45,9 @@ export default function useGuide(token?: string) {
   const updateArticle = (id: string, changes: Partial<Pick<GuideArticle, 'liked' | 'likeCount' | 'commentCount'>>) => {
     setArticles(items => items.map(item => item.id === id ? { ...item, ...changes } : item));
   };
-  return { categories, articles, loading, error, reload, updateArticle };
+  const removeArticle = (id: string) => {
+    setArticles(items => items.filter(item => item.id !== id));
+    setCategories(items => items.map(category => ({ ...category, entries: category.entries.filter(entry => entry.id !== id) })));
+  };
+  return { categories, articles, loading, error, reload, updateArticle, removeArticle };
 }

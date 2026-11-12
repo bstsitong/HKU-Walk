@@ -59,6 +59,7 @@ def published_data(request, item):
         "externalUrl": content.external_url,
         "imageUrl": content_image(request, content, entry),
         "version": entry.updated_at.isoformat(), "published": entry.published,
+        "canDeletePost": bool(entry.kind == Publication.Kind.POST and source and source.author_id == request.user.pk),
         "mapData": map_data, "bodyBlocks": published_body_blocks(request, content, source) if entry.kind == Publication.Kind.POST else []}
 
 def submission_data(request, item):
@@ -239,7 +240,7 @@ class RecoverAccount(PrivateResponseView):
 def owned_submissions(user):
     active = Submission.objects.filter(edit_of_id=OuterRef("target_entry_id"), status__in=["pending", "changes_requested"])
     targets = ("edit_of", "public_entry")
-    return Submission.objects.filter(author=user).select_related(
+    return Submission.objects.filter(author=user).exclude(public_entry__removed_by_author=True).exclude(edit_of__removed_by_author=True).select_related(
         "author__profile",
         *(f"{target}__{child}" for target in targets for child in ("current_submission", "post", "place", "route")),
     ).prefetch_related(

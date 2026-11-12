@@ -1,4 +1,12 @@
 {
+  "删除帖子？": { "en": "Delete post?", "zh-Hant": "刪除帖子？" },
+  "删除后，帖子和里面的评论将无法查看。": { "en": "This will remove the post and its comments from view.", "zh-Hant": "刪除後，帖子和裡面的評論將無法查看。" },
+  "删除帖子": { "en": "Delete post", "zh-Hant": "刪除帖子" },
+  "帖子删除失败": { "en": "Couldn't delete the post", "zh-Hant": "未能刪除帖子" },
+  "删除评论？": { "en": "Delete comment?", "zh-Hant": "刪除評論？" },
+  "删除评论": { "en": "Delete comment", "zh-Hant": "刪除評論" },
+  "评论删除失败": { "en": "Couldn't delete the comment", "zh-Hant": "未能刪除評論" },
+  "删除": { "en": "Delete", "zh-Hant": "刪除" },
   "资料卡背景未能更新": { "en": "Couldn't update the profile card background", "zh-Hant": "未能更新個人資料卡背景" },
   "资料卡背景": { "en": "Profile card background", "zh-Hant": "個人資料卡背景" },
   "恢复默认背景": { "en": "Restore default background", "zh-Hant": "恢復預設背景" },
