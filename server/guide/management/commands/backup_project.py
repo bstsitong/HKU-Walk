@@ -45,7 +45,8 @@ class Command(BaseCommand):
                 image_names = sorted(set(Submission.objects.exclude(image="").values_list("image", flat=True))
                     | set(SubmissionStepImage.objects.values_list("image", flat=True))
                     | set(SubmissionBodyImage.objects.values_list("image", flat=True))
-                    | set(UserProfile.objects.exclude(avatar="").values_list("avatar", flat=True)))
+                    | set(UserProfile.objects.exclude(avatar="").values_list("avatar", flat=True))
+                    | set(UserProfile.objects.exclude(cover="").values_list("cover", flat=True)))
                 files = {"data.json": fixture}
                 # DatabaseStorage reads image bytes from this same repeatable-read snapshot.
                 for name in image_names:

@@ -1,4 +1,7 @@
 {
+  "资料卡背景未能更新": { "en": "Couldn't update the profile card background", "zh-Hant": "未能更新個人資料卡背景" },
+  "资料卡背景": { "en": "Profile card background", "zh-Hant": "個人資料卡背景" },
+  "恢复默认背景": { "en": "Restore default background", "zh-Hant": "恢復預設背景" },
   "帖子评论": { "en": "Post comments", "zh-Hant": "帖子評論" },
   "已定位的评论": { "en": "Highlighted comment", "zh-Hant": "已定位的評論" },
   "回复 {name}": { "en": "Replying to {name}", "zh-Hant": "回覆 {name}" },

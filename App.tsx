@@ -187,7 +187,7 @@ function MainApp() {
           submissionsPaused={communityEntry !== null || Boolean(editingUser)} onOpenSubmission={setCommunityEntry} onEditProfile={() => setEditingProfile(true)}
           onContribute={() => setCommunityEntry('form')} onLogin={openDiscussionLogin} onPrivacySaved={() => void refreshAll()}
           onOpenPlace={openPlace} onOpenRoute={openRoute} onOpenContent={openContent} onOpenArticle={openArticle}
-          onInbox={openInbox} unread={badge && badge.token === token ? badge.unread : 0} />
+          onInbox={openInbox} unread={badge && badge.token === token ? badge.unread : 0} onSaveCover={account.saveCover} />
       </View>
       {article && reading ? <GuideArticleScreen key={article.id} article={article} initiallyComments={reading.comments} session={account.session}
         onBack={() => setReading(null)} onLogin={openDiscussionLogin} bookmarks={bookmarks} liking={liking} onLike={toggleLike}

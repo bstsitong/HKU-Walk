@@ -20,6 +20,35 @@ def author_data(request, user):
     }
 
 
+def cover_url(request, profile):
+    if not profile or not profile.cover:
+        return ""
+    return request.build_absolute_uri(reverse("profile-cover", args=[profile.cover.name.split("/")[-1][:-4]]))
+
+
+def update_cover(user, upload=None):
+    image = clean_image(upload) if upload else None
+    saved = None
+    try:
+        with transaction.atomic():
+            get_user_model().objects.select_for_update().get(pk=user.pk)
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+            previous = profile.cover.name
+            if image:
+                saved = default_storage.save("covers/" + image.name, image)
+            profile.cover = saved or ""
+            profile.save(update_fields=["cover"])
+            if previous and previous != saved:
+                transaction.on_commit(lambda: default_storage.delete(previous), robust=True)
+    except MediaQuotaExceeded as error:
+        raise serializers.ValidationError({"image": "图片空间已满，请稍后重试。"}) from error
+    except Exception:
+        if saved:
+            default_storage.delete(saved)
+        raise
+    return profile
+
+
 def public_author_data(request, user, visibility_field):
     profile = getattr(user, "profile", None)
     if profile and not getattr(profile, visibility_field):

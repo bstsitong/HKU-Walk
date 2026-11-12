@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, BackHandler, RefreshControl, ScrollView, StyleSheet, Switch, View } from 'react-native';
-import { Pressable, Text } from './ui';
+import * as ImagePicker from 'expo-image-picker';
+import { Alert, Pressable, Text } from './ui';
 import AppIcon, { IconName } from './AppIcon';
 import { accountAuthor, AuthorByline, Avatar } from './AuthorIdentity';
 import { getCampusRoute, getPlace, Place, placeName } from './campus';
@@ -15,7 +16,8 @@ import { languages, t } from './localization';
 import useGuide from './useGuide';
 import useCampus from './useCampus';
 import { colors as c } from './theme';
-import { Account, ApiError, fetchPrivacy, fetchSubmissions, Privacy, Submission, updatePrivacy } from './communityApi';
+import { Account, ApiError, fetchPrivacy, fetchSubmissions, PickedImage, Privacy, Submission, updatePrivacy } from './communityApi';
+import SubmissionPhoto from './SubmissionPhoto';
 import useRecentActivity from './useRecentActivity';
 type Bookmarks = { saved: string[]; ready: boolean; toggle: (id: string) => void };
 const panels = { submissions: '投稿', saved: '收藏', recent: '历史记录' } as const;
@@ -27,19 +29,23 @@ const guestBenefits: { icon: IconName; title: string; description: string }[] = 
   { icon: 'history', title: '历史记录', description: '找回看过的地点、路线和帖子' },
 ];
 
-export default function ProfileScreen({ active, session, accountReady, onAccount, onContribute, onLogin, onPrivacySaved, data, campus, bookmarks, records, routes, history, submissionsPaused, onOpenSubmission, onOpenPlace, onOpenRoute, onOpenContent, onOpenArticle, onEditProfile, onInbox, unread }: {
+export default function ProfileScreen({ active, session, accountReady, onAccount, onContribute, onLogin, onPrivacySaved, data, campus, bookmarks, records, routes, history, submissionsPaused, onOpenSubmission, onOpenPlace, onOpenRoute, onOpenContent, onOpenArticle, onEditProfile, onSaveCover, onInbox, unread }: {
   active: boolean; session: Account | null; accountReady: boolean; onAccount: () => void; onContribute: () => void;
   history: ReturnType<typeof useRecentActivity>; submissionsPaused: boolean; onOpenSubmission: (submission: Submission) => void;
   onLogin: (expired?: boolean) => void; onPrivacySaved: () => void;
   data: ReturnType<typeof useGuide>; campus: ReturnType<typeof useCampus>; bookmarks: Bookmarks; records: PlaceRecords; routes: RouteRecords;
   onOpenPlace: (place: Place) => void; onOpenRoute: (route: RouteBookmark) => void; onOpenContent: (entry: GuideEntry) => void;
   onOpenArticle: (id: string) => void; onEditProfile: () => void;
+  onSaveCover: (image: PickedImage | null) => Promise<void>;
   onInbox: () => void; unread: number;
 }) {
   const [section, setSection] = useState<Section>('places');
   const [panel, setPanel] = useState<keyof typeof panels>('saved');
   const [settings, setSettings] = useState(false);
   const [confirm, setConfirm] = useState(false);
+  const [coverBusy, setCoverBusy] = useState(false);
+  const coverWorking = useRef(false);
+  const cover = session?.user.coverUrl;
   const recent = panel === 'recent';
   const closeSettings = useCallback(() => setSettings(false), []);
   useEffect(() => {
@@ -55,6 +61,42 @@ export default function ProfileScreen({ active, session, accountReady, onAccount
   const hasHistory = section === 'places' ? ids.length : section === 'routes' ? routeItems.length : postIds.length;
   const clearHistory = section === 'places' ? records.clearRecent : section === 'routes' ? history.clearRoutes : history.clearPosts;
   const savePlaceButton = (id: string) => <Pressable accessibilityRole="button" accessibilityLabel={records.saved.includes(id) ? '取消收藏' : '收藏地点'} disabled={!records.ready} onPress={() => records.toggle(id)} style={s.iconButton}><AppIcon name="bookmark" size={20} color={records.saved.includes(id) ? c.green : c.muted} /></Pressable>;
+  const updateCover = async (remove = false) => {
+    if (coverWorking.current) return;
+    coverWorking.current = true;
+    setCoverBusy(true);
+    try {
+      let image: PickedImage | null = null;
+      if (!remove) {
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ['images'], quality: 0.85,
+          preferredAssetRepresentationMode: ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
+        });
+        const asset = result.assets?.[0];
+        if (result.canceled || !asset) return;
+        if (asset.fileSize && asset.fileSize > 5 * 1024 * 1024) {
+          Alert.alert('图片需小于 5 MB，请选择较小的图片。');
+          return;
+        }
+        image = { uri: asset.uri, name: asset.fileName || 'cover.jpg', type: asset.mimeType || 'image/jpeg' };
+      }
+      await onSaveCover(image);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) onLogin(true);
+      else Alert.alert('资料卡背景未能更新', error instanceof Error ? error.message : '请稍后重试。');
+    } finally {
+      coverWorking.current = false;
+      setCoverBusy(false);
+    }
+  };
+  const chooseCover = () => {
+    if (!cover) { void updateCover(); return; }
+    Alert.alert('资料卡背景', undefined, [
+      { text: '取消', style: 'cancel' },
+      { text: '恢复默认背景', onPress: () => void updateCover(true) },
+      { text: '更换图片', onPress: () => void updateCover() },
+    ]);
+  };
   if (settings) return <Preferences onBack={closeSettings} token={session?.token} accountReady={accountReady} onLogin={onLogin} onPrivacySaved={onPrivacySaved} />;
   return <View style={s.flex}>
     <ScrollView style={s.flex} contentContainerStyle={s.page} refreshControl={session && panel === 'saved' ? <RefreshControl refreshing={data.loading || campus.loading} onRefresh={() => { void data.reload(); void campus.reload(); }} tintColor={c.green} /> : undefined}>
@@ -84,14 +126,24 @@ export default function ProfileScreen({ active, session, accountReady, onAccount
         </View>)}
       </> : <>
       <View style={s.profile} testID="profile-member">
-        <View style={s.identity}>
+        {cover ? <View pointerEvents="none" accessible={false} importantForAccessibility="no-hide-descendants" style={StyleSheet.absoluteFill}>
+          <SubmissionPhoto uri={cover} token={session.token} showStatus={false} style={s.coverImage} resizeMode="cover" />
+          <View style={[StyleSheet.absoluteFill, s.coverShade]} />
+        </View> : null}
+        <Pressable testID="profile-cover" accessibilityRole="button" accessibilityLabel="资料卡背景"
+          accessibilityState={{ busy: coverBusy, disabled: coverBusy }} disabled={coverBusy} onPress={chooseCover}
+          style={StyleSheet.absoluteFill} />
+        <View style={s.identity} pointerEvents="none">
           <Avatar uri={session.user.avatarUrl} size={52} />
           <View style={s.flex}>
             <Text raw style={s.name}>{accountAuthor(session.user).name}</Text>
             {session.user.bio ? <Text raw style={s.bio}>{session.user.bio}</Text> : null}
           </View>
+          <View style={s.coverIcon}>
+            {coverBusy ? <ActivityIndicator color={c.surface} size="small" /> : <AppIcon name="photo" size={18} color={c.surface} />}
+          </View>
         </View>
-        <View style={s.profileActions}>
+        <View style={s.profileActions} pointerEvents="box-none">
           <Pressable testID="profile-edit" accessibilityRole="button" onPress={onEditProfile} style={s.accountAction}>
             <AppIcon name="edit" size={15} color={c.tint} /><Text style={s.accountLabel}>编辑资料</Text>
           </Pressable>
@@ -288,7 +340,10 @@ function PrivacyControls({ token, onLogin, onSaved }: {
 const s = StyleSheet.create({
   flex: { flex: 1 },
   page: { width: '100%', maxWidth: 650, alignSelf: 'center', paddingHorizontal: 20, paddingBottom: 28 },
-  profile: { backgroundColor: c.green, borderRadius: 12, padding: 14, gap: 12 },
+  profile: { backgroundColor: c.green, borderRadius: 12, padding: 14, gap: 12, overflow: 'hidden' },
+  coverImage: { width: '100%', height: '100%' },
+  coverShade: { backgroundColor: 'rgba(7, 30, 21, 0.65)' },
+  coverIcon: { width: 34, height: 34, borderRadius: 17, alignSelf: 'flex-start', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff24' },
   header: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   headerAction: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   inboxDot: { position: 'absolute', top: 10, right: 9, width: 7, height: 7, borderRadius: 4, backgroundColor: c.rust },

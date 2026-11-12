@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import ValidationError
+from rest_framework import serializers
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
@@ -19,7 +20,7 @@ from guide.models import GuidePost, Publication
 from .authentication import MobileAuthentication, create_session
 from .models import Submission, SubmissionBodyImage, SubmissionStepImage, RecoveryCredential, UserProfile
 from .body_content import body_blocks_data, publication_body, published_body_blocks
-from .profiles import PrivacyInput, ProfileInput, author_data, privacy_data, update_privacy, update_profile
+from .profiles import PrivacyInput, ProfileInput, author_data, cover_url, privacy_data, update_cover, update_privacy, update_profile
 from .map_content import enrich_map_data
 from .serializers import (RegisterInput, AccountInput, SubmissionInput, ChangePasswordInput,
     RecoveryCodeInput, RecoverAccountInput, check_password)
@@ -30,6 +31,7 @@ def user_data(request, user):
     profile = getattr(user, "profile", None)
     return {"id": str(user.pk), "username": user.username, "nickname": profile.nickname if profile else "",
         "bio": profile.bio if profile else "", "avatarUrl": author_data(request, user)["avatarUrl"],
+        "coverUrl": cover_url(request, profile),
         "hasRecoveryCode": RecoveryCredential.objects.filter(user=user).exists()}
 
 def image_url(request, item):
@@ -169,6 +171,29 @@ class ProfileAvatar(PrivateResponseView):
         profile = get_object_or_404(UserProfile, avatar=f"avatars/{key}.jpg", user__is_active=True)
         try:
             return FileResponse(profile.avatar.open("rb"), content_type="image/jpeg")
+        except FileNotFoundError:
+            raise Http404
+
+
+class ProfileCoverSettings(PrivateResponseView):
+    parser_classes = [MultiPartParser]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "profile"
+
+    def put(self, request):
+        image = serializers.FileField().run_validation(request.data.get("image"))
+        return Response({"coverUrl": cover_url(request, update_cover(request.user, image))})
+
+    def delete(self, request):
+        update_cover(request.user)
+        return Response({"coverUrl": ""})
+
+
+class ProfileCoverImage(PrivateResponseView):
+    def get(self, request, key):
+        profile = get_object_or_404(UserProfile, user=request.user, cover=f"covers/{key}.jpg")
+        try:
+            return FileResponse(profile.cover.open("rb"), content_type="image/jpeg")
         except FileNotFoundError:
             raise Http404
 

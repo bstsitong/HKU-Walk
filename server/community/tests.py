@@ -66,6 +66,43 @@ class CommunityFixture(TestCase):
             response.close()
 
 class CommunityTests(CommunityFixture):
+    def test_profile_card_cover_is_private_and_can_be_replaced_or_removed(self):
+        endpoint = "/api/accounts/me/cover/"
+        self.assertEqual(self.anon.put(endpoint, {"image": photo()}, format="multipart").status_code, 401)
+        self.assertEqual(self.api.patch("/api/accounts/me/", {"nickname": "Campus Walker", "avatar": photo()},
+                                        format="multipart").status_code, 200)
+        result = self.api.put(endpoint, {"image": photo()}, format="multipart")
+        self.assertEqual(result.status_code, 200, result.content)
+        url = result.json()["coverUrl"]
+        path = urlsplit(url).path
+        user = self.api.get("/api/accounts/me/").json()["user"]
+        self.assertEqual(user["coverUrl"], url)
+        self.assertEqual(user["nickname"], "Campus Walker")
+        self.assertTrue(user["avatarUrl"])
+        self.assert_image_status(self.api, path, 200)
+        self.assertEqual(self.anon.get(path).status_code, 401)
+        other = APIClient()
+        other.credentials(HTTP_AUTHORIZATION=f"Bearer {create_session(self.other)}")
+        self.assertEqual(other.get(path).status_code, 404)
+
+        self.api.patch("/api/accounts/privacy/", {"publicProfile": True}, format="json")
+        profile = self.owner.profile
+        profile.refresh_from_db()
+        public = self.anon.get(f"/api/profiles/{profile.public_id}/").json()["profile"]
+        self.assertNotIn("coverUrl", public)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            replacement = self.api.put(endpoint, {"image": photo()}, format="multipart")
+        new_path = urlsplit(replacement.json()["coverUrl"]).path
+        self.assertNotEqual(path, new_path)
+        self.assertEqual(self.api.get(path).status_code, 404)
+        self.assert_image_status(self.api, new_path, 200)
+        with self.captureOnCommitCallbacks(execute=True):
+            self.assertEqual(self.api.delete(endpoint).json(), {"coverUrl": ""})
+        self.assertEqual(self.api.get(new_path).status_code, 404)
+        self.assertFalse(list((Path(self.directory.name) / "covers").glob("*.jpg")))
+        self.assertEqual(self.api.get("/api/accounts/me/").json()["user"]["avatarUrl"], user["avatarUrl"])
+
     def test_review_inbox_keeps_each_decision_and_is_private(self):
         item = self.submit(title="第一版标题")
         other = APIClient()

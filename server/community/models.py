@@ -22,15 +22,17 @@ class UserProfile(models.Model):
     nickname = models.CharField(max_length=32, blank=True)
     bio = models.CharField(max_length=160, blank=True)
     avatar = models.FileField(upload_to="avatars/", blank=True, db_index=True)
+    cover = models.FileField(upload_to="covers/", blank=True, db_default="")
     show_post_author = models.BooleanField(default=True)
     show_comment_author = models.BooleanField(default=True)
     public_id = models.UUIDField(unique=True, null=True, blank=True, editable=False)
 
 
 @receiver(post_delete, sender=UserProfile)
-def delete_profile_avatar(sender, instance, using, **kwargs):
-    if instance.avatar:
-        transaction.on_commit(lambda: default_storage.delete(instance.avatar.name), using=using, robust=True)
+def delete_profile_images(sender, instance, using, **kwargs):
+    for photo in (instance.avatar, instance.cover):
+        if photo:
+            transaction.on_commit(lambda name=photo.name: default_storage.delete(name), using=using, robust=True)
 
 class StoredMedia(models.Model):
     """Private image bytes for small, diskless deployments; never exposed by the Data API."""

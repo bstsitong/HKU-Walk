@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import { Account, AccountResult, ApiError, ProfileDraft, authenticate, changeAccountPassword, fetchMe, recoverAccount, revokeSession, rotateRecoveryCode, updateProfile } from './communityApi';
+import { Account, AccountResult, ApiError, PickedImage, ProfileDraft, authenticate, changeAccountPassword, fetchMe, recoverAccount, revokeSession, rotateRecoveryCode, updateProfile, updateProfileCover } from './communityApi';
 
 const storageKey = 'hku-walk.account.v1';
 export default function useAccount() {
@@ -9,6 +9,7 @@ export default function useAccount() {
   const [storageError, setStorageError] = useState('');
   const [recoveryCode, setRecoveryCode] = useState('');
   const current = useRef<Account | null>(null);
+  const profileUpdates = useRef(Promise.resolve());
   const persist = async (value: Account | null) => {
     if (value) await SecureStore.setItemAsync(storageKey, JSON.stringify({ token: value.token, user: value.user }));
     else await SecureStore.deleteItemAsync(storageKey);
@@ -40,6 +41,21 @@ export default function useAccount() {
     catch { await revokeSession(value.token).catch(() => {}); throw new Error('无法安全保存登录信息，请检查设备后重试。'); }
     setRecoveryCode(value.recoveryCode || '');
   };
+  const saveProfileUpdate = (save: (token: string) => Promise<Partial<Account['user']>>) => {
+    const token = current.current?.token;
+    if (!token) return Promise.reject(new ApiError(401, '请先登录。'));
+    const update = profileUpdates.current.then(async () => {
+      if (current.current?.token !== token) return;
+      const patch = await save(token);
+      const active = current.current;
+      if (active?.token !== token) return;
+      const updated = { token, user: { ...active.user, ...patch } };
+      try { await persist(updated); }
+      catch { current.current = updated; setSession(updated); }
+    });
+    profileUpdates.current = update.catch(() => {});
+    return update;
+  };
   return {
     session, ready, storageError, recoveryCode,
     dismissRecoveryCode: () => setRecoveryCode(''),
@@ -47,18 +63,8 @@ export default function useAccount() {
       const value = await authenticate(mode, username, password);
       await accept(value);
     },
-    async saveProfile(draft: ProfileDraft) {
-      const active = current.current;
-      if (!active) throw new ApiError(401, '请先登录。');
-      const { user } = await updateProfile(active.token, draft);
-      if (current.current?.token !== active.token) return;
-      const updated = { token: active.token, user };
-      try { await persist(updated); }
-      catch {
-        current.current = updated;
-        setSession(updated);
-      }
-    },
+    saveProfile: (draft: ProfileDraft) => saveProfileUpdate(async token => (await updateProfile(token, draft)).user),
+    saveCover: (image: PickedImage | null) => saveProfileUpdate(token => updateProfileCover(token, image)),
     async changePassword(currentPassword: string, newPassword: string) {
       if (!current.current) throw new Error('请先登录。');
       const result = await changeAccountPassword(current.current.token, currentPassword, newPassword);

@@ -8,7 +8,7 @@ import { Image, Text } from './ui';
 let nextPhoto = 0;
 type ResolvedPhoto = { uri: string; token: string; local: string | null };
 
-export default function SubmissionPhoto({ uri, token, style, ...props }: Omit<ImageProps, 'source'> & { uri: string; token?: string }) {
+export default function SubmissionPhoto({ uri, token, style, showStatus = true, ...props }: Omit<ImageProps, 'source'> & { uri: string; token?: string; showStatus?: boolean }) {
   const auth = uri.startsWith(API_BASE + '/api/images/') ? token : undefined;
   const [resolved, setResolved] = useState<ResolvedPhoto>();
   useEffect(() => {
@@ -47,6 +47,7 @@ export default function SubmissionPhoto({ uri, token, style, ...props }: Omit<Im
   if (!auth) return <Image source={{ uri }} style={style} {...props} />;
   const photo = resolved?.uri === uri && resolved.token === auth ? resolved.local : undefined;
   if (photo) return <Image source={{ uri: photo }} style={style} {...props} />;
+  if (!showStatus) return null;
   return <View style={[style as StyleProp<ViewStyle>, s.placeholder]}>
     {photo === null ? <Text style={s.feedback}>图片暂时无法加载</Text> : <ActivityIndicator color={c.green} />}
   </View>;

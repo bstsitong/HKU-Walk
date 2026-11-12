@@ -3,7 +3,7 @@ import { API_BASE, AuthorProfile, DiscussionComment } from './guideApi';
 import { MapDraftData, serializeMapDraft } from './mapSubmission';
 import { BodyBlock, DraftBodyBlock, serializeBodyBlocks } from './submissionBlocks';
 
-export type Account = { token: string; user: { id: string; username: string; hasRecoveryCode?: boolean; nickname?: string; bio?: string; avatarUrl?: string } };
+export type Account = { token: string; user: { id: string; username: string; hasRecoveryCode?: boolean; nickname?: string; bio?: string; avatarUrl?: string; coverUrl?: string } };
 export type AccountResult = Account & { recoveryCode?: string };
 export type Privacy = { showPostAuthor: boolean; showCommentAuthor: boolean; publicProfile: boolean };
 export type PublicProfile = { name: string; avatarUrl: string; bio: string; posts: { id: string; title: string }[] };
@@ -81,6 +81,13 @@ export function updateProfile(token: string, draft: ProfileDraft) {
   form.append('remove_avatar', String(draft.removeAvatar));
   if (draft.avatar) appendPhoto(form, 'avatar', draft.avatar);
   return request<{ user: Account['user'] }>('/api/accounts/me/', { method: 'PATCH', body: form }, token, 90000);
+}
+export function updateProfileCover(token: string, image: PickedImage | null) {
+  const path = '/api/accounts/me/cover/';
+  if (!image) return request<{ coverUrl: string }>(path, { method: 'DELETE' }, token);
+  const form = new FormData();
+  appendPhoto(form, 'image', image);
+  return request<{ coverUrl: string }>(path, { method: 'PUT', body: form }, token, 90000);
 }
 export const revokeSession = (token: string) => request<void>('/api/accounts/logout/', { method: 'POST' }, token);
 function accountPost<T>(path: string, values: Record<string, string>, token?: string) {

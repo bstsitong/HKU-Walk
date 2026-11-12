@@ -5,6 +5,7 @@ urlpatterns = [
     path("accounts/register/", views.Register.as_view()),
     path("accounts/login/", views.Login.as_view()),
     path("accounts/me/", views.Me.as_view()),
+    path("accounts/me/cover/", views.ProfileCoverSettings.as_view()),
     path("accounts/privacy/", views.PrivacySettings.as_view()),
     path("profiles/<uuid:public_id>/", views.PublicProfile.as_view()),
     path("avatars/<slug:key>/", views.ProfileAvatar.as_view(), name="profile-avatar"),
@@ -20,4 +21,5 @@ urlpatterns = [
     path("images/<uuid:pk>/", views.SubmissionImage.as_view(), name="submission-image"),
     path("images/steps/<uuid:pk>/", views.SubmissionStepImageView.as_view(), name="submission-step-image"),
     path("images/body/<uuid:pk>/", views.SubmissionBodyImageView.as_view(), name="submission-body-image"),
+    path("images/profile-cover/<slug:key>/", views.ProfileCoverImage.as_view(), name="profile-cover"),
 ]
