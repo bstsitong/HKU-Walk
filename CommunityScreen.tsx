@@ -19,12 +19,12 @@ import SubmissionPhoto from './SubmissionPhoto';
 import { editBodyBlocks, newBodyBlock, serializeBodyBlocks } from './submissionBlocks';
 
 const green = '#184d3e';
-const kinds: { key: Kind; label: string; icon: IconName; detail: string }[] = [
-  { key: 'new_place', label: '新地点', icon: 'pin', detail: '在地图上标记一个校园地点' },
-  { key: 'place', label: '地点纠错', icon: 'map', detail: '选择已有地点，说明要改哪里' },
-  { key: 'new_route', label: '新线路', icon: 'walk', detail: '选择起终点，逐步添加说明和照片' },
-  { key: 'route', label: '线路纠错', icon: 'swap', detail: '用起终点找到要纠正的线路' },
-  { key: 'guide', label: '学生指南', icon: 'book', detail: '写一篇可以排版和插图的帖子' },
+const kinds: { key: Kind; label: string; icon: IconName }[] = [
+  { key: 'new_place', label: '新地点', icon: 'pin' },
+  { key: 'place', label: '地点纠错', icon: 'map' },
+  { key: 'new_route', label: '新线路', icon: 'walk' },
+  { key: 'route', label: '线路纠错', icon: 'swap' },
+  { key: 'guide', label: '学生指南', icon: 'book' },
 ];
 const kindLabel = (kind: Kind) => kinds.find(item => item.key === kind)?.label ?? '学生指南';
 const hasRichBody = (kind: Kind) => kind !== 'new_place' && kind !== 'new_route';
@@ -249,7 +249,7 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
             {kinds.map(kind => <Pressable key={kind.key} testID={`submission-kind-${kind.key}`} accessibilityRole="button"
               onPress={() => chooseKind(kind.key)} style={({ pressed }) => [s.kindRow, pressed && s.kindPressed]}>
               <View style={s.kindIcon}><AppIcon name={kind.icon} size={22} /></View>
-              <View style={s.listContent}><Text style={s.itemTitle}>{kind.label}</Text><Text style={s.hint}>{kind.detail}</Text></View>
+              <Text style={[s.flex, s.itemTitle]}>{kind.label}</Text>
               <AppIcon name="chevron" size={17} />
             </Pressable>)}
           </ScrollView>
@@ -327,7 +327,7 @@ const s = StyleSheet.create({
   approved: { color: green, backgroundColor: '#e3eee3' }, changes: { color: '#813a28', backgroundColor: '#f8e9e1' },
   empty: { paddingVertical: 36, alignItems: 'center', gap: 12 },
   chooserTitle: { fontSize: 20, fontWeight: '700', lineHeight: 28, color: '#203a31', marginBottom: 10 },
-  kindRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 76, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#e6eae2' },
+  kindRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#e6eae2' },
   kindPressed: { backgroundColor: '#eaf1e8' },
   kindIcon: { width: 42, height: 42, borderRadius: 9, backgroundColor: '#eaf1e8', alignItems: 'center', justifyContent: 'center' },
   photo: { width: '100%', height: 200, borderRadius: 12, marginTop: 12, backgroundColor: '#eaf1e8' }, photoActions: { flexDirection: 'row', justifyContent: 'space-between' },
