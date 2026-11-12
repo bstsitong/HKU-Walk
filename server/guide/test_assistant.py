@@ -49,6 +49,16 @@ class AssistantTests(TestCase):
         self.assertNotIn("open all night", response.json()["answer"])
         self.assertEqual(response.json()["sources"], [])
 
+    def test_named_navigation_returns_a_campus_map_action(self):
+        publication = Publication.objects.create(key="main-library", kind="place", published=True)
+        CampusPlace.objects.create(code="library", publication=publication, category="study", map_x=10, map_y=10,
+                                   name_zh="大学图书馆", name_en="Main Library")
+        with patch("guide.assistant.model_message") as model:
+            response = self.client.post(self.url, {"question": "带我去大学图书馆。"}, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual([(item["kind"], item["id"]) for item in response.json()["sources"]], [("place", "library")])
+        model.assert_not_called()
+
     @override_settings(DEEPSEEK_API_KEY="test-only")
     def test_unknown_place_search_checks_the_name_and_asks_for_a_landmark(self):
         question = "学校里有叫奶龙的地方吗"

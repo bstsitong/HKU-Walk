@@ -75,8 +75,10 @@ def matching_any(fields, terms):
     return query
 
 
-def search_places(args, language):
+def search_places(args, language, *, exact_name=None):
     places = CampusPlace.objects.filter(publication__published=True)
+    if exact_name:
+        places = places.filter(Q(name_zh__iexact=exact_name) | Q(name_en__iexact=exact_name))
     category = args.get("category")
     outlets = args.get("has_power_outlets") is True
     terms = keywords_for(args)
@@ -86,7 +88,7 @@ def search_places(args, language):
         places = places.filter(has_power_outlets=True)
     if terms:
         places = places.filter(matching_any(("name_zh", "name_en", "abbreviation_en", "keywords", "body", "entrance", "floor"), terms))
-    if not terms and not outlets and category not in CampusPlace.Category.values:
+    if not exact_name and not terms and not outlets and category not in CampusPlace.Category.values:
         return []
     rows = list(places.order_by("publication__sort_order", "pk"))
     rows.sort(key=lambda place: -sum(
