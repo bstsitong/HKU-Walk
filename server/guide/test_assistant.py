@@ -25,6 +25,41 @@ class AssistantTests(TestCase):
         CampusPlace.objects.create(code=code, publication=publication, category="building", map_x=10, map_y=10,
                                    name_zh=code, has_power_outlets=outlets, power_outlet_location="1/F")
 
+    def test_direct_answer_does_not_require_campus_sources(self):
+        message = {"content": json.dumps({"kind": "general", "answer": "一加一等于二。"})}
+        with patch("guide.assistant.model_message", return_value=message) as model:
+            response = self.client.post(self.url, {"question": "一加一等于几"}, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"answer": "一加一等于二。", "sources": []})
+        model.assert_called_once()
+
+    @override_settings(ASSISTANT_API_BASE_URL="https://api.deepseek.com")
+    def test_identity_uses_server_model_setting(self):
+        message = {"content": json.dumps({"kind": "identity", "answer": "Untrusted model name"})}
+        with patch("guide.assistant.model_message", return_value=message):
+            response = self.client.post(self.url, {"question": "你是哪个模型"}, content_type="application/json")
+        self.assertIn("DeepSeek V4.1 Flash", response.json()["answer"])
+        self.assertNotIn("Untrusted model name", response.json()["answer"])
+        self.assertEqual(response.json()["sources"], [])
+
+    def test_campus_answer_without_tool_evidence_is_not_displayed(self):
+        message = {"content": json.dumps({"answer": "The library is open all night.", "sources": [1]})}
+        with patch("guide.assistant.model_message", return_value=message):
+            response = self.client.post(self.url, {"question": "图书馆今晚几点关门"}, content_type="application/json")
+        self.assertNotIn("open all night", response.json()["answer"])
+        self.assertEqual(response.json()["sources"], [])
+
+    @override_settings(DEEPSEEK_API_KEY="test-only")
+    def test_unknown_place_search_checks_the_name_and_asks_for_a_landmark(self):
+        question = "学校里有叫奶龙的地方吗"
+        with patch("guide.assistant.model_message", return_value=tool_call(
+                "find_places", keywords=["奶龙", "奶龍"])), patch("guide.assistant.search_web", return_value=[]) as search:
+            response = self.client.post(self.url, {"question": question}, content_type="application/json")
+        search.assert_called_once_with(question, None, ["奶龙"])
+        self.assertEqual(response.json()["sources"], [])
+        self.assertIn("奶龙", response.json()["answer"])
+        self.assertIn("地标", response.json()["answer"])
+
     def test_facility_results_require_a_published_confirmed_location(self):
         self.add_place("confirmed", True)
         self.add_place("unconfirmed", None)
