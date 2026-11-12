@@ -96,6 +96,14 @@ class AssistantTests(TestCase):
         self.assertEqual(response.json()["sources"][0]["id"], "邵逸夫楼")
         self.assertIn("原本要找的地点还需要确认", response.json()["answer"])
 
+    def test_landmark_followup_omits_web_hits_with_unrelated_titles(self):
+        results = [{"kind": "web", "id": "1", "url": "https://www.hku.hk/1", "title": "Department of Surgery"},
+                   {"kind": "web", "id": "2", "url": "https://www.hku.hk/2", "title": "Nikki's staff page"},
+                   {"kind": "web", "id": "3", "url": "https://www.hku.hk/3", "title": "NIKK Building"}]
+        with patch("guide.assistant.search_web", return_value=results):
+            response = self.send_landmark_hint("他在nikk楼")
+        self.assertEqual([item["id"] for item in response.json()["sources"]], ["3"])
+
     @override_settings(DEEPSEEK_API_KEY="test-only")
     def test_failed_web_lookup_explains_which_search_failed(self):
         with patch("guide.assistant.model_message", return_value=tool_call(

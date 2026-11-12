@@ -198,7 +198,11 @@ def answer_landmark_hint(question, language, history):
     except AssistantServiceError:
         logger.warning("Assistant landmark web search failed")
         sources = []
-    return assistant_reply(LANDMARK_QUESTION[language].format(name=name), sources)
+    title_match = re.escape(terms[0])
+    if english_building:
+        title_match = rf"(?<![a-z0-9]){title_match}(?![a-z0-9])"
+    matching_sources = [source for source in sources if re.search(title_match, source["title"], re.IGNORECASE)]
+    return assistant_reply(LANDMARK_QUESTION[language].format(name=name), matching_sources)
 
 
 def answer_question(question, language, history):
