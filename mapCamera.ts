@@ -4,7 +4,7 @@ import type { MapPoint } from './campusLocation';
 
 export const MIN_MAP_ZOOM = 1;
 export const MAX_MAP_ZOOM = 4;
-export type MapViewport = { width: number; height: number };
+export type MapViewport = { width: number; height: number; fullHeight?: boolean };
 export type MapCamera = MapPoint & { zoom: number };
 
 const landmarks = ['main', 'library', 'gate', 'mtr-c1', 'chiwah', 'cym-amenities', 'garden', 'university-street', 'knowles'];
@@ -21,7 +21,13 @@ export function fromMapView(point: MapPoint): MapPoint {
   };
 }
 
+export function fromMapScreen(point: MapPoint, camera: MapCamera, viewport: MapViewport): MapPoint {
+  const scale = viewport.width * camera.zoom / MAP_WIDTH;
+  return fromMapView({ x: (point.x - camera.x) / scale, y: (point.y - camera.y) / scale });
+}
+
 export function mapBand(viewport: MapViewport) {
+  if (viewport.fullHeight) return { top: 0, height: viewport.height };
   const top = Math.min(146, viewport.height * 0.36);
   const bottom = viewport.height - Math.min(159, viewport.height * 0.38);
   return { top, height: bottom - top };

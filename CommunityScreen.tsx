@@ -268,7 +268,8 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
             {editing?.status === 'approved' ? <Text style={s.copy}>提交的是一个新版本。审核通过前，大家仍会看到当前已发布的内容。</Text> : null}
             <Field testID="submission-title" label={draft.kind === 'new_place' ? '地点中文名称' : draft.kind === 'new_route' ? '路线名称' : '标题'}
               value={draft.title} maxLength={160} editable={!busy} onChangeText={title => update({ title })} />
-            <MapSubmissionFields kind={draft.kind} data={draft.mapData} onChange={mapData => update({ mapData })} disabled={busy} onPickStep={index => void pickImage(index)} token={token} />
+            <MapSubmissionFields kind={draft.kind} data={draft.mapData} onChange={mapData => update({ mapData })} disabled={busy}
+              onPickStep={index => void pickImage(index)} token={token} />
             {isMapDraft ? <Field label={draft.kind === 'new_place' ? '地点介绍' : '路线简介（选填）'}
               hint={draft.kind === 'new_place' ? '至少 10 个字。' : undefined} value={draft.body} multiline textAlignVertical="top"
               editable={!busy} maxLength={8000} onChangeText={body => update({ body })} /> :
@@ -277,10 +278,18 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
             {editing?.externalUrl || editing?.publishedContent?.externalUrl ?
               <Field label="相关链接（选填）" value={draft.externalUrl} editable={!busy} maxLength={1000} autoCapitalize="none" autoCorrect={false} keyboardType="url" onChangeText={externalUrl => update({ externalUrl })} placeholder="https://" /> : null}
             {draft.kind === 'new_place' || draft.existingImage ? <>
-            <Text style={[s.label, { marginTop: 18 }]}>{draft.kind === 'new_place' ? '地点照片（选填）' : '封面配图（选填）'}</Text><Text style={s.hint}>一张 JPEG、PNG 或 WebP，最多 5 MB。</Text>
+            <Text style={[s.label, { marginTop: 18 }]}>{draft.kind === 'new_place' ? '地点照片（选填）' : '封面配图（选填）'}</Text>
+            {draft.kind !== 'new_place' ? <Text style={s.hint}>一张 JPEG、PNG 或 WebP，最多 5 MB。</Text> : null}
             {image ? <SubmissionPhoto uri={image} token={draft.image ? undefined : token} style={s.photo} resizeMode="cover" accessibilityLabel="投稿配图预览" /> : null}
-            <View style={s.photoActions}><Pressable accessibilityRole="button" disabled={busy} onPress={() => void pickImage()} style={s.textButton}><Text style={s.linkText}>{image ? '更换图片' : '从相册选择图片'}</Text></Pressable>
+            <View style={s.photoActions}><Pressable testID="submission-photo-picker" accessibilityRole="button" disabled={busy}
+              onPress={() => void pickImage()} style={({ pressed }) => [
+                s.textButton, draft.kind === 'new_place' && s.photoPicker, pressed && s.dim,
+              ]}>
+              {draft.kind === 'new_place' ? <AppIcon name="photo" size={18} /> : null}
+              <Text style={s.linkText}>{image ? '更换图片' : '从相册选择图片'}</Text>
+            </Pressable>
               {image ? <Pressable accessibilityRole="button" disabled={busy} onPress={() => update({ image: null, removeImage: true })} style={s.textButton}><Text style={s.removeText}>移除图片</Text></Pressable> : null}</View>
+            {draft.kind === 'new_place' ? <Text style={s.hint}>一张 JPEG、PNG 或 WebP，最多 5 MB。</Text> : null}
             </> : null}
             <Button label={editing?.status === 'approved' ? '提交修改申请' : editing ? '重新提交审核' : '提交审核'} busy={busy} onPress={() => void submit()} />
           </ScrollView>
@@ -343,7 +352,9 @@ const s = StyleSheet.create({
   kindRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#e6eae2' },
   kindPressed: { backgroundColor: '#eaf1e8' },
   kindIcon: { width: 42, height: 42, borderRadius: 9, backgroundColor: '#eaf1e8', alignItems: 'center', justifyContent: 'center' },
-  photo: { width: '100%', height: 200, borderRadius: 12, marginTop: 12, backgroundColor: '#eaf1e8' }, photoActions: { flexDirection: 'row', justifyContent: 'space-between' },
+  photo: { width: '100%', height: 200, borderRadius: 12, marginTop: 12, backgroundColor: '#eaf1e8' },
+  photoActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', columnGap: 8 },
+  photoPicker: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, marginVertical: 8, borderWidth: 1, borderColor: green, borderRadius: 9, backgroundColor: '#eaf1e8' },
   note: { fontSize: 12, lineHeight: 21, color: '#637169', marginTop: 15 },
   feedback: { backgroundColor: '#eaf1e8', borderRadius: 12, padding: 15, marginTop: 24, marginBottom: 20 },
   detailTitle: { marginTop: 14, marginBottom: 8 }, detailBody: { color: '#203a31', fontSize: 15, lineHeight: 27, marginBottom: 14 },

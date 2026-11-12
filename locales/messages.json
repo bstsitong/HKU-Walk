@@ -1,4 +1,5 @@
 {
+  "点地图选位置，放大后可拖动地图或用方向键微调。": { "en": "Tap the map to place a pin. Zoom in to pan or fine-tune with the arrows.", "zh-Hant": "點地圖選位置，放大後可拖動地圖或用方向鍵微調。" },
   "删除帖子？": { "en": "Delete post?", "zh-Hant": "刪除帖子？" },
   "删除后，帖子和里面的评论将无法查看。": { "en": "This will remove the post and its comments from view.", "zh-Hant": "刪除後，帖子和裡面的評論將無法查看。" },
   "删除帖子": { "en": "Delete post", "zh-Hant": "刪除帖子" },

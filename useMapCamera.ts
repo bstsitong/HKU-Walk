@@ -1,6 +1,6 @@
 import { ComponentRef, useLayoutEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, PanResponder, View } from 'react-native';
-import { boundMapCamera, centreMapOn, MapCamera, MapViewport, mapScreenCentre, moveMapCamera } from './mapCamera';
+import { boundMapCamera, centreMapOn, MapCamera, MapViewport, mapScreenCentre, MIN_MAP_ZOOM, moveMapCamera } from './mapCamera';
 import type { MapPoint } from './campusLocation';
 
 type Touch = GestureResponderEvent['nativeEvent']['touches'][number];
@@ -19,13 +19,14 @@ function touchSample(touches: readonly Touch[]) {
 
 export default function useMapCamera(
   viewport: MapViewport, zoom: number, centerTick: number, focus: MapPoint, onZoomChange?: (zoom: number) => void,
+  onMapTap?: (point: MapPoint, camera: MapCamera) => void,
 ) {
   const [camera, setCamera] = useState(() => boundMapCamera({ x: 0, y: 146, zoom }, viewport));
   const surface = useRef<ComponentRef<typeof View>>(null);
   const pageOrigin = useRef({ x: 0, y: 0 });
   const current = useRef(camera);
-  const inputs = useRef({ viewport, onZoomChange });
-  inputs.current = { viewport, onZoomChange };
+  const inputs = useRef({ viewport, onZoomChange, onMapTap });
+  inputs.current = { viewport, onZoomChange, onMapTap };
   const baseline = useRef<{ camera: MapCamera; sample: NonNullable<ReturnType<typeof touchSample>> } | null>(null);
   const lastCenterTick = useRef(0);
 
@@ -53,6 +54,7 @@ export default function useMapCamera(
 
   const responder = useRef<ReturnType<typeof PanResponder.create> | null>(null);
   if (!responder.current) {
+    let tap: MapPoint | null = null;
     const rebase = (sample: ReturnType<typeof touchSample>) => {
       baseline.current = sample ? { camera: current.current, sample } : null;
     };
@@ -74,10 +76,13 @@ export default function useMapCamera(
     responder.current = PanResponder.create({
       onStartShouldSetPanResponderCapture: event => {
         rebase(touchSample(event.nativeEvent.touches));
-        return event.nativeEvent.touches.length >= 2;
+        return event.nativeEvent.touches.length >= 2 || Boolean(inputs.current.onMapTap && current.current.zoom > MIN_MAP_ZOOM);
       },
-      onMoveShouldSetPanResponderCapture: (event, gesture) => event.nativeEvent.touches.length >= 2 || Math.hypot(gesture.dx, gesture.dy) > 5,
+      onMoveShouldSetPanResponderCapture: (event, gesture) => event.nativeEvent.touches.length >= 2 ||
+        (!inputs.current.onMapTap && Math.hypot(gesture.dx, gesture.dy) > 5),
       onPanResponderGrant: event => {
+        const { locationX, locationY, touches } = event.nativeEvent;
+        tap = inputs.current.onMapTap && touches.length === 1 ? { x: locationX, y: locationY } : null;
         const sample = touchSample(event.nativeEvent.touches);
         if (sample && baseline.current?.sample.key !== sample.key) {
           rebase(sample);
@@ -87,19 +92,28 @@ export default function useMapCamera(
         });
       },
       onPanResponderStart: ({ nativeEvent: { touches } }) => {
+        if (touches.length >= 2) tap = null;
         const sample = touchSample(touches);
         if (sample && baseline.current?.sample.key !== sample.key) rebase(sample);
       },
-      onPanResponderMove: event => move(touchSample(event.nativeEvent.touches)),
+      onPanResponderMove: (event, gesture) => {
+        if (Math.hypot(gesture.dx, gesture.dy) > 5) tap = null;
+        if (!tap) move(touchSample(event.nativeEvent.touches));
+      },
       onPanResponderEnd: ({ nativeEvent: { touches, changedTouches } }) => {
         // The native event queue can coalesce the final move before a finger lifts.
         const finalTouches = new Map([...touches, ...changedTouches].map(touch => [touch.identifier, touch]));
         const sample = touchSample([...finalTouches.values()]);
-        if (sample && baseline.current?.sample.key === sample.key) move(sample);
+        if (!tap && sample && baseline.current?.sample.key === sample.key) move(sample);
         rebase(touchSample(touches));
       },
-      onPanResponderRelease: () => { baseline.current = null; },
-      onPanResponderTerminate: () => { baseline.current = null; },
+      onPanResponderTerminationRequest: () => !inputs.current.onMapTap,
+      onPanResponderRelease: () => {
+        if (tap) inputs.current.onMapTap?.(tap, current.current);
+        tap = null;
+        baseline.current = null;
+      },
+      onPanResponderTerminate: () => { tap = null; baseline.current = null; },
     });
   }
   return { camera, surface, handlers: responder.current.panHandlers };

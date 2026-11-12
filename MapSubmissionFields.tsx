@@ -15,28 +15,58 @@ import { t, translate } from './localization';
 import { useLanguage } from './LanguageProvider';
 import { colors as c } from './theme';
 import MapCanvas from './MapCanvas';
-import { fromMapView, toMapView } from './mapCamera';
+import { fromMapScreen, MAX_MAP_ZOOM, MIN_MAP_ZOOM, toMapView } from './mapCamera';
+import useMapCamera from './useMapCamera';
 
-function PointPicker({ data, disabled, onChange }: { data: MapDraftData; disabled: boolean; onChange: (patch: Partial<MapDraftData>) => void }) {
-  const [size, setSize] = useState({ width: 300, height: 199 });
+const mapCentre = { x: MAP_WIDTH / 2, y: MAP_Y_MAX / 2 };
+
+function PointPicker({ data, disabled, onChange }: {
+  data: MapDraftData; disabled: boolean; onChange: (patch: Partial<MapDraftData>) => void;
+}) {
+  const [size, setSize] = useState({ width: 300, height: 300 * MAP_HEIGHT / MAP_WIDTH });
+  const [zoom, setZoom] = useState(MIN_MAP_ZOOM);
   const { language } = useLanguage();
   const svg = useMemo(() => campusMapSvg(label => translate(label, language)), [language]);
+  const viewport = { ...size, fullHeight: true };
+  const { camera, surface, handlers } = useMapCamera(viewport, zoom, 0, mapCentre, setZoom,
+    (point, activeCamera) => onChange(fromMapScreen(point, activeCamera, viewport)));
+  const scale = size.width * camera.zoom / MAP_WIDTH;
   const marker = typeof data.x === 'number' && typeof data.y === 'number' ? toMapView({ x: data.x, y: data.y }) : null;
+  const nudge = zoom > MIN_MAP_ZOOM ? 1 : 3;
   const move = (dx: number, dy: number) => onChange({
-    x: Math.max(0, Math.min(MAP_WIDTH, (data.x ?? MAP_WIDTH / 2) - dx)),
-    y: Math.max(0, Math.min(MAP_Y_MAX, (data.y ?? MAP_Y_MAX / 2) - dy)),
+    x: Math.max(0, Math.min(MAP_WIDTH, (data.x ?? mapCentre.x) - dx * nudge)),
+    y: Math.max(0, Math.min(MAP_Y_MAX, (data.y ?? mapCentre.y) - dy * nudge)),
   });
-  return <View><Text style={s.label}>在地图上点选位置</Text><Text style={s.copy}>点击校园地图放置标记，可用方向按钮微调。</Text>
-    <Pressable testID="new-place-map" accessibilityRole="button" accessibilityLabel="点选新地点位置" disabled={disabled} onLayout={event => setSize(event.nativeEvent.layout)} onPress={event => {
-      const { locationX, locationY } = event.nativeEvent;
-      onChange(fromMapView({ x: locationX / size.width * MAP_WIDTH, y: locationY / size.height * MAP_HEIGHT }));
-    }} style={s.picker}>
-      <View pointerEvents="none" style={s.flex}><SvgXml xml={svg} width="100%" height="100%" accessible={false} /></View>
-      {marker ? <View pointerEvents="none" style={[s.marker,{ left: marker.x / MAP_WIDTH * size.width - 16, top: marker.y / MAP_HEIGHT * size.height - 16 }]}><AppIcon name="pin" color="#fff" size={20} /></View> : null}
-    </Pressable>
+  return <View><Text style={s.label}>在地图上点选位置</Text><Text style={s.copy}>点地图选位置，放大后可拖动地图或用方向键微调。</Text>
+    <View style={s.picker} onLayout={({ nativeEvent: { layout } }) => {
+      if (layout.width > 0 && layout.height > 0) setSize({ width: layout.width, height: layout.height });
+    }}>
+      <View ref={surface} collapsable={false} style={StyleSheet.absoluteFill} {...(!disabled && handlers)}>
+        <Pressable testID="new-place-map" accessibilityRole="button" accessibilityLabel="点选新地点位置" disabled={disabled}
+          style={StyleSheet.absoluteFill} onPress={({ nativeEvent: { locationX, locationY } }) => {
+            onChange(fromMapScreen({ x: locationX, y: locationY }, camera, viewport));
+          }}>
+          <View pointerEvents="none" style={{
+            position: 'absolute', left: camera.x, top: camera.y, width: MAP_WIDTH * scale, height: MAP_HEIGHT * scale,
+          }}><SvgXml xml={svg} width="100%" height="100%" accessible={false} /></View>
+          {marker ? <View pointerEvents="none" style={[s.marker, {
+            left: camera.x + marker.x * scale - 16, top: camera.y + marker.y * scale - 16,
+          }]}><AppIcon name="pin" color="#fff" size={20} /></View> : null}
+        </Pressable>
+      </View>
+      <View style={s.zoomControls}>
+        <Pressable testID="new-place-map-zoom-in" accessibilityRole="button" accessibilityLabel="放大地图"
+          disabled={disabled || zoom >= MAX_MAP_ZOOM} onPress={() => setZoom(value => Math.min(MAX_MAP_ZOOM, value * 1.4))}
+          style={s.zoomButton}><AppIcon name="plus" size={20} color={zoom >= MAX_MAP_ZOOM ? c.muted : c.green} /></Pressable>
+        <View style={s.zoomDivider} />
+        <Pressable testID="new-place-map-zoom-out" accessibilityRole="button" accessibilityLabel="缩小地图"
+          disabled={disabled || zoom <= MIN_MAP_ZOOM} onPress={() => setZoom(value => Math.max(MIN_MAP_ZOOM, value / 1.4))}
+          style={s.zoomButton}><AppIcon name="minus" size={20} color={zoom <= MIN_MAP_ZOOM ? c.muted : c.green} /></Pressable>
+      </View>
+    </View>
     <Text raw style={s.attribution}>© OpenStreetMap</Text>
     <Text style={s.copy}>{marker ? '已选好地点位置' : '尚未选点'}</Text>
-    <View style={s.row}>{[[-3,0,'left'],[0,-3,'up'],[0,3,'down'],[3,0,'right']].map(([dx,dy,direction]) => <Pressable key={String(direction)} accessibilityRole="button" accessibilityLabel={t('向{direction}微调', { direction: t(direction === 'left' ? '左' : direction === 'right' ? '右' : direction === 'up' ? '上' : '下') })} disabled={disabled} onPress={() => move(Number(dx),Number(dy))} style={s.nudge}><Text raw style={s.nudgeText}>{direction === 'left' ? '←' : direction === 'right' ? '→' : direction === 'up' ? '↑' : '↓'}</Text></Pressable>)}</View>
+    <View style={s.row}>{[[-1,0,'left'],[0,-1,'up'],[0,1,'down'],[1,0,'right']].map(([dx,dy,direction]) => <Pressable key={String(direction)} accessibilityRole="button" accessibilityLabel={t('向{direction}微调', { direction: t(direction === 'left' ? '左' : direction === 'right' ? '右' : direction === 'up' ? '上' : '下') })} disabled={disabled} onPress={() => move(Number(dx),Number(dy))} style={s.nudge}><Text raw style={s.nudgeText}>{direction === 'left' ? '←' : direction === 'right' ? '→' : direction === 'up' ? '↑' : '↓'}</Text></Pressable>)}</View>
   </View>;
 }
 export default function MapSubmissionFields({ kind, data, onChange, disabled, onPickStep, token }: { kind: Kind; data: MapDraftData; onChange: (value: MapDraftData) => void; disabled: boolean; onPickStep: (index: number) => void; token?: string }) {
@@ -124,4 +154,8 @@ export function SubmittedMapData({ data, token }: { data?: MapDraftData; token?:
     </View>)}
   </View>;
 }
-const s = StyleSheet.create({ attribution: { textAlign: 'right', fontSize: 10, lineHeight: 18, color: c.muted }, flex: { flex: 1 }, section: { marginTop: 16 }, label: { fontSize: 14, lineHeight: 23, fontWeight: '700', color: c.ink }, copy: { fontSize: 12, lineHeight: 21, color: c.muted, marginVertical: 6 }, categories: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 9, marginBottom: 18 }, category: { backgroundColor: c.tint, minHeight: 44, paddingHorizontal: 12, paddingVertical: 11, borderRadius: 9 }, categoryText: { fontSize: 12, lineHeight: 20, color: c.green }, active: { backgroundColor: c.green }, white: { color: '#fff' }, picker: { width: '100%', aspectRatio: MAP_WIDTH / MAP_HEIGHT, backgroundColor: c.tint, marginTop: 10, borderRadius: 12, overflow: 'hidden' }, marker: { position: 'absolute', width: 32, height: 32, borderRadius: 16, backgroundColor: c.rust, borderWidth: 2, borderColor: '#fff', alignItems: 'center', justifyContent: 'center' }, row: { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }, nudge: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center', backgroundColor: c.tint, borderRadius: 8 }, nudgeText: { color: c.green, fontSize: 21 }, endpoints: { borderWidth: 1, borderColor: c.line, backgroundColor: '#fff', borderRadius: 12, marginTop: 10, marginBottom: 22, overflow: 'hidden' }, endpoint: { minHeight: 64, flexDirection: 'row', alignItems: 'center', padding: 13, borderBottomWidth: 1, borderBottomColor: c.line }, stepCard: { marginTop: 14, padding: 14, borderRadius: 13, backgroundColor: c.tint }, iconButton: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }, dim: { opacity: 0.35 }, photo: { width: '100%', height: 170, borderRadius: 10, marginTop: 12, backgroundColor: c.paper }, photoButton: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: 8 }, link: { fontSize: 13, fontWeight: '700', color: c.green, lineHeight: 21 }, addStep: { minHeight: 50, backgroundColor: c.tint, borderRadius: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 16 } });
+const s = StyleSheet.create({
+  zoomControls: { position: 'absolute', right: 8, bottom: 8, flexDirection: 'row', alignItems: 'center', backgroundColor: c.surface, borderRadius: 9, borderWidth: 1, borderColor: c.line },
+  zoomButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  zoomDivider: { width: 1, height: 22, backgroundColor: c.line },
+  attribution: { textAlign: 'right', fontSize: 10, lineHeight: 18, color: c.muted }, flex: { flex: 1 }, section: { marginTop: 16 }, label: { fontSize: 14, lineHeight: 23, fontWeight: '700', color: c.ink }, copy: { fontSize: 12, lineHeight: 21, color: c.muted, marginVertical: 6 }, categories: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 9, marginBottom: 18 }, category: { backgroundColor: c.tint, minHeight: 44, paddingHorizontal: 12, paddingVertical: 11, borderRadius: 9 }, categoryText: { fontSize: 12, lineHeight: 20, color: c.green }, active: { backgroundColor: c.green }, white: { color: '#fff' }, picker: { width: '100%', aspectRatio: MAP_WIDTH / MAP_HEIGHT, backgroundColor: c.tint, marginTop: 10, borderRadius: 12, overflow: 'hidden' }, marker: { position: 'absolute', width: 32, height: 32, borderRadius: 16, backgroundColor: c.rust, borderWidth: 2, borderColor: '#fff', alignItems: 'center', justifyContent: 'center' }, row: { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }, nudge: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center', backgroundColor: c.tint, borderRadius: 8 }, nudgeText: { color: c.green, fontSize: 21 }, endpoints: { borderWidth: 1, borderColor: c.line, backgroundColor: '#fff', borderRadius: 12, marginTop: 10, marginBottom: 22, overflow: 'hidden' }, endpoint: { minHeight: 64, flexDirection: 'row', alignItems: 'center', padding: 13, borderBottomWidth: 1, borderBottomColor: c.line }, stepCard: { marginTop: 14, padding: 14, borderRadius: 13, backgroundColor: c.tint }, iconButton: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }, dim: { opacity: 0.35 }, photo: { width: '100%', height: 170, borderRadius: 10, marginTop: 12, backgroundColor: c.paper }, photoButton: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: 8 }, link: { fontSize: 13, fontWeight: '700', color: c.green, lineHeight: 21 }, addStep: { minHeight: 50, backgroundColor: c.tint, borderRadius: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 16 } });
