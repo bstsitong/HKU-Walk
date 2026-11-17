@@ -7,6 +7,7 @@ from django.utils import timezone
 from rest_framework.exceptions import APIException, ValidationError
 
 from guide.legacy_catalog import place_fields
+from guide.map_display import place_display_level
 from guide.models import CampusPlace, CampusRoute, GuidePost, Publication, RouteStep
 from .body_content import publication_body
 from .models import InboxMessage, Submission, SubmissionBodyImage, SubmissionStepImage
@@ -228,6 +229,8 @@ def publish_content(item):
         CampusPlace.objects.update_or_create(
             publication=publication,
             defaults={"code": f"community-place-{publication.pk}", "name_zh": item.title, **common, **details},
+            create_defaults={"code": f"community-place-{publication.pk}", "name_zh": item.title,
+                             "display_level": place_display_level(data["category"]), **common, **details},
         )
     elif kind == Publication.Kind.ROUTE:
         route, _ = CampusRoute.objects.update_or_create(publication=publication, defaults={

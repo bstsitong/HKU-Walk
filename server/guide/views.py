@@ -9,9 +9,9 @@ from community.profiles import public_author_data
 from community.body_content import published_body_blocks
 
 from .catalog import content_image, published_routes, route_steps_data
-from .campus_map import LEGACY_PLACES, MAP_VERSION
+from .campus_map import CLASSROOM_PARENTS, LEGACY_PLACES, MAP_VERSION
 from .articles import ARTICLE_KEYS, ARTICLE_SCOPE
-from .models import CampusPlace, GuideCategory, GuideLike, GuidePost, Publication, RouteStep
+from .models import CampusFacility, CampusPlace, GuideCategory, GuideLike, GuidePost, Publication, RouteStep
 
 
 def publication_author(request, publication):
@@ -85,13 +85,17 @@ def guide_content(request):
 @never_cache
 def campus_content(request):
     version = MAP_VERSION if request.GET.get("mapVersion") == str(MAP_VERSION) else 1
+    include_classrooms = version == MAP_VERSION and request.GET.get("classrooms") == "1"
     places, base_places = [], []
     place_query = CampusPlace.objects.filter(publication__published=True).select_related("publication__current_submission__author__profile")
     for place in place_query.order_by("publication__sort_order", "publication_id"):
+        parent_id = CLASSROOM_PARENTS.get(place.pk)
+        if parent_id and not include_classrooms:
+            continue
         data = {
             "id": place.pk, "entryId": str(place.publication_id), "name": place.name_zh,
             "english": place.name_en, "abbreviation": place.abbreviation_en, "keywords": place.keywords,
-            "category": place.category, "x": place.map_x, "y": place.map_y, "description": place.body,
+            "category": place.category, "displayLevel": place.display_level, "x": place.map_x, "y": place.map_y, "description": place.body,
             "entrance": place.entrance, "floor": place.floor, "imageUrl": content_image(request, place, place.publication),
             "isCommunity": not place.is_builtin,
             "authorProfile": publication_author(request, place.publication),
@@ -103,6 +107,8 @@ def campus_content(request):
                 continue
         else:
             data["mapPositionPending"] = place.map_version != version
+            if parent_id:
+                data["parentBuildingId"] = parent_id
         (base_places if place.is_builtin else places).append(data)
     visible_ids = {place["id"] for place in base_places + places}
     route_query = published_routes().select_related("publication__current_submission__author__profile").prefetch_related(
@@ -112,10 +118,20 @@ def campus_content(request):
         "id": f"community-route-{route.pk}", "entryId": str(route.pk), "title": route.title,
         "authorProfile": publication_author(request, route.publication),
         "body": route.body, "originId": route.origin_id, "destinationId": route.destination_id,
+        "imageUrl": content_image(request, route, route.publication),
         "steps": route_steps_data(request, route), "isCommunity": True,
         "updatedAt": route.publication.updated_at.isoformat(),
     } for route in route_query if route.origin_id in visible_ids and route.destination_id in visible_ids]
-    return JsonResponse({"mapVersion": version, "places": places, "routes": routes, "basePlaces": base_places}, json_dumps_params={"ensure_ascii": False})
+    response = {"mapVersion": version, "places": places, "routes": routes, "basePlaces": base_places,
+                "includesAdditionalMapPlaces": version == MAP_VERSION, "includesClassroomPlaces": include_classrooms}
+    if version == MAP_VERSION:
+        response["facilities"] = [
+            {"id": item.pk, "kind": item.kind, "at": [item.map_x, item.map_y], "title": item.title, "english": item.name_en,
+             "detail": item.detail, "displayLevel": item.display_level,
+             "overview": item.overview, "approximate": item.approximate}
+            for item in CampusFacility.objects.order_by("code")
+        ]
+    return JsonResponse(response, json_dumps_params={"ensure_ascii": False})
 
 
 @require_GET

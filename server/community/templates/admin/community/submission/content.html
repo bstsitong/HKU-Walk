@@ -47,7 +47,7 @@
   {% if submission.image %}
     {% url 'submission-image' submission.pk as cover %}
     <figure class="review-image">
-      <a href="{{ cover }}" target="_blank" rel="noopener"><img src="{{ cover }}" alt="投稿配图"></a>
+      <a href="{{ cover }}" target="_blank" rel="noopener"><img src="{{ cover }}" alt="{{ image_label }}"></a>
     </figure>
   {% endif %}
 

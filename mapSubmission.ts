@@ -4,10 +4,10 @@ import { CAMPUS_MAP_VERSION } from './MapArtwork';
 export type RouteStepDraft = { title: string; body: string; image?: PickedImage | null; existingImage?: string; imageUrl?: string; removeImage?: boolean; sourceIndex?: number };
 export type MapDraftData = { type?: 'place' | 'route' | 'place_correction' | 'route_correction'; mapVersion?: number;
   category?: Place['category']; x?: number | null; y?: number | null; english?: string; abbreviation?: string; entrance?: string;
-  floor?: string; placeId?: string; originId?: string; destinationId?: string; routeId?: string; steps?: RouteStepDraft[]; stepPhotosRequired?: boolean };
+  floor?: string; placeId?: string; originId?: string; destinationId?: string; routeId?: string; steps?: RouteStepDraft[] };
 export function emptyMapDraft(kind: string): MapDraftData {
   if (kind === 'new_place') return { type: 'place', mapVersion: CAMPUS_MAP_VERSION, category: 'building', x: null, y: null, english: '', entrance: '', floor: '' };
-  if (kind === 'new_route') return { type: 'route', steps: [{ title: '', body: '' }], stepPhotosRequired: true };
+  if (kind === 'new_route') return { type: 'route', steps: [{ title: '', body: '' }] };
   if (kind === 'place') return { type: 'place_correction' };
   if (kind === 'route') return { type: 'route_correction' };
   return {};
@@ -31,8 +31,7 @@ export function validateMapDraft(kind: string, data: MapDraftData): string | nul
   }
   if (kind === 'new_route') {
     if (!data.steps?.length || data.steps.length > 20) return '路线需要 1–20 个步骤。';
-    if (data.steps.some(step => !step.title.trim() || !step.body.trim())) return '每一步都需要标题和说明。';
-    if (data.stepPhotosRequired && data.steps.some(step => !step.image && (step.removeImage || !step.existingImage))) return '请为每个路线步骤添加配图。';
+    if (data.steps.some(step => !step.title.trim())) return '每一步都需要标题。';
   }
   return null;
 }
@@ -47,8 +46,7 @@ export function serializeMapDraft(kind: string, value: MapDraftData) {
       else if (step.existingImage && typeof step.sourceIndex === 'number') inherit[String(index)] = step.sourceIndex;
       return { title: step.title.trim(), body: step.body.trim() };
     });
-    return { data: { type: 'route', originId: value.originId, destinationId: value.destinationId, steps,
-      ...(value.stepPhotosRequired ? { stepPhotosRequired: true } : {}) }, inherit, removed, uploads };
+    return { data: { type: 'route', originId: value.originId, destinationId: value.destinationId, steps }, inherit, removed, uploads };
   }
   if (kind === 'place') return { data: { type: 'place_correction', placeId: value.placeId }, inherit, removed, uploads };
   if (kind === 'route') return { data: { type: 'route_correction', originId: value.originId, destinationId: value.destinationId, routeId: value.routeId || '' }, inherit, removed, uploads };

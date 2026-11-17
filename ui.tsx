@@ -1,9 +1,10 @@
-import { ComponentProps, ReactNode } from 'react';
+import { ComponentProps, ReactNode, useContext } from 'react';
 import { Alert as NativeAlert, Image as NativeImage, ImageProps, Pressable as NativePressable, PressableProps,
   Text as NativeText, TextInput as NativeTextInput, TextProps } from 'react-native';
 import { useLanguage } from './LanguageProvider';
 import { translate, t } from './localization';
 import { colors } from './theme';
+import { FormInputFocus } from './KeyboardLayout';
 
 function childrenInLanguage(children: ReactNode, language: ReturnType<typeof useLanguage>['language']): ReactNode {
   if (typeof children === 'string') return translate(children, language);
@@ -14,9 +15,11 @@ export function Text({ raw = false, children, ...props }: TextProps & { raw?: bo
   const { language } = useLanguage();
   return <NativeText {...props} accessibilityLabel={props.accessibilityLabel ? translate(props.accessibilityLabel, language) : undefined}>{raw ? children : childrenInLanguage(children, language)}</NativeText>;
 }
-export function TextInput(props: ComponentProps<typeof NativeTextInput>) {
+export function TextInput({ onFocus, ...props }: ComponentProps<typeof NativeTextInput>) {
   const { language } = useLanguage();
+  const revealInput = useContext(FormInputFocus);
   return <NativeTextInput placeholderTextColor={colors.muted} selectionColor={colors.green} {...props} accessibilityLabel={props.accessibilityLabel ? translate(props.accessibilityLabel, language) : undefined}
+    onFocus={event => { onFocus?.(event); revealInput?.(); }}
     placeholder={props.placeholder ? translate(props.placeholder, language) : undefined} />;
 }
 export function Pressable(props: PressableProps) {

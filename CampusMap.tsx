@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { BackHandler, Keyboard, ScrollView, StyleSheet, View } from 'react-native';
+import { BackHandler, Keyboard, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Alert, Image, Pressable, Text } from './ui';
 import AppIcon, { IconName } from './AppIcon';
 import { AuthorByline } from './AuthorIdentity';
 import MapCanvas from './MapCanvas';
-import { Category, Place, categories, categoryIcon, categoryLabel, findPlace, getCampusRoute, getPlace, hasPlacePhoto, placeIcon, placeName, placePhoto, places } from './campus';
+import { Category, Place, categories, categoryIcon, categoryLabel, classroomBuilding, findPlace, getCampusRoute, getPlace, hasPlacePhoto, isPublishedPlace, mapPlace, placeIcon, placeName, placePhoto, places } from './campus';
 import { PlaceRecords } from './usePlaces';
 import { t } from './localization';
 import { useLanguage } from './LanguageProvider';
@@ -16,6 +16,7 @@ import { RouteBookmark } from './routeBookmarks';
 import useCampus from './useCampus';
 import useCampusLocation from './useCampusLocation';
 import { MAX_MAP_ZOOM, MIN_MAP_ZOOM } from './mapCamera';
+import { CampusFacility, facilityName, facilityStyles } from './campusFacilities';
 
 const locationMessages = {
   idle: '授权后在校园地图上显示当前位置',
@@ -30,24 +31,61 @@ const locationMessages = {
   disabled: '请开启手机的定位服务后重试',
   unavailable: '暂时无法获取位置，点此重试',
 } as const;
+const initialMapZoom = 1.4;
 
 export type MapView = 'home' | 'search' | 'detail' | 'route';
 export type MapRequest = { serial: number; view: 'home' | 'detail' | 'route'; route?: RouteBookmark; placeId?: string; category?: Category; fromSaved?: boolean };
 function IconButton({ icon, label, onPress, selected = false, disabled = false, testID }: { icon: IconName; label: string; onPress: () => void; selected?: boolean; disabled?: boolean; testID?: string }) {
-  return <Pressable testID={testID} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ selected, disabled }} disabled={disabled} onPress={onPress} style={[s.iconButton, disabled && { opacity: 0.35 }]}><AppIcon name={icon} color={selected ? c.rust : c.green} /></Pressable>;
+  return <Pressable testID={testID} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ selected, disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [s.iconButton, pressed && s.pressed, disabled && s.disabled]}><AppIcon name={icon} size={20} color={selected ? c.rust : c.ink} /></Pressable>;
 }
 function Action({ label, onPress, secondary = false, icon, testID }: { label: string; onPress: () => void; secondary?: boolean; icon?: IconName; testID?: string }) {
-  return <Pressable testID={testID} accessibilityRole="button" onPress={onPress} style={[s.action, secondary && s.secondary]}>{icon ? <AppIcon name={icon} color={secondary ? c.green : '#fff'} size={18} /> : null}<Text style={[s.actionLabel, secondary && s.secondaryLabel]}>{label}</Text></Pressable>;
+  return <Pressable testID={testID} accessibilityRole="button" onPress={onPress} style={({ pressed }) => [s.action, secondary && s.secondary, pressed && (secondary ? s.pressed : s.primaryPressed)]}>{icon ? <AppIcon name={icon} color={secondary ? c.ink : c.surface} size={18} /> : null}<Text style={[s.actionLabel, secondary && s.secondaryLabel]}>{label}</Text></Pressable>;
 }
-export default function CampusMap({ active, records, routes, campus, sampleLocation, request, onViewChange, onReturnSaved, onVisitRoute, onCommentPlace }: {
+
+function FacilitySheet({ facilities, onClose }: { facilities: readonly CampusFacility[] | null; onClose: () => void }) {
+  const { language } = useLanguage();
+  return <View style={[s.placeSheet, s.facilitySheet]} testID="map-facility-sheet">
+    {facilities ? <>
+      <View style={s.facilityHeader}><Text accessibilityRole="header" style={s.rowTitle}>地图设施</Text>
+        <IconButton icon="close" label="关闭设施详情" onPress={onClose} />
+      </View>
+      <ScrollView style={s.facilityScroll} keyboardShouldPersistTaps="handled">
+        {facilities.map(facility => {
+          const { icon, color } = facilityStyles[facility.kind];
+          return <View key={facility.id} style={s.facilityRow}>
+            <AppIcon name={icon} color={color} size={18} />
+            <View style={s.flex}><Text raw style={s.rowTitle}>{facilityName(facility, language)}</Text>
+              <Text style={s.body}>{facility.detail}</Text>
+              {facility.approximate ? <Text style={s.meta}>点位为示意，具体位置以现场为准。</Text> : null}
+            </View>
+          </View>;
+        })}
+      </ScrollView>
+    </> : <>
+      <Text accessibilityRole="header" style={s.rowTitle}>地图设施</Text>
+      <View style={s.facilityLegend}>
+        {Object.values(facilityStyles).map(({ icon, color, label }) => <View key={icon} style={s.legendItem}>
+          <AppIcon name={icon} color={color} size={16} /><Text style={s.legendLabel}>{label}</Text>
+        </View>)}
+      </View>
+      <Text style={s.meta}>放大查看更多设施，点图标查看位置和楼层。</Text>
+    </>}
+  </View>;
+}
+export default function CampusMap({ active, records, routes, campus, sampleLocation, request, onViewChange, onReturnSaved, onVisitRoute, onCommentPlace, routeImages }: {
   active: boolean; records: PlaceRecords; routes: RouteRecords; campus: ReturnType<typeof useCampus>; sampleLocation: boolean; request: MapRequest | null; onViewChange: (view: MapView) => void; onReturnSaved: () => void; onVisitRoute: (route: RouteBookmark) => void;
   onCommentPlace: (place: Place) => void;
+  routeImages: ReadonlyMap<string, string>;
 }) {
   const { language } = useLanguage();
+  const { height, fontScale } = useWindowDimensions();
+  const compactTools = height / Math.max(1, fontScale) < 680;
   const [view, setView] = useState<MapView>('home');
   const [selected, setSelected] = useState(findPlace('main'));
   const [category, setCategory] = useState<Category>('all');
-  const [zoom, setZoom] = useState(MIN_MAP_ZOOM);
+  const [facilitiesOnly, setFacilitiesOnly] = useState(false);
+  const [facilitySelection, setFacilitySelection] = useState<readonly CampusFacility[] | null>(null);
+  const [zoom, setZoom] = useState(initialMapZoom);
   const [centerTick, setCenterTick] = useState(0);
   const [origin, setOrigin] = useState(findPlace('gate'));
   const [destination, setDestination] = useState(findPlace('main'));
@@ -65,7 +103,8 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
   const locationMessage = showDemo ? t('演示蓝点，点此开启实时定位') : accuracy == null
     ? t(locationMessages[location.status]) : t('定位精度约 {meters} 米', { meters: Math.max(1, Math.round(accuracy)) });
   const locationAction = location.tracking ? '停止定位' : location.status === 'blocked' ? '去设置' : '开启定位';
-  const changeView = (next: MapView) => { Keyboard.dismiss(); setView(next); onViewChange(next); };
+  const changeView = (next: MapView) => { Keyboard.dismiss(); setFacilitySelection(null); setView(next); onViewChange(next); };
+  const chooseCategory = (next: Category) => { setFacilitySelection(null); setFacilitiesOnly(false); setCategory(next); };
   const detail = (place: Place) => { setFromSaved(false); setSelected(place); records.visit(place.id); setReturnView(view === 'search' ? 'search' : 'home'); changeView('detail'); };
   const back = () => {
     if (view === 'route') { if (fromSaved && routeReturn === 'home') { setFromSaved(false); changeView('home'); onReturnSaved(); } else changeView(routeReturn); return; }
@@ -81,14 +120,20 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
       if (!start || !end || (request.route.source === 'community' && !shared)) { Alert.alert('路线暂不可用', '路线已下线或暂时无法读取'); changeView('home'); if (request.fromSaved) onReturnSaved(); return; }
       setOrigin(start); setDestination(end); setSelected(end); setPreferredRoute(request.route); setRouteReturn('home'); changeView('route'); return;
     }
-    if (request.category) setCategory(request.category);
+    if (request.category) chooseCategory(request.category);
     if (request.placeId) { const place = findPlace(request.placeId); setSelected(place); if (request.view === 'detail') records.visit(place.id); }
     setReturnView('home'); setView(request.view); onViewChange(request.view);
   }, [request?.serial]);
   useEffect(() => {
-    const listener = BackHandler.addEventListener('hardwareBackPress', () => { if (!active || view === 'home') return false; back(); return true; });
+    const listener = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (!active) return false;
+      if (facilitySelection && view === 'home') { setFacilitySelection(null); return true; }
+      if (view === 'home') return false;
+      back();
+      return true;
+    });
     return () => listener.remove();
-  }, [active, view, fromSaved, returnView, routeReturn]);
+  }, [active, view, fromSaved, returnView, routeReturn, facilitySelection]);
   const startRoute = () => {
     setDestination(selected); setOrigin(findPlace(selected.id === 'gate' ? 'main' : 'gate'));
     setPreferredRoute(null); setRouteReturn(view); changeView('route');
@@ -102,19 +147,25 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
     else { setOrigin(findPlace('gate')); setDestination(findPlace('main')); setPreferredRoute(null); if (view === 'route') changeView('home'); }
   }, [campus.catalog]);
   const saved = records.saved.includes(selected.id);
+  const building = classroomBuilding(selected);
+  const placeSubtitle = [language !== 'en' ? selected.english : '', !building && selected.abbreviation].filter(Boolean).join(' · ');
   const saveButton = <IconButton testID="save-place" icon="bookmark" label={saved ? '取消收藏' : '收藏地点'} selected={saved} disabled={!records.ready} onPress={() => records.toggle(selected.id)} />;
   if (view === 'search') return <PlaceSearch onBack={back} onChoose={detail} recentPlaceIds={records.recent} />;
   if (view === 'detail') return <View style={s.flex}>
     <ScrollView contentContainerStyle={s.detailPage}>
       <View style={s.hero}>
         {selected.id === 'main' || selected.imageUrl
-          ? <Image source={placePhoto(selected)} style={s.heroPhoto} resizeMode="cover" accessibilityLabel="校园地点照片" />
+          ? <Image source={placePhoto(selected)} style={s.heroPhoto} resizeMode={selected.isCommunity ? 'contain' : 'cover'} accessibilityLabel="校园地点照片" />
           : <MapCanvas selected={selected} variant="mini" />}
         <View style={s.heroActions}><View style={s.floating}><IconButton icon="back" label="返回" onPress={back} /></View><View style={s.floating}>{saveButton}</View></View>
-        <Text style={s.credit}>{selected.imageUrl ? '投稿配图' : selected.id === 'main' ? '本部大楼 · HKU' : '地图位置'}</Text>
+        <Text style={s.credit}>{building ? '教室所在楼宇' : selected.imageUrl ? '投稿配图' : selected.id === 'main' ? '本部大楼 · HKU' : '地图位置'}</Text>
       </View>
-      <View style={s.detailBody}><Text raw={selected.isCommunity} accessibilityRole="header" style={s.title}>{placeName(selected)}</Text><Text raw style={s.meta}>{[language === 'en' && !selected.isCommunity ? selected.name : selected.english, selected.abbreviation].filter(Boolean).join(' · ')}</Text>
-        <View style={[s.chips, s.detailBadges]}><Text style={s.badge}>{categoryLabel(selected.category)}</Text><Text style={s.rustBadge}>{selected.isCommunity ? '同学提供' : '校园地图资料'}</Text></View>
+      <View style={s.detailBody}><Text raw={selected.isCommunity} accessibilityRole="header" style={s.title}>{placeName(selected)}</Text>{placeSubtitle ? <Text raw style={s.meta}>{placeSubtitle}</Text> : null}
+        {building ? <>
+          <View style={s.infoRow}><AppIcon name="building" size={20} /><View style={s.flex}><Text style={s.rowTitle}>所在楼宇</Text><Text raw style={s.body}>{selected.buildingName ? t(selected.buildingName) : placeName(building)}</Text></View></View>
+          <View style={s.infoRow}><AppIcon name="lift" size={20} /><View style={s.flex}><Text style={s.rowTitle}>教室楼层</Text><Text style={s.body}>{selected.floor || '楼层待核实'}</Text></View></View>
+        </> : <>
+        <View style={s.detailBadges}><Text style={s.categoryMeta}>{categoryLabel(selected)} ·</Text><Text style={s.categoryMeta}>{selected.isCommunity ? '同学提供' : '校园地图资料'}</Text></View>
         {selected.authorProfile ? <AuthorByline author={selected.authorProfile} /> : null}
         {selected.description ? <Text raw={selected.isCommunity} style={s.body}>{selected.description}</Text> : null}
         <View style={s.divider} /><View style={s.sectionHeading}><Text style={s.sectionTitle}>怎么进入这里</Text></View>
@@ -122,55 +173,129 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
         <View style={s.infoRow}><AppIcon name="lift" size={20} /><View style={s.flex}><Text style={s.rowTitle}>楼层与升降机</Text><Text raw={selected.isCommunity && Boolean(selected.floor)} style={s.body}>{selected.floor || '楼层资料待补充'}</Text></View></View>
         {selected.id === 'main' || selected.imageUrl ? <><View style={s.divider} /><Text style={s.sectionTitle}>地图位置</Text><View style={s.miniMap}><MapCanvas selected={selected} variant="mini" /></View></> : null}
         <Text style={s.note}>{selected.isCommunity ? '地点位置由投稿人点选。' : '图标标出地点或所在楼宇，入口与开放情况以现场为准。'}</Text>
+        </>}
       </View>
     </ScrollView>
     <View style={s.footer}>
       {saveButton}
-      <IconButton testID="detail-comments" icon="comment" label="地点评论" onPress={() => onCommentPlace(selected)} />
+      {isPublishedPlace(selected) ? <IconButton testID="detail-comments" icon="comment" label="地点评论" onPress={() => onCommentPlace(selected)} /> : null}
       <Action testID="detail-route" icon="walk" label="查看步行路线" onPress={startRoute} />
     </View>
   </View>;
-  if (view === 'route') return <RouteScreen initialOrigin={origin} initialDestination={destination} initialRouteId={preferredRoute?.source === 'community' ? preferredRoute.id : undefined} preferDemo={preferredRoute?.source === 'demo'} records={routes} recentPlaceIds={records.recent} onBack={back} onMap={(place?: Place) => { if (place) setSelected(place); setFromSaved(false); setCategory('all'); changeView('home'); }} active={active} onVisit={onVisitRoute} catalogVersion={campus.catalog} />;
+  if (view === 'route') return <RouteScreen initialOrigin={origin} initialDestination={destination} initialRouteId={preferredRoute?.source === 'community' ? preferredRoute.id : undefined} preferDemo={preferredRoute?.source === 'demo'} records={routes} recentPlaceIds={records.recent} onBack={back} onMap={(place?: Place) => { if (place) setSelected(mapPlace(place)); setFromSaved(false); chooseCategory('all'); changeView('home'); }} active={active} onVisit={onVisitRoute} catalogVersion={campus.catalog} routeImages={routeImages} />;
   return <View style={s.flex}>
     <View style={s.mapHome}>
-      <MapCanvas selected={selected} category={category} zoom={zoom} onZoomChange={setZoom} onSelect={setSelected} sampleLocation={showDemo} livePosition={location.point} centerTick={centerTick} />
-      <View pointerEvents="box-none" style={s.homeTop}><View style={s.brandRow}><Text accessibilityRole="header" style={s.brand}>港大漫游</Text><Text style={s.small}>本部 · 百周年</Text></View>
-        <Pressable testID="open-search" accessibilityRole="button" onPress={() => { setFromSaved(false); changeView('search'); }} style={s.searchLauncher}><AppIcon name="search" size={20} color={c.muted} /><Text style={[s.body, s.flex]}>想去哪里？搜索校园地点</Text></Pressable>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.homeCategories}>{categories.map(item => <Pressable testID={`filter-${item.id}`} key={item.id} accessibilityRole="button" accessibilityState={{ selected: category === item.id }} onPress={() => setCategory(item.id)} style={[s.homeChip, category === item.id && s.selectedChip]}><AppIcon name={categoryIcon(item.id)} size={15} color={category === item.id ? '#fff' : c.muted} /><Text style={[s.chipText, category === item.id && s.white]}>{item.label}</Text></Pressable>)}</ScrollView>
+      <MapCanvas selected={selected} category={category} zoom={zoom} onZoomChange={setZoom}
+        onSelect={place => { setFacilitySelection(null); setSelected(place); }} catalogVersion={campus.catalog} sampleLocation={showDemo}
+        livePosition={location.point} centerTick={centerTick} facilitiesOnly={facilitiesOnly} facilities={campus.catalog.facilities} onFacilitySelect={setFacilitySelection} />
+      <View pointerEvents="box-none" style={s.mapOverlay}>
+        <View pointerEvents="box-none" style={s.homeTop}><View pointerEvents="none" style={s.brandRow}><Text accessibilityRole="header" style={s.brand}>港大漫游</Text><Text style={s.area}>本部 · 百周年</Text></View>
+          <Pressable testID="open-search" accessibilityRole="button" onPress={() => { setFromSaved(false); changeView('search'); }} style={({ pressed }) => [s.searchLauncher, pressed && s.pressed]}><AppIcon name="search" size={18} color={c.muted} /><Text style={[s.searchLabel, s.flex]}>搜索校园地点</Text></Pressable>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.homeCategories}>
+            {categories.map(item => {
+              const selectedCategory = !facilitiesOnly && category === item.id;
+              return <Pressable testID={`filter-${item.id}`} key={item.id} accessibilityRole="button" accessibilityState={{ selected: selectedCategory }}
+                onPress={() => chooseCategory(item.id)} style={s.chipTarget}>
+                <View style={[s.homeChip, selectedCategory && s.selectedChip]}><AppIcon name={categoryIcon(item.id)} size={16} color={selectedCategory ? c.green : c.muted} />
+                <Text style={[s.chipText, selectedCategory && s.selectedChipText]}>{item.label}</Text></View>
+              </Pressable>;
+            }).flatMap((chip, index) => index === 0 ? [chip,
+              <Pressable testID="filter-facilities" key="facilities" accessibilityRole="button" accessibilityState={{ selected: facilitiesOnly }}
+                onPress={() => { setFacilitySelection(null); setFacilitiesOnly(true); }} style={s.chipTarget}>
+                <View style={[s.homeChip, facilitiesOnly && s.selectedChip]}><AppIcon name="lift" size={16} color={facilitiesOnly ? c.green : c.muted} /><Text style={[s.chipText, facilitiesOnly && s.selectedChipText]}>地图设施</Text></View>
+              </Pressable>] : [chip])}
+          </ScrollView>
+        </View>
+        <View pointerEvents="box-none" style={[s.mapTools, compactTools && s.compactTools]}><View style={s.compass} accessible accessibilityLabel={t('北方在地图下方')}><View style={s.compassArrow}><AppIcon name="arrow" color={c.green} size={16} /></View><Text style={s.compassLabel}>N</Text></View><View style={[s.toolBox, compactTools && s.compactTools]}><IconButton icon="plus" label="放大地图" disabled={zoom >= MAX_MAP_ZOOM} onPress={() => setZoom(Math.min(MAX_MAP_ZOOM, zoom * 1.4))} /><View style={compactTools ? s.verticalDivider : s.toolDivider} /><IconButton icon="minus" label="缩小地图" disabled={zoom <= MIN_MAP_ZOOM} onPress={() => setZoom(Math.max(MIN_MAP_ZOOM, zoom / 1.4))} /></View>
+          <View style={s.toolBox}><IconButton testID="locate-me" icon="locate" label={showDemo ? '回到演示位置' : hasLocation ? '回到我的位置' : '开启定位'} disabled={locating || (location.tracking && !hasLocation)}
+            onPress={() => { if (hasLocation || showDemo) centerLocation(); else void location.start(); }} /></View>
+        </View>
+        <View pointerEvents="none" style={s.mapSpace} />
+        {facilitiesOnly || facilitySelection ? <FacilitySheet facilities={facilitySelection} onClose={() => setFacilitySelection(null)} /> :
+          <View style={s.placeSheet}><View style={s.sheetSummary}>{hasPlacePhoto(selected) ? <Image source={placePhoto(selected)} style={s.sheetPhoto} resizeMode="cover" accessibilityLabel="校园地点照片" /> : <View style={[s.sheetPhoto, s.placeSymbol]}><AppIcon name={placeIcon(selected)} /></View>}<View style={s.flex}><Text raw={selected.isCommunity} style={s.rowTitle}>{placeName(selected)}</Text>{language !== 'en' && selected.english ? <Text raw style={s.meta}>{selected.english}</Text> : null}<Text style={s.categoryMeta}>{categoryLabel(selected)}</Text></View>{saveButton}</View><View style={s.sheetActions}><Action secondary label="地点详情" onPress={() => detail(selected)} /><Action icon="walk" label="查看路线" onPress={startRoute} /></View></View>}
+        <Text pointerEvents="none" style={s.homeMapNote}>© OpenStreetMap</Text>
       </View>
-      <View style={s.mapTools}><View style={s.compass} accessible accessibilityLabel={t('北方在地图下方')}><Text style={s.compassArrow}>▼</Text><Text style={s.small}>N</Text></View><View style={s.toolBox}><IconButton icon="plus" label="放大地图" disabled={zoom >= MAX_MAP_ZOOM} onPress={() => setZoom(Math.min(MAX_MAP_ZOOM, zoom * 1.4))} /><View style={s.toolDivider} /><IconButton icon="minus" label="缩小地图" disabled={zoom <= MIN_MAP_ZOOM} onPress={() => setZoom(Math.max(MIN_MAP_ZOOM, zoom / 1.4))} /></View>
-        <View style={s.toolBox}><IconButton testID="locate-me" icon="locate" label={showDemo ? '回到演示位置' : hasLocation ? '回到我的位置' : '开启定位'} disabled={locating || (location.tracking && !hasLocation)}
-          onPress={() => { if (hasLocation || showDemo) centerLocation(); else void location.start(); }} /></View>
-      </View>
-      <View style={s.placeSheet}><View style={s.sheetSummary}>{hasPlacePhoto(selected) ? <Image source={placePhoto(selected)} style={s.sheetPhoto} resizeMode="cover" accessibilityLabel="校园地点照片" /> : <View style={[s.sheetPhoto, s.placeSymbol]}><AppIcon name={placeIcon(selected)} /></View>}<View style={s.flex}><Text raw={selected.isCommunity} style={s.rowTitle}>{placeName(selected)}</Text><Text raw style={s.meta}>{language === 'en' && !selected.isCommunity ? selected.name : selected.english}</Text><Text style={[s.badge, s.sheetBadge]}>{categoryLabel(selected.category)}</Text></View>{saveButton}</View><View style={s.sheetActions}><Action secondary label="地点详情" onPress={() => detail(selected)} /><Action icon="walk" label="查看路线" onPress={startRoute} /></View></View>
-      <Text pointerEvents="none" style={s.homeMapNote}>© OpenStreetMap</Text>
     </View>
     {campus.error ? <Pressable accessibilityRole="button" onPress={() => void campus.reload()} style={{ padding: 10, backgroundColor: c.rustLight }}><Text style={s.meta}>{campus.error}</Text><Text style={s.meta}>点击重新加载</Text></Pressable> : null}
     <Pressable testID="gps-info" accessibilityRole="button" accessibilityLabel={locationAction} accessibilityHint={locationMessage} disabled={locating}
-      onPress={() => { if (location.tracking) location.stop(); else void location.start(); }} style={s.gpsRow}>
-      <View style={s.gpsIcon}><AppIcon name="locate" size={20} /></View>
-      <View style={s.flex}><Text style={s.gpsTitle}>GPS 实时定位</Text><Text raw accessibilityLiveRegion="polite" style={s.small}>{locationMessage}</Text></View>
-      <Text style={hasLocation ? s.badge : s.rustBadge}>{locating ? '等待授权' : locationAction}</Text>
+      onPress={() => { if (location.tracking) location.stop(); else void location.start(); }} style={({ pressed }) => [s.gpsRow, pressed && s.pressed]}>
+      <AppIcon name="locate" size={18} color={c.muted} />
+      <View style={s.flex}><Text style={s.gpsTitle}>GPS 实时定位</Text><Text raw accessibilityLiveRegion="polite" style={s.meta}>{locationMessage}</Text></View>
+      <Text style={s.gpsAction}>{locating ? '等待授权' : locationAction}</Text>
     </Pressable>
   </View>;
 }
 
 const s = StyleSheet.create({
-  flex: { flex: 1 }, white: { color: '#fff' }, center: { textAlign: 'center' },
-  page: { padding: 18, paddingTop: 8, paddingBottom: 28, width: '100%', maxWidth: 650, alignSelf: 'center' },
-  title: { fontSize: 24, lineHeight: 32, color: c.ink, fontWeight: '800' },
-  sectionTitle: { fontSize: 14, lineHeight: 22, fontWeight: '700', color: c.ink, marginVertical: 12 },
-  sectionHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
-  body: { fontSize: 13, color: c.muted, lineHeight: 22 }, meta: { fontSize: 11, color: c.muted, lineHeight: 18 }, small: { fontSize: 10, color: c.muted, lineHeight: 16 },
-  rowTitle: { fontSize: 14, color: c.ink, fontWeight: '700', lineHeight: 22 }, note: { fontSize: 11, color: c.muted, lineHeight: 20, marginTop: 18, marginBottom: 10 },
+  flex: { flex: 1 },
+  title: { fontSize: 24, lineHeight: 32, color: c.ink, fontWeight: '600' },
+  sectionTitle: { fontSize: 15, lineHeight: 24, fontWeight: '600', color: c.ink, marginVertical: 12 },
+  sectionHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  body: { fontSize: 14, color: c.muted, lineHeight: 20 },
+  meta: { fontSize: 12, color: c.muted, lineHeight: 16 },
+  rowTitle: { fontSize: 16, color: c.ink, fontWeight: '600', lineHeight: 24 },
+  note: { fontSize: 12, color: c.muted, lineHeight: 20, marginTop: 16, marginBottom: 8 },
+  pressed: { backgroundColor: c.paper },
+  primaryPressed: { backgroundColor: c.greenDark },
+  disabled: { opacity: 0.35 },
   iconButton: { minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
-  action: { flex: 1, minHeight: 46, paddingHorizontal: 10, paddingVertical: 11, backgroundColor: c.green, borderRadius: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
-  actionLabel: { fontSize: 13, lineHeight: 20, color: '#fff', fontWeight: '700', textAlign: 'center', flexShrink: 1 }, secondary: { backgroundColor: c.tint }, secondaryLabel: { color: c.green },
-  searchHeader: { flexDirection: 'row', alignItems: 'center', paddingRight: 18, paddingVertical: 8 }, searchInput: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: c.tint, borderRadius: 10, paddingLeft: 12 }, input: { flex: 1, minHeight: 48, paddingVertical: 10, paddingHorizontal: 9, fontSize: 14, color: c.ink },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }, chip: { minHeight: 44, paddingHorizontal: 11, paddingVertical: 12, borderRadius: 8, backgroundColor: c.tint, marginRight: 6, justifyContent: 'center' }, chipText: { fontSize: 11, color: c.ink, lineHeight: 18 }, selectedChip: { backgroundColor: c.green },
-  explore: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 12 }, exploreItem: { alignItems: 'center', gap: 8, padding: 5, minWidth: 60 }, exploreIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: c.tint, alignItems: 'center', justifyContent: 'center' }, filters: { marginVertical: 8 },
-  placeRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: c.line }, placeMain: { flex: 1, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }, placeSymbol: { width: 43, height: 48, borderRadius: 10, backgroundColor: c.tint, alignItems: 'center', justifyContent: 'center' },
-  empty: { alignItems: 'center', paddingVertical: 38, gap: 14 }, detailPage: { paddingBottom: 12 }, hero: { height: 228 }, heroPhoto: { width: '100%', height: '100%' }, heroActions: { position: 'absolute', top: 12, left: 14, right: 14, flexDirection: 'row', justifyContent: 'space-between' }, floating: { backgroundColor: c.app, borderRadius: 10 }, credit: { position: 'absolute', bottom: 10, right: 12, backgroundColor: '#203a31d9', borderRadius: 4, paddingHorizontal: 7, paddingVertical: 4, fontSize: 10, color: '#fff' }, detailBody: { padding: 20, maxWidth: 650, width: '100%', alignSelf: 'center' }, detailBadges: { marginTop: 12, marginBottom: 17 }, badge: { fontSize: 10, color: c.green, backgroundColor: c.tint, paddingHorizontal: 7, paddingVertical: 4, borderRadius: 5, overflow: 'hidden', alignSelf: 'flex-start' }, plainBadge: { fontSize: 10, color: c.muted, paddingVertical: 4 }, rustBadge: { fontSize: 10, lineHeight: 16, color: c.rust, backgroundColor: c.rustLight, paddingHorizontal: 6, paddingVertical: 3, borderRadius: 5, overflow: 'hidden' }, divider: { height: 1, backgroundColor: c.line, marginTop: 20, marginBottom: 3 }, infoRow: { flexDirection: 'row', gap: 12, marginTop: 12 }, miniMap: { height: 170, overflow: 'hidden', borderRadius: 10 }, footer: { backgroundColor: c.app, borderTopWidth: 1, borderTopColor: c.line, padding: 15, gap: 10, flexDirection: 'row', alignItems: 'center' },
-  topBar: { minHeight: 62, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 9 }, topTitle: { fontSize: 20, fontWeight: '800', color: c.ink, flex: 1 }, routePage: { paddingBottom: 10 }, endpointGroup: { flexDirection: 'row', alignItems: 'center', paddingLeft: 18, paddingRight: 8, marginBottom: 17, gap: 6 }, endpoints: { flex: 1, backgroundColor: '#fff', borderWidth: 1, borderColor: c.line, borderRadius: 13, overflow: 'hidden' }, endpoint: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 55, padding: 13 }, endpointLine: { borderBottomWidth: 1, borderBottomColor: c.line }, endpointDot: { width: 8, height: 8, borderWidth: 2, borderColor: c.green, borderRadius: 4 }, endDot: { borderRadius: 2, backgroundColor: c.rust, borderColor: c.rust }, endpointText: { fontSize: 13, color: c.ink, lineHeight: 20 }, routeMap: { height: 245, marginHorizontal: 8, overflow: 'hidden' }, mapDemo: { position: 'absolute', top: 10, left: 10, backgroundColor: c.app, borderRadius: 6, flexDirection: 'row', gap: 5, padding: 6, alignItems: 'center' }, routeMapNote: { position: 'absolute', bottom: 7, left: 8, color: c.muted, backgroundColor: '#fbfcf8dd', fontSize: 10, padding: 3 }, routeBody: { padding: 18 }, duration: { fontSize: 28, fontWeight: '800', color: c.ink, lineHeight: 36 }, walkNote: { flexDirection: 'row', gap: 7, alignItems: 'center', marginTop: 10 }, step: { flexDirection: 'row', gap: 10, minHeight: 120 }, stepTrack: { alignItems: 'center', width: 26 }, stepDot: { width: 26, height: 28, borderRadius: 9, backgroundColor: c.tint, alignItems: 'center', justifyContent: 'center' }, stepLift: { backgroundColor: c.rustLight }, stepNumber: { color: c.green, fontSize: 12, fontWeight: '700' }, stepLine: { width: 1, flex: 1, backgroundColor: '#b6c8b1' }, stepCopy: { flex: 1, paddingTop: 2, paddingBottom: 20 }, stepPhoto: { width: 92, marginBottom: 15, minHeight: 100, backgroundColor: c.tint, borderRadius: 8, borderWidth: 1, borderStyle: 'dashed', borderColor: '#c6d1bc', alignItems: 'center', paddingBottom: 6 }, photoLabel: { fontSize: 10, color: c.muted, lineHeight: 17, textAlign: 'center', paddingHorizontal: 3 }, modal: { flex: 1, backgroundColor: c.app },
-  mapHome: { flex: 1, minHeight: 330, overflow: 'hidden' }, homeTop: { position: 'absolute', top: 10, left: 16, right: 16 }, brandRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginBottom: 12 }, brand: { fontSize: 23, lineHeight: 31, color: c.ink, fontWeight: '800' }, searchLauncher: { backgroundColor: '#fff', minHeight: 50, padding: 12, borderRadius: 11, flexDirection: 'row', gap: 10, alignItems: 'center', borderWidth: 1, borderColor: c.line }, homeCategories: { gap: 6, paddingVertical: 10 }, homeChip: { minHeight: 44, borderRadius: 9, paddingHorizontal: 10, paddingVertical: 10, gap: 5, flexDirection: 'row', alignItems: 'center', backgroundColor: c.app }, mapTools: { position: 'absolute', right: 12, top: 174, alignItems: 'center', gap: 8 }, compass: { alignItems: 'center', paddingVertical: 4 }, compassArrow: { color: c.green, fontSize: 13 }, toolBox: { backgroundColor: c.app, borderRadius: 9, overflow: 'hidden' }, toolDivider: { height: 1, backgroundColor: c.line, marginHorizontal: 8 }, placeSheet: { position: 'absolute', bottom: 28, left: 15, right: 15, borderRadius: 14, backgroundColor: '#fff', padding: 14, borderWidth: 1, borderColor: c.line }, sheetSummary: { flexDirection: 'row', gap: 11, alignItems: 'center', marginBottom: 12 }, sheetPhoto: { width: 57, height: 64, borderRadius: 9 }, sheetBadge: { marginTop: 5 }, sheetActions: { flexDirection: 'row', gap: 8 }, homeMapNote: { position: 'absolute', bottom: 6, left: 16, color: c.muted, backgroundColor: '#fbfcf8dd', fontSize: 10, padding: 2 }, gpsRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 9, backgroundColor: c.app }, gpsIcon: { width: 35, height: 35, borderRadius: 9, backgroundColor: c.tint, alignItems: 'center', justifyContent: 'center' }, gpsTitle: { fontSize: 12, color: c.ink, fontWeight: '700', lineHeight: 19 },
+  action: { flex: 1, minHeight: 48, paddingHorizontal: 12, paddingVertical: 8, backgroundColor: c.green, borderWidth: 1, borderColor: c.green, borderRadius: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  actionLabel: { fontSize: 14, lineHeight: 20, color: c.surface, fontWeight: '600', textAlign: 'center', flexShrink: 1 },
+  secondary: { backgroundColor: c.surface, borderColor: c.line },
+  secondaryLabel: { color: c.ink },
+
+  mapHome: { flex: 1, minHeight: 330, overflow: 'hidden' },
+  mapOverlay: { ...StyleSheet.absoluteFill, paddingHorizontal: 16 },
+  homeTop: { paddingTop: 8 },
+  brandRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'baseline', columnGap: 12, marginBottom: 8 },
+  brand: { fontSize: 24, lineHeight: 32, color: c.green, fontWeight: '600' },
+  area: { fontSize: 12, lineHeight: 16, color: c.muted },
+  searchLauncher: { backgroundColor: c.surface, minHeight: 48, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, flexDirection: 'row', gap: 8, alignItems: 'center', borderWidth: 1, borderColor: c.line },
+  searchLabel: { color: c.ink, fontSize: 14, lineHeight: 20 },
+  homeCategories: { gap: 8, paddingTop: 4 },
+  chipTarget: { minHeight: 48, justifyContent: 'center' },
+  homeChip: { minHeight: 36, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4, gap: 4, flexDirection: 'row', alignItems: 'center', backgroundColor: c.surface, borderWidth: 1, borderColor: c.line },
+  chipText: { fontSize: 12, color: c.ink, lineHeight: 16 },
+  selectedChip: { backgroundColor: c.tint, borderColor: c.green },
+  selectedChipText: { color: c.green, fontWeight: '600' },
+  mapTools: { alignSelf: 'flex-end', alignItems: 'center', gap: 8 },
+  compactTools: { flexDirection: 'row' },
+  compass: { alignItems: 'center', backgroundColor: c.surface, borderWidth: 1, borderColor: c.line, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4 },
+  compassArrow: { transform: [{ rotate: '90deg' }] },
+  compassLabel: { color: c.green, fontSize: 11, lineHeight: 12, fontWeight: '600' },
+  toolBox: { backgroundColor: c.surface, borderRadius: 8, borderWidth: 1, borderColor: c.line, overflow: 'hidden' },
+  toolDivider: { height: 1, backgroundColor: c.line, marginHorizontal: 8 },
+  verticalDivider: { width: 1, backgroundColor: c.line, alignSelf: 'stretch', marginVertical: 8 },
+  mapSpace: { flex: 1 },
+  placeSheet: { borderRadius: 16, backgroundColor: c.surface, padding: 12, borderWidth: 1, borderColor: c.line },
+  sheetSummary: { flexDirection: 'row', gap: 12, alignItems: 'center', marginBottom: 12 },
+  sheetPhoto: { width: 56, height: 56, borderRadius: 4 },
+  placeSymbol: { backgroundColor: c.paper, alignItems: 'center', justifyContent: 'center' },
+  sheetActions: { flexDirection: 'row', gap: 8 },
+  homeMapNote: { alignSelf: 'flex-start', marginVertical: 4, color: c.ink, backgroundColor: c.app, fontSize: 10, lineHeight: 16, paddingHorizontal: 4 },
+  gpsRow: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 8, backgroundColor: c.app },
+  gpsTitle: { fontSize: 12, color: c.ink, fontWeight: '600', lineHeight: 16 },
+  gpsAction: { maxWidth: '36%', fontSize: 12, color: c.green, fontWeight: '600', lineHeight: 16, textAlign: 'right' },
+
+  facilitySheet: { gap: 8 },
+  facilityHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  facilityLegend: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 12, rowGap: 4 },
+  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  legendLabel: { fontSize: 12, lineHeight: 16, color: c.ink },
+  facilityScroll: { maxHeight: 128, flexGrow: 0 },
+  facilityRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, paddingVertical: 8, borderTopWidth: 1, borderTopColor: c.line },
+
+  detailPage: { paddingBottom: 12 },
+  hero: { height: 228 },
+  heroPhoto: { width: '100%', height: '100%' },
+  heroActions: { position: 'absolute', top: 12, left: 16, right: 16, flexDirection: 'row', justifyContent: 'space-between' },
+  floating: { backgroundColor: c.app, borderRadius: 8, overflow: 'hidden' },
+  credit: { position: 'absolute', bottom: 8, right: 12, backgroundColor: '#203a31d9', borderRadius: 4, paddingHorizontal: 8, paddingVertical: 4, fontSize: 11, color: c.surface },
+  detailBody: { padding: 20, maxWidth: 650, width: '100%', alignSelf: 'center' },
+  detailBadges: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8, marginBottom: 16 },
+  categoryMeta: { fontSize: 12, lineHeight: 16, color: c.muted },
+  divider: { height: 1, backgroundColor: c.line, marginTop: 20 },
+  infoRow: { flexDirection: 'row', gap: 12, marginBottom: 12 },
+  miniMap: { height: 168, overflow: 'hidden', borderRadius: 8 },
+  footer: { backgroundColor: c.app, borderTopWidth: 1, borderTopColor: c.line, padding: 16, gap: 8, flexDirection: 'row', alignItems: 'center' },
 });

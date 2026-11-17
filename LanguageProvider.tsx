@@ -1,12 +1,12 @@
 import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getLanguage, isLanguage, Language, setCurrentLanguage, translate } from './localization';
+import { defaultLanguage, isLanguage, Language, setCurrentLanguage, translate } from './localization';
 
-const Context = createContext({ language: getLanguage(), chooseLanguage: (_: Language) => {} });
+const Context = createContext({ language: defaultLanguage, chooseLanguage: (_: Language) => {} });
 const storageKey = 'hku-walk.language.v1';
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>(getLanguage());
+  const [language, setLanguage] = useState<Language>(defaultLanguage);
   // Keep imperative alerts and data helpers aligned after development refreshes.
   setCurrentLanguage(language);
   const changes = useRef(0);

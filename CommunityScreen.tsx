@@ -1,11 +1,13 @@
 import { formatDate, t } from './localization';
 import { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator, Keyboard, KeyboardAvoidingView, Platform, RefreshControl, ScrollView, StyleSheet, View,
+  ActivityIndicator, Keyboard, RefreshControl, ScrollView, StyleSheet, View,
 } from 'react-native';
 import { Alert, Pressable, Text } from './ui';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import * as ImagePicker from 'expo-image-picker';
+import { FormScrollView, KeyboardLayout } from './KeyboardLayout';
+import { usePhotoPicker } from './PhotoCrop';
+import { placePhotoAspect, routeOverviewAspect, routeStepAspect } from './cropGeometry';
 import AppIcon, { IconName } from './AppIcon';
 import { AppModal } from './Assistant';
 import { accountAuthor, AuthorByline } from './AuthorIdentity';
@@ -56,7 +58,7 @@ function AuthForm({ account, onRecover, onBusy }: { account: ReturnType<typeof u
     catch (error) { setError(message(error)); }
     finally { setBusy(false); onBusy(false); }
   };
-  return <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={s.page}>
+  return <FormScrollView contentContainerStyle={s.page}>
     <View style={s.bigSymbol}><AppIcon name="groups" size={34} /></View>
     <Text accessibilityRole="header" style={s.title}>{mode === 'register' ? '注册' : '登录'}</Text>
     <Field label="账号" hint="3–32 位字母、数字或下划线，不区分大小写" value={username} onChangeText={setUsername}
@@ -69,12 +71,13 @@ function AuthForm({ account, onRecover, onBusy }: { account: ReturnType<typeof u
     <Button label={mode === 'register' ? '已有账号？去登录' : '还没有账号？去注册'} secondary disabled={busy}
       onPress={() => { setMode(mode === 'login' ? 'register' : 'login'); setPassword(''); setConfirm(''); setError(''); }} />
     <Pressable accessibilityRole="button" disabled={busy} onPress={onRecover} style={s.textButton}><Text style={s.linkText}>忘记账号或密码？使用恢复码找回</Text></Pressable>
-  </ScrollView>;
+  </FormScrollView>;
 }
 
 export default function CommunityScreen({ visible, initialScreen, initialSubmission, onClose, account }: {
   visible: boolean; initialScreen: 'home' | 'security' | 'login' | 'form'; initialSubmission?: Submission; onClose: () => void; account: ReturnType<typeof useAccount>;
 }) {
+  const { pickPhoto: choosePhoto, cropEditor } = usePhotoPicker();
   const [screen, setScreen] = useState<'home' | 'choose' | 'form' | 'detail' | 'security' | 'recover'>('home');
   const [items, setItems] = useState<Submission[]>([]);
   const [nextPage, setNextPage] = useState<number | null>(null);
@@ -169,21 +172,16 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
   };
   const update = (patch: Partial<Draft>) => setDraft(current => ({ ...current, ...patch }));
   const chooseKind = (kind: Kind) => { setDraft(newDraft(kind)); setError(''); setScreen('form'); };
-  const selectPhoto = async (): Promise<PickedImage | null> => {
+  const selectPhoto = async (aspect?: number): Promise<PickedImage | null> => {
     setError('');
     Keyboard.dismiss(); setBusy(true);
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.85,
-        preferredAssetRepresentationMode: ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible });
-      if (result.canceled || !result.assets[0]) return null;
-      const asset = result.assets[0];
-      if (asset.fileSize && asset.fileSize > 5 * 1024 * 1024) { setError('图片需小于 5 MB，请选择较小的图片。'); return null; }
-      return { uri: asset.uri, name: asset.fileName || 'photo.jpg', type: asset.mimeType || 'image/jpeg' };
+      return await choosePhoto({ aspect });
     } catch { setError('暂时无法选择图片，请重试。'); return null; }
     finally { setBusy(false); }
   };
   const pickImage = async (stepIndex?: number) => {
-    const picked = await selectPhoto();
+    const picked = await selectPhoto(stepIndex !== undefined ? routeStepAspect : draft.kind === 'new_route' ? routeOverviewAspect : placePhotoAspect);
     if (!picked) return;
     if (stepIndex === undefined) update({ image: picked, removeImage: false });
     else setDraft(current => ({ ...current, mapData: { ...current.mapData, steps: current.mapData.steps?.map((step,index) => index === stepIndex ? { ...step, image: picked, removeImage: false } : step) } }));
@@ -226,6 +224,7 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
   return <AppModal visible={visible} animationType="slide" onRequestClose={leave} presentationStyle="fullScreen">
     <SafeAreaProvider>
     <SafeAreaView style={s.shell}>
+      {cropEditor}
       <View style={s.topbar}>
         <Pressable accessibilityRole="button" accessibilityLabel={screen === 'home' || initialScreen === 'security' || initialScreen === 'form' ? '返回 App' : '返回我的投稿'} disabled={busy} onPress={leave} style={s.iconButton}><AppIcon name="back" /></Pressable>
         <Text accessibilityRole="header" style={s.topTitle}>{account.recoveryCode ? '保存恢复码' : screen === 'recover' ? '找回账号' : !token ? '登录或注册' : screen === 'security' ? '账号与安全' : screen === 'choose' ? '新投稿' : screen === 'form' ? (editing?.status === 'approved' ? '申请修改已发布内容' : editing ? '修改投稿' : kindLabel(draft.kind)) : screen === 'detail' ? '投稿详情' : '校园共建'}</Text>
@@ -234,7 +233,7 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
       </View>
       {account.storageError ? <Text style={s.error}>{account.storageError}</Text> : null}
       {error ? <Text accessibilityRole="alert" style={s.error}>{error}</Text> : null}
-      <KeyboardAvoidingView style={s.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <KeyboardLayout>
         {!account.ready ? <View style={s.empty}><ActivityIndicator color={green} /><Text style={s.copy}>正在读取登录信息…</Text></View> : account.recoveryCode ? <RecoveryCodeScreen account={account} /> : screen === 'security' || screen === 'recover' ?
           <AccountSecurityScreen key={screen} account={account} mode={screen} onDone={() => setScreen('home')} onBusy={setBusy} onSignOut={screen === 'security' ? logout : undefined} /> : !token ?
           <AuthForm account={account} onRecover={() => { setScreen('recover'); setError(''); }} onBusy={setBusy} /> : screen === 'home' ? (
@@ -263,14 +262,16 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
             </Pressable>)}
           </ScrollView>
         ) : screen === 'form' ? (
-          <ScrollView key="submission-form" contentContainerStyle={s.page} keyboardShouldPersistTaps="handled">
+          <FormScrollView key="submission-form" contentContainerStyle={s.page}>
             {account.session ? <AuthorByline author={accountAuthor(account.session.user)} /> : null}
             {editing?.reviewNote ? <View style={s.feedback}><Text style={s.label}>管理员建议</Text><Text raw style={s.copy}>{editing.reviewNote}</Text></View> : null}
             {editing?.status === 'approved' ? <Text style={s.copy}>提交的是一个新版本。审核通过前，大家仍会看到当前已发布的内容。</Text> : null}
             <Field testID="submission-title" label={draft.kind === 'new_place' ? '地点中文名称' : draft.kind === 'new_route' ? '路线名称' : '标题'}
               value={draft.title} maxLength={160} editable={!busy} onChangeText={title => update({ title })} />
             <MapSubmissionFields kind={draft.kind} data={draft.mapData} onChange={mapData => update({ mapData })} disabled={busy}
-              onPickStep={index => void pickImage(index)} token={token} />
+              onPickStep={index => void pickImage(index)} token={token}
+              overviewUri={image} overviewToken={draft.image ? undefined : token}
+              onPickOverview={() => void pickImage()} onRemoveOverview={() => update({ image: null, removeImage: true })} />
             {isMapDraft ? <Field label={draft.kind === 'new_place' ? '地点介绍' : '路线简介（选填）'}
               hint={draft.kind === 'new_place' ? '至少 10 个字。' : undefined} value={draft.body} multiline textAlignVertical="top"
               editable={!busy} maxLength={8000} onChangeText={body => update({ body })} /> :
@@ -278,10 +279,10 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
                 onChange={bodyBlocks => update({ bodyBlocks })} onPickImage={selectPhoto} />}
             {editing?.externalUrl || editing?.publishedContent?.externalUrl ?
               <Field label="相关链接（选填）" value={draft.externalUrl} editable={!busy} maxLength={1000} autoCapitalize="none" autoCorrect={false} keyboardType="url" onChangeText={externalUrl => update({ externalUrl })} placeholder="https://" /> : null}
-            {draft.kind === 'new_place' || draft.existingImage ? <>
+            {draft.kind !== 'new_route' && (draft.kind === 'new_place' || draft.existingImage) ? <>
             <Text style={[s.label, { marginTop: 18 }]}>{draft.kind === 'new_place' ? '地点照片（选填）' : '封面配图（选填）'}</Text>
             {draft.kind !== 'new_place' ? <Text style={s.hint}>一张 JPEG、PNG 或 WebP，最多 5 MB。</Text> : null}
-            {image ? <SubmissionPhoto uri={image} token={draft.image ? undefined : token} style={s.photo} resizeMode="cover" accessibilityLabel="投稿配图预览" /> : null}
+            {image ? <SubmissionPhoto uri={image} token={draft.image ? undefined : token} style={s.photo} resizeMode="contain" accessibilityLabel="投稿配图预览" /> : null}
             <View style={s.photoActions}><Pressable testID="submission-photo-picker" accessibilityRole="button" disabled={busy}
               onPress={() => void pickImage()} style={({ pressed }) => [
                 s.textButton, draft.kind === 'new_place' && s.photoPicker, pressed && s.dim,
@@ -293,7 +294,7 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
             {draft.kind === 'new_place' ? <Text style={s.hint}>一张 JPEG、PNG 或 WebP，最多 5 MB。</Text> : null}
             </> : null}
             <Button label={editing?.status === 'approved' ? '提交修改申请' : editing ? '重新提交审核' : '提交审核'} busy={busy} onPress={() => void submit()} />
-          </ScrollView>
+          </FormScrollView>
         ) : selected ? (
           <ScrollView contentContainerStyle={s.page} refreshControl={<RefreshControl refreshing={loading} onRefresh={() => void load()} tintColor={green} />}>
             <Status value={selected.status} />
@@ -305,8 +306,8 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
             {selected.location ? <Text style={s.location}>相关地点或路线：<Text raw>{selected.location}</Text></Text> : null}
             {selected.bodyBlocks?.length ? <SubmissionBody blocks={selected.bodyBlocks} token={token} /> :
               selected.body ? <Text raw selectable style={s.detailBody}>{selected.body}</Text> : null}
-            <SubmittedMapData data={selected.mapData} token={token} />
-            {selected.imageUrl ? <SubmissionPhoto uri={selected.imageUrl} token={token} style={s.photo} resizeMode="cover" accessibilityLabel="投稿配图" /> : null}
+            <SubmittedMapData data={selected.mapData} token={token} overviewUri={selected.kind === 'new_route' ? selected.imageUrl : undefined} />
+            {selected.kind !== 'new_route' && selected.imageUrl ? <SubmissionPhoto uri={selected.imageUrl} token={token} style={s.photo} resizeMode="contain" accessibilityLabel="投稿配图" /> : null}
             {selected.externalUrl ? <Text raw selectable style={s.copy}>{selected.externalUrl}</Text> : null}
             {selected.status === 'changes_requested' ? <Button label="按建议修改并重交" onPress={() => void begin(selected)} /> : null}
             {selected.status === 'approved' && selected.publishedContent?.published ? <Button label={selected.openEditId ? '查看当前修改申请' : '申请修改已发布内容'} busy={busy} onPress={() => void begin(selected)} /> : null}
@@ -319,7 +320,7 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
             <Button label="返回我的投稿" secondary onPress={() => { if (initialSubmission) onClose(); else { setScreen('home'); setError(''); void load(); } }} />
           </ScrollView>
         ) : null}
-      </KeyboardAvoidingView>
+      </KeyboardLayout>
     </SafeAreaView>
     </SafeAreaProvider>
   </AppModal>;

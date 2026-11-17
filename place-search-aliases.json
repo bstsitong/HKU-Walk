@@ -1,4 +1,10 @@
 {
-  "library": ["图书馆", "总图", "library"],
-  "gate": ["港大地铁站", "港铁港大站"]
+  "library": ["图书馆", "总图", "library", "LBO", "LBN", "旧翼", "新翼", "Old Wing", "New Wing"],
+  "gate": ["港大地铁站", "港铁港大站"],
+  "so330": ["cafe330", "café 330"],
+  "subway": ["赛百味"],
+  "bijas": ["一念素食"],
+  "union-restaurant": ["SU 食堂", "SU can", "学生会餐厅", "黄克竞楼食堂"],
+  "asian-gourmet": ["逸夫教学楼食堂", "Gourmet Asia", "亚洲风味", "美心食堂 邵逸夫楼"],
+  "cym-canteen": ["美心食堂", "庄月明美心"]
 }

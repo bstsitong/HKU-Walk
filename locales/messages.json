@@ -1,87 +1,4 @@
 {
-  "点地图选位置，放大后可拖动地图或用方向键微调。": { "en": "Tap the map to place a pin. Zoom in to pan or fine-tune with the arrows.", "zh-Hant": "點地圖選位置，放大後可拖動地圖或用方向鍵微調。" },
-  "删除帖子？": { "en": "Delete post?", "zh-Hant": "刪除帖子？" },
-  "删除后，帖子和里面的评论将无法查看。": { "en": "This will remove the post and its comments from view.", "zh-Hant": "刪除後，帖子和裡面的評論將無法查看。" },
-  "删除帖子": { "en": "Delete post", "zh-Hant": "刪除帖子" },
-  "帖子删除失败": { "en": "Couldn't delete the post", "zh-Hant": "未能刪除帖子" },
-  "删除评论？": { "en": "Delete comment?", "zh-Hant": "刪除評論？" },
-  "删除评论": { "en": "Delete comment", "zh-Hant": "刪除評論" },
-  "评论删除失败": { "en": "Couldn't delete the comment", "zh-Hant": "未能刪除評論" },
-  "删除": { "en": "Delete", "zh-Hant": "刪除" },
-  "资料卡背景未能更新": { "en": "Couldn't update the profile card background", "zh-Hant": "未能更新個人資料卡背景" },
-  "资料卡背景": { "en": "Profile card background", "zh-Hant": "個人資料卡背景" },
-  "恢复默认背景": { "en": "Restore default background", "zh-Hant": "恢復預設背景" },
-  "帖子评论": { "en": "Post comments", "zh-Hant": "帖子評論" },
-  "已定位的评论": { "en": "Highlighted comment", "zh-Hant": "已定位的評論" },
-  "回复 {name}": { "en": "Replying to {name}", "zh-Hant": "回覆 {name}" },
-  "回复": { "en": "Reply", "zh-Hant": "回覆" },
-  "这条评论已不可用。": { "en": "This comment is no longer available.", "zh-Hant": "這則評論已無法查看。" },
-  "取消回复": { "en": "Cancel reply", "zh-Hant": "取消回覆" },
-  "写回复": { "en": "Write a reply", "zh-Hant": "撰寫回覆" },
-  "发布回复": { "en": "Post reply", "zh-Hant": "發布回覆" },
-  "消息": { "en": "Messages", "zh-Hant": "訊息" },
-  "投稿审核通过": { "en": "Submission approved", "zh-Hant": "投稿審核通過" },
-  "投稿需修改": { "en": "Submission needs changes", "zh-Hant": "投稿需修改" },
-  "回复了你的评论": { "en": "Replied to your comment", "zh-Hant": "回覆了你的評論" },
-  "评论了你发布的内容": { "en": "Commented on your post", "zh-Hant": "評論了你發布的內容" },
-  "还没有消息": { "en": "No messages yet", "zh-Hant": "暫無訊息" },
-  "消息加载失败，点击重试": { "en": "Couldn't load messages. Tap to retry.", "zh-Hant": "訊息載入失敗，點按重試" },
-  "加载更多消息": { "en": "Load more messages", "zh-Hant": "載入更多訊息" },
-  "{count} 条未读消息": { "en": "{count} unread messages", "zh-Hant": "{count} 則未讀訊息" },
-  "图片暂时无法加载": { "en": "Could not load the image", "zh-Hant": "暫時無法載入圖片" },
-  "新线路": { "en": "New route", "zh-Hant": "新路線" },
-  "线路纠错": { "en": "Route correction", "zh-Hant": "路線勘誤" },
-  "请填写标题或名称。": { "en": "Enter a title or name.", "zh-Hant": "請填寫標題或名稱。" },
-  "路线名称至少 3 个字。": { "en": "Enter at least 3 characters for the route name.", "zh-Hant": "路線名稱至少 3 個字。" },
-  "请填写正文。": { "en": "Add some content to the post.", "zh-Hant": "請填寫正文。" },
-  "正文最多 8000 字。": { "en": "The body can contain up to 8,000 characters.", "zh-Hant": "正文最多 8000 字。" },
-  "选择投稿类型": { "en": "Choose a submission type", "zh-Hant": "選擇投稿類型" },
-  "地点介绍": { "en": "Place description", "zh-Hant": "地點介紹" },
-  "路线简介（选填）": { "en": "Route overview (optional)", "zh-Hant": "路線簡介（選填）" },
-  "至少 10 个字。": { "en": "At least 10 characters.", "zh-Hant": "至少 10 個字。" },
-  "请选择需要纠错的地点。": { "en": "Choose the place to correct.", "zh-Hant": "請選擇要修正的地點。" },
-  "请为每个路线步骤添加配图。": { "en": "Add a photo to each route step.", "zh-Hant": "請為每個路線步驟加入配圖。" },
-  "选择纠错地点": { "en": "Choose a place to correct", "zh-Hant": "選擇要修正的地點" },
-  "纠错地点": { "en": "Place to correct", "zh-Hant": "要修正的地點" },
-  "关联已发布路线（选填）": { "en": "Link a published route (optional)", "zh-Hant": "連結已發布的路線（選填）" },
-  "仅按起终点定位": { "en": "Use the endpoints only", "zh-Hant": "僅按起終點定位" },
-  "按行走顺序添加步骤，每步填写说明并配一张照片。最多 20 步。": { "en": "Add steps in walking order, each with instructions and a photo. Up to 20 steps.", "zh-Hant": "按步行順序加入步驟，每步填寫說明並配一張照片。最多 20 步。" },
-  "段落": { "en": "Paragraph", "zh-Hant": "段落" },
-  "写下正文": { "en": "Write your text", "zh-Hant": "撰寫正文" },
-  "小标题": { "en": "Heading", "zh-Hant": "小標題" },
-  "输入小标题": { "en": "Enter a heading", "zh-Hant": "輸入小標題" },
-  "列表": { "en": "List", "zh-Hant": "清單" },
-  "每行一项": { "en": "One item per line", "zh-Hant": "每行一項" },
-  "引用": { "en": "Quote", "zh-Hant": "引文" },
-  "输入引用文字": { "en": "Enter the quote", "zh-Hant": "輸入引文" },
-  "插图": { "en": "Image", "zh-Hant": "插圖" },
-  "图片说明（选填）": { "en": "Caption (optional)", "zh-Hant": "圖片說明（選填）" },
-  "预览正文": { "en": "Preview", "zh-Hant": "預覽正文" },
-  "区块上移": { "en": "Move block up", "zh-Hant": "向上移動區塊" },
-  "区块下移": { "en": "Move block down", "zh-Hant": "向下移動區塊" },
-  "删除区块": { "en": "Remove block", "zh-Hant": "刪除區塊" },
-  "正文配图预览": { "en": "Inline image preview", "zh-Hant": "正文配圖預覽" },
-  "正文最多可添加 40 个区块。": { "en": "Add up to 40 blocks.", "zh-Hant": "正文最多可加入 40 個區塊。" },
-  "正文最多可插入 12 张图片。": { "en": "Insert up to 12 images.", "zh-Hant": "正文最多可插入 12 張圖片。" },
-  "隐私设置": { "en": "Privacy", "zh-Hant": "私隱設定" },
-  "登录后可管理投稿、评论和主页隐私。": { "en": "Sign in to manage privacy for submissions, comments and your profile.", "zh-Hant": "登入後可管理投稿、評論和主頁私隱。" },
-  "投稿显示署名": { "en": "Show my name on submissions", "zh-Hant": "投稿顯示署名" },
-  "关闭后，所有投稿都以匿名用户显示。": { "en": "When off, all submissions appear under Anonymous user.", "zh-Hant": "關閉後，所有投稿都以匿名用戶顯示。" },
-  "评论显示署名": { "en": "Show my name on comments", "zh-Hant": "評論顯示署名" },
-  "关闭后，帖子和地点评论都会显示为匿名用户。": { "en": "When off, your comments on posts and places appear under Anonymous user.", "zh-Hant": "關閉後，帖子和地點評論都會顯示為匿名用戶。" },
-  "允许他人查看我的主页": { "en": "Make my profile public", "zh-Hant": "允許他人查看我的主頁" },
-  "开启后，访客可以从你的公开署名查看主页。": { "en": "When on, visitors can open your profile by tapping your name.", "zh-Hant": "開啟後，訪客可以從你的公開署名查看主頁。" },
-  "登录已失效，请重新登录。": { "en": "Your session expired. Sign in again.", "zh-Hant": "登入已失效，請重新登入。" },
-  "暂时无法读取隐私设置。": { "en": "Could not load privacy settings.", "zh-Hant": "暫時無法讀取私隱設定。" },
-  "正在保存…": { "en": "Saving…", "zh-Hant": "正在儲存…" },
-  "隐私设置未能保存，请再试一次。": { "en": "Could not save privacy settings. Try again.", "zh-Hant": "私隱設定未能儲存，請再試一次。" },
-  "个人主页": { "en": "Profile", "zh-Hant": "個人主頁" },
-  "公开帖子": { "en": "Public posts", "zh-Hant": "公開帖子" },
-  "暂无公开帖子": { "en": "No public posts yet", "zh-Hant": "暫無公開帖子" },
-  "此主页未公开。": { "en": "This profile is private.", "zh-Hant": "此主頁未公開。" },
-  "暂时无法读取主页。": { "en": "Could not load this profile.", "zh-Hant": "暫時無法讀取主頁。" },
-  "打开作者主页": { "en": "Opens the author's profile", "zh-Hant": "開啟作者主頁" },
-  "匿名用户": { "en": "Anonymous user", "zh-Hant": "匿名用戶" },
   "校园空间": {
     "en": "Campus space",
     "zh-Hant": "校園空間"
@@ -791,7 +708,7 @@
     "zh-Hant": "分享想看的展覽和週末出行靈感，找到興趣相近的同學。活動內容和有效邀請入口由羣主補充。"
   },
   "娱乐群": {
-    "en": "Interest groups",
+    "en": "Social groups",
     "zh-Hant": "娛樂羣"
   },
   "找到一起玩的同好。下面是群组展示示例，有效邀请入口待群主补充。": {
@@ -2194,6 +2111,478 @@
     "en": "Share exhibitions and weekend ideas with students who have similar interests.",
     "zh-Hant": "分享展覽和週末出行靈感，找到興趣相近的同學。"
   },
+  "问港大": {
+    "en": "Ask HKU",
+    "zh-Hant": "問港大"
+  },
+  "打开校园助手": {
+    "en": "Open campus assistant",
+    "zh-Hant": "打開校園助手"
+  },
+  "关闭校园助手": {
+    "en": "Close campus assistant",
+    "zh-Hant": "關閉校園助手"
+  },
+  "找校园地点、查学生指南，或查看港大官网资料。": {
+    "en": "Find campus places, student guides or information from official HKU websites.",
+    "zh-Hant": "找校園地點、查學生指南，或查看港大官網資料。"
+  },
+  "哪些教学楼有插座？": {
+    "en": "Which teaching buildings have power outlets?",
+    "zh-Hant": "哪些教學樓有插座？"
+  },
+  "如何申请 JULAC 卡？": {
+    "en": "How do I apply for a JULAC card?",
+    "zh-Hant": "如何申請 JULAC 卡？"
+  },
+  "主图书馆今天几点关门？": {
+    "en": "What time does the Main Library close today?",
+    "zh-Hant": "主圖書館今天幾點關門？"
+  },
+  "来源与地点": {
+    "en": "Sources and places",
+    "zh-Hant": "來源與地點"
+  },
+  "去这里": {
+    "en": "Get directions",
+    "zh-Hant": "去這裏"
+  },
+  "打开指南": {
+    "en": "Open guide",
+    "zh-Hant": "打開指南"
+  },
+  "查看官网": {
+    "en": "Open official website",
+    "zh-Hant": "查看官網"
+  },
+  "暂时无法打开来源": {
+    "en": "Couldn't open this source",
+    "zh-Hant": "暫時無法打開來源"
+  },
+  "重试": {
+    "en": "Try again",
+    "zh-Hant": "重試"
+  },
+  "正在查找校园资料…": {
+    "en": "Looking up campus information…",
+    "zh-Hant": "正在查找校園資料…"
+  },
+  "输入校园问题": {
+    "en": "Ask about campus",
+    "zh-Hant": "輸入校園問題"
+  },
+  "发送问题": {
+    "en": "Send question",
+    "zh-Hant": "發送問題"
+  },
+  "这条校园资料暂时无法打开。": {
+    "en": "This campus item is currently unavailable.",
+    "zh-Hant": "這條校園資料暫時無法打開。"
+  },
+  "校园助手尚未启用。": {
+    "en": "The campus assistant hasn't been enabled yet.",
+    "zh-Hant": "校園助手尚未啓用。"
+  },
+  "提问次数已达上限，请稍后再试。": {
+    "en": "You've reached the question limit. Please try again later.",
+    "zh-Hant": "提問次數已達上限，請稍後再試。"
+  },
+  "校园助手暂时无法回答，请重试。": {
+    "en": "The campus assistant couldn't answer. Please try again.",
+    "zh-Hant": "校園助手暫時無法回答，請重試。"
+  },
+  "目的地 · © OpenStreetMap": {
+    "en": "Destination · © OpenStreetMap",
+    "zh-Hant": "目的地 · © OpenStreetMap"
+  },
+  "这两个地点之间暂时没有已发布的步行指引。": {
+    "en": "No walking directions have been published between these places yet.",
+    "zh-Hant": "這兩個地點之間暫時沒有已發佈的步行指引。"
+  },
+  "终点已填好。选择起点后可查看已发布的步行指引。": {
+    "en": "Your destination is set. Choose a starting point to see published walking directions.",
+    "zh-Hant": "終點已填好。選擇起點後可查看已發佈的步行指引。"
+  },
+  "纪念品店": {
+    "en": "Gift shops",
+    "zh-Hant": "紀念品店"
+  },
+  "帖子删除失败": {
+    "en": "Could not delete the post",
+    "zh-Hant": "帖子刪除失敗"
+  },
+  "打开作者主页": {
+    "en": "Open author profile",
+    "zh-Hant": "打開作者主頁"
+  },
+  "新线路": {
+    "en": "New route",
+    "zh-Hant": "新線路"
+  },
+  "线路纠错": {
+    "en": "Report a route correction",
+    "zh-Hant": "線路糾錯"
+  },
+  "请填写标题或名称。": {
+    "en": "Enter a title or name.",
+    "zh-Hant": "請填寫標題或名稱。"
+  },
+  "路线名称至少 3 个字。": {
+    "en": "The route name must be at least 3 characters.",
+    "zh-Hant": "路線名稱至少 3 個字。"
+  },
+  "请填写正文。": {
+    "en": "Enter the post text.",
+    "zh-Hant": "請填寫正文。"
+  },
+  "正文最多 8000 字。": {
+    "en": "Post text can contain up to 8,000 characters.",
+    "zh-Hant": "正文最多 8000 字。"
+  },
+  "选择投稿类型": {
+    "en": "Choose a submission type",
+    "zh-Hant": "選擇投稿類型"
+  },
+  "地点介绍": {
+    "en": "Place description",
+    "zh-Hant": "地點介紹"
+  },
+  "路线简介（选填）": {
+    "en": "Route description (optional)",
+    "zh-Hant": "路線簡介（選填）"
+  },
+  "至少 10 个字。": {
+    "en": "At least 10 characters.",
+    "zh-Hant": "至少 10 個字。"
+  },
+  "删除帖子": {
+    "en": "Delete post",
+    "zh-Hant": "刪除帖子"
+  },
+  "删除帖子？": {
+    "en": "Delete this post?",
+    "zh-Hant": "刪除帖子？"
+  },
+  "删除后，帖子和里面的评论将无法查看。": {
+    "en": "The post and its comments will no longer be visible.",
+    "zh-Hant": "刪除後，帖子和裏面的評論將無法查看。"
+  },
+  "删除": {
+    "en": "Delete",
+    "zh-Hant": "刪除"
+  },
+  "帖子评论": {
+    "en": "Post comments",
+    "zh-Hant": "帖子評論"
+  },
+  "匿名用户": {
+    "en": "Anonymous user",
+    "zh-Hant": "匿名用户"
+  },
+  "评论删除失败": {
+    "en": "Could not delete the comment",
+    "zh-Hant": "評論刪除失敗"
+  },
+  "删除评论？": {
+    "en": "Delete this comment?",
+    "zh-Hant": "刪除評論？"
+  },
+  "已定位的评论": {
+    "en": "Selected comment",
+    "zh-Hant": "已定位的評論"
+  },
+  "回复 {name}": {
+    "en": "Reply to {name}",
+    "zh-Hant": "回覆 {name}"
+  },
+  "回复": {
+    "en": "Reply",
+    "zh-Hant": "回覆"
+  },
+  "删除评论": {
+    "en": "Delete comment",
+    "zh-Hant": "刪除評論"
+  },
+  "这条评论已不可用。": {
+    "en": "This comment is unavailable.",
+    "zh-Hant": "這條評論已不可用。"
+  },
+  "取消回复": {
+    "en": "Cancel reply",
+    "zh-Hant": "取消回覆"
+  },
+  "写回复": {
+    "en": "Write a reply",
+    "zh-Hant": "寫回復"
+  },
+  "发布回复": {
+    "en": "Post reply",
+    "zh-Hant": "發佈回覆"
+  },
+  "消息": {
+    "en": "Inbox",
+    "zh-Hant": "消息"
+  },
+  "投稿审核通过": {
+    "en": "Submission approved",
+    "zh-Hant": "投稿審核通過"
+  },
+  "投稿需修改": {
+    "en": "Changes requested",
+    "zh-Hant": "投稿需修改"
+  },
+  "回复了你的评论": {
+    "en": "Replied to your comment",
+    "zh-Hant": "回覆了你的評論"
+  },
+  "评论了你发布的内容": {
+    "en": "Commented on your post",
+    "zh-Hant": "評論了你發佈的內容"
+  },
+  "还没有消息": {
+    "en": "No messages yet",
+    "zh-Hant": "還沒有消息"
+  },
+  "消息加载失败，点击重试": {
+    "en": "Could not load messages. Tap to retry.",
+    "zh-Hant": "消息加載失敗，點擊重試"
+  },
+  "加载更多消息": {
+    "en": "Load more messages",
+    "zh-Hant": "加載更多消息"
+  },
+  "请选择需要纠错的地点。": {
+    "en": "Choose the place you want to correct.",
+    "zh-Hant": "請選擇需要糾錯的地點。"
+  },
+  "点地图选位置，放大后可拖动地图或用方向键微调。": {
+    "en": "Tap the map to choose a location. Zoom in to pan or use the arrow buttons to adjust the pin.",
+    "zh-Hant": "點地圖選位置，放大後可拖動地圖或用方向鍵微調。"
+  },
+  "选择纠错地点": {
+    "en": "Choose a place to correct",
+    "zh-Hant": "選擇糾錯地點"
+  },
+  "纠错地点": {
+    "en": "Place to correct",
+    "zh-Hant": "糾錯地點"
+  },
+  "关联已发布路线（选填）": {
+    "en": "Link a published route (optional)",
+    "zh-Hant": "關聯已發佈路線（選填）"
+  },
+  "仅按起终点定位": {
+    "en": "Use the start and destination only",
+    "zh-Hant": "僅按起終點定位"
+  },
+  "资料卡背景未能更新": {
+    "en": "Could not update the profile cover",
+    "zh-Hant": "資料卡背景未能更新"
+  },
+  "资料卡背景": {
+    "en": "Profile cover",
+    "zh-Hant": "資料卡背景"
+  },
+  "恢复默认背景": {
+    "en": "Restore default cover",
+    "zh-Hant": "恢復默認背景"
+  },
+  "{count} 条未读消息": {
+    "en": "Unread messages: {count}",
+    "zh-Hant": "{count} 條未讀消息"
+  },
+  "隐私设置": {
+    "en": "Privacy settings",
+    "zh-Hant": "隱私設置"
+  },
+  "登录后可管理投稿、评论和主页隐私。": {
+    "en": "Sign in to manage privacy for submissions, comments and your profile.",
+    "zh-Hant": "登錄後可管理投稿、評論和主頁隱私。"
+  },
+  "投稿显示署名": {
+    "en": "Show my name on submissions",
+    "zh-Hant": "投稿顯示署名"
+  },
+  "关闭后，所有投稿都以匿名用户显示。": {
+    "en": "When off, your submissions appear under “Anonymous user”.",
+    "zh-Hant": "關閉後，所有投稿都以匿名用户顯示。"
+  },
+  "评论显示署名": {
+    "en": "Show my name on comments",
+    "zh-Hant": "評論顯示署名"
+  },
+  "关闭后，帖子和地点评论都会显示为匿名用户。": {
+    "en": "When off, your post and place comments appear under “Anonymous user”.",
+    "zh-Hant": "關閉後，帖子和地點評論都會顯示為匿名用户。"
+  },
+  "允许他人查看我的主页": {
+    "en": "Make my profile public",
+    "zh-Hant": "允許他人查看我的主頁"
+  },
+  "开启后，访客可以从你的公开署名查看主页。": {
+    "en": "When on, people can open your profile from your public byline.",
+    "zh-Hant": "開啓後，訪客可以從你的公開署名查看主頁。"
+  },
+  "登录已失效，请重新登录。": {
+    "en": "Your session has expired. Sign in again.",
+    "zh-Hant": "登錄已失效，請重新登錄。"
+  },
+  "暂时无法读取隐私设置。": {
+    "en": "Could not load privacy settings.",
+    "zh-Hant": "暫時無法讀取隱私設置。"
+  },
+  "正在保存…": {
+    "en": "Saving…",
+    "zh-Hant": "正在保存…"
+  },
+  "隐私设置未能保存，请再试一次。": {
+    "en": "Could not save privacy settings. Try again.",
+    "zh-Hant": "隱私設置未能保存，請再試一次。"
+  },
+  "个人主页": {
+    "en": "Profile",
+    "zh-Hant": "個人主頁"
+  },
+  "公开帖子": {
+    "en": "Public posts",
+    "zh-Hant": "公開帖子"
+  },
+  "暂无公开帖子": {
+    "en": "No public posts yet",
+    "zh-Hant": "暫無公開帖子"
+  },
+  "此主页未公开。": {
+    "en": "This profile is private.",
+    "zh-Hant": "此主頁未公開。"
+  },
+  "暂时无法读取主页。": {
+    "en": "Could not load the profile.",
+    "zh-Hant": "暫時無法讀取主頁。"
+  },
+  "段落": {
+    "en": "Paragraph",
+    "zh-Hant": "段落"
+  },
+  "写下正文": {
+    "en": "Write a paragraph",
+    "zh-Hant": "寫下正文"
+  },
+  "小标题": {
+    "en": "Heading",
+    "zh-Hant": "小標題"
+  },
+  "输入小标题": {
+    "en": "Enter a heading",
+    "zh-Hant": "輸入小標題"
+  },
+  "列表": {
+    "en": "List",
+    "zh-Hant": "列表"
+  },
+  "每行一项": {
+    "en": "One item per line",
+    "zh-Hant": "每行一項"
+  },
+  "引用": {
+    "en": "Quote",
+    "zh-Hant": "引用"
+  },
+  "输入引用文字": {
+    "en": "Enter a quote",
+    "zh-Hant": "輸入引用文字"
+  },
+  "插图": {
+    "en": "Image",
+    "zh-Hant": "插圖"
+  },
+  "图片说明（选填）": {
+    "en": "Image caption (optional)",
+    "zh-Hant": "圖片説明（選填）"
+  },
+  "预览正文": {
+    "en": "Preview post",
+    "zh-Hant": "預覽正文"
+  },
+  "区块上移": {
+    "en": "Move block up",
+    "zh-Hant": "區塊上移"
+  },
+  "区块下移": {
+    "en": "Move block down",
+    "zh-Hant": "區塊下移"
+  },
+  "删除区块": {
+    "en": "Delete block",
+    "zh-Hant": "刪除區塊"
+  },
+  "正文配图预览": {
+    "en": "Post image preview",
+    "zh-Hant": "正文配圖預覽"
+  },
+  "正文最多可添加 40 个区块。": {
+    "en": "You can add up to 40 blocks.",
+    "zh-Hant": "正文最多可添加 40 個區塊。"
+  },
+  "正文最多可插入 12 张图片。": {
+    "en": "You can add up to 12 images.",
+    "zh-Hant": "正文最多可插入 12 張圖片。"
+  },
+  "图片暂时无法加载": {
+    "en": "Could not load the image",
+    "zh-Hant": "圖片暫時無法加載"
+  },
+  "个人记录暂时无法保存到本机": {
+    "en": "Could not save your records on this device",
+    "zh-Hant": "個人記錄暫時無法保存到本機"
+  },
+  "个人记录暂时无法读取": {
+    "en": "Could not load your records",
+    "zh-Hant": "個人記錄暫時無法讀取"
+  },
+  "快捷链接": {
+    "en": "Quick links",
+    "zh-Hant": "快捷鏈接"
+  },
+  "HKU 指南": {
+    "en": "HKU student guide",
+    "zh-Hant": "HKU 指南"
+  },
+  "HKU美食分享": {
+    "en": "Food around HKU",
+    "zh-Hant": "HKU美食分享"
+  },
+  "HKU 系统注册指南": {
+    "en": "HKU registration guide",
+    "zh-Hant": "HKU 系統註冊指南"
+  },
+  "HKU港深通勤": {
+    "en": "Commuting between HKU and Shenzhen",
+    "zh-Hant": "HKU港深通勤"
+  },
+  "八校通申请": {
+    "en": "Applying for a JULAC Card",
+    "zh-Hant": "八校通申請"
+  },
+  "b1口烧味家族": {
+    "en": "Siu Mei Family near Exit B1",
+    "zh-Hant": "b1口燒味家族"
+  },
+  "b1口吉野家": {
+    "en": "Yoshinoya near Exit B1",
+    "zh-Hant": "b1口吉野家"
+  },
+  "正在检查更新…": {
+    "en": "Checking for updates…",
+    "zh-Hant": "正在檢查更新…"
+  },
+  "正在下载更新…": {
+    "en": "Downloading update…",
+    "zh-Hant": "正在下載更新…"
+  },
+  "正在启用新版…": {
+    "en": "Opening the new version…",
+    "zh-Hant": "正在啓用新版…"
+  },
   "当前密码不正确。": {
     "en": "The current password is incorrect.",
     "zh-Hant": "當前密碼不正確。"
@@ -2342,6 +2731,626 @@
     "en": "Centennial Campus Garden",
     "zh-Hant": "百週年校園花園"
   },
+  "公开内容已更新或下线，请先退回并说明需要核对的内容。": {
+    "en": "The published item changed or was taken offline. Return the submission with a note explaining what to check.",
+    "zh-Hant": "公開內容已更新或下線，請先退回並説明需要核對的內容。"
+  },
+  "原配图已变化，请刷新后重新编辑。": {
+    "en": "The original image changed. Refresh before editing again.",
+    "zh-Hant": "原配圖已變化，請刷新後重新編輯。"
+  },
+  "图片空间已满，请稍后重试。": {
+    "en": "Image storage is full. Try again later.",
+    "zh-Hant": "圖片空間已滿，請稍後重試。"
+  },
+  "底图版本不支持，请重新选择地点位置。": {
+    "en": "This map version is no longer supported. Choose the location again.",
+    "zh-Hant": "底圖版本不支持，請重新選擇地點位置。"
+  },
+  "投稿状态已变化，请刷新后再审核。": {
+    "en": "The submission status changed. Refresh before reviewing.",
+    "zh-Hant": "投稿狀態已變化，請刷新後再審核。"
+  },
+  "无效的收藏或浏览记录。": {
+    "en": "Invalid bookmark or browsing history entry.",
+    "zh-Hant": "無效的收藏或瀏覽記錄。"
+  },
+  "正文排版格式不正确。": {
+    "en": "The post formatting is invalid.",
+    "zh-Hant": "正文排版格式不正確。"
+  },
+  "正文至少 10 个字。": {
+    "en": "The post must be at least 10 characters.",
+    "zh-Hant": "正文至少 10 個字。"
+  },
+  "正文配图编号不正确。": {
+    "en": "The post image number is invalid.",
+    "zh-Hant": "正文配圖編號不正確。"
+  },
+  "此投稿类型不包含地点或路线资料。": {
+    "en": "This submission type does not accept place or route details.",
+    "zh-Hant": "此投稿類型不包含地點或路線資料。"
+  },
+  "此模板不支持正文排版。": {
+    "en": "This template does not support formatted text.",
+    "zh-Hant": "此模板不支持正文排版。"
+  },
+  "此记录不支持该操作。": {
+    "en": "This action is unavailable for the selected record.",
+    "zh-Hant": "此記錄不支持該操作。"
+  },
+  "每张图片的说明最多 300 字。": {
+    "en": "Image captions can contain up to 300 characters.",
+    "zh-Hant": "每張圖片的説明最多 300 字。"
+  },
+  "请为正文图片区块选择照片。": {
+    "en": "Choose a photo for the image block.",
+    "zh-Hant": "請為正文圖片區塊選擇照片。"
+  },
+  "请使用新版图文编辑器修改这篇投稿。": {
+    "en": "Edit this submission with the updated post editor.",
+    "zh-Hant": "請使用新版圖文編輯器修改這篇投稿。"
+  },
+  "请填写修改建议。": {
+    "en": "Enter your suggested changes.",
+    "zh-Hant": "請填寫修改建議。"
+  },
+  "请填写正文，或移除空白区块。": {
+    "en": "Enter text or remove the empty block.",
+    "zh-Hant": "請填寫正文，或移除空白區塊。"
+  },
+  "请选择更换或移除头像。": {
+    "en": "Choose whether to replace or remove your profile photo.",
+    "zh-Hant": "請選擇更換或移除頭像。"
+  },
+  "请选择要修改的隐私选项。": {
+    "en": "Choose a privacy setting to change.",
+    "zh-Hant": "請選擇要修改的隱私選項。"
+  },
+  "请选择通过或需修改。": {
+    "en": "Choose Approve or Request changes.",
+    "zh-Hant": "請選擇通過或需修改。"
+  },
+  "请选择需要纠错的地点或路线。": {
+    "en": "Choose the place or route to correct.",
+    "zh-Hant": "請選擇需要糾錯的地點或路線。"
+  },
+  "请重新发布评论。": {
+    "en": "Post the comment again.",
+    "zh-Hant": "請重新發布評論。"
+  },
+  "这条投稿已被处理，请刷新。": {
+    "en": "This submission has already been reviewed. Refresh the page.",
+    "zh-Hant": "這條投稿已被處理，請刷新。"
+  },
+  "这条评论已不可用，请刷新后重试。": {
+    "en": "This comment is unavailable. Refresh and try again.",
+    "zh-Hant": "這條評論已不可用，請刷新後重試。"
+  },
+  "需要管理员权限。": {
+    "en": "Administrator access is required.",
+    "zh-Hant": "需要管理員權限。"
+  },
+  "需要纠错的地点已下线，请重新选择。": {
+    "en": "The place is no longer available. Choose another place.",
+    "zh-Hant": "需要糾錯的地點已下線，請重新選擇。"
+  },
+  "需要纠错的路线已变化，请重新选择。": {
+    "en": "The route changed. Choose it again.",
+    "zh-Hant": "需要糾錯的路線已變化，請重新選擇。"
+  },
+  "位于综合大楼。": {
+    "en": "Inside the Composite Building.",
+    "zh-Hant": "位於綜合大樓。"
+  },
+  "位于逸夫苑，港大访客中心旁。": {
+    "en": "In Run Run Shaw Heritage House, next to the HKU Visitor Centre.",
+    "zh-Hant": "位於逸夫苑，港大訪客中心旁。"
+  },
+  "从港大站 C1 进入百周年校园 G/F，经过访客中心后沿通道前行。": {
+    "en": "Enter Centennial Campus on G/F from HKU Station C1 and follow the passage past the Visitor Centre.",
+    "zh-Hant": "從港大站 C1 進入百週年校園 G/F，經過訪客中心後沿通道前行。"
+  },
+  "上层大学街 · G/F": {
+    "en": "Upper University Street · G/F",
+    "zh-Hant": "上層大學街 · G/F"
+  },
+  "教室所在楼宇": {
+    "en": "Classroom building",
+    "zh-Hant": "教室所在樓宇"
+  },
+  "教室所在楼宇 · © OpenStreetMap": {
+    "en": "Classroom building · © OpenStreetMap",
+    "zh-Hant": "教室所在樓宇 · © OpenStreetMap"
+  },
+  "所在楼宇": {
+    "en": "Building",
+    "zh-Hant": "所在樓宇"
+  },
+  "教室楼层": {
+    "en": "Classroom floor",
+    "zh-Hant": "教室樓層"
+  },
+  "楼层待核实": {
+    "en": "Floor to be confirmed",
+    "zh-Hant": "樓層待核實"
+  },
+  "庄月明文化中心": {
+    "en": "Chong Yuet Ming Cultural Centre",
+    "zh-Hant": "莊月明文化中心"
+  },
+  "教室路线": {
+    "en": "Classroom directions",
+    "zh-Hant": "教室路線"
+  },
+  "步骤示意": {
+    "en": "Step illustration",
+    "zh-Hant": "步驟示意"
+  },
+  "请选择 A2、C1 或教室所在楼宇作为起点。": {
+    "en": "Choose A2, C1, or the classroom building as your starting point.",
+    "zh-Hant": "請選擇 A2、C1 或教室所在樓宇作為起點。"
+  },
+  "从 C1 进入百周年校园": {
+    "en": "Enter Centennial Campus from C1",
+    "zh-Hant": "從 C1 進入百週年校園"
+  },
+  "过行人天桥后，乘升降机到百周年校园 G/F。": {
+    "en": "Cross the footbridge and take the lift to G/F of Centennial Campus.",
+    "zh-Hant": "過行人天橋後，乘升降機到百週年校園 G/F。"
+  },
+  "沿上层大学街前往本部": {
+    "en": "Follow Upper University Street to Main Campus",
+    "zh-Hant": "沿上層大學街前往本部"
+  },
+  "沿上层大学街往本部校园走，到黄克竞楼 5/F 的 A2 天桥口。": {
+    "en": "Follow Upper University Street towards Main Campus to the A2 footbridge landing on 5/F of Haking Wong Building.",
+    "zh-Hant": "沿上層大學街往本部校園走，到黃克競樓 5/F 的 A2 天橋口。"
+  },
+  "沿上层大学街往本部走": {
+    "en": "Follow Upper University Street towards Main Campus",
+    "zh-Hant": "沿上層大學街往本部走"
+  },
+  "从 A2 天桥口左转，沿有盖通道经过黄丽松讲堂和邵仁枚楼。": {
+    "en": "Turn left from the A2 footbridge landing and follow the covered walkway past Rayson Huang Theatre and Runme Shaw Building.",
+    "zh-Hant": "從 A2 天橋口左轉，沿有蓋通道經過黃麗松講堂和邵仁枚樓。"
+  },
+  "进入庄月明文娱中心": {
+    "en": "Enter Chong Yuet Ming Amenities Centre",
+    "zh-Hant": "進入莊月明文娛中心"
+  },
+  "走到有盖通道尽头，进入庄月明文娱中心。": {
+    "en": "Walk to the end of the covered walkway and enter Chong Yuet Ming Amenities Centre.",
+    "zh-Hant": "走到有蓋通道盡頭，進入莊月明文娛中心。"
+  },
+  "从 A2 天桥口右转": {
+    "en": "Turn right at the A2 footbridge landing",
+    "zh-Hant": "從 A2 天橋口右轉"
+  },
+  "沿通道往百周年校园方向直走，找到周亦卿楼入口。": {
+    "en": "Follow the walkway towards Centennial Campus to the entrance of Chow Yei Ching Building.",
+    "zh-Hant": "沿通道往百週年校園方向直走，找到周亦卿樓入口。"
+  },
+  "进入周亦卿楼": {
+    "en": "Enter Chow Yei Ching Building",
+    "zh-Hant": "進入周亦卿樓"
+  },
+  "沿大学街前往周亦卿楼": {
+    "en": "Follow University Street to Chow Yei Ching Building",
+    "zh-Hant": "沿大學街前往周亦卿樓"
+  },
+  "沿上层大学街往本部校园方向走，抵达周亦卿楼 G/F 入口。": {
+    "en": "Follow Upper University Street towards Main Campus to the G/F entrance of Chow Yei Ching Building.",
+    "zh-Hant": "沿上層大學街往本部校園方向走，抵達周亦卿樓 G/F 入口。"
+  },
+  "从 G/F 入口进入，沿大厅内的 CBA 标牌走。": {
+    "en": "Enter on G/F and follow the CBA signs in the lobby.",
+    "zh-Hant": "從 G/F 入口進入，沿大廳內的 CBA 標牌走。"
+  },
+  "沿 A2 天桥进入黄克竞楼": {
+    "en": "Cross the A2 footbridge to Haking Wong Building",
+    "zh-Hant": "沿 A2 天橋進入黃克競樓"
+  },
+  "天桥接黄克竞楼 5/F。进楼后寻找通往 3/F 的楼内指示。": {
+    "en": "The footbridge connects to 5/F. Inside, follow the signs to 3/F.",
+    "zh-Hant": "天橋接黃克競樓 5/F。進樓後尋找通往 3/F 的樓內指示。"
+  },
+  "经月明剧院外的有盖通道": {
+    "en": "Take the covered walkway outside Yuet Ming Auditorium",
+    "zh-Hant": "經月明劇院外的有蓋通道"
+  },
+  "上到 5/F，从月明剧院旁的玻璃门出去，沿有盖通道进入庄月明化学楼。": {
+    "en": "Go up to 5/F, exit through the glass doors beside Yuet Ming Auditorium and follow the covered walkway into Chong Yuet Ming Chemistry Building.",
+    "zh-Hant": "上到 5/F，從月明劇院旁的玻璃門出去，沿有蓋通道進入莊月明化學樓。"
+  },
+  "沿上层大学街往庄月明楼群走": {
+    "en": "Follow Upper University Street towards the Chong Yuet Ming buildings",
+    "zh-Hant": "沿上層大學街往莊月明樓羣走"
+  },
+  "从 A2 天桥口往本部校园方向走，沿大学街跟随庄月明物理楼的指示。": {
+    "en": "From the A2 footbridge landing, head towards Main Campus and follow signs for Chong Yuet Ming Physics Building.",
+    "zh-Hant": "從 A2 天橋口往本部校園方向走，沿大學街跟隨莊月明物理樓的指示。"
+  },
+  "进入庄月明物理楼": {
+    "en": "Enter Chong Yuet Ming Physics Building",
+    "zh-Hant": "進入莊月明物理樓"
+  },
+  "认准物理楼（CYP）的入口标识。": {
+    "en": "Look for the Physics Building (CYP) entrance signs.",
+    "zh-Hant": "認準物理樓（CYP）的入口標識。"
+  },
+  "经 4/F 前往明华综合大楼": {
+    "en": "Go through 4/F to Meng Wah Complex",
+    "zh-Hant": "經 4/F 前往明華綜合大樓"
+  },
+  "上到文娱中心 4/F，右转出门并穿过庭院，到达明华综合大楼 G/F。": {
+    "en": "Go to 4/F of the Amenities Centre. Turn right, go out through the door and cross the courtyard to G/F of Meng Wah Complex.",
+    "zh-Hant": "上到文娛中心 4/F，右轉出門並穿過庭院，到達明華綜合大樓 G/F。"
+  },
+  "找到教室门牌": {
+    "en": "Find the classroom",
+    "zh-Hant": "找到教室門牌"
+  },
+  "前往 {floor}，按楼内标牌找到 {room}。": {
+    "en": "Go to {floor} and follow the signs for {room}.",
+    "zh-Hant": "前往 {floor}，按樓內標牌找到 {room}。"
+  },
+  "在楼内指示牌上查找 {room}。": {
+    "en": "Check the building directory for {room}.",
+    "zh-Hant": "在樓內指示牌上查找 {room}。"
+  },
+  "饮水点": {
+    "en": "Drinking water",
+    "zh-Hant": "飲水點"
+  },
+  "地图标注所在楼宇。": {
+    "en": "The pin marks the building.",
+    "zh-Hant": "地圖標註所在樓宇。"
+  },
+  "地图设施": {
+    "en": "Map facilities",
+    "zh-Hant": "地圖設施"
+  },
+  "关闭设施详情": {
+    "en": "Close facility details",
+    "zh-Hant": "關閉設施詳情"
+  },
+  "放大查看更多设施，点图标查看位置和楼层。": {
+    "en": "Zoom in for more facilities. Tap an icon for its location and levels.",
+    "zh-Hant": "放大查看更多設施，點圖標查看位置和樓層。"
+  },
+  "点位为示意，具体位置以现场为准。": {
+    "en": "Approximate location. Follow signs on site.",
+    "zh-Hant": "點位為示意，具體位置以現場為準。"
+  },
+  "旭龢道": {
+    "en": "Kotewall Road",
+    "zh-Hant": "旭龢道"
+  },
+  "列堤顿道": {
+    "en": "Lyttelton Road",
+    "zh-Hant": "列堤頓道"
+  },
+  "升降机": {
+    "en": "Lift",
+    "zh-Hant": "升降機"
+  },
+  "楼梯": {
+    "en": "Stairs",
+    "zh-Hant": "樓梯"
+  },
+  "行人天桥": {
+    "en": "Footbridge",
+    "zh-Hant": "行人天橋"
+  },
+  "坡道": {
+    "en": "Ramp",
+    "zh-Hant": "坡道"
+  },
+  "停车场": {
+    "en": "Car park",
+    "zh-Hant": "停車場"
+  },
+  "无障碍车位": {
+    "en": "Accessible parking",
+    "zh-Hant": "無障礙車位"
+  },
+  "港大站 A1／A2 升降机": {
+    "en": "HKU Station A1/A2 lift",
+    "zh-Hant": "港大站 A1／A2 升降機"
+  },
+  "到 FB 天桥层后可前往黄克竞楼 5/F，接上层大学街。": {
+    "en": "Go to the FB level and cross to Haking Wong Building 5/F for Upper University Street.",
+    "zh-Hant": "到 FB 天橋層後可前往黃克競樓 5/F，接上層大學街。"
+  },
+  "C1 百周年校园升降机": {
+    "en": "C1 Centennial Campus lift",
+    "zh-Hant": "C1 百週年校園升降機"
+  },
+  "从 C1 经天桥到 LG1/F，可乘升降机上 G/F 校园平台。": {
+    "en": "Cross the footbridge from C1 to LG1/F, then take the lift to the campus podium on G/F.",
+    "zh-Hant": "從 C1 經天橋到 LG1/F，可乘升降機上 G/F 校園平台。"
+  },
+  "中山阶": {
+    "en": "Sun Yat-sen Steps",
+    "zh-Hant": "中山階"
+  },
+  "位于图书馆西侧、中山广场与大学街一带。": {
+    "en": "On the west side of the library, near Sun Yat-sen Place and University Street.",
+    "zh-Hant": "位於圖書館西側、中山廣場與大學街一帶。"
+  },
+  "从般咸道进入本部校园一带。": {
+    "en": "Connects Bonham Road with the Main Campus area.",
+    "zh-Hant": "從般鹹道進入本部校園一帶。"
+  },
+  "位于薄扶林道，邻近港大站 A1／A2。": {
+    "en": "On Pok Fu Lam Road near HKU Station exits A1/A2.",
+    "zh-Hant": "位於薄扶林道，鄰近港大站 A1／A2。"
+  },
+  "连接百周年校园与港大站 C1 天桥。": {
+    "en": "Connects Centennial Campus with the footbridge from HKU Station exit C1.",
+    "zh-Hant": "連接百週年校園與港大站 C1 天橋。"
+  },
+  "大学道出入口": {
+    "en": "University Drive Entrance",
+    "zh-Hant": "大學道出入口"
+  },
+  "位于大学道与旭龢道相接处。": {
+    "en": "At the junction of University Drive and Kotewall Road.",
+    "zh-Hant": "位於大學道與旭龢道相接處。"
+  },
+  "列堤顿道校门": {
+    "en": "Lyttelton Road Gate",
+    "zh-Hant": "列堤頓道校門"
+  },
+  "2015 年图标示的校门，通行安排以现场标示为准。": {
+    "en": "Gate shown on the 2015 map. Check signs on site for access.",
+    "zh-Hant": "2015 年圖標示的校門，通行安排以現場標示為準。"
+  },
+  "G 层接薄扶林道，FB 层经天桥接上层大学街。": {
+    "en": "Level G opens to Pok Fu Lam Road. The footbridge on FB leads to Upper University Street.",
+    "zh-Hant": "G 層接薄扶林道，FB 層經天橋接上層大學街。"
+  },
+  "港大站 A2 出口": {
+    "en": "HKU Station Exit A2",
+    "zh-Hant": "港大站 A2 出口"
+  },
+  "经行人天桥连接黄克竞楼 5/F。": {
+    "en": "The footbridge leads to Haking Wong Building 5/F.",
+    "zh-Hant": "經行人天橋連接黃克競樓 5/F。"
+  },
+  "循行人天桥前往百周年校园。": {
+    "en": "Follow the footbridge to Centennial Campus.",
+    "zh-Hant": "循行人天橋前往百週年校園。"
+  },
+  "黄克竞楼升降机": {
+    "en": "Haking Wong Building lift",
+    "zh-Hant": "黃克競樓升降機"
+  },
+  "5/F 接上层大学街，4/F 接下层大学街及许爱周科学馆通道。": {
+    "en": "5/F connects to Upper University Street. 4/F connects to Lower University Street and the link to Hui Oi Chow Science Building.",
+    "zh-Hant": "5/F 接上層大學街，4/F 接下層大學街及許愛周科學館通道。"
+  },
+  "图书馆旧翼旁升降机": {
+    "en": "Lift next to the Library Old Wing",
+    "zh-Hant": "圖書館舊翼旁升降機"
+  },
+  "2/F 接上层大学街与图书馆入口，1/F 经许爱周科学馆通道接下层大学街。": {
+    "en": "2/F leads to Upper University Street and the library entrance. 1/F leads to Lower University Street via the Hui Oi Chow Science Building link.",
+    "zh-Hant": "2/F 接上層大學街與圖書館入口，1/F 經許愛周科學館通道接下層大學街。"
+  },
+  "图书馆新翼旁升降机": {
+    "en": "Lift next to the Library New Wing",
+    "zh-Hant": "圖書館新翼旁升降機"
+  },
+  "G/F 接中山广场，LG1/F 经天桥连接本部大楼。": {
+    "en": "G/F leads to Sun Yat-sen Place. The LG1/F footbridge leads to Main Building.",
+    "zh-Hant": "G/F 接中山廣場，LG1/F 經天橋連接本部大樓。"
+  },
+  "本部大楼升降机": {
+    "en": "Main Building lift",
+    "zh-Hant": "本部大樓升降機"
+  },
+  "1/F 可到陆佑堂，LG1/F 可经天桥往图书馆新翼。": {
+    "en": "1/F leads to Loke Yew Hall. The LG1/F footbridge leads to the Library New Wing.",
+    "zh-Hant": "1/F 可到陸佑堂，LG1/F 可經天橋往圖書館新翼。"
+  },
+  "赛马会教学楼升降机": {
+    "en": "The Jockey Club Tower lift",
+    "zh-Hant": "賽馬會教學樓升降機"
+  },
+  "1/F 可到百周年花园及智华馆，G/F 接上层大学街，LG/F 接下层大学街。": {
+    "en": "1/F leads to Centennial Garden and Chi Wah Learning Commons. G/F connects to Upper University Street and LG/F to Lower University Street.",
+    "zh-Hant": "1/F 可到百週年花園及智華館，G/F 接上層大學街，LG/F 接下層大學街。"
+  },
+  "逸夫教学楼升降机": {
+    "en": "Run Run Shaw Tower lift",
+    "zh-Hant": "逸夫教學樓升降機"
+  },
+  "G/F 接上层大学街，LG/F 接下层大学街及李兆基会议中心。": {
+    "en": "G/F connects to Upper University Street. LG/F leads to Lower University Street and Lee Shau Kee Lecture Centre.",
+    "zh-Hant": "G/F 接上層大學街，LG/F 接下層大學街及李兆基會議中心。"
+  },
+  "徐展堂楼升降机": {
+    "en": "T.T. Tsui Building lift",
+    "zh-Hant": "徐展堂樓升降機"
+  },
+  "1/F 可经天桥连接冯平山楼，3/F 通往太古楼和梁銶琚楼一带。": {
+    "en": "The 1/F footbridge leads to Fung Ping Shan Building. 3/F leads towards Swire Building and K.K. Leung Building.",
+    "zh-Hant": "1/F 可經天橋連接馮平山樓，3/F 通往太古樓和梁銶琚樓一帶。"
+  },
+  "梁銶琚楼升降机": {
+    "en": "K.K. Leung Building lift",
+    "zh-Hant": "梁銶琚樓升降機"
+  },
+  "位于梁銶琚楼，可查看楼内指示前往钮鲁诗楼或庄月明文娱中心。": {
+    "en": "Inside K.K. Leung Building. Follow signs towards Knowles Building or Chong Yuet Ming Amenities Centre.",
+    "zh-Hant": "位於梁銶琚樓，可查看樓內指示前往鈕魯詩樓或莊月明文娛中心。"
+  },
+  "庄月明物理楼升降机": {
+    "en": "Chong Yuet Ming Physics Building lift",
+    "zh-Hant": "莊月明物理樓升降機"
+  },
+  "位于庄月明物理楼。具体楼层及开放情况以现场指示为准。": {
+    "en": "Inside Chong Yuet Ming Physics Building. Check signs on site for levels and access.",
+    "zh-Hant": "位於莊月明物理樓。具體樓層及開放情況以現場指示為準。"
+  },
+  "庄月明文娱中心升降机": {
+    "en": "Chong Yuet Ming Amenities Centre lift",
+    "zh-Hant": "莊月明文娛中心升降機"
+  },
+  "位于庄月明文娱中心。具体楼层及开放情况以现场指示为准。": {
+    "en": "Inside Chong Yuet Ming Amenities Centre. Check signs on site for levels and access.",
+    "zh-Hant": "位於莊月明文娛中心。具體樓層及開放情況以現場指示為準。"
+  },
+  "明华综合大楼升降机": {
+    "en": "Meng Wah Complex lift",
+    "zh-Hant": "明華綜合大樓升降機"
+  },
+  "校方标示的升降机位于黄传经楼。": {
+    "en": "HKU lists this lift in Wong Chuang Lai Wah Building.",
+    "zh-Hant": "校方標示的升降機位於黃傳經樓。"
+  },
+  "东闸一带升降机": {
+    "en": "Lift near East Gate",
+    "zh-Hant": "東閘一帶升降機"
+  },
+  "靠近东闸方向的楼梯与天桥连接处。": {
+    "en": "Near the stairs and footbridge junction on the East Gate side.",
+    "zh-Hant": "靠近東閘方向的樓梯與天橋連接處。"
+  },
+  "A1／A2 校园天桥": {
+    "en": "A1/A2 campus footbridge",
+    "zh-Hant": "A1／A2 校園天橋"
+  },
+  "从港铁 FB 层通往黄克竞楼 5/F 与上层大学街。": {
+    "en": "Connects the MTR FB level to Haking Wong Building 5/F and Upper University Street.",
+    "zh-Hant": "從港鐵 FB 層通往黃克競樓 5/F 與上層大學街。"
+  },
+  "C1 校园天桥": {
+    "en": "C1 campus footbridge",
+    "zh-Hant": "C1 校園天橋"
+  },
+  "跨过薄扶林道，连接港大站 C1 和百周年校园。": {
+    "en": "Crosses Pok Fu Lam Road between HKU Station exit C1 and Centennial Campus.",
+    "zh-Hant": "跨過薄扶林道，連接港大站 C1 和百週年校園。"
+  },
+  "图书馆与本部大楼天桥": {
+    "en": "Library–Main Building footbridge",
+    "zh-Hant": "圖書館與本部大樓天橋"
+  },
+  "图书馆新翼 LG1/F 有天桥通往本部大楼一带。": {
+    "en": "A footbridge on LG1/F of the Library New Wing connects to the Main Building area.",
+    "zh-Hant": "圖書館新翼 LG1/F 有天橋通往本部大樓一帶。"
+  },
+  "东闸一带天桥": {
+    "en": "Footbridge near East Gate",
+    "zh-Hant": "東閘一帶天橋"
+  },
+  "位于东闸往钮鲁诗楼及梁銶琚楼方向的通道。": {
+    "en": "On the East Gate side, towards Knowles Building and K.K. Leung Building.",
+    "zh-Hant": "位於東閘往鈕魯詩樓及梁銶琚樓方向的通道。"
+  },
+  "东闸楼梯": {
+    "en": "East Gate stairs",
+    "zh-Hant": "東閘樓梯"
+  },
+  "连接东闸一带步道与楼宇平台。": {
+    "en": "Connects paths on the East Gate side with the building podium.",
+    "zh-Hant": "連接東閘一帶步道與樓宇平台。"
+  },
+  "大学街楼梯": {
+    "en": "University Street stairs",
+    "zh-Hant": "大學街樓梯"
+  },
+  "位于许爱周科学馆和图书馆附近的大学街路段。": {
+    "en": "On University Street near Hui Oi Chow Science Building and the library.",
+    "zh-Hant": "位於許愛周科學館和圖書館附近的大學街路段。"
+  },
+  "黄克竞楼至嘉道理大楼坡道": {
+    "en": "Haking Wong–Kadoorie ramp",
+    "zh-Hant": "黃克競樓至嘉道理大樓坡道"
+  },
+  "校方无障碍图标示的 A 坡道，连接黄克竞楼 G/F 与嘉道理生物科学大楼。": {
+    "en": "Ramp A on HKU's accessibility map connects Haking Wong Building G/F with Kadoorie Biological Sciences Building.",
+    "zh-Hant": "校方無障礙圖標示的 A 坡道，連接黃克競樓 G/F 與嘉道理生物科學大樓。"
+  },
+  "梁銶琚楼至庄月明文娱中心坡道": {
+    "en": "K.K. Leung–Chong Yuet Ming Amenities Centre ramp",
+    "zh-Hant": "梁銶琚樓至莊月明文娛中心坡道"
+  },
+  "校方无障碍图标示的 B 坡道，连接梁銶琚楼及庄月明文娱中心一带。": {
+    "en": "Ramp B on HKU's accessibility map connects the K.K. Leung Building and Chong Yuet Ming Amenities Centre area.",
+    "zh-Hant": "校方無障礙圖標示的 B 坡道，連接梁銶琚樓及莊月明文娛中心一帶。"
+  },
+  "综合大楼停车场": {
+    "en": "Composite Building car park",
+    "zh-Hant": "綜合大樓停車場"
+  },
+  "停车开放情况及收费以校方公告为准。": {
+    "en": "Check the University's notices for car park access and fees.",
+    "zh-Hant": "停車開放情況及收費以校方公告為準。"
+  },
+  "百周年校园停车场": {
+    "en": "Centennial Campus car park",
+    "zh-Hant": "百週年校園停車場"
+  },
+  "包兆龙楼外无障碍车位": {
+    "en": "Accessible parking outside Pao Siu Loong Building",
+    "zh-Hant": "包兆龍樓外無障礙車位"
+  },
+  "校方登记车位 PS-1。": {
+    "en": "HKU lists bay PS-1.",
+    "zh-Hant": "校方登記車位 PS-1。"
+  },
+  "嘉道理大楼无障碍车位": {
+    "en": "Accessible parking at Kadoorie Biological Sciences Building",
+    "zh-Hant": "嘉道理大樓無障礙車位"
+  },
+  "校方登记车位 KS-3。": {
+    "en": "HKU lists bay KS-3.",
+    "zh-Hant": "校方登記車位 KS-3。"
+  },
+  "钮鲁诗楼无障碍车位": {
+    "en": "Accessible parking at Knowles Building",
+    "zh-Hant": "鈕魯詩樓無障礙車位"
+  },
+  "校方登记车位 KB-1。": {
+    "en": "HKU lists bay KB-1.",
+    "zh-Hant": "校方登記車位 KB-1。"
+  },
+  "梁銶琚楼无障碍车位": {
+    "en": "Accessible parking at K.K. Leung Building",
+    "zh-Hant": "梁銶琚樓無障礙車位"
+  },
+  "校方登记车位 KK-1。": {
+    "en": "HKU lists bay KK-1.",
+    "zh-Hant": "校方登記車位 KK-1。"
+  },
+  "明华综合大楼无障碍车位": {
+    "en": "Accessible parking at Meng Wah Complex",
+    "zh-Hant": "明華綜合大樓無障礙車位"
+  },
+  "校方登记车位 MW-13。": {
+    "en": "HKU lists bay MW-13.",
+    "zh-Hant": "校方登記車位 MW-13。"
+  },
+  "大学道无障碍车位": {
+    "en": "Accessible parking on University Drive",
+    "zh-Hant": "大學道無障礙車位"
+  },
+  "校方登记车位 UD-29。": {
+    "en": "HKU lists bay UD-29.",
+    "zh-Hant": "校方登記車位 UD-29。"
+  },
+  "百周年校园无障碍车位": {
+    "en": "Accessible parking at Centennial Campus",
+    "zh-Hant": "百週年校園無障礙車位"
+  },
+  "校方登记车位 CC-7、CC-34 及 CC-60。": {
+    "en": "HKU lists bays CC-7, CC-34 and CC-60.",
+    "zh-Hant": "校方登記車位 CC-7、CC-34 及 CC-60。"
+  },
   "内容暂不可用": {
     "en": "Content unavailable",
     "zh-Hant": "內容暫不可用"
@@ -2450,9 +3459,9 @@
     "en": "A route needs 1–20 steps.",
     "zh-Hant": "路線需要 1–20 個步驟。"
   },
-  "每一步都需要标题和说明。": {
-    "en": "Add a title and directions for every step.",
-    "zh-Hant": "每一步都需要標題和説明。"
+  "每一步都需要标题。": {
+    "en": "Add a title for every step.",
+    "zh-Hant": "每一步都需要標題。"
   },
   "在地图上点选位置": {
     "en": "Choose a position on the map",
@@ -2518,6 +3527,54 @@
     "en": "Route endpoints",
     "zh-Hant": "路線起終點"
   },
+  "路线总览图（选填）": {
+    "en": "Route overview image (optional)",
+    "zh-Hant": "路線總覽圖（選填）"
+  },
+  "路线总览图": {
+    "en": "Route overview image",
+    "zh-Hant": "路線總覽圖"
+  },
+  "上传总览图": {
+    "en": "Upload overview image",
+    "zh-Hant": "上傳總覽圖"
+  },
+  "更换总览图": {
+    "en": "Replace overview image",
+    "zh-Hant": "更換總覽圖"
+  },
+  "移除总览图": {
+    "en": "Remove overview image",
+    "zh-Hant": "移除總覽圖"
+  },
+  "裁剪图片": {
+    "en": "Crop photo",
+    "zh-Hant": "裁剪圖片"
+  },
+  "拖动调整位置，双指缩放。": {
+    "en": "Drag to reposition and pinch to zoom.",
+    "zh-Hant": "拖動調整位置，雙指縮放。"
+  },
+  "缩小图片": {
+    "en": "Zoom out on photo",
+    "zh-Hant": "縮小圖片"
+  },
+  "放大图片": {
+    "en": "Zoom in on photo",
+    "zh-Hant": "放大圖片"
+  },
+  "重置": {
+    "en": "Reset",
+    "zh-Hant": "重置"
+  },
+  "裁剪失败，请重试。": {
+    "en": "Could not crop the photo. Try again.",
+    "zh-Hant": "裁剪失敗，請重試。"
+  },
+  "确认裁剪": {
+    "en": "Confirm crop",
+    "zh-Hant": "確認裁剪"
+  },
   "起点": {
     "en": "Starting point",
     "zh-Hant": "起點"
@@ -2534,9 +3591,9 @@
     "en": "Illustrated steps",
     "zh-Hant": "圖文步驟"
   },
-  "按行走顺序填写，每一步可以单独上传照片。最多 20 步。": {
-    "en": "Add directions in walking order. Each step can have its own photo. Up to 20 steps.",
-    "zh-Hant": "按行走順序填寫，每一步可以單獨上傳照片。最多 20 步。"
+  "按行走顺序添加步骤，最多 20 步。": {
+    "en": "Add steps in walking order, up to 20 steps.",
+    "zh-Hant": "按行走順序添加步驟，最多 20 步。"
   },
   "第 {step} 步": {
     "en": "Step {step}",
@@ -2562,9 +3619,9 @@
     "en": "e.g. Take the lift to the connecting floor",
     "zh-Hant": "例如：乘電梯到連接樓層"
   },
-  "步骤说明": {
-    "en": "Directions for this step",
-    "zh-Hant": "步驟説明"
+  "步骤说明（选填）": {
+    "en": "Step directions (optional)",
+    "zh-Hant": "步驟説明（選填）"
   },
   "写清方向、地标和楼层，方便同学辨认。": {
     "en": "Describe directions, landmarks and floors to help others find their way.",
@@ -2578,9 +3635,9 @@
     "en": "Replace step photo",
     "zh-Hant": "更換這一步配圖"
   },
-  "添加这一步配图": {
-    "en": "Add step photo",
-    "zh-Hant": "添加這一步配圖"
+  "添加配图（选填）": {
+    "en": "Add photo (optional)",
+    "zh-Hant": "添加配圖（選填）"
   },
   "添加下一步": {
     "en": "Add another step",
@@ -3406,9 +4463,9 @@
     "en": "陆佑堂 Loke Yew Hall 校史 红砖",
     "zh-Hant": "陸佑堂 Loke Yew Hall 校史 紅磚"
   },
-  "圖書館 总图书馆 總圖 学习 自习 图书": {
-    "en": "圖書館 总图书馆 總圖 学习 自习 图书",
-    "zh-Hant": "圖書館 總圖書館 總圖 學習 自習 圖書"
+  "圖書館 总图书馆 總圖 学习 自习 图书 图书馆大楼旧翼 图书馆大楼新翼 LBO LBN Library Building Old Wing New Wing": {
+    "en": "圖書館 总图书馆 總圖 学习 自习 图书 图书馆大楼旧翼 图书馆大楼新翼 LBO LBN Library Building Old Wing New Wing",
+    "zh-Hant": "圖書館 總圖書館 總圖 學習 自習 圖書 圖書館大樓舊翼 圖書館大樓新翼 LBO LBN Library Building Old Wing New Wing"
   },
   "智华馆": {
     "en": "Chi Wah Learning Commons",
@@ -3426,17 +4483,9 @@
     "en": "鈕魯詩樓 建筑学院",
     "zh-Hant": "鈕魯詩樓 建築學院"
   },
-  "港大站校园入口（A2）": {
-    "en": "HKU Station Exit A2",
-    "zh-Hant": "港大站校園入口（A2）"
-  },
-  "港大站校園入口（A2）": {
-    "en": "HKU Station Exit A2",
-    "zh-Hant": "港大站校園入口（A2）"
-  },
-  "港大站 港鐵港大站 港铁 地铁 MTR HKU 香港大學站": {
-    "en": "港大站 港鐵港大站 港铁 地铁 MTR HKU 香港大學站",
-    "zh-Hant": "港大站 港鐵港大站 港鐵 地鐵 MTR HKU 香港大學站"
+  "港大站 港鐵港大站 港铁 地铁 MTR HKU 香港大學站 港大站校园入口（A2）": {
+    "en": "港大站 港鐵港大站 港铁 地铁 MTR HKU 香港大學站 港大站校园入口（A2）",
+    "zh-Hant": "港大站 港鐵港大站 港鐵 地鐵 MTR HKU 香港大學站 港大站校園入口（A2）"
   },
   "百周年花园": {
     "en": "Centennial Garden",
@@ -3750,30 +4799,6 @@
     "en": "K.K. Leung Building",
     "zh-Hant": "梁銶琚樓"
   },
-  "图书馆大楼旧翼": {
-    "en": "Library Building (Old Wing)",
-    "zh-Hant": "圖書館大樓舊翼"
-  },
-  "圖書館大樓舊翼": {
-    "en": "Library Building (Old Wing)",
-    "zh-Hant": "圖書館大樓舊翼"
-  },
-  "旧翼 舊翼 LBO Main": {
-    "en": "旧翼 舊翼 LBO Main",
-    "zh-Hant": "舊翼 舊翼 LBO Main"
-  },
-  "图书馆大楼新翼": {
-    "en": "Library Building (New Wing)",
-    "zh-Hant": "圖書館大樓新翼"
-  },
-  "圖書館大樓新翼": {
-    "en": "Library Building (New Wing)",
-    "zh-Hant": "圖書館大樓新翼"
-  },
-  "新翼 New Wing": {
-    "en": "新翼 New Wing",
-    "zh-Hant": "新翼 New Wing"
-  },
   "嘉道理生物科学大楼": {
     "en": "Kadoorie Biological Sciences Building",
     "zh-Hant": "嘉道理生物科學大樓"
@@ -3942,96 +4967,1148 @@
     "en": "聚英臺 餐厅 饭堂",
     "zh-Hant": "聚英台 餐廳 飯堂"
   },
-  "问港大": {
-    "en": "Ask HKU",
-    "zh-Hant": "問港大"
+  "百周年校园中央平台": {
+    "en": "Central Podium Levels (CPD)",
+    "zh-Hant": "百週年校園中央平台"
   },
-  "打开校园助手": {
-    "en": "Open campus assistant",
-    "zh-Hant": "打開校園助手"
+  "百週年校園中央平台": {
+    "en": "Central Podium Levels (CPD)",
+    "zh-Hant": "百週年校園中央平台"
   },
-  "关闭校园助手": {
-    "en": "Close campus assistant",
-    "zh-Hant": "關閉校園助手"
+  "月明泉": {
+    "en": "Chong Yuet Ming Fountain",
+    "zh-Hant": "月明泉"
   },
-  "找校园地点、查学生指南，或查看港大官网资料。": {
-    "en": "Find campus places, student guides or information from official HKU websites.",
-    "zh-Hant": "找校園地點、查學生指南，或查看港大官網資料。"
+  "环球休憩室（Global Lounge）": {
+    "en": "Global Lounge",
+    "zh-Hant": "環球休憩室（Global Lounge）"
   },
-  "哪些教学楼有插座？": {
-    "en": "Which teaching buildings have power outlets?",
-    "zh-Hant": "哪些教學樓有插座？"
+  "環球休憩室（Global Lounge）": {
+    "en": "Global Lounge",
+    "zh-Hant": "環球休憩室（Global Lounge）"
   },
-  "如何申请 JULAC 卡？": {
-    "en": "How do I apply for a JULAC card?",
-    "zh-Hant": "如何申請 JULAC 卡？"
+  "陆佑堂": {
+    "en": "Loke Yew Hall",
+    "zh-Hant": "陸佑堂"
   },
-  "主图书馆今天几点关门？": {
-    "en": "What time does the Main Library close today?",
-    "zh-Hant": "主圖書館今天幾點關門？"
+  "陸佑堂": {
+    "en": "Loke Yew Hall",
+    "zh-Hant": "陸佑堂"
   },
-  "来源与地点": {
-    "en": "Sources and places",
-    "zh-Hant": "來源與地點"
+  "吕志和法律图书馆": {
+    "en": "Lui Che Woo Law Library",
+    "zh-Hant": "呂志和法律圖書館"
   },
-  "去这里": {
-    "en": "Get directions",
-    "zh-Hant": "去這裏"
+  "呂志和法律圖書館": {
+    "en": "Lui Che Woo Law Library",
+    "zh-Hant": "呂志和法律圖書館"
   },
-  "打开指南": {
-    "en": "Open guide",
-    "zh-Hant": "打開指南"
+  "赛马会楼": {
+    "en": "The Jockey Club Building",
+    "zh-Hant": "賽馬會樓"
   },
-  "查看官网": {
-    "en": "Open official website",
-    "zh-Hant": "查看官網"
+  "賽馬會樓": {
+    "en": "The Jockey Club Building",
+    "zh-Hant": "賽馬會樓"
   },
-  "暂时无法打开来源": {
-    "en": "Couldn't open this source",
-    "zh-Hant": "暫時無法打開來源"
+  "大学道二号": {
+    "en": "University Drive No. 2",
+    "zh-Hant": "大學道二號"
   },
-  "重试": {
-    "en": "Try again",
-    "zh-Hant": "重試"
+  "大學道二號": {
+    "en": "University Drive No. 2",
+    "zh-Hant": "大學道二號"
   },
-  "正在查找校园资料…": {
-    "en": "Looking up campus information…",
-    "zh-Hant": "正在查找校園資料…"
+  "黄庄丽华楼": {
+    "en": "Wong Chuang Lai Wah Building",
+    "zh-Hant": "黃莊麗華樓"
   },
-  "输入校园问题": {
-    "en": "Ask about campus",
-    "zh-Hant": "輸入校園問題"
+  "黃莊麗華樓": {
+    "en": "Wong Chuang Lai Wah Building",
+    "zh-Hant": "黃莊麗華樓"
   },
-  "发送问题": {
-    "en": "Send question",
-    "zh-Hant": "發送問題"
+  "黄子明楼": {
+    "en": "Wong Chue Meng Building",
+    "zh-Hant": "黃子明樓"
   },
-  "这条校园资料暂时无法打开。": {
-    "en": "This campus item is currently unavailable.",
-    "zh-Hant": "這條校園資料暫時無法打開。"
+  "黃子明樓": {
+    "en": "Wong Chue Meng Building",
+    "zh-Hant": "黃子明樓"
   },
-  "校园助手尚未启用。": {
-    "en": "The campus assistant hasn't been enabled yet.",
-    "zh-Hant": "校園助手尚未啓用。"
+  "余振强伉俪学习中心": {
+    "en": "Yu Chun Keung Tam Shuk Yin Learning Centre",
+    "zh-Hant": "餘振強伉儷學習中心"
   },
-  "提问次数已达上限，请稍后再试。": {
-    "en": "You've reached the question limit. Please try again later.",
-    "zh-Hant": "提問次數已達上限，請稍後再試。"
+  "餘振強伉儷學習中心": {
+    "en": "Yu Chun Keung Tam Shuk Yin Learning Centre",
+    "zh-Hant": "餘振強伉儷學習中心"
   },
-  "校园助手暂时无法回答，请重试。": {
-    "en": "The campus assistant couldn't answer. Please try again.",
-    "zh-Hant": "校園助手暫時無法回答，請重試。"
+  "余振强伉俪讲堂": {
+    "en": "Yu Chun Keung Tam Shuk Yin Lecture Theatre",
+    "zh-Hant": "餘振強伉儷講堂"
   },
-  "目的地 · © OpenStreetMap": {
-    "en": "Destination · © OpenStreetMap",
-    "zh-Hant": "目的地 · © OpenStreetMap"
+  "餘振強伉儷講堂": {
+    "en": "Yu Chun Keung Tam Shuk Yin Lecture Theatre",
+    "zh-Hant": "餘振強伉儷講堂"
   },
-  "这两个地点之间暂时没有已发布的步行指引。": {
-    "en": "No walking directions have been published between these places yet.",
-    "zh-Hant": "這兩個地點之間暫時沒有已發佈的步行指引。"
+  "孙中山像": {
+    "en": "Statue of Sun Yat-sen",
+    "zh-Hant": "孫中山像"
   },
-  "终点已填好。选择起点后可查看已发布的步行指引。": {
-    "en": "Your destination is set. Choose a starting point to see published walking directions.",
-    "zh-Hant": "終點已填好。選擇起點後可查看已發佈的步行指引。"
+  "孫中山像": {
+    "en": "Statue of Sun Yat-sen",
+    "zh-Hant": "孫中山像"
+  },
+  "大学美术博物馆": {
+    "en": "University Museum and Art Gallery",
+    "zh-Hant": "大學美術博物館"
+  },
+  "大學美術博物館": {
+    "en": "University Museum and Art Gallery",
+    "zh-Hant": "大學美術博物館"
+  },
+  "许士芬地质博物馆": {
+    "en": "Stephen Hui Geological Museum",
+    "zh-Hant": "許士芬地質博物館"
+  },
+  "許士芬地質博物館": {
+    "en": "Stephen Hui Geological Museum",
+    "zh-Hant": "許士芬地質博物館"
+  },
+  "港大大会堂": {
+    "en": "Grand Hall",
+    "zh-Hant": "港大大會堂"
+  },
+  "港大大會堂": {
+    "en": "Grand Hall",
+    "zh-Hant": "港大大會堂"
+  },
+  "王赓武讲堂": {
+    "en": "Wang Gungwu Lecture Hall",
+    "zh-Hant": "王賡武講堂"
+  },
+  "王賡武講堂": {
+    "en": "Wang Gungwu Lecture Hall",
+    "zh-Hant": "王賡武講堂"
+  },
+  "小花园": {
+    "en": "Little Garden",
+    "zh-Hant": "小花園"
+  },
+  "小花園": {
+    "en": "Little Garden",
+    "zh-Hant": "小花園"
+  },
+  "综合大楼无障碍洗手间": {
+    "en": "Accessible toilet · Composite Building",
+    "zh-Hant": "綜合大樓無障礙洗手間"
+  },
+  "綜合大樓無障礙洗手間": {
+    "en": "Accessible toilet · Composite Building",
+    "zh-Hant": "綜合大樓無障礙洗手間"
+  },
+  "庄月明化学及物理楼无障碍洗手间": {
+    "en": "Accessible toilet · Chong Yuet Ming Chemistry Building",
+    "zh-Hant": "莊月明化學及物理樓無障礙洗手間"
+  },
+  "莊月明化學及物理樓無障礙洗手間": {
+    "en": "Accessible toilet · Chong Yuet Ming Chemistry Building",
+    "zh-Hant": "莊月明化學及物理樓無障礙洗手間"
+  },
+  "周亦卿楼无障碍洗手间": {
+    "en": "Accessible toilet · Chow Yei Ching Building",
+    "zh-Hant": "周亦卿樓無障礙洗手間"
+  },
+  "周亦卿樓無障礙洗手間": {
+    "en": "Accessible toilet · Chow Yei Ching Building",
+    "zh-Hant": "周亦卿樓無障礙洗手間"
+  },
+  "仪礼堂无障碍洗手间": {
+    "en": "Accessible toilet · Eliot Hall",
+    "zh-Hant": "儀禮堂無障礙洗手間"
+  },
+  "儀禮堂無障礙洗手間": {
+    "en": "Accessible toilet · Eliot Hall",
+    "zh-Hant": "儀禮堂無障礙洗手間"
+  },
+  "黄克竞楼无障碍洗手间": {
+    "en": "Accessible toilet · Haking Wong Building",
+    "zh-Hant": "黃克競樓無障礙洗手間"
+  },
+  "黃克競樓無障礙洗手間": {
+    "en": "Accessible toilet · Haking Wong Building",
+    "zh-Hant": "黃克競樓無障礙洗手間"
+  },
+  "许爱周科学馆无障碍洗手间": {
+    "en": "Accessible toilet · Hui Oi Chow Science Building",
+    "zh-Hant": "許愛周科學館無障礙洗手間"
+  },
+  "許愛周科學館無障礙洗手間": {
+    "en": "Accessible toilet · Hui Oi Chow Science Building",
+    "zh-Hant": "許愛周科學館無障礙洗手間"
+  },
+  "厉树雄科学馆无障碍洗手间": {
+    "en": "Accessible toilet · James Hsioung Lee Science Building",
+    "zh-Hant": "厲樹雄科學館無障礙洗手間"
+  },
+  "厲樹雄科學館無障礙洗手間": {
+    "en": "Accessible toilet · James Hsioung Lee Science Building",
+    "zh-Hant": "厲樹雄科學館無障礙洗手間"
+  },
+  "梁銶琚楼无障碍洗手间": {
+    "en": "Accessible toilet · K.K. Leung Building",
+    "zh-Hant": "梁銶琚樓無障礙洗手間"
+  },
+  "梁銶琚樓無障礙洗手間": {
+    "en": "Accessible toilet · K.K. Leung Building",
+    "zh-Hant": "梁銶琚樓無障礙洗手間"
+  },
+  "嘉道理生物科学大楼无障碍洗手间": {
+    "en": "Accessible toilet · Kadoorie Biological Sciences Building",
+    "zh-Hant": "嘉道理生物科學大樓無障礙洗手間"
+  },
+  "嘉道理生物科學大樓無障礙洗手間": {
+    "en": "Accessible toilet · Kadoorie Biological Sciences Building",
+    "zh-Hant": "嘉道理生物科學大樓無障礙洗手間"
+  },
+  "钮鲁诗楼无障碍洗手间": {
+    "en": "Accessible toilet · Knowles Building",
+    "zh-Hant": "鈕魯詩樓無障礙洗手間"
+  },
+  "鈕魯詩樓無障礙洗手間": {
+    "en": "Accessible toilet · Knowles Building",
+    "zh-Hant": "鈕魯詩樓無障礙洗手間"
+  },
+  "图书馆扩建大楼无障碍洗手间": {
+    "en": "Accessible toilet · Library Building (New Wing)",
+    "zh-Hant": "圖書館擴建大樓無障礙洗手間"
+  },
+  "圖書館擴建大樓無障礙洗手間": {
+    "en": "Accessible toilet · Library Building (New Wing)",
+    "zh-Hant": "圖書館擴建大樓無障礙洗手間"
+  },
+  "本部大楼无障碍洗手间": {
+    "en": "Accessible toilet · Main Building",
+    "zh-Hant": "本部大樓無障礙洗手間"
+  },
+  "本部大樓無障礙洗手間": {
+    "en": "Accessible toilet · Main Building",
+    "zh-Hant": "本部大樓無障礙洗手間"
+  },
+  "梅堂无障碍洗手间": {
+    "en": "Accessible toilet · May Hall",
+    "zh-Hant": "梅堂無障礙洗手間"
+  },
+  "梅堂無障礙洗手間": {
+    "en": "Accessible toilet · May Hall",
+    "zh-Hant": "梅堂無障礙洗手間"
+  },
+  "明华综合大楼无障碍洗手间": {
+    "en": "Accessible toilet · Meng Wah Complex",
+    "zh-Hant": "明華綜合大樓無障礙洗手間"
+  },
+  "明華綜合大樓無障礙洗手間": {
+    "en": "Accessible toilet · Meng Wah Complex",
+    "zh-Hant": "明華綜合大樓無障礙洗手間"
+  },
+  "黄丽松讲堂无障碍洗手间": {
+    "en": "Accessible toilet · Rayson Huang Theatre",
+    "zh-Hant": "黃麗松講堂無障礙洗手間"
+  },
+  "黃麗松講堂無障礙洗手間": {
+    "en": "Accessible toilet · Rayson Huang Theatre",
+    "zh-Hant": "黃麗松講堂無障礙洗手間"
+  },
+  "邵逸夫楼无障碍洗手间": {
+    "en": "Accessible toilet · Run Run Shaw Building",
+    "zh-Hant": "邵逸夫樓無障礙洗手間"
+  },
+  "邵逸夫樓無障礙洗手間": {
+    "en": "Accessible toilet · Run Run Shaw Building",
+    "zh-Hant": "邵逸夫樓無障礙洗手間"
+  },
+  "邵仁枚楼无障碍洗手间": {
+    "en": "Accessible toilet · Runme Shaw Building",
+    "zh-Hant": "邵仁枚樓無障礙洗手間"
+  },
+  "邵仁枚樓無障礙洗手間": {
+    "en": "Accessible toilet · Runme Shaw Building",
+    "zh-Hant": "邵仁枚樓無障礙洗手間"
+  },
+  "中山广场无障碍洗手间": {
+    "en": "Accessible toilet · Sun Yat-sen Place",
+    "zh-Hant": "中山廣場無障礙洗手間"
+  },
+  "中山廣場無障礙洗手間": {
+    "en": "Accessible toilet · Sun Yat-sen Place",
+    "zh-Hant": "中山廣場無障礙洗手間"
+  },
+  "徐展堂楼无障碍洗手间": {
+    "en": "Accessible toilet · T.T. Tsui Building",
+    "zh-Hant": "徐展堂樓無障礙洗手間"
+  },
+  "徐展堂樓無障礙洗手間": {
+    "en": "Accessible toilet · T.T. Tsui Building",
+    "zh-Hant": "徐展堂樓無障礙洗手間"
+  },
+  "庄月明文娱中心无障碍洗手间": {
+    "en": "Accessible toilet · Chong Yuet Ming Amenities Centre",
+    "zh-Hant": "莊月明文娛中心無障礙洗手間"
+  },
+  "莊月明文娛中心無障礙洗手間": {
+    "en": "Accessible toilet · Chong Yuet Ming Amenities Centre",
+    "zh-Hant": "莊月明文娛中心無障礙洗手間"
+  },
+  "方树泉文娱中心无障碍洗手间": {
+    "en": "Accessible toilet · Fong Shu Chuen Amenities Centre",
+    "zh-Hant": "方樹泉文娛中心無障礙洗手間"
+  },
+  "方樹泉文娛中心無障礙洗手間": {
+    "en": "Accessible toilet · Fong Shu Chuen Amenities Centre",
+    "zh-Hant": "方樹泉文娛中心無障礙洗手間"
+  },
+  "研究生堂无障碍洗手间": {
+    "en": "Accessible toilet · Graduate House",
+    "zh-Hant": "研究生堂無障礙洗手間"
+  },
+  "研究生堂無障礙洗手間": {
+    "en": "Accessible toilet · Graduate House",
+    "zh-Hant": "研究生堂無障礙洗手間"
+  },
+  "郑裕彤教学楼无障碍洗手间": {
+    "en": "Accessible toilet · Cheng Yu Tung Tower",
+    "zh-Hant": "鄭裕彤教學樓無障礙洗手間"
+  },
+  "鄭裕彤教學樓無障礙洗手間": {
+    "en": "Accessible toilet · Cheng Yu Tung Tower",
+    "zh-Hant": "鄭裕彤教學樓無障礙洗手間"
+  },
+  "逸夫教学楼无障碍洗手间": {
+    "en": "Accessible toilet · Run Run Shaw Tower",
+    "zh-Hant": "逸夫教學樓無障礙洗手間"
+  },
+  "逸夫教學樓無障礙洗手間": {
+    "en": "Accessible toilet · Run Run Shaw Tower",
+    "zh-Hant": "逸夫教學樓無障礙洗手間"
+  },
+  "赛马会教学楼无障碍洗手间": {
+    "en": "Accessible toilet · The Jockey Club Tower",
+    "zh-Hant": "賽馬會教學樓無障礙洗手間"
+  },
+  "賽馬會教學樓無障礙洗手間": {
+    "en": "Accessible toilet · The Jockey Club Tower",
+    "zh-Hant": "賽馬會教學樓無障礙洗手間"
+  },
+  "百周年校园中央平台无障碍洗手间": {
+    "en": "Accessible toilet · Central Podium Levels (CPD)",
+    "zh-Hant": "百週年校園中央平台無障礙洗手間"
+  },
+  "百週年校園中央平台無障礙洗手間": {
+    "en": "Accessible toilet · Central Podium Levels (CPD)",
+    "zh-Hant": "百週年校園中央平台無障礙洗手間"
+  },
+  "许爱周科学馆共用洗手间": {
+    "en": "Unisex toilet · Hui Oi Chow Science Building",
+    "zh-Hant": "許愛周科學館共用洗手間"
+  },
+  "許愛周科學館共用洗手間": {
+    "en": "Unisex toilet · Hui Oi Chow Science Building",
+    "zh-Hant": "許愛周科學館共用洗手間"
+  },
+  "大学图书馆普通洗手间": {
+    "en": "Toilets · Main Library",
+    "zh-Hant": "大學圖書館普通洗手間"
+  },
+  "大學圖書館普通洗手間": {
+    "en": "Toilets · Main Library",
+    "zh-Hant": "大學圖書館普通洗手間"
+  },
+  "黄克竞楼食堂饮水机": {
+    "en": "Union Restaurant · Drinking water",
+    "zh-Hant": "黃克競樓食堂飲水機"
+  },
+  "黃克競樓食堂飲水機": {
+    "en": "Union Restaurant · Drinking water",
+    "zh-Hant": "黃克競樓食堂飲水機"
+  },
+  "饮水机 饮用水 refill water fountain water station": {
+    "en": "饮水机 饮用水 refill water fountain water station",
+    "zh-Hant": "飲水機 飲用水 refill water fountain water station"
+  },
+  "黄克竞楼 3/F 饮水机": {
+    "en": "Haking Wong Building 3/F · Drinking water",
+    "zh-Hant": "黃克競樓 3/F 飲水機"
+  },
+  "黃克競樓 3/F 飲水機": {
+    "en": "Haking Wong Building 3/F · Drinking water",
+    "zh-Hant": "黃克競樓 3/F 飲水機"
+  },
+  "大学图书馆饮水机": {
+    "en": "Main Library · Drinking water",
+    "zh-Hant": "大學圖書館飲水機"
+  },
+  "大學圖書館飲水機": {
+    "en": "Main Library · Drinking water",
+    "zh-Hant": "大學圖書館飲水機"
+  },
+  "庄月明饭堂饮水机": {
+    "en": "CYM Canteen · Drinking water",
+    "zh-Hant": "莊月明飯堂飲水機"
+  },
+  "莊月明飯堂飲水機": {
+    "en": "CYM Canteen · Drinking water",
+    "zh-Hant": "莊月明飯堂飲水機"
+  },
+  "太古楼 G/F 饮水机": {
+    "en": "Swire Building G/F · Drinking water",
+    "zh-Hant": "太古樓 G/F 飲水機"
+  },
+  "太古樓 G/F 飲水機": {
+    "en": "Swire Building G/F · Drinking water",
+    "zh-Hant": "太古樓 G/F 飲水機"
+  },
+  "太古楼食堂饮水机": {
+    "en": "Swire Building dining area · Drinking water",
+    "zh-Hant": "太古樓食堂飲水機"
+  },
+  "太古樓食堂飲水機": {
+    "en": "Swire Building dining area · Drinking water",
+    "zh-Hant": "太古樓食堂飲水機"
+  },
+  "徐展堂楼入口饮水机": {
+    "en": "T.T. Tsui Building · Drinking water",
+    "zh-Hant": "徐展堂樓入口飲水機"
+  },
+  "徐展堂樓入口飲水機": {
+    "en": "T.T. Tsui Building · Drinking water",
+    "zh-Hant": "徐展堂樓入口飲水機"
+  },
+  "智华馆饮水机": {
+    "en": "Chi Wah Learning Commons · Drinking water",
+    "zh-Hant": "智華館飲水機"
+  },
+  "智華館飲水機": {
+    "en": "Chi Wah Learning Commons · Drinking water",
+    "zh-Hant": "智華館飲水機"
+  },
+  "吕志和法律图书馆饮水机": {
+    "en": "Lui Che Woo Law Library · Drinking water",
+    "zh-Hant": "呂志和法律圖書館飲水機"
+  },
+  "呂志和法律圖書館飲水機": {
+    "en": "Lui Che Woo Law Library · Drinking water",
+    "zh-Hant": "呂志和法律圖書館飲水機"
+  },
+  "李兆基会议中心饮水机": {
+    "en": "Lee Shau Kee Lecture Centre · Drinking water",
+    "zh-Hant": "李兆基會議中心飲水機"
+  },
+  "李兆基會議中心飲水機": {
+    "en": "Lee Shau Kee Lecture Centre · Drinking water",
+    "zh-Hant": "李兆基會議中心飲水機"
+  },
+  "百周年校园健身房附近饮水机": {
+    "en": "CSE Active area · Drinking water",
+    "zh-Hant": "百週年校園健身房附近飲水機"
+  },
+  "百週年校園健身房附近飲水機": {
+    "en": "CSE Active area · Drinking water",
+    "zh-Hant": "百週年校園健身房附近飲水機"
+  },
+  "百周年校园 LG/F 饮水点": {
+    "en": "Centennial Campus LG/F · Drinking water",
+    "zh-Hant": "百週年校園 LG/F 飲水點"
+  },
+  "百週年校園 LG/F 飲水點": {
+    "en": "Centennial Campus LG/F · Drinking water",
+    "zh-Hant": "百週年校園 LG/F 飲水點"
+  },
+  "庄月明楼 3–4/F 饮水线索": {
+    "en": "Chong Yuet Ming area · Drinking water",
+    "zh-Hant": "莊月明樓 3–4/F 飲水線索"
+  },
+  "莊月明樓 3–4/F 飲水線索": {
+    "en": "Chong Yuet Ming area · Drinking water",
+    "zh-Hant": "莊月明樓 3–4/F 飲水線索"
+  },
+  "Asian Gourmet": {
+    "en": "Asian Gourmet",
+    "zh-Hant": "Asian Gourmet"
+  },
+  "香江冰室": {
+    "en": "Hong Kong Daily",
+    "zh-Hant": "香江冰室"
+  },
+  "Subway": {
+    "en": "Subway",
+    "zh-Hant": "Subway"
+  },
+  "The Sandwich Club 小食亭": {
+    "en": "Kiosk by The Sandwich Club",
+    "zh-Hant": "The Sandwich Club 小食亭"
+  },
+  "27 Kebab House": {
+    "en": "27 Kebab House",
+    "zh-Hant": "27 Kebab House"
+  },
+  "Union Restaurant（黄克竞楼食堂）": {
+    "en": "Union Restaurant",
+    "zh-Hant": "Union Restaurant（黃克競樓食堂）"
+  },
+  "Union Restaurant（黃克競樓食堂）": {
+    "en": "Union Restaurant",
+    "zh-Hant": "Union Restaurant（黃克競樓食堂）"
+  },
+  "星巴克（综合大楼）": {
+    "en": "Starbucks Coffee (Composite Building)",
+    "zh-Hant": "星巴克（綜合大樓）"
+  },
+  "星巴克（綜合大樓）": {
+    "en": "Starbucks Coffee (Composite Building)",
+    "zh-Hant": "星巴克（綜合大樓）"
+  },
+  "台台果腹": {
+    "en": "TAI TAI FOODTOPIA",
+    "zh-Hant": "台台果腹"
+  },
+  "OORI HANSIK": {
+    "en": "OORI HANSIK",
+    "zh-Hant": "OORI HANSIK"
+  },
+  "Vending Nook 自动售卖区": {
+    "en": "Vending Nook",
+    "zh-Hant": "Vending Nook 自動售賣區"
+  },
+  "Vending Nook 自動售賣區": {
+    "en": "Vending Nook",
+    "zh-Hant": "Vending Nook 自動售賣區"
+  },
+  "BIJAS 素食": {
+    "en": "BIJAS Vegetarian",
+    "zh-Hant": "BIJAS 素食"
+  },
+  "The Good Bridge": {
+    "en": "The Good Bridge",
+    "zh-Hant": "The Good Bridge"
+  },
+  "Vending Hub 自动售卖区": {
+    "en": "Vending Hub",
+    "zh-Hant": "Vending Hub 自動售賣區"
+  },
+  "Vending Hub 自動售賣區": {
+    "en": "Vending Hub",
+    "zh-Hant": "Vending Hub 自動售賣區"
+  },
+  "Senior Common Room": {
+    "en": "Senior Common Room",
+    "zh-Hant": "Senior Common Room"
+  },
+  "港大纪念品店": {
+    "en": "HKU Campus Store",
+    "zh-Hant": "港大紀念品店"
+  },
+  "港大紀念品店": {
+    "en": "HKU Campus Store",
+    "zh-Hant": "港大紀念品店"
+  },
+  "纪念品店, 校园商店, 文创, souvenirs, gift shop": {
+    "en": "纪念品店, 校园商店, 文创, souvenirs, gift shop",
+    "zh-Hant": "紀念品店, 校園商店, 文創, souvenirs, gift shop"
+  },
+  "港大出版社书店": {
+    "en": "Hong Kong University Press Bookshop",
+    "zh-Hant": "港大出版社書店"
+  },
+  "港大出版社書店": {
+    "en": "Hong Kong University Press Bookshop",
+    "zh-Hant": "港大出版社書店"
+  },
+  "书店, 港大书店, 出版社书店, 逸夫苑, bookstore": {
+    "en": "书店, 港大书店, 出版社书店, 逸夫苑, bookstore",
+    "zh-Hant": "書店, 港大書店, 出版社書店, 逸夫苑, bookstore"
+  },
+  "百周年校园红墙": {
+    "en": "Centennial Campus Red Wall",
+    "zh-Hant": "百週年校園紅牆"
+  },
+  "百週年校園紅牆": {
+    "en": "Centennial Campus Red Wall",
+    "zh-Hant": "百週年校園紅牆"
+  },
+  "红墙, 港大红墙, 校名墙, 红砖墙, Red Wall, Brick Wall": {
+    "en": "红墙, 港大红墙, 校名墙, 红砖墙, Red Wall, Brick Wall",
+    "zh-Hant": "紅牆, 港大紅牆, 校名牆, 紅磚牆, Red Wall, Brick Wall"
+  },
+  "访客中心纪念品店": {
+    "en": "Visitor Centre Gift Shop",
+    "zh-Hant": "訪客中心紀念品店"
+  },
+  "訪客中心紀念品店": {
+    "en": "Visitor Centre Gift Shop",
+    "zh-Hant": "訪客中心紀念品店"
+  },
+  "访客中心纪念品 访客中心商店 百周年校园纪念品 gift shop souvenirs": {
+    "en": "访客中心纪念品 访客中心商店 百周年校园纪念品 gift shop souvenirs",
+    "zh-Hant": "訪客中心紀念品 訪客中心商店 百週年校園紀念品 gift shop souvenirs"
+  },
+  "大學道出入口": {
+    "en": "University Drive Entrance",
+    "zh-Hant": "大學道出入口"
+  },
+  "大学道校门 旭龢道 Kotewall Road university drive gate": {
+    "en": "大学道校门 旭龢道 Kotewall Road university drive gate",
+    "zh-Hant": "大學道校門 旭龢道 Kotewall Road university drive gate"
+  },
+  "列堤頓道校門": {
+    "en": "Lyttelton Road Gate",
+    "zh-Hant": "列堤頓道校門"
+  },
+  "列堤顿道出口 列堤顿道出入口 Lyttelton Road Exit": {
+    "en": "列堤顿道出口 列堤顿道出入口 Lyttelton Road Exit",
+    "zh-Hant": "列堤頓道出口 列堤頓道出入口 Lyttelton Road Exit"
+  },
+  "CBA": {
+    "en": "Lecture Theatre CBA",
+    "zh-Hant": "CBA"
+  },
+  "CB-A, 周亦卿楼, Chow Yei Ching Building": {
+    "en": "CB-A, 周亦卿楼, Chow Yei Ching Building",
+    "zh-Hant": "CB-A, 周亦卿樓, Chow Yei Ching Building"
+  },
+  "CYCC501（月明剧院）": {
+    "en": "CYCC501 (Yuet Ming Auditorium)",
+    "zh-Hant": "CYCC501（月明劇院）"
+  },
+  "CYCC501（月明劇院）": {
+    "en": "CYCC501 (Yuet Ming Auditorium)",
+    "zh-Hant": "CYCC501（月明劇院）"
+  },
+  "CYCC-501, 月明剧院, 庄月明文化中心, 庄月明文娱中心": {
+    "en": "CYCC-501, 月明剧院, 庄月明文化中心, 庄月明文娱中心",
+    "zh-Hant": "CYCC-501, 月明劇院, 莊月明文化中心, 莊月明文娛中心"
+  },
+  "CYCP2": {
+    "en": "Lecture Theatre CYCP2",
+    "zh-Hant": "CYCP2"
+  },
+  "CYC-P2, CYC P2, 庄月明化学楼, Chong Yuet Ming Chemistry Building": {
+    "en": "CYC-P2, CYC P2, 庄月明化学楼, Chong Yuet Ming Chemistry Building",
+    "zh-Hant": "CYC-P2, CYC P2, 莊月明化學樓, Chong Yuet Ming Chemistry Building"
+  },
+  "CYPP1": {
+    "en": "Lecture Theatre CYPP1",
+    "zh-Hant": "CYPP1"
+  },
+  "CYP-P1, CYP P1, 庄月明物理楼, Chong Yuet Ming Physics Building": {
+    "en": "CYP-P1, CYP P1, 庄月明物理楼, Chong Yuet Ming Physics Building",
+    "zh-Hant": "CYP-P1, CYP P1, 莊月明物理樓, Chong Yuet Ming Physics Building"
+  },
+  "CYPP2": {
+    "en": "Lecture Theatre CYPP2",
+    "zh-Hant": "CYPP2"
+  },
+  "CYP-P2, CYP P2, 庄月明物理楼, Chong Yuet Ming Physics Building": {
+    "en": "CYP-P2, CYP P2, 庄月明物理楼, Chong Yuet Ming Physics Building",
+    "zh-Hant": "CYP-P2, CYP P2, 莊月明物理樓, Chong Yuet Ming Physics Building"
+  },
+  "CYPP3": {
+    "en": "Lecture Theatre CYPP3",
+    "zh-Hant": "CYPP3"
+  },
+  "CYP-P3, CYP P3, 庄月明物理楼, Chong Yuet Ming Physics Building": {
+    "en": "CYP-P3, CYP P3, 庄月明物理楼, Chong Yuet Ming Physics Building",
+    "zh-Hant": "CYP-P3, CYP P3, 莊月明物理樓, Chong Yuet Ming Physics Building"
+  },
+  "CYPP4": {
+    "en": "Lecture Theatre CYPP4",
+    "zh-Hant": "CYPP4"
+  },
+  "CYP-P4, CYP P4, 庄月明物理楼, Chong Yuet Ming Physics Building": {
+    "en": "CYP-P4, CYP P4, 庄月明物理楼, Chong Yuet Ming Physics Building",
+    "zh-Hant": "CYP-P4, CYP P4, 莊月明物理樓, Chong Yuet Ming Physics Building"
+  },
+  "HW312": {
+    "en": "Room HW312",
+    "zh-Hant": "HW312"
+  },
+  "HW-312, HW 312, 黄克竞楼, Haking Wong Building": {
+    "en": "HW-312, HW 312, 黄克竞楼, Haking Wong Building",
+    "zh-Hant": "HW-312, HW 312, 黃克競樓, Haking Wong Building"
+  },
+  "MWT2": {
+    "en": "Lecture Theatre MWT2",
+    "zh-Hant": "MWT2"
+  },
+  "MW-T2, MW T2, 明华综合大楼, Meng Wah Complex": {
+    "en": "MW-T2, MW T2, 明华综合大楼, Meng Wah Complex",
+    "zh-Hant": "MW-T2, MW T2, 明華綜合大樓, Meng Wah Complex"
+  },
+  "简称 CPD。连接百周年校园多个楼层。": {
+    "en": "Also known as CPD. It connects several floors of Centennial Campus.",
+    "zh-Hant": "簡稱 CPD。連接百週年校園多個樓層。"
+  },
+  "庄月明文娱中心与科学楼一带的喷泉。": {
+    "en": "The fountain near Chong Yuet Ming Amenities Centre and the science buildings.",
+    "zh-Hant": "莊月明文娛中心與科學樓一帶的噴泉。"
+  },
+  "太古楼方树泉文娱中心内。": {
+    "en": "Inside Fong Shu Chuen Amenities Centre, Swire Building.",
+    "zh-Hant": "太古樓方樹泉文娛中心內。"
+  },
+  "位于本部大楼。活动及室内开放安排以校方公告为准。": {
+    "en": "Inside the Main Building. Check HKU notices for events and opening arrangements.",
+    "zh-Hant": "位於本部大樓。活動及室內開放安排以校方公告為準。"
+  },
+  "位于郑裕彤教学楼，入馆资格请查看港大图书馆规定。": {
+    "en": "Inside Cheng Yu Tung Tower. See the HKU Libraries access rules.",
+    "zh-Hant": "位於鄭裕彤教學樓，入館資格請查看港大圖書館規定。"
+  },
+  "研究生堂内的宿舍楼。": {
+    "en": "A residence in Graduate House.",
+    "zh-Hant": "研究生堂內的宿舍樓。"
+  },
+  "位于大学道，靠近研究生堂及柏立基学院一带。": {
+    "en": "On University Drive, near Graduate House and Robert Black College.",
+    "zh-Hant": "位於大學道，靠近研究生堂及柏立基學院一帶。"
+  },
+  "位于明华综合大楼。": {
+    "en": "Inside Meng Wah Complex.",
+    "zh-Hant": "位於明華綜合大樓。"
+  },
+  "位于百周年校园平台。": {
+    "en": "On the Centennial Campus podium.",
+    "zh-Hant": "位於百週年校園平台。"
+  },
+  "位于余振强伉俪学习中心内。": {
+    "en": "Inside the Yu Chun Keung Tam Shuk Yin Learning Centre.",
+    "zh-Hant": "位於餘振強伉儷學習中心內。"
+  },
+  "雕像在荷花池旁。": {
+    "en": "The statue is beside the Lily Pond.",
+    "zh-Hant": "雕像在荷花池旁。"
+  },
+  "从冯平山楼地面层进入。馆方列明免费参观，入校与场馆开放安排请分别核对。 地图标注所在楼宇。": {
+    "en": "Enter at ground level in Fung Ping Shan Building. Admission to the museum is free. Check campus access and museum opening hours separately. The pin marks the building.",
+    "zh-Hant": "從馮平山樓地面層進入。館方列明免費參觀，入校與場館開放安排請分別核對。 地圖標註所在樓宇。"
+  },
+  "位于厉树雄科学馆。馆方提供由东闸及西闸前往的步行说明。 地图标注所在楼宇。": {
+    "en": "Inside James Hsioung Lee Science Building. The museum provides walking directions from the East and West gates. The pin marks the building.",
+    "zh-Hant": "位於厲樹雄科學館。館方提供由東閘及西閘前往的步行説明。 地圖標註所在樓宇。"
+  },
+  "位于李兆基会议中心，音乐会及公开活动请查场馆日程。 地图标注所在楼宇。": {
+    "en": "Inside Lee Shau Kee Lecture Centre. Check the venue schedule for concerts and public events. The pin marks the building.",
+    "zh-Hant": "位於李兆基會議中心，音樂會及公開活動請查場館日程。 地圖標註所在樓宇。"
+  },
+  "从大学道一侧进入研究生堂一带。校方有从港铁 A2 走到讲堂的图文路线。 地图标注所在楼宇。": {
+    "en": "Approach Graduate House from University Drive. HKU provides illustrated directions from MTR Exit A2. The pin marks the building.",
+    "zh-Hant": "從大學道一側進入研究生堂一帶。校方有從港鐵 A2 走到講堂的圖文路線。 地圖標註所在樓宇。"
+  },
+  "位于百周年校园西缘、郑裕彤教学楼南侧一带。": {
+    "en": "On the western edge of Centennial Campus, south of Cheng Yu Tung Tower.",
+    "zh-Hant": "位於百週年校園西緣、鄭裕彤教學樓南側一帶。"
+  },
+  "G/F 的无障碍厕格位于男女洗手间内。 地图标注所在楼宇。": {
+    "en": "On G/F, accessible stalls are inside the men's and women's toilets. The pin marks the building.",
+    "zh-Hant": "G/F 的無障礙廁格位於男女洗手間內。 地圖標註所在樓宇。"
+  },
+  "校方按化学楼及物理楼合列。图钉放在科学楼组团，具体入口依楼层标示。 地图标注所在楼宇。": {
+    "en": "HKU lists the Chemistry and Physics Buildings together. The pin marks the science buildings. Follow signs on the relevant floor.",
+    "zh-Hant": "校方按化學樓及物理樓合列。圖釘放在科學樓組團，具體入口依樓層標示。 地圖標註所在樓宇。"
+  },
+  "LG1 仅列男厕内的无障碍厕格。 地图标注所在楼宇。": {
+    "en": "On LG1, only an accessible stall in the men's toilet is listed. The pin marks the building.",
+    "zh-Hant": "LG1 僅列男廁內的無障礙廁格。 地圖標註所在樓宇。"
+  },
+  "G/F 的设施位于办公室内。 地图标注所在楼宇。": {
+    "en": "The G/F facility is inside an office. The pin marks the building.",
+    "zh-Hant": "G/F 的設施位於辦公室內。 地圖標註所在樓宇。"
+  },
+  "9/F 的设施位于办公室内。 地图标注所在楼宇。": {
+    "en": "The 9/F facility is inside an office. The pin marks the building.",
+    "zh-Hant": "9/F 的設施位於辦公室內。 地圖標註所在樓宇。"
+  },
+  "G/F 成人护理设施的使用可询问总图书馆服务台。 地图标注所在楼宇。": {
+    "en": "Ask the Main Library service desk about the adult changing facility on G/F. The pin marks the building.",
+    "zh-Hant": "G/F 成人護理設施的使用可詢問總圖書館服務枱。 地圖標註所在樓宇。"
+  },
+  "位于贵宾室内，开放权限请先确认。 地图标注所在楼宇。": {
+    "en": "Inside the VIP room. Check access before visiting. The pin marks the building.",
+    "zh-Hant": "位於貴賓室內，開放權限請先確認。 地圖標註所在樓宇。"
+  },
+  "4/F 的无障碍厕格位于男女洗手间内。 地图标注所在楼宇。": {
+    "en": "On 4/F, accessible stalls are inside the men's and women's toilets. The pin marks the building.",
+    "zh-Hant": "4/F 的無障礙廁格位於男女洗手間內。 地圖標註所在樓宇。"
+  },
+  "2/F 与 4/F 的无障碍厕格位于男女洗手间内。 地图标注所在楼宇。": {
+    "en": "On 2/F and 4/F, accessible stalls are inside the men's and women's toilets. The pin marks the building.",
+    "zh-Hant": "2/F 與 4/F 的無障礙廁格位於男女洗手間內。 地圖標註所在樓宇。"
+  },
+  "校方洗手间清单使用旧的店铺地标。图钉指向广场，现场请找洗手间指示。 地图标注所在楼宇。": {
+    "en": "HKU's toilet directory uses a former shop as a landmark. The pin marks the plaza. Look for toilet signs on site.",
+    "zh-Hant": "校方洗手間清單使用舊的店鋪地標。圖釘指向廣場，現場請找洗手間指示。 地圖標註所在樓宇。"
+  },
+  "3/F 和 5/F 的无障碍厕格位于男女洗手间内。 地图标注所在楼宇。": {
+    "en": "On 3/F and 5/F, accessible stalls are inside the men's and women's toilets. The pin marks the building.",
+    "zh-Hant": "3/F 和 5/F 的無障礙廁格位於男女洗手間內。 地圖標註所在樓宇。"
+  },
+  "校方列出的单间共用洗手间。 地图标注所在楼宇。": {
+    "en": "A single-occupancy unisex toilet listed by HKU. The pin marks the building.",
+    "zh-Hant": "校方列出的單間共用洗手間。 地圖標註所在樓宇。"
+  },
+  "校方这些楼层平面图有男女洗手间标示。馆内通行按图书馆规定。 地图标注所在楼宇。": {
+    "en": "HKU floor plans show men's and women's toilets on these floors. Library access rules apply. The pin marks the building.",
+    "zh-Hant": "校方這些樓層平面圖有男女洗手間標示。館內通行按圖書館規定。 地圖標註所在樓宇。"
+  },
+  "校方确认食堂有免费饮水机。帖主把位置指到靠近便当档的区域。 地图标注所在楼宇。": {
+    "en": "HKU confirms free drinking water in the canteen. A student reports it is near the boxed-meal counter. The pin marks the building.",
+    "zh-Hant": "校方確認食堂有免費飲水機。帖主把位置指到靠近便當檔的區域。 地圖標註所在樓宇。"
+  },
+  "从楼内升降机或楼梯到 3/F 后找饮水机，帖文没有提供房号。 地图标注所在楼宇。": {
+    "en": "Take a lift or stairs to 3/F. The student report does not give a room number. The pin marks the building.",
+    "zh-Hant": "從樓內升降機或樓梯到 3/F 後找飲水機，帖文沒有提供房號。 地圖標註所在樓宇。"
+  },
+  "帖主报告多个楼层有机器，多在洗手间附近，3/F 指向自习区。入馆须符合图书馆规定。 地图标注所在楼宇。": {
+    "en": "Students report dispensers on several floors, mostly near toilets. On 3/F, check near the study area. Library access rules apply. The pin marks the building.",
+    "zh-Hant": "帖主報告多個樓層有機器，多在洗手間附近，3/F 指向自習區。入館須符合圖書館規定。 地圖標註所在樓宇。"
+  },
+  "校方确认饭堂有免费饮水机。帖主描述机器在铁板饭档附近，档口可能调整。 地图标注所在楼宇。": {
+    "en": "HKU confirms free drinking water in the canteen. A student reports it is near the sizzling-plate counter, whose location may change. The pin marks the building.",
+    "zh-Hant": "校方確認飯堂有免費飲水機。帖主描述機器在鐵板飯檔附近，檔口可能調整。 地圖標註所在樓宇。"
+  },
+  "校友日官网列为免费饮水点。 地图标注所在楼宇。": {
+    "en": "The HKU Alumni Day website lists this as a free drinking-water point. The pin marks the building.",
+    "zh-Hant": "校友日官網列為免費飲水點。 地圖標註所在樓宇。"
+  },
+  "帖主描述在取餐区对面的吧台、微波炉一带。与校方另列的 G/F 饮水点分开显示。 地图标注所在楼宇。": {
+    "en": "A student reports a dispenser near the counter and microwave opposite the collection area. HKU separately lists a G/F water point. The pin marks the building.",
+    "zh-Hant": "帖主描述在取餐區對面的吧枱、微波爐一帶。與校方另列的 G/F 飲水點分開顯示。 地圖標註所在樓宇。"
+  },
+  "帖主描述在进门后的前方。参观博物馆请使用馆方指定入口。 地图标注所在楼宇。": {
+    "en": "A student reports it straight ahead from the entrance. Museum visitors should use the designated entrance. The pin marks the building.",
+    "zh-Hant": "帖主描述在進門後的前方。參觀博物館請使用館方指定入口。 地圖標註所在樓宇。"
+  },
+  "帖主描述在旋转楼梯附近的洗手间一带。进入智华馆按校方规定。 地图标注所在楼宇。": {
+    "en": "A student reports a dispenser near the toilets by the spiral stairs. Learning Commons access rules apply. The pin marks the building.",
+    "zh-Hant": "帖主描述在旋轉樓梯附近的洗手間一帶。進入智華館按校方規定。 地圖標註所在樓宇。"
+  },
+  "帖主从平台进馆，经服务台及电脑查询区后，在洗手间附近找到机器。入馆资格请查图书馆规定。 地图标注所在楼宇。": {
+    "en": "From the podium entrance, pass the service desk and computer area to reach the reported dispenser near the toilets. Check library access rules. The pin marks the building.",
+    "zh-Hant": "帖主從平台進館，經服務枱及電腦查詢區後，在洗手間附近找到機器。入館資格請查圖書館規定。 地圖標註所在樓宇。"
+  },
+  "帖主描述在饮品贩卖机附近，具体楼层编号待现场核对。 地图标注所在楼宇。": {
+    "en": "A student reports it near the drinks vending machines. Check the floor number on site. The pin marks the building.",
+    "zh-Hant": "帖主描述在飲品販賣機附近，具體樓層編號待現場核對。 地圖標註所在樓宇。"
+  },
+  "帖主描述在这一层的洗手间附近。健身房门禁及设备现状请以现场为准。 地图标注所在楼宇。": {
+    "en": "A student reports it near the toilets on this floor. Check gym access and availability on site. The pin marks the building.",
+    "zh-Hant": "帖主描述在這一層的洗手間附近。健身房門禁及設備現狀請以現場為準。 地圖標註所在樓宇。"
+  },
+  "校友日官网用 Centennial Building 指明楼层。先标到百周年校园平台区域，具体楼座及入口待核。": {
+    "en": "The HKU Alumni Day website lists this floor under Centennial Building. The pin marks the podium area. The exact building and entrance are unconfirmed.",
+    "zh-Hant": "校友日官網用 Centennial Building 指明樓層。先標到百週年校園平台區域，具體樓座及入口待核。"
+  },
+  "校友日官网另列庄月明楼 3–4/F，具体楼座及与饭堂点是否重合待核。": {
+    "en": "The HKU Alumni Day website also lists 3–4/F for Chong Yuet Ming. The exact building and whether this is the same dispenser as the canteen's remain unconfirmed.",
+    "zh-Hant": "校友日官網另列莊月明樓 3–4/F，具體樓座及與飯堂點是否重合待核。"
+  },
+  "位于逸夫教学楼。": {
+    "en": "Inside Run Run Shaw Tower.",
+    "zh-Hant": "位於逸夫教學樓。"
+  },
+  "邵逸夫楼平台": {
+    "en": "Run Run Shaw Podium",
+    "zh-Hant": "邵逸夫樓平台"
+  },
+  "三明治和外带简餐。": {
+    "en": "Sandwiches and light takeaway meals.",
+    "zh-Hant": "三明治和外帶簡餐。"
+  },
+  "三明治、便当及烘焙点心。": {
+    "en": "Sandwiches, boxed meals and baked snacks.",
+    "zh-Hant": "三明治、便當及烘焙點心。"
+  },
+  "位于方树泉文娱中心。": {
+    "en": "Inside Fong Shu Chuen Amenities Centre.",
+    "zh-Hant": "位於方樹泉文娛中心。"
+  },
+  "平台 4/F": {
+    "en": "4/F podium",
+    "zh-Hant": "平台 4/F"
+  },
+  "自助式快餐。": {
+    "en": "Self-service fast food.",
+    "zh-Hant": "自助式快餐。"
+  },
+  "咖啡及轻食。": {
+    "en": "Coffee and light meals.",
+    "zh-Hant": "咖啡及輕食。"
+  },
+  "位于综合大楼地面层。 地图标注所在楼宇。": {
+    "en": "On the ground floor of Composite Building. The pin marks the building.",
+    "zh-Hant": "位於綜合大樓地面層。 地圖標註所在樓宇。"
+  },
+  "韩式餐饮。": {
+    "en": "Korean food.",
+    "zh-Hant": "韓式餐飲。"
+  },
+  "位于综合大楼地面层。": {
+    "en": "On the ground floor of Composite Building.",
+    "zh-Hant": "位於綜合大樓地面層。"
+  },
+  "位于梁銶琚楼。": {
+    "en": "Inside K.K. Leung Building.",
+    "zh-Hant": "位於梁銶琚樓。"
+  },
+  "位于百周年校园智华馆旁。": {
+    "en": "Beside Chi Wah Learning Commons on Centennial Campus.",
+    "zh-Hant": "位於百週年校園智華館旁。"
+  },
+  "位于港大访客中心内。": {
+    "en": "Inside the HKU Visitor Centre.",
+    "zh-Hant": "位於港大訪客中心內。"
+  },
+  "列堤顿道出口。通行安排以现场标示为准。": {
+    "en": "Lyttelton Road exit. Follow the signs on site.",
+    "zh-Hant": "列堤頓道出口。通行安排以現場標示為準。"
+  },
+  "平台": {
+    "en": "podium",
+    "zh-Hant": "平台"
+  },
+  "入口层": {
+    "en": "entrance level",
+    "zh-Hant": "入口層"
+  },
+  "冷热水": {
+    "en": "hot and cold water",
+    "zh-Hant": "冷熱水"
+  },
+  "冷水": {
+    "en": "cold water",
+    "zh-Hant": "冷水"
+  },
+  "水温未注明": {
+    "en": "water temperature unlisted",
+    "zh-Hant": "水温未註明"
+  },
+  "红墙下一层（帖文描述）": {
+    "en": "one floor below the Red Wall (student report)",
+    "zh-Hant": "紅牆下一層（帖文描述）"
+  },
+  "3/F 健身房一带（楼层按校方馆址）": {
+    "en": "near the 3/F gym (floor from HKU's facility listing)",
+    "zh-Hant": "3/F 健身房一帶（樓層按校方館址）"
+  },
+  "2/F 餐饮区（按帖文线索）": {
+    "en": "2/F dining area (student report)",
+    "zh-Hant": "2/F 餐飲區（按帖文線索）"
+  },
+  "1/F（按帖文入口线索）": {
+    "en": "1/F (entrance described in student report)",
+    "zh-Hant": "1/F（按帖文入口線索）"
+  },
+  "4/F 饭堂": {
+    "en": "4/F canteen",
+    "zh-Hant": "4/F 飯堂"
+  },
+  "G/F 入口": {
+    "en": "G/F entrance",
+    "zh-Hant": "G/F 入口"
+  },
+  "图书馆大楼新翼": {
+    "en": "Library Building (New Wing)",
+    "zh-Hant": "圖書館大樓新翼"
+  },
+  "图书馆大楼旧翼": {
+    "en": "Library Building (Old Wing)",
+    "zh-Hant": "圖書館大樓舊翼"
+  },
+  "冯平山楼 · G/F 入口": {
+    "en": "Fung Ping Shan Building · G/F entrance",
+    "zh-Hant": "馮平山樓 · G/F 入口"
+  },
+  "厉树雄科学馆 · G/F、1/F": {
+    "en": "James Hsioung Lee Science Building · G/F, 1/F",
+    "zh-Hant": "厲樹雄科學館 · G/F、1/F"
+  },
+  "李兆基会议中心 · LG/F": {
+    "en": "Lee Shau Kee Lecture Centre · LG/F",
+    "zh-Hant": "李兆基會議中心 · LG/F"
+  },
+  "综合大楼 · LG1、LG2、G/F": {
+    "en": "Composite Building · LG1, LG2, G/F",
+    "zh-Hant": "綜合大樓 · LG1、LG2、G/F"
+  },
+  "庄月明化学楼 · LG1、LG2、6/F": {
+    "en": "Chong Yuet Ming Chemistry Building · LG1, LG2, 6/F",
+    "zh-Hant": "莊月明化學樓 · LG1、LG2、6/F"
+  },
+  "周亦卿楼 · LG1、LG2、LG3、G/F、1–8/F": {
+    "en": "Chow Yei Ching Building · LG1, LG2, LG3, G/F, 1–8/F",
+    "zh-Hant": "周亦卿樓 · LG1、LG2、LG3、G/F、1–8/F"
+  },
+  "仪礼堂 · G/F、1/F、2/F": {
+    "en": "Eliot Hall · G/F, 1/F, 2/F",
+    "zh-Hant": "儀禮堂 · G/F、1/F、2/F"
+  },
+  "黄克竞楼 · 1–3/F、5–8/F、LG1": {
+    "en": "Haking Wong Building · 1–3/F, 5–8/F, LG1",
+    "zh-Hant": "黃克競樓 · 1–3/F、5–8/F、LG1"
+  },
+  "许爱周科学馆 · LG/F": {
+    "en": "Hui Oi Chow Science Building · LG/F",
+    "zh-Hant": "許愛周科學館 · LG/F"
+  },
+  "梁銶琚楼 · LG1、1–15/F": {
+    "en": "K.K. Leung Building · LG1, 1–15/F",
+    "zh-Hant": "梁銶琚樓 · LG1、1–15/F"
+  },
+  "嘉道理生物科学大楼 · G/F、1–9/F": {
+    "en": "Kadoorie Biological Sciences Building · G/F, 1–9/F",
+    "zh-Hant": "嘉道理生物科學大樓 · G/F、1–9/F"
+  },
+  "钮鲁诗楼 · 1/F、2/F、4/F、6/F、7/F、9/F、10/F": {
+    "en": "Knowles Building · 1/F, 2/F, 4/F, 6/F, 7/F, 9/F, 10/F",
+    "zh-Hant": "鈕魯詩樓 · 1/F、2/F、4/F、6/F、7/F、9/F、10/F"
+  },
+  "图书馆大楼新翼 · G/F、LG1、LG2、1–4/F": {
+    "en": "Library Building (New Wing) · G/F, LG1, LG2, 1–4/F",
+    "zh-Hant": "圖書館大樓新翼 · G/F、LG1、LG2、1–4/F"
+  },
+  "本部大楼 · 1/F、2/F": {
+    "en": "Main Building · 1/F, 2/F",
+    "zh-Hant": "本部大樓 · 1/F、2/F"
+  },
+  "梅堂 · G/F、1/F、2/F": {
+    "en": "May Hall · G/F, 1/F, 2/F",
+    "zh-Hant": "梅堂 · G/F、1/F、2/F"
+  },
+  "明华综合大楼 · LG1、G/F、1–5/F、7/F、8/F": {
+    "en": "Meng Wah Complex · LG1, G/F, 1–5/F, 7/F, 8/F",
+    "zh-Hant": "明華綜合大樓 · LG1、G/F、1–5/F、7/F、8/F"
+  },
+  "黄丽松讲堂 · 1/F": {
+    "en": "Rayson Huang Theatre · 1/F",
+    "zh-Hant": "黃麗松講堂 · 1/F"
+  },
+  "邵逸夫楼 · G/F、1/F、3/F、4/F": {
+    "en": "Run Run Shaw Building · G/F, 1/F, 3/F, 4/F",
+    "zh-Hant": "邵逸夫樓 · G/F、1/F、3/F、4/F"
+  },
+  "邵仁枚楼 · G/F、1–4/F": {
+    "en": "Runme Shaw Building · G/F, 1–4/F",
+    "zh-Hant": "邵仁枚樓 · G/F、1–4/F"
+  },
+  "中山广场 · G/F": {
+    "en": "Sun Yat-sen Place · G/F",
+    "zh-Hant": "中山廣場 · G/F"
+  },
+  "徐展堂楼 · 1/F、3–5/F、7/F、9/F": {
+    "en": "T.T. Tsui Building · 1/F, 3–5/F, 7/F, 9/F",
+    "zh-Hant": "徐展堂樓 · 1/F、3–5/F、7/F、9/F"
+  },
+  "庄月明文娱中心 · 1/F": {
+    "en": "Chong Yuet Ming Amenities Centre · 1/F",
+    "zh-Hant": "莊月明文娛中心 · 1/F"
+  },
+  "方树泉文娱中心 · GA/F、1A/F、2A/F": {
+    "en": "Fong Shu Chuen Amenities Centre · GA/F, 1A/F, 2A/F",
+    "zh-Hant": "方樹泉文娛中心 · GA/F、1A/F、2A/F"
+  },
+  "研究生堂 · P1、P3–P6": {
+    "en": "Graduate House · P1, P3–P6",
+    "zh-Hant": "研究生堂 · P1、P3–P6"
+  },
+  "郑裕彤教学楼 · 4–11/F": {
+    "en": "Cheng Yu Tung Tower · 4–11/F",
+    "zh-Hant": "鄭裕彤教學樓 · 4–11/F"
+  },
+  "逸夫教学楼 · 4–11/F": {
+    "en": "Run Run Shaw Tower · 4–11/F",
+    "zh-Hant": "逸夫教學樓 · 4–11/F"
+  },
+  "赛马会教学楼 · 4–11/F": {
+    "en": "The Jockey Club Tower · 4–11/F",
+    "zh-Hant": "賽馬會教學樓 · 4–11/F"
+  },
+  "百周年校园中央平台 · LG2/F、LG1/F、LG/F、G/F、1–3/F": {
+    "en": "Central Podium Levels (CPD) · LG2/F, LG1/F, LG/F, G/F, 1–3/F",
+    "zh-Hant": "百週年校園中央平台 · LG2/F、LG1/F、LG/F、G/F、1–3/F"
+  },
+  "许爱周科学馆 · G/F": {
+    "en": "Hui Oi Chow Science Building · G/F",
+    "zh-Hant": "許愛周科學館 · G/F"
+  },
+  "大学图书馆 · 2/F、3/F、4/F": {
+    "en": "Main Library · 2/F, 3/F, 4/F",
+    "zh-Hant": "大學圖書館 · 2/F、3/F、4/F"
+  },
+  "黄克竞楼 · 平台 4/F · 冷热水": {
+    "en": "Haking Wong Building · 4/F podium · hot and cold water",
+    "zh-Hant": "黃克競樓 · 平台 4/F · 冷熱水"
+  },
+  "黄克竞楼 · 3/F · 冷热水": {
+    "en": "Haking Wong Building · 3/F · hot and cold water",
+    "zh-Hant": "黃克競樓 · 3/F · 冷熱水"
+  },
+  "大学图书馆 · G/F、1–6/F · 冷水": {
+    "en": "Main Library · G/F, 1–6/F · cold water",
+    "zh-Hant": "大學圖書館 · G/F、1–6/F · 冷水"
+  },
+  "庄月明文娱中心 · 4/F 饭堂 · 冷热水": {
+    "en": "Chong Yuet Ming Amenities Centre · 4/F canteen · hot and cold water",
+    "zh-Hant": "莊月明文娛中心 · 4/F 飯堂 · 冷熱水"
+  },
+  "太古楼 · G/F · 水温未注明": {
+    "en": "Swire Building · G/F · water temperature unlisted",
+    "zh-Hant": "太古樓 · G/F · 水温未註明"
+  },
+  "太古楼 · 2/F 餐饮区（按帖文线索） · 冷热水": {
+    "en": "Swire Building · 2/F dining area (student report) · hot and cold water",
+    "zh-Hant": "太古樓 · 2/F 餐飲區（按帖文線索） · 冷熱水"
+  },
+  "徐展堂楼 · 入口层 · 冷水": {
+    "en": "T.T. Tsui Building · entrance level · cold water",
+    "zh-Hant": "徐展堂樓 · 入口層 · 冷水"
+  },
+  "智华馆 · 1/F、2/F · 冷水": {
+    "en": "Chi Wah Learning Commons · 1/F, 2/F · cold water",
+    "zh-Hant": "智華館 · 1/F、2/F · 冷水"
+  },
+  "吕志和法律图书馆 · 1/F（按帖文入口线索） · 冷热水": {
+    "en": "Lui Che Woo Law Library · 1/F (entrance described in student report) · hot and cold water",
+    "zh-Hant": "呂志和法律圖書館 · 1/F（按帖文入口線索） · 冷熱水"
+  },
+  "李兆基会议中心 · 红墙下一层（帖文描述） · 冷水": {
+    "en": "Lee Shau Kee Lecture Centre · one floor below the Red Wall (student report) · cold water",
+    "zh-Hant": "李兆基會議中心 · 紅牆下一層（帖文描述） · 冷水"
+  },
+  "赛马会教学楼 · 3/F 健身房一带（楼层按校方馆址） · 冷水": {
+    "en": "The Jockey Club Tower · near the 3/F gym (floor from HKU's facility listing) · cold water",
+    "zh-Hant": "賽馬會教學樓 · 3/F 健身房一帶（樓層按校方館址） · 冷水"
+  },
+  "百周年校园中央平台 · LG/F · 水温未注明": {
+    "en": "Central Podium Levels (CPD) · LG/F · water temperature unlisted",
+    "zh-Hant": "百週年校園中央平台 · LG/F · 水温未註明"
+  },
+  "庄月明文娱中心 · 3–4/F · 水温未注明": {
+    "en": "Chong Yuet Ming Amenities Centre · 3–4/F · water temperature unlisted",
+    "zh-Hant": "莊月明文娛中心 · 3–4/F · 水温未註明"
+  },
+  "G/F · G.03": {
+    "en": "G/F · G.03",
+    "zh-Hant": "G/F · G.03"
+  },
+  "综合大楼 · G/F · G.02": {
+    "en": "Composite Building · G/F · G.02",
+    "zh-Hant": "綜合大樓 · G/F · G.02"
+  },
+  "G/F · G.01": {
+    "en": "G/F · G.01",
+    "zh-Hant": "G/F · G.01"
+  },
+  "G/F · G05、G06": {
+    "en": "G/F · G05, G06",
+    "zh-Hant": "G/F · G05、G06"
   }
 }

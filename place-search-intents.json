@@ -17,5 +17,6 @@
     "学校入口", "校园入口", "出入口", "校园出入口", "进校园", "进入校园",
     "campus entrance", "campus entrances", "campus access", "enter campus"
   ],
+  "water": ["饮水点", "饮水机", "饮用水", "饮水", "喝水", "接水", "drinking water", "water fountain", "water station", "refill water"],
   "building": ["教学楼", "教学大楼", "teaching building", "teaching buildings"]
 }

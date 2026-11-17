@@ -13,6 +13,7 @@ from community.models import InboxMessage
 from community.profiles import public_author_data
 
 from .articles import ARTICLE_SCOPE
+from .map_display import canonical_place_id
 from .models import CampusPlace, GuideLike, GuidePost, Publication
 
 
@@ -107,7 +108,8 @@ class PlaceComments(Comments):
 
     @staticmethod
     def target(pk):
-        return get_object_or_404(CampusPlace.objects.select_related("publication__current_submission"), pk=pk, publication__published=True)
+        return get_object_or_404(CampusPlace.objects.select_related("publication__current_submission"),
+                                 pk=canonical_place_id(pk), publication__published=True)
 
 
 class DeleteComment(PrivateResponseView):

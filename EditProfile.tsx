@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { BackHandler, Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import { BackHandler, Keyboard, StyleSheet, View } from 'react-native';
+import { FormScrollView, KeyboardLayout } from './KeyboardLayout';
+import { usePhotoPicker } from './PhotoCrop';
 import AppIcon from './AppIcon';
 import { Avatar } from './AuthorIdentity';
 import { Button, Field } from './CommunityUI';
@@ -11,6 +12,7 @@ import { Alert, Pressable, Text } from './ui';
 export default function EditProfile({ user, onSave, onBack, onExpired }: {
   user: Account['user']; onSave: (draft: ProfileDraft) => Promise<void>; onBack: () => void; onExpired: () => void;
 }) {
+  const { pickPhoto, cropEditor } = usePhotoPicker();
   const [nickname, setNickname] = useState(user.nickname ?? '');
   const [bio, setBio] = useState(user.bio ?? '');
   const [avatar, setAvatar] = useState<PickedImage | null>(null);
@@ -43,12 +45,9 @@ export default function EditProfile({ user, onSave, onBack, onExpired }: {
     setBusy(true);
     setError('');
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.85,
-        preferredAssetRepresentationMode: ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible });
-      if (result.canceled) return;
-      const asset = result.assets[0];
-      if (asset.fileSize && asset.fileSize > 5 * 1024 * 1024) { setError('图片需小于 5 MB，请选择较小的图片。'); return; }
-      setAvatar({ uri: asset.uri, name: asset.fileName || 'avatar.jpg', type: asset.mimeType || 'image/jpeg' });
+      const image = await pickPhoto({ aspect: 1, circle: true });
+      if (!image) return;
+      setAvatar(image);
       setRemoveAvatar(false);
     } catch { setError('暂时无法选择图片，请重试。'); }
     finally { working.current = false; setBusy(false); }
@@ -67,12 +66,13 @@ export default function EditProfile({ user, onSave, onBack, onExpired }: {
     } finally { working.current = false; setBusy(false); }
   }
 
-  return <KeyboardAvoidingView style={s.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+  return <KeyboardLayout>
+    {cropEditor}
     <View style={s.header}>
       <Pressable testID="profile-edit-back" accessibilityRole="button" accessibilityLabel="返回" disabled={busy} onPress={close} style={s.back}><AppIcon name="back" size={20} /></Pressable>
       <Text accessibilityRole="header" style={s.title}>编辑资料</Text>
     </View>
-    <ScrollView contentContainerStyle={s.page} keyboardShouldPersistTaps="handled">
+    <FormScrollView contentContainerStyle={s.page}>
       <View style={s.photoRow}>
         <Avatar uri={uri} size={72} />
         <View style={s.photoActions}>
@@ -88,12 +88,11 @@ export default function EditProfile({ user, onSave, onBack, onExpired }: {
       <Field label="个人简介" testID="profile-bio" value={bio} maxLength={160} multiline textAlignVertical="top" onChangeText={setBio} editable={!busy} style={s.bio} />
       {error ? <Text style={s.error} accessibilityRole="alert">{error}</Text> : null}
       <Button label="保存资料" onPress={() => void save()} busy={busy} disabled={!changed} />
-    </ScrollView>
-  </KeyboardAvoidingView>;
+    </FormScrollView>
+  </KeyboardLayout>;
 }
 
 const s = StyleSheet.create({
-  flex: { flex: 1 },
   header: { width: '100%', maxWidth: 650, alignSelf: 'center', minHeight: 56, flexDirection: 'row', alignItems: 'center', gap: 4 },
   back: { width: 48, height: 48, justifyContent: 'center', alignItems: 'center' },
   title: { color: c.ink, fontSize: 20, fontWeight: '600', flexShrink: 1 },

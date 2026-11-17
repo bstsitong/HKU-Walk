@@ -175,6 +175,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         return render_to_string("admin/community/submission/content.html", {
             "submission": obj, "place_fields": place_fields, "targets": targets, "route": route,
             "route_id": data.get("routeId"), "blocks": blocks, "steps": steps, "body_heading": body_heading,
+            "image_label": "路线总览图" if obj.kind == Kind.NEW_ROUTE else "投稿配图",
         })
 
     def save_model(self, request, obj, form, change):

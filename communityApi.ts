@@ -2,6 +2,7 @@ import { File } from 'expo-file-system';
 import { API_BASE, AuthorProfile, DiscussionComment } from './guideApi';
 import { MapDraftData, serializeMapDraft } from './mapSubmission';
 import { BodyBlock, DraftBodyBlock, serializeBodyBlocks } from './submissionBlocks';
+import type { RecordChange } from './personalRecords';
 
 export type Account = { token: string; user: { id: string; username: string; hasRecoveryCode?: boolean; nickname?: string; bio?: string; avatarUrl?: string; coverUrl?: string } };
 export type AccountResult = Account & { recoveryCode?: string };
@@ -19,11 +20,12 @@ export type Submission = {
   publishedContent: { title: string; body: string; location: string; externalUrl: string; imageUrl: string;
     version: string; published: boolean; canDeletePost?: boolean; mapData?: MapDraftData; bodyBlocks?: BodyBlock[] } | null;
 };
-export type PickedImage = { uri: string; name: string; type: string };
+export type PickedImage = { uri: string; name: string; type: string; blob?: Blob };
 export type ProfileDraft = { nickname: string; bio: string; avatar: PickedImage | null; removeAvatar: boolean };
 
 function appendPhoto(form: FormData, field: string, image: PickedImage) {
-  form.append(field, new File(image.uri));
+  if (image.blob) form.append(field, image.blob, image.name);
+  else form.append(field, new File(image.uri));
 }
 export type Draft = {
   kind: Kind; title: string; body: string; location: string; externalUrl: string;
@@ -66,6 +68,11 @@ export function authenticate(mode: 'login' | 'register', username: string, passw
   });
 }
 export const fetchMe = (token: string) => request<{ user: Account['user'] }>('/api/accounts/me/', {}, token);
+export function syncPersonalRecords(token: string, batch?: { device: string; first: number; changes: RecordChange[] }) {
+  return request<{ records: unknown }>('/api/accounts/me/records/', batch ? {
+    method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(batch),
+  } : { cache: 'no-store' }, token);
+}
 export const fetchPrivacy = (token: string) =>
   request<{ privacy: Privacy }>('/api/accounts/privacy/', { cache: 'no-store' }, token);
 export const updatePrivacy = (token: string, patch: Partial<Privacy>) =>

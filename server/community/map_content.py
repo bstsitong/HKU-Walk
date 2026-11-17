@@ -3,6 +3,7 @@ from django.urls import reverse
 from rest_framework.exceptions import ValidationError
 from guide.campus_map import MAP_VERSION
 from guide.catalog import published_routes
+from guide.map_display import canonical_place_id
 from guide.models import CampusPlace
 
 PLACE_CATEGORIES = set(CampusPlace.Category.values)
@@ -40,13 +41,13 @@ def validate_map_data(kind, data):
             result["abbreviation"] = text(data, "abbreviation", 40)
         return result
     if kind == "place" and data:
-        place_id = text(data, "placeId", 80, True)
+        place_id = canonical_place_id(text(data, "placeId", 80, True))
         if not place_exists(place_id):
             raise ValidationError({"map_data": "需要纠错的地点已下线，请重新选择。"})
         return {"type": "place_correction", "placeId": place_id}
     if kind == "new_route" or (kind == "route" and data):
-        origin = text(data, "originId", 80, True)
-        destination = text(data, "destinationId", 80, True)
+        origin = canonical_place_id(text(data, "originId", 80, True))
+        destination = canonical_place_id(text(data, "destinationId", 80, True))
         if origin == destination:
             raise ValidationError({"map_data": "起点和终点不能相同。"})
         if not place_exists(origin) or not place_exists(destination):
@@ -65,12 +66,9 @@ def validate_map_data(kind, data):
         clean = []
         for step in steps:
             if not isinstance(step, dict):
-                raise ValidationError({"map_data": "每一步都需要标题和说明。"})
-            clean.append({"title": text(step, "title", 160, True), "body": text(step, "body", 1500, True)})
-        result = {"type": "route", "originId": origin, "destinationId": destination, "steps": clean}
-        if data.get("stepPhotosRequired") is True:
-            result["stepPhotosRequired"] = True
-        return result
+                raise ValidationError({"map_data": "每一步都需要标题。"})
+            clean.append({"title": text(step, "title", 160, True), "body": text(step, "body", 1500)})
+        return {"type": "route", "originId": origin, "destinationId": destination, "steps": clean}
     if data:
         raise ValidationError({"map_data": "此投稿类型不包含地点或路线资料。"})
     return {}

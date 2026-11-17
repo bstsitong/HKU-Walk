@@ -1,11 +1,12 @@
 from django.urls import path
-from . import inbox, views
+from . import inbox, personal_records, views
 
 urlpatterns = [
     path("accounts/register/", views.Register.as_view()),
     path("accounts/login/", views.Login.as_view()),
     path("accounts/me/", views.Me.as_view()),
     path("accounts/me/cover/", views.ProfileCoverSettings.as_view()),
+    path("accounts/me/records/", personal_records.AccountRecords.as_view()),
     path("accounts/privacy/", views.PrivacySettings.as_view()),
     path("profiles/<uuid:public_id>/", views.PublicProfile.as_view()),
     path("avatars/<slug:key>/", views.ProfileAvatar.as_view(), name="profile-avatar"),

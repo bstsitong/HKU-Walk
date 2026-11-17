@@ -4,13 +4,22 @@ const assert = require('node:assert/strict');
 const ts = require('typescript');
 require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true } }).outputText, filename);
 const { filterPlaces, places, placeName } = require('../campus.ts');
-const { setCurrentLanguage, translate, t } = require('../localization.ts');
+const { defaultLanguage, getLanguage, setCurrentLanguage, translate, t } = require('../localization.ts');
+assert.equal(defaultLanguage, 'en');
+assert.equal(getLanguage(), 'en');
+assert.deepEqual(filterPlaces('souvenir').map(place => place.id).sort(),
+  ['campus-store', 'hku-press-bookshop', 'visitor-centre-gift-shop']);
 const cases = [
+  ['CBA','classroom-cba'], ['CYCC501','classroom-cycc501'], ['CYCP2','classroom-cycp2'], ['CYPP1','classroom-cypp1'],
+  ['CYP P2','classroom-cypp2'], ['CYPP3','classroom-cypp3'], ['CYPP4','classroom-cypp4'], ['HW-312','classroom-hw312'],
+  ['MWT2','classroom-mwt2'], ['红墙','centennial-red-wall'], ['書店','hku-press-bookshop'], ['紀念品店','campus-store'],
+  ['cafe330','so330'], ['赛百味','subway'], ['一念素食','bijas'], ['SU 食堂','union-restaurant'],
+  ['美心食堂（邵逸夫楼）','asian-gourmet'],
   ['图书馆','library'], ['圖書館','library'], ['總圖','library'], ['ｌｉｂｒａｒｙ','library'],
   ['Main Lib','library'], ['Main Libary','library'], ['Main Librray','library'], ['图书官','library'],
   ['tu shu guan','library'], ['tushuguan','library'], ['daxuetushu','library'],
   [' CWLC ','chiwah'], ['C.W.L.C.','chiwah'], ['钮鲁诗','knowles'], ['鈕魯詩','knowles'],
-  ['mAiN bUiLdInG','main'], ['LBO','library-old'], ['LBN','library-new'], ['CJT','jockey-club-tower'], ['港大站 C1','mtr-c1'], ['黄克竞','haking-wong'], ['地铁','gate'], ['港鐵港大站','gate'], ['花園','garden'], ['wc','toilet'],
+  ['mAiN bUiLdInG','main'], ['LBO','library'], ['LBN','library'], ['CJT','jockey-club-tower'], ['港大站 C1','mtr-c1'], ['黄克竞','haking-wong'], ['地铁','gate'], ['港鐵港大站','gate'], ['花園','garden'], ['wc','toilet'],
 ];
 for (const language of ['zh-Hans','zh-Hant','en']) {
   setCurrentLanguage(language);
@@ -32,6 +41,32 @@ assert.equal(translate('请确保这个字段不能多于 160 个字符。'), 'U
 assert.equal(translate('同学自己写的内容 test'), '同学自己写的内容 test');
 setCurrentLanguage('zh-Hant');
 assert.equal(translate('本部大楼'), '本部大樓');
+assert.equal(translate('更新后请检查学校的设施。'), '更新後請檢查學校的設施。');
+const { localizedGuideArticle } = require('../guideLocalization.ts');
+const han = /[\u3400-\u9fff]/;
+const markdownLinks = body => [...body.matchAll(/\]\(([^)]*)\)/g)].map(match => match[1]);
+const prose = body => body.replace(/\]\([^)]*\)/g, '');
+for (const original of require('../server/guide/student_guide_articles.json')) {
+  const article = { ...original, markdown: true, isCommunity: false, sourcePages: original.sourcePages ?? {} };
+  const english = localizedGuideArticle(article, 'en');
+  const traditional = localizedGuideArticle(article, 'zh-Hant');
+  assert.ok(!han.test(english.title) && !han.test(prose(english.body)), original.title);
+  assert.deepEqual(markdownLinks(english.body), markdownLinks(original.body), original.title);
+  assert.deepEqual(markdownLinks(traditional.body), markdownLinks(original.body), original.title);
+  for (const [key, page] of Object.entries(article.sourcePages)) {
+    assert.ok(!han.test(english.sourcePages[key].title) && !han.test(prose(english.sourcePages[key].body)), key);
+    assert.deepEqual(markdownLinks(english.sourcePages[key].body), markdownLinks(page.body), key);
+    assert.deepEqual(markdownLinks(traditional.sourcePages[key].body), markdownLinks(page.body), key);
+  }
+  assert.equal(localizedGuideArticle({ ...article, isCommunity: true }, 'en').body, original.body);
+}
+for (const file of ['base_places_v2', 'additional_map_places', 'campus_landmarks', 'classrooms', 'campus_facilities']) {
+  for (const place of require(`../server/guide/${file}.json`)) {
+    for (const key of ['entrance', 'floor', 'description', 'buildingName', 'detail']) {
+      if (place[key]) assert.ok(!han.test(translate(place[key], 'en')), `${place.id}: ${key}`);
+    }
+  }
+}
 for (const category of [...require('../server/guide/seed.json'), ...require('../server/guide/student_guide_hku_v1.json')]) {
   for (const text of [category.title, category.subtitle, category.introduction, ...category.entries.flatMap(entry => [entry.title, entry.body])].filter(Boolean)) {
     assert.ok(translate(text, 'en') && !/[\u3400-\u9fff]/.test(translate(text,'en')), `Missing guide translation: ${text}`);
@@ -49,7 +84,8 @@ const { readRouteBookmarks, demoRouteId } = require('../routeBookmarks.ts');
 const { emptyMapDraft, serializeMapDraft, validateMapDraft, editMapDraft } = require('../mapSubmission.ts');
 const { CAMPUS_MAP_VERSION } = require('../MapArtwork.ts');
 const { readCampus } = require('../campusCatalog.ts');
-const { setCommunityCampus, getPlace, getCampusRoute } = require('../campus.ts');
+const { additionalMapPlaces, basePlaces, classroomAndLandmarkPlaces, classroomPlaces, mapPlace, setCommunityCampus, getPlace, getCampusRoute } = require('../campus.ts');
+const { classroomDirections } = require('../classroomRoutes.ts');
 const demo = { id: demoRouteId('gate','library'), originId: 'gate', destinationId: 'library', source: 'demo' };
 const shared = { id: 'community-route-42', originId: 'gate', destinationId: 'community-place-35', source: 'community' };
 assert.deepEqual(readRouteBookmarks(JSON.parse(JSON.stringify([demo,shared,demo,{...demo,destinationId:'gate'},{...shared,id:'other'}]))), [demo,shared]);
@@ -69,9 +105,32 @@ const newPlace = {id:'community-place-35',entryId:'35',name:'更多',english:'Ne
 const newRoute = {id:'community-route-42',entryId:'42',title:'My route',body:'Route details',originId:'gate',destinationId:newPlace.id,steps:[{title:'Step',body:'Walk to the entrance'}],isCommunity:true,updatedAt:'2026-11-06'};
 const checked = readCampus({ mapVersion: CAMPUS_MAP_VERSION,places:[newPlace,{...newPlace,id:'community-place-36',x:-1}],routes:[newRoute,{...newRoute,id:'community-route-43',destinationId:'missing'}]});
 assert.equal(checked.places.length,1); assert.equal(checked.routes.length,1);
+const oldBuiltins = basePlaces.filter(place => !additionalMapPlaces.includes(place) && !classroomAndLandmarkPlaces.includes(place));
+const fromOlderServer = readCampus({ mapVersion: CAMPUS_MAP_VERSION, places: [], routes: [], basePlaces: oldBuiltins });
+assert.equal(fromOlderServer.basePlaces.length, basePlaces.length);
+assert.equal(fromOlderServer.basePlaces.filter(place => place.category === 'water').length, 13);
+const fromCurrentServer = readCampus({ ...fromOlderServer, includesAdditionalMapPlaces: true,
+  basePlaces: fromOlderServer.basePlaces.filter(place => place.id !== 'water-haking3') });
+assert.ok(!fromCurrentServer.basePlaces.some(place => place.id === 'water-haking3'));
+const preClassroomServer = readCampus({ ...fromOlderServer, basePlaces: oldBuiltins, includesAdditionalMapPlaces: true });
+assert.equal(preClassroomServer.basePlaces.filter(place => place.parentBuildingId).length, 9);
+const currentWithoutRoom = readCampus({ ...fromOlderServer, includesClassroomPlaces: true,
+  basePlaces: fromOlderServer.basePlaces.filter(place => place.id !== 'classroom-cba') });
+assert.ok(!currentWithoutRoom.basePlaces.some(place => place.id === 'classroom-cba'));
+const { mapCandidates } = require('../mapCamera.ts');
+for (const room of classroomPlaces) {
+  const building = mapPlace(room);
+  assert.equal(building.id, room.parentBuildingId);
+  assert.ok(!mapCandidates(basePlaces, room.id, 'building', 4).some(place => place.parentBuildingId));
+  for (const start of [getPlace('gate'), getPlace('mtr-c1'), building]) {
+    assert.ok(classroomDirections(start, room).at(-1).copy.includes(room.abbreviation));
+  }
+  assert.equal(classroomDirections(getPlace('main'), room), null);
+}
 setCommunityCampus(checked.places,checked.routes);
 setCurrentLanguage('en');
-assert.equal(placeName(getPlace(newPlace.id)),'更多');
+assert.equal(placeName(getPlace(newPlace.id)), 'New study place');
+assert.equal(placeName(getPlace(newPlace.id), 'zh-Hans'), '更多');
 assert.equal(filterPlaces('all','New study place')[0].id,newPlace.id);
 assert.equal(filterPlaces('all','nsp')[0].id,newPlace.id);
 assert.equal(serializeMapDraft('new_place', { ...newPlace }).data.abbreviation, 'NSP');
@@ -105,15 +164,16 @@ for (const query of ['吃饭的地方', '想找个地方吃饭', '請問附近�
 assert.deepEqual(filterPlaces('study', '吃饭的地方'), []);
 assert.deepEqual(filterPlaces('food', '吃饭的地方').map(place => place.id).sort(), foodIds);
 assert.deepEqual(filterPlaces('all', '红砖食堂').map(place => place.id), [canteen.id]);
-assert.deepEqual(filterPlaces('all', '快餐店').map(place => place.id), [takeaway.id, nailong.id]);
+assert.deepEqual(filterPlaces('all', '快餐店').map(place => place.id), [takeaway.id, 'union-restaurant', nailong.id]);
 for (const query of ['哪里能吃汉堡？', 'any burgers on campus', '想找能买榴莲千层的地方', '我想去奶龙']) {
   assert.deepEqual(filterPlaces('all', query).map(place => place.id), [nailong.id], query);
 }
 for (const query of ['我想找个安静有插座的地方自习', 'I want somewhere to study with power sockets', '想找在三楼的地点']) {
   assert.deepEqual(filterPlaces('all', query).map(place => place.id), [room.id], query);
 }
-assert.deepEqual(filterPlaces('all', '哪里有升降机').map(place => place.id), ['east-gate', room.id]);
-assert.deepEqual(filterPlaces('all', 'Where is a restroom?').map(place => place.id), ['toilet']);
+assert.deepEqual(filterPlaces('all', '哪里有升降机').map(place => place.id), ['east-gate', 'water-haking3', room.id]);
+assert.deepEqual(filterPlaces('all', 'Where is a restroom?').map(place => place.id), basePlaces.filter(place => place.category === 'toilet').map(place => place.id));
+assert.deepEqual(filterPlaces('all', '哪里可以接水').map(place => place.id).sort(), basePlaces.filter(place => place.category === 'water').map(place => place.id).sort());
 assert.ok(filterPlaces('all', '我想找地方自习').every(place => place.category === 'study'));
 assert.ok(filterPlaces('all', '我想找地方自习').some(place => place.id === room.id));
 setCommunityCampus([],[]);
@@ -137,7 +197,7 @@ assert.equal(projectCampusLocation(22.283, 114.15, 10), null);
 assert.equal(projectCampusLocation(NaN, 114.137, 10), null);
 console.log('Passed: entrance alignment, map boundaries and GPS accuracy scaling.');
 
-const { fromMapScreen, fromMapView, toMapView, mapCandidates, centreMapOn, mapScreenCentre, moveMapCamera } = require('../mapCamera.ts');
+const { fromMapScreen, fromMapView, toMapView, centreMapOn, mapScreenCentre, moveMapCamera } = require('../mapCamera.ts');
 const { campusMapSvg, MAP_HEIGHT } = require('../MapArtwork.ts');
 assert.deepEqual(toMapView({ x: 0, y: 0 }), { x: 360, y: MAP_HEIGHT });
 assert.deepEqual(fromMapView({ x: 0, y: 0 }), { x: 360, y: 580 });
@@ -167,10 +227,56 @@ const marker = toMapView(selected);
 assert.deepEqual(fromMapScreen({ x: pickerDragged.x + marker.x * 4, y: pickerDragged.y + marker.y * 4 }, pickerDragged, picker), selected);
 const overview = mapCandidates(places, 'main', 'all', 1);
 const midZoom = mapCandidates(places, 'main', 'all', 1.7);
+const attractionsZoom = mapCandidates(places, 'main', 'all', 2.4);
 const closeZoom = mapCandidates(places, 'main', 'all', 3);
-assert.ok(overview.length < midZoom.length && midZoom.length < closeZoom.length);
-assert.equal(overview[0].id, 'main');
-assert.ok(!overview.some(place => place.id === 'cafe') && closeZoom.some(place => place.id === 'cafe'));
-assert.equal(mapCandidates(places, 'cafe', 'all', 1)[0].id, 'cafe');
+assert.ok(overview.length < midZoom.length && midZoom.length < attractionsZoom.length && attractionsZoom.length < closeZoom.length);
+assert.ok(overview.every(place => place.category === 'access'));
+assert.ok(midZoom.some(place => place.id === 'main'));
+assert.ok(!midZoom.some(place => place.id === 'cafe') && attractionsZoom.some(place => place.id === 'cafe'));
+assert.ok(!attractionsZoom.some(place => place.id === 'swire-hall') && closeZoom.some(place => place.id === 'swire-hall'));
+assert.equal(getPlace('library-old'), getPlace('library'));
+assert.equal(getPlace('library-new'), getPlace('library'));
+assert.equal(getPlace('mtr-a2')?.name, '港大站 A2 出口');
+const { mapPinSizes, mapPlaceSymbol } = require('../mapDisplay.ts');
+const markerExamples = ['gate', 'main', 'centennial-red-wall', 'cafe', 'campus-store', 'toilet', 'water-haking3'];
+assert.deepEqual(markerExamples.map(id => mapPlaceSymbol(getPlace(id)).icon),
+  ['gate', 'building', 'landmark', 'utensils', 'gift', 'wc', 'water']);
+assert.equal(mapPlaceSymbol(getPlace('sun-yat-sen-place')).icon, 'plaza');
+for (const level of [1, 2, 3]) {
+  assert.ok(mapPinSizes[level].diameter > mapPinSizes[level + 1].diameter);
+  assert.ok(mapPinSizes[level].icon > mapPinSizes[level + 1].icon);
+  assert.ok(mapPinSizes[level].text > mapPinSizes[level + 1].text);
+}
 assert.ok(mapCandidates(filterPlaces('food'), 'main', 'food', 1).some(place => place.id === 'cafe'));
 console.log('Passed: south-up rendering, pin alignment, focal zoom, panning and map detail levels.');
+
+const { buildingAt, facilityMarkerInput, layoutMapMarkers, placeMarkerInput } = require('../mapMarkers.ts');
+const { campusFacilities } = require('../campusFacilities.ts');
+const campusMarkers = mapCandidates(basePlaces, '', 'all', 4).map(placeMarkerInput);
+campusMarkers.push(...campusFacilities.filter(facility => facility.kind !== 'gate').map(facilityMarkerInput));
+const markerById = (items, id) => items.find(({ item }) => (item.place ?? item.facility).id === id);
+for (const width of [320, 390, 440]) {
+  const { factor, pins } = layoutMapMarkers(campusMarkers, width * 4 / 360);
+  assert.equal(pins.length, campusMarkers.length);
+  assert.ok(factor > 0.1);
+  for (const [index, pin] of pins.entries()) {
+    assert.ok(pin.radius > 0);
+    for (const other of pins.slice(index + 1)) {
+      assert.ok(Math.hypot(pin.point.x - other.point.x, pin.point.y - other.point.y) >= pin.radius + other.radius);
+    }
+  }
+  for (const names of [
+    ['run-run-shaw-tower', 'bijas', 'asian-gourmet', 'wc-run-run-shaw-tower'],
+    ['visitor-centre', 'visitor-centre-gift-shop'],
+    ['chiwah', 'water-chiwah'],
+    ['composite', 'campus-store', 'wc-composite'],
+  ]) {
+    const building = markerById(campusMarkers, names[0]).building;
+    assert.ok(building);
+    for (const name of names) assert.equal(buildingAt(markerById(pins, name).point), building, name);
+  }
+  assert.equal(markerById(pins, 'bijas').radius, markerById(pins, 'asian-gourmet').radius);
+  assert.ok(markerById(pins, 'run-run-shaw-tower').radius > markerById(pins, 'bijas').radius);
+  assert.ok(markerById(pins, 'bijas').radius > markerById(pins, 'wc-run-run-shaw-tower').radius);
+}
+console.log('Passed: separate non-overlapping map markers, shared level sizes and indoor building placement.');

@@ -5,8 +5,8 @@ from django.core.cache import cache
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from .assistant_sources import AssistantServiceError, search_web
-from .models import AssistantUsage, CampusPlace, Publication
+from .assistant_sources import AssistantServiceError, search_route, search_web
+from .models import AssistantUsage, CampusPlace, CampusRoute, Publication, RouteStep
 
 
 def tool_call(name, **arguments):
@@ -58,6 +58,58 @@ class AssistantTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual([(item["kind"], item["id"]) for item in response.json()["sources"]], [("place", "library")])
         model.assert_not_called()
+
+    def add_walking_route(self, *, published=True):
+        origin = CampusPlace.objects.create(
+            code="gate", name_zh="港大站 A2 出口", name_en="HKU Station Exit A2", abbreviation_en="A2",
+            publication=Publication.objects.create(key="exit-a2", kind="place"),
+            category="access", map_x=10, map_y=10,
+        )
+        destination = CampusPlace.objects.create(
+            code="chiwah", name_zh="智华馆", name_en="Chi Wah Learning Commons", abbreviation_en="CWLC",
+            keywords="智華館 智华学习共享空间",
+            publication=Publication.objects.create(key="chi-wah", kind="place"),
+            category="study", map_x=20, map_y=20,
+        )
+        route = CampusRoute.objects.create(
+            publication=Publication.objects.create(key="a2-chiwah-route", kind="route", published=published),
+            origin=origin, destination=destination, title="Chi Wah Learning Commons",
+        )
+        RouteStep.objects.create(route=route, position=1, title="Walk to Haking Wong Building")
+        RouteStep.objects.create(route=route, position=0, title="Exit at A2")
+        return route
+
+    def test_explicit_directions_use_published_route_steps_without_a_model_call(self):
+        self.add_walking_route()
+        for question, language in [
+            ("如何从a2去智华馆", "zh-Hans"),
+            ("從Ａ２到智華館怎麼走？", "zh-Hant"),
+            ("How do I get from HKU Station Exit A2 to Chi Wah Learning Commons?", "en"),
+            ("How do I get to CWLC from A2?", "en"),
+        ]:
+            with self.subTest(question=question), patch("guide.assistant.model_message") as model:
+                response = self.client.post(self.url, {"question": question, "language": language}, content_type="application/json")
+                self.assertEqual(response.status_code, 200)
+                answer = response.json()
+                self.assertIn("1. Exit at A2\n2. Walk to Haking Wong Building", answer["answer"])
+                self.assertEqual([(item["kind"], item["id"]) for item in answer["sources"]], [("place", "chiwah")])
+                model.assert_not_called()
+
+    def test_route_tool_uses_published_steps_for_a_conversational_request(self):
+        self.add_walking_route()
+        with patch("guide.assistant.model_message", return_value=tool_call(
+                "find_routes", origin="A2", destination="CWLC")) as model:
+            response = self.client.post(self.url, {"question": "A2 出来要怎么去 CWLC 呀"}, content_type="application/json")
+        self.assertIn("1. Exit at A2", response.json()["answer"])
+        model.assert_called_once()
+
+    def test_route_search_ignores_unpublished_routes_and_does_not_reverse_directions(self):
+        route = self.add_walking_route(published=False)
+        self.assertIsNone(search_route("A2", "智华馆"))
+        route.publication.published = True
+        route.publication.save(update_fields=["published"])
+        self.assertIsNone(search_route("智华馆", "A2"))
+        self.assertIsNone(search_route("A2", "another place"))
 
     @override_settings(DEEPSEEK_API_KEY="test-only")
     def test_unknown_place_search_checks_the_name_and_asks_for_a_landmark(self):
@@ -125,6 +177,45 @@ class AssistantTests(TestCase):
         self.assertIn("点开查看", response.json()["answer"])
         self.assertEqual(response.json()["sources"][0]["url"], official["url"])
         self.assertNotIn("evidence", response.json()["sources"][0])
+
+    def test_place_records_can_answer_a_question_about_the_entrance(self):
+        self.add_place("library", None)
+        CampusPlace.objects.filter(code="library").update(name_zh="大学图书馆", entrance="从图书馆旧翼 G/F 进入。")
+        with patch("guide.assistant.model_message", side_effect=[
+            tool_call("find_places", keywords=["大学图书馆"]),
+            {"content": json.dumps({"answer": "从图书馆旧翼 G/F 进入。", "sources": [1]})},
+        ]) as model:
+            response = self.client.post(self.url, {"question": "大学图书馆从哪里进去？"}, content_type="application/json")
+        self.assertEqual(response.json()["answer"], "从图书馆旧翼 G/F 进入。")
+        self.assertEqual(response.json()["sources"][0]["id"], "library")
+        self.assertIn("从图书馆旧翼 G/F 进入。", model.call_args.args[0][-1]["content"])
+
+    def test_place_card_survives_an_invalid_source_reference(self):
+        self.add_place("library", None)
+        with patch("guide.assistant.model_message", side_effect=[
+            tool_call("find_places", keywords=["library"]),
+            {"content": json.dumps({"answer": "Made-up directions", "sources": [99]})},
+        ]):
+            response = self.client.post(self.url, {"question": "Where is library?", "language": "en"}, content_type="application/json")
+        self.assertEqual(response.json()["sources"][0]["id"], "library")
+        self.assertNotIn("Made-up directions", response.json()["answer"])
+
+    @override_settings(DEEPSEEK_API_KEY="test-only")
+    def test_official_lookup_can_supplement_an_existing_place_result(self):
+        self.add_place("library", None)
+        CampusPlace.objects.filter(code="library").update(name_en="Main Library")
+        initial = tool_call("find_places", keywords=["Main Library"])
+        official_call = tool_call("search_hku", query="Main Library visitor access", site="library")["tool_calls"][0]
+        initial["tool_calls"].append({**official_call, "id": "call-2"})
+        official = {"kind": "web", "id": "https://lib.hku.hk/access", "url": "https://lib.hku.hk/access",
+                    "title": "Library access", "detail": "", "evidence": "See visitor access requirements."}
+        with patch("guide.assistant.model_message", side_effect=[
+            initial, {"content": json.dumps({"answer": "See visitor access requirements.", "sources": [2]})}
+        ]), patch("guide.assistant.search_web", return_value=[official]) as search:
+            response = self.client.post(self.url, {"question": "Can visitors enter the Main Library?", "language": "en"},
+                                        content_type="application/json")
+        search.assert_called_once()
+        self.assertEqual([item["kind"] for item in response.json()["sources"]], ["web"])
 
     def test_facility_results_require_a_published_confirmed_location(self):
         self.add_place("confirmed", True)

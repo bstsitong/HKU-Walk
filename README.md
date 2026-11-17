@@ -23,11 +23,11 @@ python -m venv .venv
 
 在「指南内容」中新增或编辑内容，可以设置分类、标题、正文、外部链接、图片地址、示例标记、发布状态和顺序。取消「发布到 App」会隐藏内容。删除操作使用 Django 的确认页面。
 
-手机点击「学生指南」可打开四类内容。向下拉或点击右上角刷新即可读取后台更新。在内容旁点书签，会收藏到当前设备。管理员入口也可从「更多」打开。
+「学生指南」默认以单列显示各类帖子。可按标题或正文搜索，也可用顶部标签筛选类别。下拉即可读取后台更新。登录后点内容旁的书签，可在「我的」查看收藏。
 
 ## 投稿与审核
 
-在「学生指南」底部点击「分享发现，一起更新指南」，或在「更多」点击「校园共建与我的投稿」。首次使用可以注册账号。账号使用 3–32 位字母、数字或下划线，不区分大小写；密码至少 8 位，服务端也会检查常见密码、纯数字及与账号过于相似的密码。
+在「学生指南」右上角点击「投稿」，或打开「我的 → 我的投稿」。首次使用可以注册账号。账号使用 3–32 位字母、数字或下划线，不区分大小写；密码至少 8 位，服务端也会检查常见密码、纯数字及与账号过于相似的密码。
 
 登录后可以提交新地点、新路线、美食分享、娱乐群资料、地点纠错和路线纠错。新地点填写中文名称，在校园示意图上选点，并可补充英文名称、英文简称、入口、楼层和照片。新路线从已有地点中选择起点和终点，填写 1–20 个步骤，每步可上传一张照片并调整顺序。封面和步骤配图均支持 JPEG、PNG 或 WebP，单张不超过 5 MB。服务端会检查格式、缩小到最长边 1600 像素并重编码为 JPEG，移除 EXIF 等附加资料。娱乐群需提供邀请链接，纠错需写明相关位置。
 
@@ -47,15 +47,17 @@ python -m venv .venv
 
 搜索「吃饭的地方」会显示地点库里已发布的餐饮地点。搜索具体需求时也会查看介绍、标签、入口和楼层，例如一家名称不含「汉堡」的店，只要介绍写了供应汉堡，也能被「哪里能吃汉堡」找到。新地点审核发布并加载到手机后就能参与这些匹配。
 
-步行路线可选择或搜索起终点、交换方向。演示路线使用六步图文指引，同学分享的路线显示审核通过的说明与步骤照片。地图上的连线是位置示意。「收藏」分为帖子、路线和地点三栏，无需登录，保存在当前设备。地点栏内可查看和清空最近浏览。
+步行路线可选择或搜索起终点、交换方向。演示路线使用六步图文指引，同学分享的路线显示审核通过的说明与步骤照片。地图上的连线是位置示意。「我的」登录后显示投稿、收藏和历史记录，每栏可切换地点、路线和帖子。收藏和历史记录按账号保存在本机。升级前的本机记录由升级后第一个登录的账号接收。
 
 指南帖子、地点和路线分别存于 `guide_guidepost`、`guide_campusplace`、`guide_campusroute`。路线的起终点通过外键引用地点，`guide_routestep` 保存有序的路线步骤。`guide_publication` 保存共有的发布状态、版本和稳定编号。投稿仍从同一入口审核。内置地点以数据库中的记录为准，App 自带初始地图数据供离线使用。
 
-在「更多 → 界面语言」选择简体中文、繁體中文或 English，切换即时生效并保留到下次打开。内置指南和地点资料提供对应翻译；同学投稿、管理员审核意见、账号及输入内容保留原文。新增系统文案后，编辑 `locales/app-en.json`，运行 `node scripts/build-locales.cjs` 生成英语与香港繁体字典。手机端也会在搜索时用 OpenCC 统一简繁写法。
+在「我的 → 设置 → 界面语言」选择简体中文、繁體中文或 English，切换即时生效并保留到下次打开。内置指南和地点资料提供对应翻译；同学投稿、管理员审核意见、账号及输入内容保留原文。新增系统文案后，编辑 `locales/app-en.json`，运行 `node scripts/build-locales.cjs` 生成英语与香港繁体字典。手机端也会在搜索时用 OpenCC 统一简繁写法。
 
-App 内置可离线查看的本部及百周年校园底图，大学街用金色标示。道路及楼宇轮廓来自 [OpenStreetMap contributors（ODbL）](https://www.openstreetmap.org/copyright)，[底图数据区域](https://api.openstreetmap.org/api/0.6/map?bbox=114.1328,22.2800,114.1417,22.28495)。地点名称、简称和出入口参考[港大物业处 25.2 版校园地图](https://www.estates.hku.hk/download_file/view_inline/674)与[港大 2015 年大学街原图](https://www.maps.hku.hk/downloads/201501hkumap.jpg)。餐饮楼层参考[港大餐饮目录](https://catering.hku.hk/en/eateries/)。地图地点和学生指南会在 App 打开或回到前台时自动刷新。路线的距离和步骤仍为演示。
+App 内置可离线查看的本部及百周年校园底图，道路、大学街与天桥采用统一的白色路面，楼梯用棕色横纹标示。道路及楼宇轮廓主要来自 [OpenStreetMap contributors（ODbL）](https://www.openstreetmap.org/copyright)，[底图数据区域](https://api.openstreetmap.org/api/0.6/map?bbox=114.1328,22.2800,114.1417,22.28495)。地点名称、简称和出入口参考[港大物业处 25.2 版校园地图](https://www.estates.hku.hk/download_file/view_inline/674)与[港大 2015 年大学街原图](https://www.maps.hku.hk/downloads/201501hkumap.jpg)。餐饮楼层参考[港大餐饮目录](https://catering.hku.hk/en/eateries/)。地图地点和学生指南会在 App 打开或回到前台时自动刷新。路线的距离和步骤仍为演示。
 
 底图点位独立于 GPS，经横向 0–360 和纵向 0–580 的比例坐标储存。新 App 以 `/api/campus/?mapVersion=2` 获取地图地点。旧版点位会保留，重新在新版底图上标记前只显示文字资料。
+
+放大地图可看到楼梯和天桥的线形。选择「地图设施」可以单独查看设施图例，点图标可查看楼层和连接信息。楼梯与天桥的线形取自上述 OpenStreetMap 底图区域。升降机及坡道参考[港大无障碍通行图](https://www.estates.hku.hk/campus-information/campus-accessibility/wheelchair-friendly-routes-hku-main-estate)，停车资料参考[校方停车场](https://www.estates.hku.hk/our-services/facility-management/parking/parking-space-location-and-parking-fee)与[无障碍车位](https://www.estates.hku.hk/campus-information/campus-accessibility/carparks-for-persons-disability)。只能确认所在楼宇或区域的设施会标明点位为示意。
 
 ## 配置与检查
 
@@ -70,8 +72,8 @@ App 内置可离线查看的本部及百周年校园底图，大学街用金色�
 
 服务器配置和备份操作见 [deploy/README.md](deploy/README.md)。`.github/workflows/check.yml` 的 PostgreSQL、容器启动、两种图片存储以及苹果、安卓打包检查已经在 GitHub Actions 通过。
 
-云端后端已经部署到 Render 免费服务，数据库为 Supabase 免费 PostgreSQL。维护入口为 <https://hku-walk-api.onrender.com/admin/>，健康检查为 <https://hku-walk-api.onrender.com/api/health/>。这两个链接是后端入口；手机界面通过 Expo Go 运行。
+当前线上后端和生产数据库运行在香港 ECS。HTTPS API 地址以本机 `.env.local` 的 `EXPO_PUBLIC_API_URL` 为准。管理后台和健康检查分别在该地址的 `/admin/` 和 `/api/health/`，手机界面通过 Expo Go 加载。
 
 已通过公网 HTTPS 验证四类指南、管理员登录、注册、登录、修改密码、恢复码找回、旧会话撤销、图片上传与受控读取、已发布内容修改审核。生成的联调账号已停用，测试指南已取消发布。云端数据库的初始备份已在维护者本机保存并校验摘要；备份不进入仓库。后台凭据存放在本机忽略目录的私有文件中。
 
-连接线上数据进行手机测试：`./Start-Phone-Test.ps1 -ApiUrl https://hku-walk-api.onrender.com`。地图首页可开启前台定位。经纬度在手机上换算为底图坐标，离开地图或切到后台时暂停更新。步行步骤仍为演示。
+使用线上数据进行手机测试时，将当前香港后端的 HTTPS 地址传给 `./Start-Phone-Test.ps1 -ApiUrl`，然后扫描新生成的 Expo Go 二维码。地图首页可开启前台定位。经纬度在手机上换算为底图坐标，离开地图或切到后台时暂停更新。步行步骤仍为演示。

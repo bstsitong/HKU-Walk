@@ -1,0 +1,11 @@
+[
+  {"id":"classroom-cba","name":"CBA","english":"Lecture Theatre CBA","abbreviation":"CBA","keywords":"CB-A, 周亦卿楼, Chow Yei Ching Building","parentBuildingId":"chow-yei-ching","floor":"G/F"},
+  {"id":"classroom-cycc501","name":"CYCC501（月明剧院）","english":"CYCC501 (Yuet Ming Auditorium)","abbreviation":"CYCC501","keywords":"CYCC-501, 月明剧院, 庄月明文化中心, 庄月明文娱中心","parentBuildingId":"cym-amenities","buildingName":"庄月明文化中心","floor":"5/F"},
+  {"id":"classroom-cycp2","name":"CYCP2","english":"Lecture Theatre CYCP2","abbreviation":"CYCP2","keywords":"CYC-P2, CYC P2, 庄月明化学楼, Chong Yuet Ming Chemistry Building","parentBuildingId":"cym-chemistry","floor":""},
+  {"id":"classroom-cypp1","name":"CYPP1","english":"Lecture Theatre CYPP1","abbreviation":"CYPP1","keywords":"CYP-P1, CYP P1, 庄月明物理楼, Chong Yuet Ming Physics Building","parentBuildingId":"cym-physics","floor":""},
+  {"id":"classroom-cypp2","name":"CYPP2","english":"Lecture Theatre CYPP2","abbreviation":"CYPP2","keywords":"CYP-P2, CYP P2, 庄月明物理楼, Chong Yuet Ming Physics Building","parentBuildingId":"cym-physics","floor":"LG1"},
+  {"id":"classroom-cypp3","name":"CYPP3","english":"Lecture Theatre CYPP3","abbreviation":"CYPP3","keywords":"CYP-P3, CYP P3, 庄月明物理楼, Chong Yuet Ming Physics Building","parentBuildingId":"cym-physics","floor":"LG1"},
+  {"id":"classroom-cypp4","name":"CYPP4","english":"Lecture Theatre CYPP4","abbreviation":"CYPP4","keywords":"CYP-P4, CYP P4, 庄月明物理楼, Chong Yuet Ming Physics Building","parentBuildingId":"cym-physics","floor":"LG1"},
+  {"id":"classroom-hw312","name":"HW312","english":"Room HW312","abbreviation":"HW312","keywords":"HW-312, HW 312, 黄克竞楼, Haking Wong Building","parentBuildingId":"haking-wong","floor":"3/F"},
+  {"id":"classroom-mwt2","name":"MWT2","english":"Lecture Theatre MWT2","abbreviation":"MWT2","keywords":"MW-T2, MW T2, 明华综合大楼, Meng Wah Complex","parentBuildingId":"meng-wah","floor":"G/F"}
+]

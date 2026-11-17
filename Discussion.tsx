@@ -1,5 +1,5 @@
 import { ComponentRef, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, BackHandler, Keyboard, KeyboardAvoidingView, Platform, RefreshControl, ScrollView, StyleSheet, TextInput as NativeTextInput, View } from 'react-native';
+import { ActivityIndicator, BackHandler, Keyboard, RefreshControl, ScrollView, StyleSheet, TextInput as NativeTextInput, View } from 'react-native';
 import AppIcon from './AppIcon';
 import { AuthorByline, Avatar } from './AuthorIdentity';
 import { Account, ApiError, deleteComment, DiscussionKind, fetchComments, sendComment } from './communityApi';
@@ -7,6 +7,7 @@ import type { AuthorProfile, DiscussionComment } from './guideApi';
 import { formatDate, t } from './localization';
 import { colors as c } from './theme';
 import { Alert, Pressable, Text, TextInput } from './ui';
+import { KeyboardLayout } from './KeyboardLayout';
 
 type Props = {
   kind: DiscussionKind; id: string; title: string; session: Account | null;
@@ -136,7 +137,7 @@ export default function Discussion({ kind, id, title, session, onLogin, onCount,
     </View>
   );
 
-  return <KeyboardAvoidingView style={s.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+  return <KeyboardLayout>
     <ScrollView ref={scroll} style={s.flex} contentContainerStyle={s.page} keyboardShouldPersistTaps="handled"
       refreshControl={<RefreshControl refreshing={loading} onRefresh={() => void load()} tintColor={c.green} />}>
       <View style={s.summary}>
@@ -166,7 +167,7 @@ export default function Discussion({ kind, id, title, session, onLogin, onCount,
         <AppIcon name="comment" size={18} color={c.muted} /><Text style={s.meta}>写评论</Text>
       </Pressable>}
     </View>
-  </KeyboardAvoidingView>;
+  </KeyboardLayout>;
 }
 
 const s = StyleSheet.create({

@@ -17,6 +17,13 @@ class RecoveryCredential(models.Model):
     token_hash = models.CharField(max_length=64, unique=True)
     created_at = models.DateTimeField(auto_now=True)
 
+class PersonalRecords(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
+    collections = models.JSONField(default=dict)
+    device_sequences = models.JSONField(default=dict)
+    removed_bookmarks = models.JSONField(default=dict)
+    cleared_history = models.JSONField(default=list)
+
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile")
     nickname = models.CharField(max_length=32, blank=True)

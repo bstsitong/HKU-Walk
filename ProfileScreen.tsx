@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, BackHandler, RefreshControl, ScrollView, StyleSheet, Switch, View } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import { usePhotoPicker } from './PhotoCrop';
 import { Alert, Pressable, Text } from './ui';
 import AppIcon, { IconName } from './AppIcon';
 import { accountAuthor, AuthorByline, Avatar } from './AuthorIdentity';
@@ -19,6 +19,7 @@ import { colors as c } from './theme';
 import { Account, ApiError, fetchPrivacy, fetchSubmissions, PickedImage, Privacy, Submission, updatePrivacy } from './communityApi';
 import SubmissionPhoto from './SubmissionPhoto';
 import useRecentActivity from './useRecentActivity';
+import { guideArticleTitle } from './guideLocalization';
 type Bookmarks = { saved: string[]; ready: boolean; toggle: (id: string) => void };
 const panels = { submissions: '投稿', saved: '收藏', recent: '历史记录' } as const;
 const sections = { places: '地点', routes: '路线', posts: '帖子' } as const;
@@ -39,12 +40,15 @@ export default function ProfileScreen({ active, session, accountReady, onAccount
   onSaveCover: (image: PickedImage | null) => Promise<void>;
   onInbox: () => void; unread: number;
 }) {
+  const { pickPhoto, cropEditor } = usePhotoPicker();
+  const { language } = useLanguage();
   const [section, setSection] = useState<Section>('places');
   const [panel, setPanel] = useState<keyof typeof panels>('saved');
   const [settings, setSettings] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const [coverBusy, setCoverBusy] = useState(false);
   const coverWorking = useRef(false);
+  const coverAspect = useRef(2);
   const cover = session?.user.coverUrl;
   const recent = panel === 'recent';
   const closeSettings = useCallback(() => setSettings(false), []);
@@ -68,17 +72,8 @@ export default function ProfileScreen({ active, session, accountReady, onAccount
     try {
       let image: PickedImage | null = null;
       if (!remove) {
-        const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ['images'], quality: 0.85,
-          preferredAssetRepresentationMode: ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
-        });
-        const asset = result.assets?.[0];
-        if (result.canceled || !asset) return;
-        if (asset.fileSize && asset.fileSize > 5 * 1024 * 1024) {
-          Alert.alert('图片需小于 5 MB，请选择较小的图片。');
-          return;
-        }
-        image = { uri: asset.uri, name: asset.fileName || 'cover.jpg', type: asset.mimeType || 'image/jpeg' };
+        image = await pickPhoto({ aspect: coverAspect.current });
+        if (!image) return;
       }
       await onSaveCover(image);
     } catch (error) {
@@ -99,6 +94,7 @@ export default function ProfileScreen({ active, session, accountReady, onAccount
   };
   if (settings) return <Preferences onBack={closeSettings} token={session?.token} accountReady={accountReady} onLogin={onLogin} onPrivacySaved={onPrivacySaved} />;
   return <View style={s.flex}>
+    {cropEditor}
     <ScrollView style={s.flex} contentContainerStyle={s.page} refreshControl={session && panel === 'saved' ? <RefreshControl refreshing={data.loading || campus.loading} onRefresh={() => { void data.reload(); void campus.reload(); }} tintColor={c.green} /> : undefined}>
       <View style={s.header}>
         <Pressable testID="profile-settings" accessibilityRole="button" accessibilityLabel="设置" style={s.headerAction} onPress={() => setSettings(true)}>
@@ -125,7 +121,9 @@ export default function ProfileScreen({ active, session, accountReady, onAccount
           <View style={s.flex}><Text style={s.rowTitle}>{title}</Text><Text style={s.body}>{description}</Text></View>
         </View>)}
       </> : <>
-      <View style={s.profile} testID="profile-member">
+      <View style={s.profile} testID="profile-member" onLayout={({ nativeEvent: { layout } }) => {
+        if (layout.width > 0 && layout.height > 0) coverAspect.current = layout.width / layout.height;
+      }}>
         {cover ? <View pointerEvents="none" accessible={false} importantForAccessibility="no-hide-descendants" style={StyleSheet.absoluteFill}>
           <SubmissionPhoto uri={cover} token={session.token} showStatus={false} style={s.coverImage} resizeMode="cover" />
         </View> : null}
@@ -178,7 +176,7 @@ export default function ProfileScreen({ active, session, accountReady, onAccount
         const article = data.articles.find(post => post.id === id);
         if (article) return <View key={id} style={s.routeRow}>
           <Pressable testID={`profile-article-${id}`} accessibilityRole="button" onPress={() => onOpenArticle(id)} style={s.routeMain}>
-            <AppIcon name="book" size={18} /><Text raw style={[s.rowTitle, s.flex]}>{article.title}</Text><AppIcon name="chevron" size={16} />
+            <AppIcon name="book" size={18} /><Text raw style={[s.rowTitle, s.flex]}>{guideArticleTitle(article, language)}</Text><AppIcon name="chevron" size={16} />
           </Pressable>
           {!recent ? <Pressable accessibilityRole="button" accessibilityLabel="取消收藏" disabled={!bookmarks.ready} onPress={() => bookmarks.toggle(id)} style={s.iconButton}><AppIcon name="bookmark" /></Pressable> : null}
         </View>;
@@ -196,7 +194,7 @@ export default function ProfileScreen({ active, session, accountReady, onAccount
         const available = Boolean(origin && destination && (route.source === 'demo' || shared));
         return <View key={route.id} style={s.routeRow}><Pressable testID={`saved-route-${route.id}`} disabled={!available} accessibilityRole="button" onPress={() => onOpenRoute(route)} style={s.routeMain}><View style={s.symbol}><AppIcon name="walk" /></View><View style={s.flex}>
           {shared ? <Text raw style={s.rowTitle}>{shared.title}</Text> : <Text raw style={s.rowTitle}>{origin && destination ? `${placeName(origin)} → ${placeName(destination)}` : ''}</Text>}
-          <Text style={s.meta}>{!available ? '路线已下线或暂时无法读取' : route.source === 'demo' ? '演示路线' : '同学分享的路线'}</Text>
+          <Text style={s.meta}>{!available ? '路线已下线或暂时无法读取' : shared ? '同学分享的路线' : destination?.parentBuildingId ? '教室路线' : '演示路线'}</Text>
           {shared && origin && destination ? <Text raw style={s.meta}>{placeName(origin)} → {placeName(destination)}</Text> : null}
         </View>{available ? <AppIcon name="chevron" size={17} /> : null}</Pressable>{!recent ? <Pressable accessibilityRole="button" accessibilityLabel="取消收藏路线" disabled={!routes.ready} onPress={() => routes.toggle(route)} style={s.iconButton}><AppIcon name="bookmark" /></Pressable> : null}</View>;
       })}

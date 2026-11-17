@@ -1,5 +1,15 @@
 # 部署后端、数据库与图片
 
+## HKU Walk 正式发布
+
+手机 App 的生产接口是 `https://47.239.18.183`。正式数据库是香港 ECS 上的 PostgreSQL，Supabase 用于保存异地备份。
+
+每次发布涉及地点、教室、路线或学生指南内容的改动，先把对应的服务端代码和数据同步到生产环境，再交付 App 更新。香港 ECS 的 API 启动程序会检查迁移状态。构建新镜像后，先在生产环境执行 Django 的 `migrate` 和 `seed_guide`，再切换 API 容器。新增内置内容通过固定标识写入，已有地点的调整应通过管理后台或对应的数据迁移发布。
+
+发布后检查正式接口。地图请求 `/api/campus/?mapVersion=2&classrooms=1` 应返回本次更新的地点、所属楼宇和路线，学生指南请求 `/api/guide/` 应返回本次更新的指南内容。涉及兼容性时，也检查旧版请求。
+
+## 新环境部署
+
 此目录提供可审阅的服务器部署配置。配置文件存在不表示已经上线；真正部署还需要选定服务器或云平台、访问权限和后端域名。
 
 ## 部署内容
@@ -59,7 +69,7 @@ sudo env COMPOSE_PROJECT_NAME=hku-walk-restore sh deploy/restore.sh /绝对路�
 
 ## 云平台
 
-当前免费部署方案为 Render 免费 Web Service 加 Supabase 免费 PostgreSQL。应用表位于不对 Data API 开放的 `hku_app` schema，Django 使用单独的 `hku_walk_app` 数据库角色。手机只访问 Django 接口，不携带数据库密码。
+以下是项目早期使用的 Render 加 Supabase 部署方案，可用于单独搭建环境。应用表位于不对 Data API 开放的 `hku_app` schema，Django 使用单独的 `hku_walk_app` 数据库角色。手机只访问 Django 接口，不携带数据库密码。
 
 Render 的临时磁盘不用于持久保存图片。小组演示设置 `DJANGO_STORAGE=database`，将清理后的图片保存在同一私有数据库，默认图片总量限制 100 MiB（`DJANGO_MEDIA_MAX_BYTES`）；达到限制时仍可提交无配图内容。此方案针对少量演示数据，大量图片应切换到私有 S3 存储。也支持 `DJANGO_STORAGE=s3`，需要服务端的 `S3_ENDPOINT_URL`、`S3_BUCKET`、`S3_ACCESS_KEY_ID`、`S3_SECRET_ACCESS_KEY` 与区域配置。凭据不能放进手机端或仓库。
 

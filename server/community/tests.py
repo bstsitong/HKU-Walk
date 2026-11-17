@@ -352,11 +352,11 @@ class CommunityTests(CommunityFixture):
             article = next(post for post in self.anon.get("/api/guide/").json()["articles"] if post["id"] == str(approved.public_entry_id))
             self.assertEqual(article["relatedLocation"], item["location"])
 
-    def test_new_route_template_requires_a_photo_per_step(self):
+    def test_new_route_keeps_optional_step_details_through_review(self):
         data = {"kind": "new_route", "title": "港大站到本部大楼", "body": "", "request_key": "route_template",
                 "map_data": json.dumps({"originId": "gate", "destinationId": "main", "stepPhotosRequired": True,
-                                        "steps": [{"title": "找到指示牌", "body": "沿指示牌向前走。"}]})}
-        self.assertEqual(self.api.post("/api/submissions/", data, format="multipart").status_code, 400)
+                                        "steps": [{"title": "找到指示牌", "body": "沿指示牌向前走。"},
+                                                  {"title": "到达本部大楼"}]})}
         response = self.api.post("/api/submissions/", {**data, "step_image_0": photo()}, format="multipart")
         self.assertEqual(response.status_code, 201, response.content)
         item = response.json()["submission"]
@@ -372,7 +372,50 @@ class CommunityTests(CommunityFixture):
         route = next(route for route in self.anon.get("/api/campus/").json()["routes"]
                      if route["entryId"] == str(approved.public_entry_id))
         self.assertEqual(urlsplit(route["steps"][0]["imageUrl"]).path, path)
+        self.assertEqual(route["steps"][1]["title"], "到达本部大楼")
+        self.assertEqual(route["steps"][1]["body"], "")
+        self.assertEqual(route["steps"][1]["imageUrl"], "")
         self.assert_image_status(self.anon, path, 200)
+
+    def test_route_overview_image_survives_review_and_can_be_removed(self):
+        data = {"kind": "new_route", "title": "港大站到本部大楼", "body": "",
+                "map_data": json.dumps({"originId": "gate", "destinationId": "main", "stepPhotosRequired": True,
+                                        "steps": [{"title": "找到指示牌", "body": "沿指示牌向前走。"}]})}
+        created = self.api.post("/api/submissions/", {
+            **data, "request_key": "route_overview", "image": photo(), "step_image_0": photo(),
+        }, format="multipart")
+        self.assertEqual(created.status_code, 201, created.content)
+        item = created.json()["submission"]
+        overview = urlsplit(item["imageUrl"]).path
+        step = urlsplit(item["mapData"]["steps"][0]["imageUrl"]).path
+        self.assertNotEqual(overview, step)
+        self.assert_image_status(self.api, overview, 200)
+        self.assert_image_status(self.anon, overview, 404)
+        self.client.force_login(self.admin)
+        self.assertContains(self.client.get(f"/admin/community/submission/{item['id']}/change/"), 'alt="路线总览图"')
+        approved = review_submission(item["id"], 1, "approved", "", self.admin)
+        entry_id = str(approved.public_entry_id)
+
+        def published_route():
+            return next(route for route in self.anon.get("/api/campus/").json()["routes"] if route["entryId"] == entry_id)
+
+        self.assertEqual(urlsplit(published_route()["imageUrl"]).path, overview)
+        guide = self.anon.get("/api/guide/").json()
+        route_card = next(entry for category in guide["categories"] for entry in category["entries"] if entry["id"] == entry_id)
+        self.assertEqual(urlsplit(route_card["imageUrl"]).path, overview)
+        self.assert_image_status(self.anon, overview, 200)
+
+        edit_url = f"/api/submissions/{item['id']}/edits/"
+        version = self.api.get(f"/api/submissions/{item['id']}/").json()["submission"]["publishedContent"]["version"]
+        edit = self.api.post(edit_url, {
+            **data, "request_key": "route_overview_remove", "remove_image": "true",
+            "base_version": version, "inherit_step_images": '{"0":0}',
+        }, format="multipart")
+        self.assertEqual(edit.status_code, 201, edit.content)
+        self.assertEqual(urlsplit(published_route()["imageUrl"]).path, overview)
+        review_submission(edit.json()["submission"]["id"], 1, "approved", "", self.admin)
+        self.assertEqual(published_route()["imageUrl"], "")
+        self.assert_image_status(self.anon, overview, 404)
 
     def test_privacy_controls_hide_public_identity_and_revoke_public_profile(self):
         settings_url = "/api/accounts/privacy/"

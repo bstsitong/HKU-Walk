@@ -3,6 +3,7 @@ from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator, URLValidator
 from django.core.exceptions import ValidationError
 from django.db import models
+from .map_display import DISPLAY_LEVELS
 
 http_url = URLValidator(schemes=["http", "https"])
 
@@ -106,6 +107,7 @@ class CampusPlace(ContentFields):
         STUDY = "study", "学习"
         FOOD = "food", "餐饮"
         TOILET = "toilet", "洗手间"
+        WATER = "water", "饮水点"
         ACCESS = "access", "出入口"
         SPACE = "space", "校园空间"
 
@@ -116,6 +118,7 @@ class CampusPlace(ContentFields):
     abbreviation_en = models.CharField("英文简称", max_length=40, blank=True)
     keywords = models.CharField("其他搜索词", max_length=240, blank=True)
     category = models.CharField("地点类别", max_length=10, choices=Category.choices)
+    display_level = models.PositiveSmallIntegerField("地图显示层级", choices=DISPLAY_LEVELS, db_default=4, default=4)
     map_x = models.FloatField("地图横坐标", validators=[MinValueValidator(0), MaxValueValidator(360)])
     map_y = models.FloatField("地图纵坐标", validators=[MinValueValidator(0), MaxValueValidator(580)])
     map_version = models.PositiveSmallIntegerField("底图版本", choices=[(1, "旧版示意图"), (2, "校园地图")], default=1)
@@ -130,6 +133,7 @@ class CampusPlace(ContentFields):
         verbose_name_plural = "校园地点"
         constraints = [
             models.CheckConstraint(condition=models.Q(map_x__gte=0, map_x__lte=360, map_y__gte=0, map_y__lte=580), name="campus_place_map_bounds"),
+            models.CheckConstraint(condition=models.Q(display_level__in=(1, 2, 3, 4)), name="campus_place_display_level"),
         ]
 
     def __str__(self):
@@ -138,6 +142,38 @@ class CampusPlace(ContentFields):
     @property
     def title(self):
         return self.name_zh
+
+
+class CampusFacility(models.Model):
+    class Kind(models.TextChoices):
+        LIFT = "lift", "升降机"
+        STAIRS = "stairs", "楼梯"
+        BRIDGE = "bridge", "行人天桥"
+        RAMP = "ramp", "坡道"
+        PARKING = "parking", "停车场"
+        ACCESSIBLE_PARKING = "accessibleParking", "无障碍车位"
+
+    code = models.SlugField("设施标识", primary_key=True, max_length=80)
+    kind = models.CharField("设施类型", choices=Kind.choices, max_length=20)
+    title = models.CharField("名称", max_length=160)
+    name_en = models.CharField("英文名称", max_length=160)
+    detail = models.TextField("说明", blank=True)
+    map_x = models.FloatField("横坐标", validators=[MinValueValidator(0), MaxValueValidator(360)])
+    map_y = models.FloatField("纵坐标", validators=[MinValueValidator(0), MaxValueValidator(219.4)])
+    display_level = models.PositiveSmallIntegerField("地图显示层级", choices=DISPLAY_LEVELS, default=4)
+    overview = models.BooleanField("设施总览显示", default=False)
+    approximate = models.BooleanField("位置为示意", default=False)
+
+    class Meta:
+        verbose_name = "校园地图设施"
+        verbose_name_plural = "校园地图设施"
+        constraints = [
+            models.CheckConstraint(condition=models.Q(display_level__in=(1, 2, 3, 4)), name="campus_facility_display_level"),
+            models.CheckConstraint(condition=models.Q(map_x__gte=0, map_x__lte=360, map_y__gte=0, map_y__lte=219.4), name="campus_facility_map_bounds"),
+        ]
+
+    def __str__(self):
+        return self.title
 
 
 class AssistantUsage(models.Model):
@@ -182,7 +218,7 @@ class RouteStep(models.Model):
     route = models.ForeignKey(CampusRoute, on_delete=models.CASCADE, related_name="steps")
     position = models.PositiveSmallIntegerField("步骤编号", validators=[MaxValueValidator(19)])
     title = models.CharField("步骤标题", max_length=160)
-    body = models.TextField("步骤说明", max_length=1500)
+    body = models.TextField("步骤说明", max_length=1500, blank=True)
     photo = models.ForeignKey("community.SubmissionStepImage", on_delete=models.SET_NULL, null=True, blank=True, related_name="+", editable=False)
 
     class Meta:

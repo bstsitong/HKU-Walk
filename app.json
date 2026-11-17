@@ -2,25 +2,34 @@
   "expo": {
     "name": "HKU-Walk",
     "slug": "HKU-Walk",
-    "version": "1.0.0",
+    "version": "1.0.6",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/hku-walk-icon.png",
     "userInterfaceStyle": "light",
+    "runtimeVersion": { "policy": "appVersion" },
+    "updates": {
+      "url": "https://47.239.18.183/api/mobile-updates/manifest/",
+      "checkAutomatically": "NEVER",
+      "codeSigningCertificate": "./assets/android-update-certificate.cer",
+      "codeSigningMetadata": { "keyid": "main", "alg": "rsa-v1_5-sha256" }
+    },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "com.hkuwalk",
+      "versionCode": 10,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/hku-walk-icon-foreground.png",
+        "backgroundColor": "#F7F4ED"
       },
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/hku-walk-favicon.png"
     },
     "plugins": [
-      ["expo-splash-screen", {"image": "./assets/splash-icon.png", "imageWidth": 200, "resizeMode": "contain", "backgroundColor": "#ffffff"}],
+      ["expo-splash-screen", {"image": "./assets/hku-walk-icon-foreground.png", "imageWidth": 200, "resizeMode": "contain", "backgroundColor": "#F7F4ED"}],
       [
         "expo-image-picker",
         {

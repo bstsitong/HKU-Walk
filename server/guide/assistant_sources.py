@@ -1,6 +1,7 @@
 import json
 import re
 from html.parser import HTMLParser
+from unicodedata import normalize
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
@@ -9,6 +10,8 @@ from django.conf import settings
 from django.db.models import Q
 
 from .articles import ARTICLE_KEYS, ARTICLE_SCOPE
+from .catalog import published_routes
+from .map_display import canonical_place_id
 from .models import CampusPlace, GuidePost
 
 
@@ -107,6 +110,37 @@ def search_places(args, language, *, exact_name=None):
             "hasPowerOutlets": place.has_power_outlets, "powerOutletLocation": outlet_location,
         })
     return results
+
+
+def endpoint_names(place):
+    aliases = re.split(r"[\s,，、;；|]+", place.keywords)
+    return {normalize("NFKC", name).casefold() for name in (
+        place.pk, place.name_zh, place.name_en, place.abbreviation_en, *aliases,
+    ) if name}
+
+
+def route_endpoint_query(side, term):
+    return (Q(**{f"{side}_id": canonical_place_id(term.casefold())}) |
+            matching_any((f"{side}__name_zh", f"{side}__name_en", f"{side}__abbreviation_en", f"{side}__keywords"), [term]))
+
+
+def search_route(origin, destination):
+    if any(not isinstance(term, str) or not 0 < len(term.strip()) <= 160 for term in (origin, destination)):
+        return None
+    origin, destination = (normalize("NFKC", term.strip()) for term in (origin, destination))
+    queryset = (published_routes().filter(route_endpoint_query("origin", origin), route_endpoint_query("destination", destination))
+                .select_related("origin", "destination")
+                .order_by("publication__sort_order", "pk"))
+    match = None
+    for route in queryset:
+        if not all(term.casefold() in endpoint_names(place) or canonical_place_id(term.casefold()) == place.pk
+                   for term, place in ((origin, route.origin), (destination, route.destination))):
+            continue
+        if match is None:
+            match = route
+        elif (route.origin_id, route.destination_id) != (match.origin_id, match.destination_id):
+            return None
+    return match
 
 
 def search_guides(args):

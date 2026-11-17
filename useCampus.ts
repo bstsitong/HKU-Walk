@@ -23,7 +23,7 @@ export default function useCampus() {
     const timeout = setTimeout(() => abort.abort(), 75000);
     setLoading(true); setError('');
     try {
-      const response = await fetch(API_BASE + `/api/campus/?mapVersion=${CAMPUS_MAP_VERSION}`, { signal: abort.signal, headers: { Accept: 'application/json' }, cache: 'no-store' });
+      const response = await fetch(API_BASE + `/api/campus/?mapVersion=${CAMPUS_MAP_VERSION}&classrooms=1`, { signal: abort.signal, headers: { Accept: 'application/json' }, cache: 'no-store' });
       if (!response.ok) throw new Error('Campus request failed');
       const next = readCampus(await response.json());
       if (current === generation.current) {

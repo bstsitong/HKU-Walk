@@ -1,6 +1,6 @@
 import { createContext, forwardRef, useCallback, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import type { ComponentRef, ReactNode } from 'react';
-import { ActivityIndicator, BackHandler, Keyboard, KeyboardAvoidingView, Linking, Modal, PanResponder, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, BackHandler, Keyboard, Linking, Modal, PanResponder, ScrollView, StyleSheet, View } from 'react-native';
 import type { ModalProps } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AppIcon from './AppIcon';
@@ -11,6 +11,7 @@ import { useLanguage } from './LanguageProvider';
 import { translate } from './localization';
 import { colors as c } from './theme';
 import { Alert, Pressable, Text, TextInput } from './ui';
+import { KeyboardLayout } from './KeyboardLayout';
 
 export type AssistantTarget = { kind: 'route'; id: string } | { kind: 'guide'; id: string; pageKey?: string };
 type Turn = { id: number; question: string; result?: AssistantAnswer; error?: string };
@@ -113,7 +114,7 @@ function AssistantPanel({ close, onOpen }: { close: () => void; onOpen: (target:
   const { language } = useLanguage();
   const list = useRef<ComponentRef<typeof ScrollView>>(null);
   const last = turns.at(-1);
-  return <KeyboardAvoidingView style={s.grow} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+  return <KeyboardLayout>
     <View style={s.header}>
       <View style={s.headerMark}><AppIcon name="comment" size={22} /></View>
       <Text accessibilityRole="header" style={s.title}>问港大</Text>
@@ -147,14 +148,13 @@ function AssistantPanel({ close, onOpen }: { close: () => void; onOpen: (target:
         disabled={busy || !draft.trim()} style={({ pressed }) => [s.send, (busy || !draft.trim()) && s.disabled, pressed && s.pressed]}
         onPress={() => { Keyboard.dismiss(); void send(draft); }}><AppIcon name="arrow" color={c.surface} size={22} /></Pressable>
     </View>
-  </KeyboardAvoidingView>;
+  </KeyboardLayout>;
 }
 
-const ballSize = 54;
-
-function FloatingBall({ open, modal, restingBottom }: { open: () => void; modal: boolean; restingBottom: number }) {
+function FloatingLauncher({ open, modal, restingBottom }: { open: () => void; modal: boolean; restingBottom: number }) {
   const insets = useSafeAreaInsets();
   const [size, setSize] = useState({ width: 0, height: 0 });
+  const [launcher, setLauncher] = useState({ width: 0, height: 0 });
   const [position, setPosition] = useState<Point | null>(null);
   const right = modal ? insets.right : 0;
   const left = modal ? insets.left : 0;
@@ -162,31 +162,43 @@ function FloatingBall({ open, modal, restingBottom }: { open: () => void; modal:
   const bottom = modal ? insets.bottom : 0;
   const bounds = useMemo(() => ({
     minX: 12 + left, minY: 12 + top,
-    maxX: Math.max(12 + left, size.width - ballSize - 12 - right),
-    maxY: Math.max(12 + top, size.height - ballSize - 12 - bottom),
-  }), [size, left, right, top, bottom]);
+    maxX: Math.max(12 + left, size.width - launcher.width - 12 - right),
+    maxY: Math.max(12 + top, size.height - launcher.height - 12 - bottom),
+  }), [size, launcher, left, right, top, bottom]);
   const constrain = useCallback(({ x, y }: Point) => ({
     x: Math.max(bounds.minX, Math.min(bounds.maxX, x)), y: Math.max(bounds.minY, Math.min(bounds.maxY, y)),
   }), [bounds]);
-  const anchor = constrain(position ?? { x: bounds.maxX, y: size.height - ballSize - restingBottom - bottom });
+  const anchor = constrain(position ?? { x: bounds.maxX, y: size.height - launcher.height - restingBottom - bottom });
   const latest = useRef(anchor);
   latest.current = anchor;
+  const dragBounds = useRef({ bounds, constrain });
+  dragBounds.current = { bounds, constrain };
   const dragStart = useRef(anchor);
   const drag = useMemo(() => PanResponder.create({
     onMoveShouldSetPanResponderCapture: (_, move) => Math.abs(move.dx) + Math.abs(move.dy) > 8,
+    onPanResponderTerminationRequest: () => false,
     onPanResponderGrant: () => { dragStart.current = latest.current; },
-    onPanResponderMove: (_, move) => setPosition(constrain({ x: dragStart.current.x + move.dx, y: dragStart.current.y + move.dy })),
+    onPanResponderMove: (_, move) => setPosition(dragBounds.current.constrain({ x: dragStart.current.x + move.dx, y: dragStart.current.y + move.dy })),
     onPanResponderRelease: (_, move) => {
+      const { bounds, constrain } = dragBounds.current;
       const end = constrain({ x: dragStart.current.x + move.dx, y: dragStart.current.y + move.dy });
       setPosition({ x: end.x < (bounds.minX + bounds.maxX) / 2 ? bounds.minX : bounds.maxX, y: end.y });
     },
-  }), [bounds, constrain]);
+  }), []);
   return <View pointerEvents="box-none" style={StyleSheet.absoluteFill} onLayout={({ nativeEvent: { layout } }) => {
     setSize(current => current.width === layout.width && current.height === layout.height ? current : { width: layout.width, height: layout.height });
   }}>
-    <View style={[s.ballPosition, size.width ? { left: anchor.x, top: anchor.y } : { right: 12 + right, bottom: restingBottom + bottom }]} {...drag.panHandlers}>
-      <Pressable testID="assistant-launcher" accessibilityRole="button" accessibilityLabel="打开校园助手" onPress={open}
-        style={({ pressed }) => [s.ball, pressed && s.pressed]}><AppIcon name="comment" color={c.surface} size={25} /></Pressable>
+    <View collapsable={false} style={[s.launcherPosition, size.width > 0 && launcher.width > 0
+      ? { left: 0, top: 0, transform: [{ translateX: anchor.x }, { translateY: anchor.y }] }
+      : { right: 12 + right, bottom: restingBottom + bottom }]} {...drag.panHandlers}>
+      <Pressable testID="assistant-launcher" accessibilityRole="button" accessibilityLabel="AI Ask HKU" onPress={open}
+        onLayout={({ nativeEvent: { layout: { width, height } } }) => {
+          setLauncher(current => current.width === width && current.height === height ? current : { width, height });
+        }}
+        style={({ pressed }) => [s.launcher, pressed && s.pressed]}>
+        <View style={s.launcherBadge}><Text raw style={s.launcherBadgeText}>AI</Text></View>
+        <Text raw style={s.launcherLabel}>Ask HKU</Text>
+      </Pressable>
     </View>
   </View>;
 }
@@ -231,7 +243,7 @@ export const AssistantHost = forwardRef<LayerHandle, { children: ReactNode; moda
       </SafeAreaView> : null}
       <View pointerEvents={showingChat ? 'none' : 'box-none'} style={[StyleSheet.absoluteFill, showingChat && s.invisible]}
         accessibilityElementsHidden={showingChat} importantForAccessibility={showingChat ? 'no-hide-descendants' : 'auto'}>
-        <FloatingBall modal={modal} restingBottom={target ? 86 : restingBottom} open={() => { Keyboard.dismiss(); openChat(host); }} />
+        <FloatingLauncher modal={modal} restingBottom={target ? 86 : restingBottom} open={() => { Keyboard.dismiss(); openChat(host); }} />
       </View>
       {showingChat ? <SafeAreaView edges={edges} style={[StyleSheet.absoluteFill, s.page]} accessibilityViewIsModal>
         <AssistantPanel close={close} onOpen={next => { close(); setTarget(next); }} />
@@ -252,10 +264,15 @@ const s = StyleSheet.create({
   invisible: { opacity: 0 },
   layer: { zIndex: 20 },
   page: { backgroundColor: c.app },
-  ballPosition: { position: 'absolute' },
-  ball: { width: ballSize, height: ballSize, borderRadius: ballSize / 2, backgroundColor: c.green,
-    alignItems: 'center', justifyContent: 'center', elevation: 5, shadowColor: c.greenDark,
+  launcherPosition: { position: 'absolute' },
+  launcher: { minHeight: 54, borderRadius: 999, backgroundColor: c.green, borderWidth: 1.5, borderColor: '#f8f4dd',
+    flexDirection: 'row', alignItems: 'center', gap: 9, paddingLeft: 7, paddingRight: 14, paddingVertical: 7,
+    elevation: 5, shadowColor: c.greenDark,
     shadowOpacity: 0.23, shadowRadius: 7, shadowOffset: { width: 0, height: 3 } },
+  launcherBadge: { minWidth: 35, minHeight: 35, borderRadius: 11, backgroundColor: '#ffc779',
+    alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5 },
+  launcherBadgeText: { color: '#382514', fontSize: 16, lineHeight: 21, fontWeight: '700' },
+  launcherLabel: { color: '#fffdf0', fontSize: 16, lineHeight: 21, fontWeight: '700' },
   pressed: { opacity: 0.74 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, minHeight: 64,
     borderBottomWidth: 1, borderColor: c.line },

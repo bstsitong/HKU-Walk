@@ -21,7 +21,7 @@ export default function useMapCamera(
   viewport: MapViewport, zoom: number, centerTick: number, focus: MapPoint, onZoomChange?: (zoom: number) => void,
   onMapTap?: (point: MapPoint, camera: MapCamera) => void,
 ) {
-  const [camera, setCamera] = useState(() => boundMapCamera({ x: 0, y: 146, zoom }, viewport));
+  const [camera, setCamera] = useState(() => boundMapCamera({ x: viewport.width * (1 - zoom) / 2, y: 146, zoom }, viewport));
   const surface = useRef<ComponentRef<typeof View>>(null);
   const pageOrigin = useRef({ x: 0, y: 0 });
   const current = useRef(camera);

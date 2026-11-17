@@ -53,8 +53,6 @@ def published_data(request, item):
     map_data = publication_map_data(request, entry, content)
     if source and source.map_data.get("type") in {"place_correction", "route_correction"}:
         map_data = source.map_data
-    elif source and source.map_data.get("stepPhotosRequired"):
-        map_data["stepPhotosRequired"] = True
     return {"title": content.title, "body": body, "location": location,
         "externalUrl": content.external_url,
         "imageUrl": content_image(request, content, entry),

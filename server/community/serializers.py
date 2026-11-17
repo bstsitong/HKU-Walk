@@ -110,9 +110,6 @@ class SubmissionInput(serializers.Serializer):
                     raise serializers.ValidationError({"image": "路线配图编号不正确。"})
                 files[int(suffix)] = clean_image(serializers.FileField().run_validation(self.initial_data[key]))
         data["step_images"] = files
-        if data["map_data"].get("stepPhotosRequired") and any(
-                index not in files and (str(index) not in inherited or index in removed) for index in range(count)):
-            raise serializers.ValidationError({"image": "请为每个路线步骤添加配图。"})
         body_indexes = {index for index, block in enumerate(blocks) if block["type"] == "image"}
         body_keys = {str(index) for index in body_indexes}
         body_inherited = data["inherit_body_images"]

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, Linking } from 'react-native';
 import * as Location from 'expo-location';
 import { CampusLocation, projectCampusLocation } from './campusLocation';
@@ -12,26 +12,28 @@ export default function useCampusLocation(visible: boolean) {
   const [foreground, setForeground] = useState(AppState.currentState === 'active' || AppState.currentState === null);
   const [tracking, setTracking] = useState(false);
   const [reading, setReading] = useState<Reading>({ status: 'idle' });
+  const autoStarted = useRef(false);
   const requesting = useRef(false);
   const enabled = useRef(false);
 
-  const stop = (status: Status = 'idle') => {
+  const stop = useCallback((status: Status = 'idle') => {
     enabled.current = false;
     setTracking(false);
     setReading({ status });
-  };
+  }, []);
 
-  async function start() {
+  const start = useCallback(async (automatic: boolean, openSettings = false) => {
     if (requesting.current || enabled.current) return;
     requesting.current = true;
     setReading({ status: 'requesting' });
     try {
       let permission = await Location.getForegroundPermissionsAsync();
-      if (!permission.granted && permission.canAskAgain) {
+      if (!permission.granted && permission.canAskAgain &&
+        (!automatic || permission.status === Location.PermissionStatus.UNDETERMINED)) {
         permission = await Location.requestForegroundPermissionsAsync();
       }
       if (!permission.granted) {
-        if (reading.status === 'blocked') {
+        if (openSettings) {
           await Linking.openSettings();
           stop();
         } else {
@@ -47,12 +49,18 @@ export default function useCampusLocation(visible: boolean) {
     } finally {
       requesting.current = false;
     }
-  }
+  }, [stop]);
 
   useEffect(() => {
     const listener = AppState.addEventListener('change', state => setForeground(state === 'active'));
     return () => listener.remove();
   }, []);
+
+  useEffect(() => {
+    if (!visible || !foreground || autoStarted.current) return;
+    autoStarted.current = true;
+    void start(true);
+  }, [visible, foreground, start]);
 
   useEffect(() => {
     if (!tracking) return;
@@ -113,8 +121,8 @@ export default function useCampusLocation(visible: boolean) {
       clearTimeout(timeout);
       subscription?.remove();
     };
-  }, [tracking, visible, foreground]);
+  }, [tracking, visible, foreground, stop]);
 
   const point = tracking && visible && foreground ? reading.point : undefined;
-  return { status: reading.status, point, tracking, start, stop };
+  return { status: reading.status, point, tracking, start: () => start(false, reading.status === 'blocked'), stop };
 }

@@ -33,6 +33,28 @@ class GuideTests(TestCase):
         self.assertEqual(len(articles[2]["sourcePages"]), 2)
         self.assertEqual(articles[3]["body"].count("![](/static/guide-originals/"), 11)
 
+    def test_campus_classrooms_require_client_support_and_reference_buildings(self):
+        old = self.client.get("/api/campus/?mapVersion=2").json()
+        self.assertFalse(any(place["id"].startswith("classroom-") for place in old["basePlaces"]))
+        self.assertIn("centennial-red-wall", {place["id"] for place in old["basePlaces"]})
+        new = self.client.get("/api/campus/?mapVersion=2&classrooms=1").json()
+        self.assertTrue(new["includesClassroomPlaces"])
+        by_id = {place["id"]: place for place in new["basePlaces"]}
+        rooms = [place for place in by_id.values() if "parentBuildingId" in place]
+        self.assertEqual(len(rooms), 9)
+        self.assertEqual(by_id["classroom-cycp2"]["parentBuildingId"], "cym-chemistry")
+        self.assertEqual(by_id["classroom-cypp2"]["parentBuildingId"], "cym-physics")
+        for room in rooms:
+            self.assertIn(room["parentBuildingId"], by_id)
+            self.assertEqual(room["displayLevel"], 4)
+        self.assertEqual((by_id["gate"]["name"], by_id["gate"]["displayLevel"]), ("港大站 A2 出口", 1))
+        self.assertEqual((by_id["library"]["x"], by_id["library"]["y"], by_id["library"]["displayLevel"]), (218.5, 218.08, 2))
+        self.assertFalse({"library-old", "library-new"} & by_id.keys())
+        self.assertEqual(by_id["centennial-red-wall"]["displayLevel"], 3)
+        self.assertEqual(by_id["swire-hall"]["displayLevel"], 4)
+        self.assertEqual(len(new["facilities"]), 32)
+        self.assertTrue(all(item["displayLevel"] == 4 for item in new["facilities"]))
+
     def test_guest_comment_login_and_two_users_can_read_and_reply(self):
         article = GuidePost.objects.get(publication__key="student-guide-hku")
         url = f"/api/guide/articles/{article.pk}/comments/"
@@ -146,6 +168,7 @@ class GuideTests(TestCase):
         })
         self.assertEqual(result.status_code, 302)
         place = CampusPlace.objects.get(abbreviation_en="SR")
+        self.assertEqual(place.display_level, 4)
         result = self.client.post("/admin/guide/campusroute/add/", {
             "title": "去研讨室", "origin": "gate", "destination": place.pk, "body": "测试步行路线",
             "published": "on", "sort_order": 100,

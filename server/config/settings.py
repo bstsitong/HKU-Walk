@@ -151,7 +151,7 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ["community.authentication.MobileAuthentication"],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
-    "DEFAULT_THROTTLE_RATES": {"auth": "12/min", "submit": "12/min", "recovery": "5/min", "guide_like": "60/min", "profile": "12/min", "assistant": "5/min"},
+    "DEFAULT_THROTTLE_RATES": {"auth": "12/min", "submit": "12/min", "recovery": "5/min", "guide_like": "60/min", "profile": "12/min", "assistant": "5/min", "personal_records": "180/min"},
     "EXCEPTION_HANDLER": "community.api_errors.handle_exception",
     "NUM_PROXIES": 1 if os.environ.get("DJANGO_TRUST_PROXY", "0") == "1" else 0,
 }

@@ -1,0 +1,8 @@
+[
+  {"id":"campus-store","name":"港大纪念品店","english":"HKU Campus Store","abbreviation":"","keywords":"纪念品店, 校园商店, 文创, souvenirs, gift shop","category":"space","x":137.72,"y":219.84,"entrance":"位于综合大楼。","floor":"UG1/F"},
+  {"id":"hku-press-bookshop","name":"港大出版社书店","english":"Hong Kong University Press Bookshop","abbreviation":"HKUP","keywords":"书店, 港大书店, 出版社书店, 逸夫苑, bookstore","category":"space","x":74.6,"y":127.15588,"entrance":"位于逸夫苑，港大访客中心旁。","floor":"G/F"},
+  {"id":"centennial-red-wall","name":"百周年校园红墙","english":"Centennial Campus Red Wall","abbreviation":"","keywords":"红墙, 港大红墙, 校名墙, 红砖墙, Red Wall, Brick Wall","category":"space","x":77,"y":176.855059,"entrance":"位于百周年校园智华馆旁。","floor":"上层大学街 · G/F"},
+  {"id":"visitor-centre-gift-shop","name":"访客中心纪念品店","english":"Visitor Centre Gift Shop","abbreviation":"","keywords":"访客中心纪念品 访客中心商店 百周年校园纪念品 gift shop souvenirs","category":"space","entrance":"位于港大访客中心内。","floor":"G/F","x":57.3,"y":122.000912},
+  {"id":"university-drive-gate","name":"大学道出入口","english":"University Drive Entrance","abbreviation":"","keywords":"大学道校门 旭龢道 Kotewall Road university drive gate","category":"access","entrance":"位于大学道与旭龢道相接处。","floor":"","x":299.2,"y":467.383774},
+  {"id":"lyttelton-gate","name":"列堤顿道校门","english":"Lyttelton Road Gate","abbreviation":"","keywords":"列堤顿道出口 列堤顿道出入口 Lyttelton Road Exit","category":"access","entrance":"列堤顿道出口。通行安排以现场标示为准。","floor":"","x":345.9,"y":305.597083}
+]

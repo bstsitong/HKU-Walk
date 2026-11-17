@@ -1,13 +1,13 @@
 import { MAP_HEIGHT, MAP_WIDTH, MAP_Y_MAX } from './MapArtwork';
 import type { Category, Place } from './campus';
 import type { MapPoint } from './campusLocation';
+import { placeDisplayLevel, visibleMapLevel } from './mapDisplay';
 
 export const MIN_MAP_ZOOM = 1;
 export const MAX_MAP_ZOOM = 4;
 export type MapViewport = { width: number; height: number; fullHeight?: boolean };
 export type MapCamera = MapPoint & { zoom: number };
 
-const landmarks = ['main', 'library', 'gate', 'mtr-c1', 'chiwah', 'cym-amenities', 'garden', 'university-street', 'knowles'];
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 export function toMapView(point: MapPoint): MapPoint {
@@ -64,16 +64,9 @@ export function moveMapCamera(camera: MapCamera, zoom: number, from: MapPoint, t
 }
 
 export function mapCandidates(places: Place[], selectedId: string, category: Category, zoom: number): Place[] {
-  const available = new Map(places.filter(place => !place.mapPositionPending).map(place => [place.id, place]));
-  const ordered = new Set([selectedId, ...landmarks]);
-  for (const place of available.values()) {
-    if (category !== 'all' || zoom >= 2.15
-      || (zoom >= 1.4 && !place.isCommunity && ['building', 'access', 'study', 'space'].includes(place.category))) {
-      ordered.add(place.id);
-    }
-  }
-  return [...ordered].flatMap(id => {
-    const place = available.get(id);
-    return place ? [place] : [];
-  });
+  const maxLevel = visibleMapLevel(zoom);
+  return places.filter(place => !place.mapPositionPending && !place.parentBuildingId &&
+    (category !== 'all' || placeDisplayLevel(place) <= maxLevel))
+    .sort((a, b) => placeDisplayLevel(a) - placeDisplayLevel(b) ||
+      Number(b.id === selectedId) - Number(a.id === selectedId));
 }

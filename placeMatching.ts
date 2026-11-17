@@ -1,6 +1,7 @@
 import { Converter } from 'opencc-js/t2cn';
 import { pinyin } from 'pinyin-pro';
 import type { Category, Place } from './campus';
+import { isSouvenirShop } from './mapDisplay';
 import campusAliases from './place-search-aliases.json';
 import { descriptivePlaceQuery, placeCategoryForQuery, placeQueryCore } from './placeSearchIntent';
 
@@ -90,7 +91,8 @@ function correctionScore(profile: Profile, query: string) {
 }
 
 export function matchCampusPlaces(places: Place[], category: Category, input: string, recentIds: readonly string[] = []): Place[] {
-  const candidates = category === 'all' ? places : places.filter(place => place.category === category);
+  const candidates = category === 'all' ? places : places.filter(place =>
+    category === 'souvenir' ? isSouvenirShop(place.id) : place.category === category);
   if (!input.trim()) return candidates;
   const normalized = normalizeSearchText(input.slice(0, 120));
   if (!normalized) return [];

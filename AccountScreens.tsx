@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { t } from './localization';
 import { Keyboard, ScrollView, StyleSheet, View } from 'react-native';
+import { FormScrollView } from './KeyboardLayout';
 import { Alert, Text } from './ui';
 import { ApiError } from './communityApi';
 import { Button, Field } from './CommunityUI';
@@ -49,7 +50,7 @@ export function AccountSecurityScreen({ account, mode, onDone, onBusy, onSignOut
       void run(() => account.changePassword(current, password), '密码修改成功，其他设备已退出登录。');
     }
   };
-  return <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={s.page}>
+  return <FormScrollView contentContainerStyle={s.page}>
     <Text accessibilityRole="header" style={s.title}>{mode === 'recover' ? '找回账号与密码' : '账号与安全'}</Text>
     <Text style={s.copy}>{mode === 'recover' ? '输入保存的恢复码并设置新密码。成功后会显示账号名称，并生成一份新的恢复码。' : t('当前账号：{username}', { username: account.session?.user.username ?? '' })}</Text>
     {mode === 'recover' ? <Field label="恢复码" value={code} onChangeText={setCode} editable={!busy} autoCapitalize="characters" autoCorrect={false} maxLength={100} placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" /> :
@@ -65,7 +66,7 @@ export function AccountSecurityScreen({ account, mode, onDone, onBusy, onSignOut
         onPress={() => { if (!current) { setError('请先在上方输入当前密码。'); return; } void run(() => account.regenerateRecoveryCode(current)); }} />
       {onSignOut ? <Button label="退出登录" secondary disabled={busy} onPress={onSignOut} /> : null}
     </View> : <Text style={s.note}>没有保存恢复码且无法登录时，请联系项目管理员核实账号。管理员不能查看原密码。</Text>}
-  </ScrollView>;
+  </FormScrollView>;
 }
 const s = StyleSheet.create({
   page: { width: '100%', maxWidth: 650, alignSelf: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 36 },

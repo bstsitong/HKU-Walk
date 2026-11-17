@@ -3,7 +3,8 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
-from .models import CampusPlace, CampusRoute, GuideCategory, GuidePost, Publication, RouteStep
+from .models import CampusFacility, CampusPlace, CampusRoute, GuideCategory, GuidePost, Publication, RouteStep
+from .map_display import place_display_level
 
 
 @admin.register(GuideCategory)
@@ -41,6 +42,20 @@ class PostForm(PublicationForm):
         if key and not self.instance.publication_id and Publication.objects.filter(key=key).exists():
             raise forms.ValidationError("这个内容标识已被使用。")
         return key
+
+
+class PlaceForm(PublicationForm):
+    display_level = forms.TypedChoiceField(label="地图显示层级", choices=(), required=False, coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        field = self.fields["display_level"]
+        field.choices = [("", "按类别分配"), *CampusPlace._meta.get_field("display_level").choices]
+        if not self.instance.publication_id:
+            self.initial["display_level"] = ""
+
+    def clean_display_level(self):
+        return self.cleaned_data["display_level"] or place_display_level(self.data.get("category"), self.instance.pk)
 
 
 class PublishedContentAdmin(admin.ModelAdmin):
@@ -95,13 +110,14 @@ class PostAdmin(PublishedContentAdmin):
 
 @admin.register(CampusPlace)
 class PlaceAdmin(PublishedContentAdmin):
+    form = PlaceForm
     publication_kind = Publication.Kind.PLACE
-    list_display = ("name_zh", "name_en", "abbreviation_en", "category", "is_published")
-    list_filter = ("category", "publication__published", "is_builtin", "map_version", "has_power_outlets")
+    list_display = ("name_zh", "name_en", "abbreviation_en", "category", "display_level", "is_published")
+    list_filter = ("category", "display_level", "publication__published", "is_builtin", "map_version", "has_power_outlets")
     search_fields = ("name_zh", "name_en", "abbreviation_en", "keywords")
     readonly_fields = ("code", "is_builtin", "updated_at")
     fields = (
-        "code", "name_zh", "name_en", "abbreviation_en", "keywords", "category", "map_version", "map_x", "map_y",
+        "code", "name_zh", "name_en", "abbreviation_en", "keywords", "category", "display_level", "map_version", "map_x", "map_y",
         "entrance", "floor", "has_power_outlets", "power_outlet_location", "body", "external_url", "image_url",
         "published", "sort_order", "is_builtin", "updated_at",
     )
@@ -111,6 +127,13 @@ class PlaceAdmin(PublishedContentAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return not (obj and obj.is_builtin) and super().has_delete_permission(request, obj)
+
+
+@admin.register(CampusFacility)
+class CampusFacilityAdmin(admin.ModelAdmin):
+    list_display = ("title", "name_en", "kind", "display_level")
+    list_filter = ("kind", "display_level")
+    search_fields = ("title", "name_en", "detail")
 
 
 class RouteStepInline(admin.TabularInline):

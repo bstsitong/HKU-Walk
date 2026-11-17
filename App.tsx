@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, Keyboard, StyleSheet, View } from 'react-native';
 import { Alert, Pressable, Text } from './ui';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -30,20 +30,13 @@ import CommunityScreen from './CommunityScreen';
 import { ApiError, deleteGuideArticle, DiscussionTarget, fetchInboxCount, fetchSubmission, InboxMessage, setGuideLike, Submission } from './communityApi';
 import useRecentActivity from './useRecentActivity';
 import usePersonalStorage from './usePersonalStorage';
+import StartupUpdate from './StartupUpdate';
 
 const tabs: { key: 'map' | 'guide' | 'profile'; label: string; icon: IconName }[] = [
   { key: 'map', label: '地图', icon: 'map' },
   { key: 'guide', label: '学生指南', icon: 'book' },
   { key: 'profile', label: '我的', icon: 'user' },
 ];
-const bookmarkKey = 'hku-walk.guide-bookmarks.v1';
-const emptyBookmarks: string[] = [];
-function decodeBookmarks(value: unknown) {
-  if (value === null) return emptyBookmarks;
-  if (!Array.isArray(value) || !value.every(id => typeof id === 'string')) throw new Error('Invalid bookmarks');
-  return value as string[];
-}
-
 function MainApp() {
   useLanguage();
   const [tab, setTab] = useState<(typeof tabs)[number]['key']>('map');
@@ -51,6 +44,10 @@ function MainApp() {
   const account = useAccount();
   const token = account.session?.token;
   const data = useGuide(token);
+  // Older servers already expose route overview images in the student guide.
+  const routeImages = useMemo(() => new Map(data.categories.flatMap(category => category.entries)
+    .filter(entry => entry.mapType === 'route' && entry.imageUrl)
+    .map(entry => [entry.id, entry.imageUrl])), [data.categories]);
   const [reading, setReading] = useState<{ id: string; comments: boolean } | null>(null);
   const [commentPlace, setCommentPlace] = useState<Place | null>(null);
   const [editingProfile, setEditingProfile] = useState(false);
@@ -68,10 +65,10 @@ function MainApp() {
   const inboxNavigation = useRef(0);
   const inboxActive = Boolean(owner && inboxOwner === owner && token);
   const [communityEntry, setCommunityEntry] = useState<'home' | 'security' | 'login' | 'form' | Submission | null>(null);
-  const savedRoutes = useSavedRoutes(owner);
-  const history = useRecentActivity(owner);
-  const placeRecords = usePlaces(owner);
-  const guideBookmarks = usePersonalStorage(owner, bookmarkKey, emptyBookmarks, decodeBookmarks);
+  const personalRecords = usePersonalStorage(owner, token, tab === 'profile');
+  const savedRoutes = useSavedRoutes(personalRecords);
+  const history = useRecentActivity(personalRecords);
+  const placeRecords = usePlaces(personalRecords);
   const openLogin = () => setCommunityEntry('login');
   const openDiscussionLogin = (expired = false) => {
     if (expired) void account.expire().then(openLogin);
@@ -128,10 +125,9 @@ function MainApp() {
   const records = { ...placeRecords, ready: account.session ? placeRecords.ready : account.ready, toggle: requireAccount(placeRecords.toggle) };
   const routes = { ...savedRoutes, ready: account.session ? savedRoutes.ready : account.ready, toggle: requireAccount(savedRoutes.toggle) };
   const bookmarks = {
-    saved: guideBookmarks.data,
-    ready: account.session ? guideBookmarks.ready : account.ready,
-    toggle: requireAccount((id: string) => guideBookmarks.update(current =>
-      current.includes(id) ? current.filter(item => item !== id) : [...current, id])),
+    saved: personalRecords.data.saved_posts,
+    ready: account.session ? personalRecords.ready : account.ready,
+    toggle: requireAccount((id: string) => personalRecords.toggle('saved_posts', id)),
   };
   const openArticle = (id: string, comments = false) => {
     history.visitPost(id);
@@ -197,7 +193,7 @@ function MainApp() {
       const destination = getPlace(target.id);
       return destination ? <RouteScreen key={destination.id} initialDestination={destination} publishedOnly
         records={routes} recentPlaceIds={records.recent} onBack={onBack} active={active}
-        onVisit={history.visitRoute} catalogVersion={campus.catalog} /> : null;
+        onVisit={history.visitRoute} catalogVersion={campus.catalog} routeImages={routeImages} /> : null;
     }
     const source = data.articles.find(item => item.id === target.id);
     return source ? <GuideArticleScreen key={`${source.id}:${target.pageKey ?? ''}`} article={source} initiallyComments={false} initialSourcePage={target.pageKey}
@@ -213,7 +209,7 @@ function MainApp() {
     <SafeAreaView style={s.shell}>
       <AssistantHost restingBottom={tab === 'map' && mapView === 'home' && !article && !commentPlace ? 274 : undefined}>
       <StatusBar style="dark" />
-      <View style={[s.content, (tab !== 'map' || Boolean(commentPlace)) && s.hidden]}><CampusMap active={tab === 'map' && !commentPlace} records={records} routes={routes} campus={campus} sampleLocation={false} request={mapRequest} onViewChange={setMapView} onReturnSaved={() => setTab('profile')} onVisitRoute={history.visitRoute} onCommentPlace={setCommentPlace} /></View>
+      <View style={[s.content, (tab !== 'map' || Boolean(commentPlace)) && s.hidden]}><CampusMap active={tab === 'map' && !commentPlace} records={records} routes={routes} campus={campus} sampleLocation={false} request={mapRequest} onViewChange={setMapView} onReturnSaved={() => setTab('profile')} onVisitRoute={history.visitRoute} onCommentPlace={setCommentPlace} routeImages={routeImages} /></View>
       <View style={[s.content, (tab !== 'guide' || Boolean(article)) && s.hidden]}>
         <GuideArticles data={guideData} bookmarks={bookmarks} liking={liking} onLike={toggleLike} onOpen={openArticle} onContribute={() => setCommunityEntry('form')} />
       </View>
@@ -266,7 +262,7 @@ function MainApp() {
 }
 
 export default function App() {
-  return <SafeAreaProvider><LanguageProvider><MainApp /></LanguageProvider></SafeAreaProvider>;
+  return <SafeAreaProvider><LanguageProvider><StartupUpdate><MainApp /></StartupUpdate></LanguageProvider></SafeAreaProvider>;
 }
 
 const s = StyleSheet.create({

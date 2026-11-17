@@ -8,7 +8,7 @@ import { Field } from './CommunityUI';
 import AppIcon from './AppIcon';
 import { AppModal } from './Assistant';
 import PlaceSearch from './PlaceSearch';
-import { campusRoutes, categories, getPlace, placeName } from './campus';
+import { campusRoutes, categories, getPlace, isPublishedPlace, placeName } from './campus';
 import type { Kind } from './communityApi';
 import SubmissionPhoto from './SubmissionPhoto';
 import { MapDraftData, RouteStepDraft } from './mapSubmission';
@@ -70,7 +70,10 @@ function PointPicker({ data, disabled, onChange }: {
     <View style={s.row}>{[[-1,0,'left'],[0,-1,'up'],[0,1,'down'],[1,0,'right']].map(([dx,dy,direction]) => <Pressable key={String(direction)} accessibilityRole="button" accessibilityLabel={t('向{direction}微调', { direction: t(direction === 'left' ? '左' : direction === 'right' ? '右' : direction === 'up' ? '上' : '下') })} disabled={disabled} onPress={() => move(Number(dx),Number(dy))} style={s.nudge}><Text raw style={s.nudgeText}>{direction === 'left' ? '←' : direction === 'right' ? '→' : direction === 'up' ? '↑' : '↓'}</Text></Pressable>)}</View>
   </View>;
 }
-export default function MapSubmissionFields({ kind, data, onChange, disabled, onPickStep, token }: { kind: Kind; data: MapDraftData; onChange: (value: MapDraftData) => void; disabled: boolean; onPickStep: (index: number) => void; token?: string }) {
+export default function MapSubmissionFields({ kind, data, onChange, disabled, onPickStep, overviewUri, overviewToken, onPickOverview, onRemoveOverview, token }: {
+  kind: Kind; data: MapDraftData; onChange: (value: MapDraftData) => void; disabled: boolean; onPickStep: (index: number) => void;
+  overviewUri: string; overviewToken?: string; onPickOverview: () => void; onRemoveOverview: () => void; token?: string;
+}) {
   const [selector, setSelector] = useState<'placeId' | 'originId' | 'destinationId' | null>(null);
   const patch = (value: Partial<MapDraftData>) => onChange({ ...data, ...value });
   const updateStep = (index: number, value: Partial<RouteStepDraft>) => patch({ steps: data.steps?.map((step,i) => i === index ? { ...step,...value } : step) });
@@ -78,7 +81,7 @@ export default function MapSubmissionFields({ kind, data, onChange, disabled, on
   if (kind === 'new_place') return <View style={s.section}>
     <Field label="英文名称（选填）" value={data.english || ''} onChangeText={english => patch({ english })} maxLength={160} editable={!disabled} />
     <Field label="英文简称（选填）" value={data.abbreviation || ''} onChangeText={abbreviation => patch({ abbreviation })} maxLength={40} editable={!disabled} autoCapitalize="characters" />
-    <Text style={s.label}>地点类别</Text><View style={s.categories}>{[...categories.filter(item => item.id !== 'all'),{ id: 'space' as const, label: '校园空间' }].map(item => <Pressable key={item.id} accessibilityRole="radio" accessibilityState={{ checked: data.category === item.id }} disabled={disabled} onPress={() => patch({ category: item.id as NonNullable<MapDraftData['category']> })} style={[s.category,data.category === item.id && s.active]}><Text style={[s.categoryText,data.category === item.id && s.white]}>{item.label}</Text></Pressable>)}</View>
+    <Text style={s.label}>地点类别</Text><View style={s.categories}>{[...categories.filter(item => item.id !== 'all' && item.id !== 'souvenir'),{ id: 'space' as const, label: '校园空间' }].map(item => <Pressable key={item.id} accessibilityRole="radio" accessibilityState={{ checked: data.category === item.id }} disabled={disabled} onPress={() => patch({ category: item.id as NonNullable<MapDraftData['category']> })} style={[s.category,data.category === item.id && s.active]}><Text style={[s.categoryText,data.category === item.id && s.white]}>{item.label}</Text></Pressable>)}</View>
     <PointPicker data={data} disabled={disabled} onChange={patch} />
     <Field label="入口说明（选填）" value={data.entrance || ''} onChangeText={entrance => patch({ entrance })} maxLength={1000} editable={!disabled} multiline />
     <Field label="楼层说明（选填）" value={data.floor || ''} onChangeText={floor => patch({ floor })} maxLength={500} editable={!disabled} />
@@ -114,26 +117,39 @@ export default function MapSubmissionFields({ kind, data, onChange, disabled, on
       })}
     </View> : null}
     {kind === 'new_route' ? <>
-    <Text style={s.label}>图文步骤</Text>
-    <Text style={s.copy}>{data.stepPhotosRequired ? '按行走顺序添加步骤，每步填写说明并配一张照片。最多 20 步。' : '按行走顺序填写，每一步可以单独上传照片。最多 20 步。'}</Text>
+    <View style={s.overviewField}>
+      <Text style={s.label}>路线总览图（选填）</Text>
+      {overviewUri ? <SubmissionPhoto testID="route-overview-preview" uri={overviewUri} token={overviewToken} style={s.photo} resizeMode="contain" accessibilityLabel="路线总览图" /> : null}
+      <View style={s.row}>
+        <Pressable testID="route-overview-picker" accessibilityRole="button" disabled={disabled} onPress={onPickOverview} style={[s.photoButton, s.overviewPicker]}>
+          <AppIcon name="photo" size={18} /><Text style={s.link}>{overviewUri ? '更换总览图' : '上传总览图'}</Text>
+        </Pressable>
+        {overviewUri ? <Pressable accessibilityRole="button" accessibilityLabel="移除总览图" disabled={disabled} onPress={onRemoveOverview} style={s.photoButton}>
+          <Text style={s.link}>移除图片</Text>
+        </Pressable> : null}
+      </View>
+      <Text style={s.copy}>一张 JPEG、PNG 或 WebP，最多 5 MB。</Text>
+    </View>
+    <Text style={s.label}>路线步骤</Text>
+    <Text style={s.copy}>按行走顺序添加步骤，最多 20 步。</Text>
     {(data.steps || []).map((step,index) => { const uri = step.image?.uri || (!step.removeImage ? step.existingImage : ''); return <View key={index} style={s.stepCard}>
       <View style={s.row}><Text style={[s.label,s.flex]}>{t('第 {step} 步', { step: index + 1 })}</Text><Pressable accessibilityRole="button" accessibilityLabel="步骤上移" disabled={disabled || index === 0} onPress={() => moveStep(index,-1)} style={[s.iconButton,index === 0 && s.dim]}><Text raw>↑</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel="步骤下移" disabled={disabled || index === (data.steps?.length || 0) - 1} onPress={() => moveStep(index,1)} style={[s.iconButton,index === (data.steps?.length || 0) - 1 && s.dim]}><Text raw>↓</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel="移除此步骤" disabled={disabled || data.steps?.length === 1} onPress={() => patch({ steps: data.steps?.filter((_,i) => i !== index) })} style={s.iconButton}><AppIcon name="trash" size={18} /></Pressable></View>
       <Field label="步骤标题" value={step.title} onChangeText={title => updateStep(index,{ title })} editable={!disabled} maxLength={160} placeholder="例如：乘电梯到连接楼层" />
-      <Field label="步骤说明" value={step.body} onChangeText={body => updateStep(index,{ body })} editable={!disabled} multiline maxLength={1500} placeholder="写清方向、地标和楼层，方便同学辨认。" />
-      {uri ? <SubmissionPhoto uri={uri} token={step.image ? undefined : token} style={s.photo} resizeMode="cover" accessibilityLabel="步骤配图预览" /> : null}
-      <View style={s.row}><Pressable accessibilityRole="button" disabled={disabled} onPress={() => onPickStep(index)} style={s.photoButton}><AppIcon name="photo" size={18} /><Text style={s.link}>{uri ? '更换这一步配图' : '添加这一步配图'}</Text></Pressable>{uri ? <Pressable accessibilityRole="button" disabled={disabled} onPress={() => updateStep(index,{ image: null, removeImage: true })} style={s.photoButton}><Text style={s.link}>移除图片</Text></Pressable> : null}</View>
+      <Field label="步骤说明（选填）" value={step.body} onChangeText={body => updateStep(index,{ body })} editable={!disabled} multiline maxLength={1500} placeholder="写清方向、地标和楼层，方便同学辨认。" />
+      {uri ? <SubmissionPhoto uri={uri} token={step.image ? undefined : token} style={s.photo} resizeMode="contain" accessibilityLabel="步骤配图预览" /> : null}
+      <View style={s.row}><Pressable accessibilityRole="button" disabled={disabled} onPress={() => onPickStep(index)} style={s.photoButton}><AppIcon name="photo" size={18} /><Text style={s.link}>{uri ? '更换这一步配图' : '添加配图（选填）'}</Text></Pressable>{uri ? <Pressable accessibilityRole="button" disabled={disabled} onPress={() => updateStep(index,{ image: null, removeImage: true })} style={s.photoButton}><Text style={s.link}>移除图片</Text></Pressable> : null}</View>
     </View>; })}
     <Pressable accessibilityRole="button" disabled={disabled || (data.steps?.length || 0) >= 20} onPress={() => patch({ steps: [...(data.steps || []),{ title: '', body: '' }] })} style={s.addStep}><AppIcon name="plus" size={19} /><Text style={s.link}>添加下一步</Text></Pressable>
     </> : null}
     {selector ? <AppModal animationType="slide" onRequestClose={() => setSelector(null)}>
       <SafeAreaProvider><SafeAreaView style={[s.flex, { backgroundColor: c.app }]}>
-        <PlaceSearch title={selectorTitles[selector]} onBack={() => setSelector(null)}
+        <PlaceSearch title={selectorTitles[selector]} onBack={() => setSelector(null)} includePlace={isPublishedPlace}
           onChoose={place => { patch({ [selector]: place.id, routeId: undefined }); setSelector(null); }} />
       </SafeAreaView></SafeAreaProvider>
     </AppModal> : null}
   </View>;
 }
-export function SubmittedMapData({ data, token }: { data?: MapDraftData; token?: string }) {
+export function SubmittedMapData({ data, token, overviewUri }: { data?: MapDraftData; token?: string; overviewUri?: string }) {
   if (data?.type !== 'place' && data?.type !== 'route') return null;
   if (data.type === 'place') return <View style={s.section}>
     <Text style={s.label}>地点资料</Text>
@@ -146,16 +162,22 @@ export function SubmittedMapData({ data, token }: { data?: MapDraftData; token?:
   </View>;
   const origin = getPlace(data.originId || ''), destination = getPlace(data.destinationId || '');
   return <View style={s.section}>
-    <Text style={s.label}>路线步骤</Text>
     <Text raw style={s.copy}>{origin ? placeName(origin) : data.originId} → {destination ? placeName(destination) : data.destinationId}</Text>
+    {overviewUri ? <View style={s.overviewField}>
+      <Text style={s.label}>路线总览图</Text>
+      <SubmissionPhoto uri={overviewUri} token={token} style={s.photo} accessibilityLabel="路线总览图" resizeMode="contain" />
+    </View> : null}
+    <Text style={s.label}>路线步骤</Text>
     {data.steps?.map((step, index) => <View key={index} style={s.stepCard}>
       <Text raw style={s.label}>{index + 1}. {step.title}</Text>
-      <Text raw style={s.copy}>{step.body}</Text>
-      {step.imageUrl ? <SubmissionPhoto uri={step.imageUrl} token={token} style={s.photo} accessibilityLabel="投稿步骤配图" resizeMode="cover" /> : null}
+      {step.body ? <Text raw style={s.copy}>{step.body}</Text> : null}
+      {step.imageUrl ? <SubmissionPhoto uri={step.imageUrl} token={token} style={s.photo} accessibilityLabel="投稿步骤配图" resizeMode="contain" /> : null}
     </View>)}
   </View>;
 }
 const s = StyleSheet.create({
+  overviewField: { marginBottom: 16 },
+  overviewPicker: { marginTop: 8, paddingHorizontal: 12, backgroundColor: c.tint, borderRadius: 9, borderWidth: 1, borderColor: c.line },
   zoomControls: { position: 'absolute', right: 8, bottom: 8, flexDirection: 'row', alignItems: 'center', backgroundColor: c.surface, borderRadius: 9, borderWidth: 1, borderColor: c.line },
   zoomButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   zoomDivider: { width: 1, height: 22, backgroundColor: c.line },

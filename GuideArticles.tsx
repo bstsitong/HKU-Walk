@@ -13,6 +13,9 @@ import { normalizeSearchText } from './placeMatching';
 import { colors as c } from './theme';
 import { Image, Pressable, Text, TextInput } from './ui';
 import useGuide from './useGuide';
+import { KeyboardLayout } from './KeyboardLayout';
+import { useLanguage } from './LanguageProvider';
+import { localizedGuideArticle } from './guideLocalization';
 
 type Bookmarks = { saved: string[]; ready: boolean; toggle: (id: string) => void };
 type Actions = { bookmarks: Bookmarks; liking: readonly string[]; onLike: (article: GuideArticle) => void };
@@ -49,18 +52,21 @@ export function GuideArticles({ data, bookmarks, liking, onLike, onOpen, onContr
   data: ReturnType<typeof useGuide>; onOpen: (id: string, comments?: boolean) => void; onContribute: () => void;
 }) {
   const [query, setQuery] = useState('');
-  const excerpts = useMemo(() => Object.fromEntries(data.articles.map(article => [
+  const { language } = useLanguage();
+  const localized = useMemo(() => data.articles.map(article => localizedGuideArticle(article, language)), [data.articles, language]);
+  const excerpts = useMemo(() => Object.fromEntries(localized.map(article => [
     article.id, article.markdown ? guideExcerpt(article.body) : article.body,
-  ])), [data.articles]);
+  ])), [localized]);
   const terms = normalizeSearchText(query).split(' ').filter(Boolean);
-  const results = data.articles.filter(article => {
+  const results = localized.filter((article, index) => {
     if (!terms.length) return true;
     const pages = Object.values(article.sourcePages ?? {}).map(page => `${page.title} ${page.body}`).join(' ');
-    const text = normalizeSearchText(`${article.title} ${article.body} ${article.authorProfile?.name || article.contributor} ${pages}`);
+    const source = data.articles[index];
+    const text = normalizeSearchText(`${article.title} ${article.body} ${article.authorProfile?.name || article.contributor} ${pages} ${source.title} ${source.body}`);
     return terms.every(term => text.includes(term));
   });
   const open = (id: string, comments = false) => { Keyboard.dismiss(); onOpen(id, comments); };
-  return <View style={s.flex}>
+  return <KeyboardLayout>
     <View style={s.header}>
       <View style={s.heading}><Text accessibilityRole="header" style={s.title}>学生指南</Text>
         <Action icon="plus" label="投稿" testID="guide-contribute" onPress={() => { Keyboard.dismiss(); onContribute(); }} />
@@ -90,14 +96,16 @@ export function GuideArticles({ data, bookmarks, liking, onLike, onOpen, onContr
       </View>)}
       {!data.loading && !data.error && !results.length ? <Text style={s.empty}>{query.trim() ? '没有找到相关帖子' : '还没有发布的学生指南，稍后再来看看。'}</Text> : null}
     </ScrollView>
-  </View>;
+  </KeyboardLayout>;
 }
 
-export function GuideArticleScreen({ article, initiallyComments, initialSourcePage, session, onBack, onLogin, onCommentCount, bookmarks, liking, onLike, onDelete, deleting, readOnly = false, active = true }: Actions & {
+export function GuideArticleScreen({ article: source, initiallyComments, initialSourcePage, session, onBack, onLogin, onCommentCount, bookmarks, liking, onLike, onDelete, deleting, readOnly = false, active = true }: Actions & {
   article: GuideArticle; initiallyComments: boolean; session: Account | null; onBack: () => void;
   onLogin: (expired?: boolean) => void; onCommentCount: (count: number) => void;
   onDelete: () => void; deleting: boolean; readOnly?: boolean; active?: boolean; initialSourcePage?: string;
 }) {
+  const { language } = useLanguage();
+  const article = useMemo(() => localizedGuideArticle(source, language), [source, language]);
   const [comments, showComments] = useState(initiallyComments);
   const [sourceKey, setSourceKey] = useState<string | undefined>(() => initialSourcePage && Object.hasOwn(article.sourcePages ?? {}, initialSourcePage) ? initialSourcePage : undefined);
   const sourcePage = sourceKey ? article.sourcePages?.[sourceKey] : undefined;
