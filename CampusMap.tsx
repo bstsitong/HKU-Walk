@@ -4,7 +4,7 @@ import { Alert, Image, Pressable, Text } from './ui';
 import AppIcon, { IconName } from './AppIcon';
 import { AuthorByline } from './AuthorIdentity';
 import MapCanvas from './MapCanvas';
-import { Category, Place, categories, categoryIcon, categoryLabel, classroomBuilding, findPlace, getCampusRoute, getPlace, hasPlacePhoto, isPublishedPlace, mapPlace, placeIcon, placeName, placePhoto, places } from './campus';
+import { Category, Place, categories, categoryIcon, categoryLabel, classroomBuilding, findPlace, getCampusRoute, getPlace, hasPlacePhoto, isPublishedPlace, mapPlace, placeIcon, placeName, placePhoto } from './campus';
 import { PlaceRecords } from './usePlaces';
 import { t } from './localization';
 import { useLanguage } from './LanguageProvider';
@@ -81,7 +81,7 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
   const { height, fontScale } = useWindowDimensions();
   const compactTools = height / Math.max(1, fontScale) < 680;
   const [view, setView] = useState<MapView>('home');
-  const [selected, setSelected] = useState(findPlace('main'));
+  const [selected, setSelected] = useState<Place | null>(null);
   const [category, setCategory] = useState<Category>('all');
   const [facilitiesOnly, setFacilitiesOnly] = useState(false);
   const [facilitySelection, setFacilitySelection] = useState<readonly CampusFacility[] | null>(null);
@@ -121,7 +121,17 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
       setOrigin(start); setDestination(end); setSelected(end); setPreferredRoute(request.route); setRouteReturn('home'); changeView('route'); return;
     }
     if (request.category) chooseCategory(request.category);
-    if (request.placeId) { const place = findPlace(request.placeId); setSelected(place); if (request.view === 'detail') records.visit(place.id); }
+    const place = request.placeId ? getPlace(request.placeId) : undefined;
+    if (request.placeId) setSelected(place ?? null);
+    if (request.view === 'detail') {
+      if (!place) {
+        Alert.alert('地点暂不可用', '地点已下线或暂时无法读取');
+        changeView('home');
+        if (request.fromSaved) onReturnSaved();
+        return;
+      }
+      records.visit(place.id);
+    }
     setReturnView('home'); setView(request.view); onViewChange(request.view);
   }, [request?.serial]);
   useEffect(() => {
@@ -134,24 +144,29 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
     });
     return () => listener.remove();
   }, [active, view, fromSaved, returnView, routeReturn, facilitySelection]);
-  const startRoute = () => {
-    setDestination(selected); setOrigin(findPlace(selected.id === 'gate' ? 'main' : 'gate'));
+  const startRoute = (place: Place) => {
+    setDestination(place); setOrigin(findPlace(place.id === 'gate' ? 'main' : 'gate'));
     setPreferredRoute(null); setRouteReturn(view); changeView('route');
   };
   useEffect(() => {
-    const latest = getPlace(selected.id);
-    if (latest) setSelected(latest);
-    else { setSelected(findPlace('main')); if (view === 'detail') { Alert.alert('地点暂不可用', '地点已下线或暂时无法读取'); changeView('home'); } }
+    if (selected) {
+      const latest = getPlace(selected.id);
+      setSelected(latest ?? null);
+      if (!latest && view === 'detail') {
+        Alert.alert('地点暂不可用', '地点已下线或暂时无法读取');
+        changeView('home');
+      }
+    }
     const currentOrigin = getPlace(origin.id), currentDestination = getPlace(destination.id);
     if (currentOrigin && currentDestination) { setOrigin(currentOrigin); setDestination(currentDestination); }
     else { setOrigin(findPlace('gate')); setDestination(findPlace('main')); setPreferredRoute(null); if (view === 'route') changeView('home'); }
   }, [campus.catalog]);
-  const saved = records.saved.includes(selected.id);
-  const building = classroomBuilding(selected);
-  const placeSubtitle = [language !== 'en' ? selected.english : '', !building && selected.abbreviation].filter(Boolean).join(' · ');
-  const saveButton = <IconButton testID="save-place" icon="bookmark" label={saved ? '取消收藏' : '收藏地点'} selected={saved} disabled={!records.ready} onPress={() => records.toggle(selected.id)} />;
+  const saved = selected ? records.saved.includes(selected.id) : false;
+  const building = selected ? classroomBuilding(selected) : undefined;
+  const placeSubtitle = selected ? [language !== 'en' ? selected.english : '', !building && selected.abbreviation].filter(Boolean).join(' · ') : '';
+  const saveButton = selected && <IconButton testID="save-place" icon="bookmark" label={saved ? '取消收藏' : '收藏地点'} selected={saved} disabled={!records.ready} onPress={() => records.toggle(selected.id)} />;
   if (view === 'search') return <PlaceSearch onBack={back} onChoose={detail} recentPlaceIds={records.recent} />;
-  if (view === 'detail') return <View style={s.flex}>
+  if (view === 'detail' && selected) return <View style={s.flex}>
     <ScrollView contentContainerStyle={s.detailPage}>
       <View style={s.hero}>
         {selected.id === 'main' || selected.imageUrl
@@ -179,7 +194,7 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
     <View style={s.footer}>
       {saveButton}
       {isPublishedPlace(selected) ? <IconButton testID="detail-comments" icon="comment" label="地点评论" onPress={() => onCommentPlace(selected)} /> : null}
-      <Action testID="detail-route" icon="walk" label="查看步行路线" onPress={startRoute} />
+      <Action testID="detail-route" icon="walk" label="查看步行路线" onPress={() => startRoute(selected)} />
     </View>
   </View>;
   if (view === 'route') return <RouteScreen initialOrigin={origin} initialDestination={destination} initialRouteId={preferredRoute?.source === 'community' ? preferredRoute.id : undefined} preferDemo={preferredRoute?.source === 'demo'} records={routes} recentPlaceIds={records.recent} onBack={back} onMap={(place?: Place) => { if (place) setSelected(mapPlace(place)); setFromSaved(false); chooseCategory('all'); changeView('home'); }} active={active} onVisit={onVisitRoute} catalogVersion={campus.catalog} routeImages={routeImages} />;
@@ -212,7 +227,7 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
         </View>
         <View pointerEvents="none" style={s.mapSpace} />
         {facilitiesOnly || facilitySelection ? <FacilitySheet facilities={facilitySelection} onClose={() => setFacilitySelection(null)} /> :
-          <View style={s.placeSheet}><View style={s.sheetSummary}>{hasPlacePhoto(selected) ? <Image source={placePhoto(selected)} style={s.sheetPhoto} resizeMode="cover" accessibilityLabel="校园地点照片" /> : <View style={[s.sheetPhoto, s.placeSymbol]}><AppIcon name={placeIcon(selected)} /></View>}<View style={s.flex}><Text raw={selected.isCommunity} style={s.rowTitle}>{placeName(selected)}</Text>{language !== 'en' && selected.english ? <Text raw style={s.meta}>{selected.english}</Text> : null}<Text style={s.categoryMeta}>{categoryLabel(selected)}</Text></View>{saveButton}</View><View style={s.sheetActions}><Action secondary label="地点详情" onPress={() => detail(selected)} /><Action icon="walk" label="查看路线" onPress={startRoute} /></View></View>}
+          selected ? <View testID="map-place-sheet" style={s.placeSheet}><View style={s.sheetSummary}>{hasPlacePhoto(selected) ? <Image source={placePhoto(selected)} style={s.sheetPhoto} resizeMode="cover" accessibilityLabel="校园地点照片" /> : <View style={[s.sheetPhoto, s.placeSymbol]}><AppIcon name={placeIcon(selected)} /></View>}<View style={s.flex}><Text raw={selected.isCommunity} style={s.rowTitle}>{placeName(selected)}</Text>{language !== 'en' && selected.english ? <Text raw style={s.meta}>{selected.english}</Text> : null}<Text style={s.categoryMeta}>{categoryLabel(selected)}</Text></View>{saveButton}</View><View style={s.sheetActions}><Action secondary label="地点详情" onPress={() => detail(selected)} /><Action icon="walk" label="查看路线" onPress={() => startRoute(selected)} /></View></View> : null}
         <Text pointerEvents="none" style={s.homeMapNote}>© OpenStreetMap</Text>
       </View>
     </View>

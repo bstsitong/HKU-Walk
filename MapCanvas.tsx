@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { campusMapSvg, MAP_BACKGROUND, MAP_HEIGHT, MAP_WIDTH, MAP_Y_MAX } from './MapArtwork';
 import AppIcon from './AppIcon';
-import { Category, Place, filterPlaces, getPlace, mapPlace, placeName } from './campus';
+import { Category, Place, filterPlaces, findPlace, getPlace, mapPlace, placeName } from './campus';
 import { Pressable, Text } from './ui';
 import { useLanguage } from './LanguageProvider';
 import { colors as c } from './theme';
@@ -22,7 +22,7 @@ const levelStartZoom = { 1: MIN_MAP_ZOOM, 2: 1.4, 3: 2, 4: 2.9 } as const;
 type ScreenMarker = MapPoint & { diameter: number; item: MapItem };
 
 export default function MapCanvas({ selected, category = 'all', zoom = MIN_MAP_ZOOM, onZoomChange, onSelect, catalogVersion, variant = 'home', origin, sampleLocation = false, livePosition, centerTick = 0, facilitiesOnly = false, facilities = campusFacilities, onFacilitySelect }: {
-  selected: Place; category?: Category; zoom?: number; onZoomChange?: (zoom: number) => void; onSelect?: (place: Place) => void;
+  selected: Place | null; category?: Category; zoom?: number; onZoomChange?: (zoom: number) => void; onSelect?: (place: Place) => void;
   catalogVersion?: object;
   variant?: 'home' | 'route' | 'mini'; origin?: Place; sampleLocation?: boolean; livePosition?: CampusLocation; centerTick?: number;
   facilitiesOnly?: boolean; facilities?: readonly CampusFacility[]; onFacilitySelect?: (facilities: readonly CampusFacility[]) => void;
@@ -30,13 +30,14 @@ export default function MapCanvas({ selected, category = 'all', zoom = MIN_MAP_Z
   const { language } = useLanguage();
   const [viewport, setViewport] = useState({ width: 360, height: 540 });
   const home = variant === 'home';
-  const campusGate = getPlace('gate') ?? selected;
+  const campusGate = getPlace('gate') ?? selected ?? findPlace('gate');
   const samplePoint = { x: campusGate.x + 14, y: campusGate.y + 28, radius: 10 };
   const position = home ? livePosition ?? (sampleLocation ? samplePoint : undefined) : undefined;
-  const target = mapPlace(selected);
-  const { camera, surface, handlers } = useMapCamera(viewport, zoom, centerTick, position ?? target, onZoomChange);
+  const target = selected ? mapPlace(selected) : null;
+  const { camera, surface, handlers } = useMapCamera(viewport, zoom, centerTick, position ?? target ?? campusGate, onZoomChange);
   const start = origin && mapPlace(origin);
-  const endpoints = start && start.id !== target.id && variant === 'route' ? [start, target] : [target];
+  const endpoints = target ? [target] : [];
+  if (start && target && start.id !== target.id && variant === 'route') endpoints.unshift(start);
   const frame = home
     ? { x: camera.x, y: camera.y, scale: viewport.width * camera.zoom / MAP_WIDTH }
     : detailFrame(endpoints, viewport.width, viewport.height);
@@ -122,7 +123,7 @@ export default function MapCanvas({ selected, category = 'all', zoom = MIN_MAP_Z
       const placement = { left: x - hit / 2, top: y - hit / 2, width: hit, height: hit };
       if ('place' in item) {
         const { place } = item;
-        const active = place.id === target.id;
+        const active = place.id === target?.id;
         const level = placeDisplayLevel(place);
         const iconSize = mapPinSizes[level].icon * sizeFactor;
         const { color, icon } = mapPlaceSymbol(place);
