@@ -229,9 +229,9 @@ const overview = mapCandidates(places, 'main', 'all', 1);
 const midZoom = mapCandidates(places, 'main', 'all', 1.7);
 const attractionsZoom = mapCandidates(places, 'main', 'all', 2.4);
 const closeZoom = mapCandidates(places, 'main', 'all', 3);
-assert.ok(overview.length < midZoom.length && midZoom.length < attractionsZoom.length && attractionsZoom.length < closeZoom.length);
-assert.ok(overview.every(place => place.category === 'access'));
-assert.ok(midZoom.some(place => place.id === 'main'));
+assert.deepEqual(overview, midZoom);
+assert.ok(overview.length < attractionsZoom.length && attractionsZoom.length < closeZoom.length);
+assert.ok(['gate', 'main', 'library', 'university-street'].every(id => overview.some(place => place.id === id)));
 assert.ok(!midZoom.some(place => place.id === 'cafe') && attractionsZoom.some(place => place.id === 'cafe'));
 assert.ok(!attractionsZoom.some(place => place.id === 'swire-hall') && closeZoom.some(place => place.id === 'swire-hall'));
 assert.equal(getPlace('library-old'), getPlace('library'));
@@ -256,9 +256,8 @@ const campusMarkers = mapCandidates(basePlaces, '', 'all', 4).map(placeMarkerInp
 campusMarkers.push(...campusFacilities.filter(facility => facility.kind !== 'gate').map(facilityMarkerInput));
 const markerById = (items, id) => items.find(({ item }) => (item.place ?? item.facility).id === id);
 for (const width of [320, 390, 440]) {
-  const { factor, pins } = layoutMapMarkers(campusMarkers, width * 4 / 360);
+  const pins = layoutMapMarkers(campusMarkers, width * 4 / 360);
   assert.equal(pins.length, campusMarkers.length);
-  assert.ok(factor > 0.1);
   for (const [index, pin] of pins.entries()) {
     assert.ok(pin.radius > 0);
     for (const other of pins.slice(index + 1)) {
@@ -279,4 +278,23 @@ for (const width of [320, 390, 440]) {
   assert.ok(markerById(pins, 'run-run-shaw-tower').radius > markerById(pins, 'bijas').radius);
   assert.ok(markerById(pins, 'bijas').radius > markerById(pins, 'wc-run-run-shaw-tower').radius);
 }
-console.log('Passed: separate non-overlapping map markers, shared level sizes and indoor building placement.');
+for (const width of [320, 390, 440]) {
+  const layouts = [1, 2, 2.9].map(zoom => {
+    const markers = mapCandidates(basePlaces, '', 'all', zoom).map(placeMarkerInput);
+    if (zoom >= 2.9) markers.push(...campusFacilities.filter(facility => facility.kind !== 'gate').map(facilityMarkerInput));
+    const pins = layoutMapMarkers(markers, width * zoom / 360);
+    assert.equal(pins.length, markers.length);
+    for (const [index, pin] of pins.entries()) {
+      assert.ok(pin.factor >= 0.4);
+      for (const other of pins.slice(index + 1)) {
+        assert.ok(Math.hypot(pin.point.x - other.point.x, pin.point.y - other.point.y) >= pin.radius + other.radius);
+      }
+    }
+    return pins;
+  });
+  for (const id of ['gate', 'main', 'library']) {
+    const first = markerById(layouts[0], id).factor;
+    assert.ok(layouts.every(pins => markerById(pins, id).factor >= first), id);
+  }
+}
+console.log('Passed: readable markers across zoom stages, separate hit targets and indoor building placement.');

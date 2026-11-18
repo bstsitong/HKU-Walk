@@ -9,7 +9,7 @@ import { useLanguage } from './LanguageProvider';
 import { colors as c } from './theme';
 import { translate } from './localization';
 import type { CampusLocation, MapPoint } from './campusLocation';
-import { mapBand, mapCandidates, MAX_MAP_ZOOM, MIN_MAP_ZOOM, toMapView } from './mapCamera';
+import { mapBand, mapCandidates, MIN_MAP_ZOOM, toMapView } from './mapCamera';
 import useMapCamera from './useMapCamera';
 import { facilityMarkerInput, layoutMapMarkers, placeMarkerInput, type MapItem } from './mapMarkers';
 import { campusFacilities, CampusFacility, facilityName, facilityStyles } from './campusFacilities';
@@ -17,9 +17,8 @@ import { mapPinSizes, mapPlaceSymbol, placeDisplayLevel, visibleMapLevel, type M
 
 const pinTouchSize = 48;
 const labelTextPadding = 8;
-const layoutZoom = { 1: 1.4, 2: 2, 3: 2.9, 4: MAX_MAP_ZOOM } as const;
-const levelStartZoom = { 1: MIN_MAP_ZOOM, 2: 1.4, 3: 2, 4: 2.9 } as const;
-type ScreenMarker = MapPoint & { diameter: number; item: MapItem };
+const levelStartZoom = { 2: MIN_MAP_ZOOM, 3: 2, 4: 2.9 } as const;
+type ScreenMarker = MapPoint & { diameter: number; factor: number; item: MapItem };
 
 export default function MapCanvas({ selected, category = 'all', zoom = MIN_MAP_ZOOM, onZoomChange, onSelect, catalogVersion, variant = 'home', origin, sampleLocation = false, livePosition, centerTick = 0, facilitiesOnly = false, facilities = campusFacilities, onFacilitySelect }: {
   selected: Place | null; category?: Category; zoom?: number; onZoomChange?: (zoom: number) => void; onSelect?: (place: Place) => void;
@@ -53,32 +52,30 @@ export default function MapCanvas({ selected, category = 'all', zoom = MIN_MAP_Z
   const marker = positionOnScreen && onMap(positionOnScreen) ? positionOnScreen : null;
   const radius = (position?.radius ?? 0) * frame.scale;
   const displayLevel = visibleMapLevel(camera.zoom);
-  const showPassages = facilitiesOnly || (home ? camera.zoom >= 1.4 : frame.scale >= 1.4);
+  const showPassages = home || facilitiesOnly || frame.scale >= 1.4;
   const showFacilityMarkers = home && !!onFacilitySelect && (facilitiesOnly || category === 'all');
-  const referenceZoom = layoutZoom[displayLevel];
+  const referenceZoom = levelStartZoom[displayLevel];
   const referenceScale = viewport.width * referenceZoom / MAP_WIDTH;
   const layout = useMemo(() => {
     if (!home) return null;
     const items = facilitiesOnly ? [] :
-      mapCandidates(filterPlaces(category), '', category, levelStartZoom[displayLevel]).map(placeMarkerInput);
+      mapCandidates(filterPlaces(category), '', category, referenceZoom).map(placeMarkerInput);
     if (showFacilityMarkers) {
       for (const facility of facilities) {
         if (!facilitiesOnly && (facility.kind === 'gate' || facility.displayLevel > displayLevel)) continue;
-        if (facilitiesOnly && !facility.overview && displayLevel === 1) continue;
         items.push(facilityMarkerInput(facility));
       }
     }
     return layoutMapMarkers(items, referenceScale);
-  }, [home, category, catalogVersion, facilitiesOnly, facilities, showFacilityMarkers, displayLevel, referenceScale]);
-  const sizeFactor = layout ? layout.factor * camera.zoom / referenceZoom : 1;
+  }, [home, category, catalogVersion, facilitiesOnly, facilities, showFacilityMarkers, displayLevel, referenceZoom, referenceScale]);
   const markers: ScreenMarker[] = layout
-    ? layout.pins.map(({ item, point }) => {
+    ? layout.map(({ item, point, factor }) => {
         const level = 'place' in item ? placeDisplayLevel(item.place) : item.facility.displayLevel;
         return { ...toScreen({ x: point.x, y: point.y / MAP_HEIGHT * MAP_Y_MAX }),
-          diameter: mapPinSizes[level].diameter * sizeFactor, item };
+          diameter: mapPinSizes[level].diameter * factor, factor, item };
       }).filter(onMap)
     : endpoints.filter(place => !place.mapPositionPending && !place.parentBuildingId).map(place => ({
-        ...toScreen(place), diameter: mapPinSizes[placeDisplayLevel(place)].diameter, item: { place },
+        ...toScreen(place), diameter: mapPinSizes[placeDisplayLevel(place)].diameter, factor: 1, item: { place },
       }));
   const svg = useMemo(() => campusMapSvg(label => translate(label, language), showPassages), [language, showPassages]);
   const mapWidth = MAP_WIDTH * frame.scale;
@@ -118,7 +115,7 @@ export default function MapCanvas({ selected, category = 'all', zoom = MIN_MAP_Z
       {marker && radius > 0 ? <View style={[s.accuracy, { left: marker.x - frame.x - radius, top: marker.y - frame.y - radius, width: radius * 2, height: radius * 2, borderRadius: radius }]} /> : null}
     </View>
     {markers.map(pin => {
-      const { item, x, y, diameter } = pin;
+      const { item, x, y, diameter, factor: sizeFactor } = pin;
       const hit = home ? touchSize(pin) : pinTouchSize;
       const placement = { left: x - hit / 2, top: y - hit / 2, width: hit, height: hit };
       if ('place' in item) {

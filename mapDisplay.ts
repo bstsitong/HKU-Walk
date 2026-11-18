@@ -57,9 +57,8 @@ export function placeDisplayLevel(place: {
     display.categories[place.category as keyof typeof display.categories] ?? 4) as MapDisplayLevel;
 }
 
-export function visibleMapLevel(zoom: number): MapDisplayLevel {
+export function visibleMapLevel(zoom: number): 2 | 3 | 4 {
   if (zoom >= 2.9) return 4;
   if (zoom >= 2.0) return 3;
-  if (zoom >= 1.4) return 2;
-  return 1;
+  return 2;
 }
