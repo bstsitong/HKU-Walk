@@ -1,93 +1,185 @@
-# 港大漫游 · 校园地图与学生指南
+# 港大漫游 · HKU-Walk
 
-手机端使用 React Native、Expo SDK 58 和 TypeScript。学生指南由 Python Django 后端提供。本机使用 SQLite；云端配置支持 PostgreSQL 与持久图片存储。
+面向香港大学学生和访客的校园地图与学生指南 App。手机端使用 React Native、Expo SDK 58 和 TypeScript，后端使用 Django。当前交付方式为可独立安装的 Android APK，正式后端和 PostgreSQL 数据库运行在香港服务器上。
 
-地图和学生指南无需登录。账号仅用于投稿、查看审核结果和修改重交。
+## 主要功能
 
-## 启动本机版本
+| 功能 | 当前实现 |
+| --- | --- |
+| 校园地图 | 本部及百周年校园底图，地点与设施筛选、缩放、定位、楼层及出入口说明、地点照片 |
+| 地点搜索 | 简繁中文、英文、简称、拼音、别名及相近输入匹配；支持按餐饮等需求查找地点 |
+| 步行路线 | 起终点选择与交换、地图位置示意、已发布路线的有序图文步骤、步骤照片放大查看 |
+| 学生指南 | 常用链接、入学指南、美食和娱乐群，内置专题阅读、搜索、用户帖子、评论和点赞 |
+| 问港大 | 结合地点、路线、指南、管理员上传的知识资料及港大官网信息回答校园问题 |
+| 个人账号 | 注册登录、资料编辑、头像及背景图、密码修改、恢复码找回、消息、投稿记录 |
+| 收藏与历史 | 地点、路线和帖子的记录按账号同步到后端，本机保留缓存与待同步操作 |
+| 投稿与审核 | 新地点、图文路线、美食、群资料和纠错投稿；支持审核、退回修改、拒绝及已发布内容的修改申请 |
+| 三语界面 | 手机端和管理后台均支持简体中文、香港繁体中文和英文 |
 
-首次安装手机端依赖时，在项目目录运行 `npm ci`。首次安装后端依赖时运行
+地图和指南可免登录浏览。收藏、评论、个人记录和投稿等功能需要账号。已发布路线使用审核后的说明和照片；内置演示路线的距离、连线和步骤是示例，不能作为已核实的逐向导航。
+
+## 正式 App、后端与数据库
+
+```text
+Android APK / 从源码运行的手机端
+                ↓ HTTPS API
+       香港服务器上的 Django 后端
+                ↓
+       PostgreSQL 与受控图片存储
+```
+
+| 入口 | 地址 |
+| --- | --- |
+| 正式 API | `https://47.239.18.183` |
+| 健康检查 | <https://47.239.18.183/api/health/> |
+| 管理后台 | <https://47.239.18.183/admin/> |
+
+正式 APK 自带手机端代码，安装后无需启动电脑或 Expo Go。联网功能通过上述后端读取数据；手机不直接连接数据库，也不携带数据库密码。
+
+**希望看到与正式 App 相同的已发布地点、照片、路线和帖子时，应把源码运行的手机端也指向正式 API。** 无需导入生产数据库。个人收藏、消息和投稿仍按登录账号区分；管理后台需要独立的工作人员权限。线上内容会随后台维护和审核发布而更新，评审期间需要保持服务器可用。
+
+本地后端默认使用 SQLite。迁移和 `seed_guide` 可以重建内置地点、设施和指南初始内容，但不会复制后来在线上上传的照片、帖子、账号、讨论或知识资料。生产数据库、上传文件、备份、管理员凭据及 API 私钥均不随源码分发。
+
+## 从源码启动 Android 手机端
+
+环境：Node.js 24.x、npm、Android Studio、Android SDK 和支持当前 Gradle 的 JDK。2026-11-26 的独立构建使用 Node 24.13.0、JDK 25、Android SDK 37、NDK 27.1.12297006；后端使用 Python 3.12。首次安装和构建需要联网下载依赖。
+
+在任意可写目录克隆项目，并进入包含 `package.json` 的项目根目录。Windows 原生构建建议使用较短路径，例如 `C:\hku-review\HKU-Walk`。
+
+```powershell
+git clone https://github.com/lrk126336-glitch/HKU-Walk.git
+cd HKU-Walk
+npm ci
+npm run locales:prepare
+Set-Content -LiteralPath .env.local -Encoding ascii -Value 'EXPO_PUBLIC_API_URL=https://47.239.18.183'
+```
+
+仓库为私有仓库，克隆需要仓库访问权限；收到源码 ZIP 的读者可直接解压，从 `npm ci` 开始执行。`.env.local` 中这里只保存公开接口地址。JavaScript 依赖版本由 `package-lock.json` 锁定，使用 `npm ci` 安装。
+
+### 生成原生项目并运行
+
+在新克隆或新解压的副本中，先执行以下命令，为本次源码运行使用独立的 Android 应用标识，并关闭正式热更新下载：
+
+```powershell
+node -e "const fs=require('fs'); const p=JSON.parse(fs.readFileSync('app.json','utf8')); p.expo.android.package='com.hkuwalk.review'; p.expo.updates.enabled=false; fs.writeFileSync('app.json',JSON.stringify(p,null,2)+'\n');"
+npx expo prebuild --platform android --no-install
+```
+
+这两项配置使自编译 App 可以与正式 APK 并存，并持续运行当前源码。它们不会更换后端地址或复制数据库。本节配置用于独立测试副本，正式发布保留 `com.hkuwalk` 及签名 OTA 配置。`android/` 是在本机生成的原生工程；不要复用其他电脑的生成目录、本机 SDK 路径或签名文件。
+
+Windows 若出现 CMake 路径长度错误，可在生成的 `android/app/build.gradle` 的 `android { ... }` 中设置较短的构建目录；`projectRoot` 是该文件已定义的项目路径：
+
+```groovy
+externalNativeBuild.cmake.buildStagingDirectory file(System.getProperty("java.io.tmpdir") + "/hku-review-cxx-" + Integer.toHexString(projectRoot.hashCode()))
+defaultConfig {
+    externalNativeBuild.cmake.arguments "-DCMAKE_OBJECT_PATH_MAX=245"
+}
+```
+
+启动 Android Studio 中的模拟器，或连接已开启 USB 调试的手机，然后在项目根目录运行：
+
+```powershell
+npx expo run:android
+```
+
+此命令构建并安装开发版本，同时启动 Metro。开发运行期间保持 Metro 开启；不需要 Expo Go 或 Expo 云构建账号。`npm run android` 只启动 Expo 开发服务器并尝试打开安卓设备，不等于编译 APK。
+
+### 编译独立 APK
+
+完成上述配置与 `prebuild` 后，在项目根目录运行：
+
+```powershell
+cd android
+.\gradlew.bat assembleRelease
+cd ..
+```
+
+macOS/Linux 使用 `./gradlew assembleRelease`。生成文件位于 `android/app/build/outputs/apk/release/app-release.apk`。新生成的 Expo 模板使用开发签名来构建这个独立测试版本；它可以脱离 Metro 运行，在线功能仍依赖所选后端。正式版升级 APK 需要维护者的正式签名，签名私钥不在仓库中。
+
+需要 Android SDK 时，通过 Android Studio 安装构建要求的组件并接受许可；检查 `ANDROID_HOME` 与 `JAVA_HOME` 指向本机实际安装位置。Windows 若遇到 C++ 路径过长，应先使用较短的项目目录再生成原生工程。Expo 在线兼容检查可能提示更新的补丁版本，依赖升级应单独验证。
+
+## 在本机运行后端
+
+本地开发或独立检查审核流程时，先安装 Python 3.12，再在项目根目录运行：
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r server\requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r server/requirements.txt
+.\Start-Backend.ps1
 ```
 
-在一个 PowerShell 窗口运行 `.\Start-Backend.ps1`。脚本会创建或升级数据库、补充初始内容并启动后端。重复运行会保留管理员已修改的内容。
+脚本执行数据库迁移、导入初始内容、初始化管理员，并在 `http://127.0.0.1:8000` 启动服务。默认数据库为 `.local/hku-walk.sqlite3`，本机管理员的随机登录信息保存在 `.local/admin-access.txt`。重复运行会保留已有账号和管理员修改。浏览器打开 <http://127.0.0.1:8000/admin/> 管理这套本地数据。
 
-启动 Android Studio 中的安卓模拟器，在另一个窗口运行 `npm run android`，通过兼容 Expo SDK 58 的 Expo Go 打开项目。安卓和 iPhone 真机连接方式见 [PHONE_TEST.md](PHONE_TEST.md)。
+将手机端改为本地后端时，在生成原生工程和启动 Metro 之前设置对应接口地址：
 
-## 管理学生指南
+```powershell
+Set-Content -LiteralPath .env.local -Encoding ascii -Value 'EXPO_PUBLIC_API_URL=http://10.0.2.2:8000'
+```
 
-浏览器打开 <http://127.0.0.1:8000/admin/>。本机首次生成的管理员账号和随机密码保存在 `.local/admin-access.txt`。数据库、密码文件及后端密钥均已加入 Git 忽略规则。
+`10.0.2.2` 是安卓模拟器访问宿主电脑的地址。开发版本支持本地 HTTP；为本地 HTTP 后端单独构建 release APK 时，还需在 Android 网络配置中允许该地址的明文连接。
 
-管理员后台的登录页和各管理页面顶部提供语言选择，可切换简体中文、香港繁体中文和英文，点击「切换」后保留当前页面及筛选条件。浏览器会记住选择；后台语言独立于手机 App。编辑框和投稿预览保留录入原文。
+真机使用电脑的实际局域网 IP，后端需要监听该网卡并在 `DJANGO_ALLOWED_HOSTS` 中加入对应 IP。两台设备须能互相访问，防火墙须允许所用端口。网络设置与可选 Expo Go 预览脚本见 [PHONE_TEST.md](PHONE_TEST.md)；该文档包含历史检查记录，正式 APK 的运行方式以上文为准。
 
-后台翻译位于 `server/locale/*/LC_MESSAGES/django.po`，编译后的 `django.mo` 随后端一起发布。修改翻译后，在安装 GNU gettext 的环境中进入 `server` 运行 `python manage.py compilemessages`，同时提交更新的 `.po` 和 `.mo` 文件。执行 `python manage.py test community.test_admin_language` 检查切换、审核、权限和翻译覆盖。
+macOS/Linux 可使用 `python3 -m venv .venv` 和 `.venv/bin/python`，依次执行 `server/manage.py migrate --noinput`、`seed_guide`、`init_admin`，最后运行 `server/manage.py runserver 127.0.0.1:8000 --noreload`。
 
-在「指南内容」中新增或编辑内容，可以设置分类、标题、正文、外部链接、图片地址、示例标记、发布状态和顺序。取消「发布到 App」会隐藏内容。删除操作使用 Django 的确认页面。
+## 管理、知识库与语言
 
-「学生指南」默认以单列显示各类帖子。可按标题或正文搜索，也可用顶部标签筛选类别。下拉即可读取后台更新。登录后点内容旁的书签，可在「我的」查看收藏。
+管理员可以维护地点、设施、路线和指南，审核投稿及已发布内容的修改申请。投稿状态包括待审核、已通过、需修改和已拒绝；退回修改后可以重交，已拒绝的投稿不能重交。已发布内容的修改申请通过前，公开版本保持不变。
 
-## 投稿与审核
+后台支持 Word 知识资料上传，供问港大检索和回答。上传文档与原文来源页受工作人员权限保护，普通用户回答中的引用展示公开来源。独立本地环境可以自行上传资料；连接正式 API 的手机端使用现有线上知识库。
 
-在「学生指南」右上角点击「投稿」，或打开「我的 → 我的投稿」。首次使用可以注册账号。账号使用 3–32 位字母、数字或下划线，不区分大小写；密码至少 8 位，服务端也会检查常见密码、纯数字及与账号过于相似的密码。
+问港大及 AI 翻译的模型密钥只配置在后端。默认模型配置见 `server/config/settings.py`；可通过 `DEEPSEEK_API_KEY`，或兼容服务的 `ASSISTANT_API_BASE_URL`、`ASSISTANT_API_KEY`、`ASSISTANT_MODEL` 设置。详细配置见 [deploy/README.md](deploy/README.md)。本地未配置模型密钥时，AI 问答和相关翻译功能不可用；地图、账号、投稿和内置翻译可独立使用。
 
-登录后可以提交新地点、新路线、美食分享、娱乐群资料、地点纠错和路线纠错。新地点填写中文名称，在校园示意图上选点，并可补充英文名称、英文简称、入口、楼层和照片。新路线从已有地点中选择起点和终点，填写 1–20 个步骤，每步可上传一张照片并调整顺序。封面和步骤配图均支持 JPEG、PNG 或 WebP，单张不超过 5 MB。服务端会检查格式、缩小到最长边 1600 像素并重编码为 JPEG，移除 EXIF 等附加资料。娱乐群需提供邀请链接，纠错需写明相关位置。
+手机端与管理后台的语言设置相互独立，编辑框和数据库保留原文。地点简介、已发布路线标题和步骤随界面语言自动翻译；社区帖子由用户点击「显示翻译」触发。译文按原文版本及目标语言缓存，原文更新后重新生成。
 
-在后台的「社区共建 → 用户投稿」中打开待审核记录，可查看图片并选择「通过并发布」或「请投稿人修改」。退回时必须填写修改建议。通过后，新地点会出现在地图和地点搜索中。新路线会在选择对应起终点时出现在步行路线页，也可以从「新生入学小 Tips」中的投稿打开。美食与娱乐群进入各自的指南分类，地点和路线纠错进入「新生入学小 Tips」供参考。
+系统文案的英文译文登记在 `locales/*-en.json`，香港繁体由 OpenCC 生成；`locales/messages.json` 为生成文件。使用 `npm run locales:prepare` 生成并检查字典，`npm run locales:check` 检查覆盖和生成文件同步。新增功能须同时完成三语支持，具体约定见 [AGENTS.md](AGENTS.md)。
 
-用户在「我的投稿」查看待审核、已通过、需修改状态。收到修改建议后，可以修改内容、替换或移除配图并重新提交。已通过的内容可以「申请修改已发布内容」：生成独立的审核申请，审核前保留公开的旧版本，通过后更新同一条指南。每条内容只允许一个未完成的修改申请。管理员在「指南内容」取消发布后，对应配图也停止公开访问。
+内置长篇指南的英文正文位于 `locales/guide-articles-en.json`，原文摘要版本位于 `locales/guide-source-revisions.json`。后台翻译位于 `server/locale/*/LC_MESSAGES/django.po`，编译后的 `.mo` 随源码分发；修改后台翻译后，需用 GNU gettext 运行 `compilemessages` 并提交两种文件。
 
-「账号与安全」支持修改密码和重新生成恢复码。注册时显示一次恢复码，需自行保存；忘记账号或密码后可用恢复码找回账号并设置新密码。服务端只保存恢复码摘要。修改密码或找回账号会撤销旧登录会话；找回账号或重新生成恢复码后，旧恢复码失效。无法提供密码和恢复码时，需要联系维护者核实，系统不会凭账号名直接重置密码。
+## 发布与更新
 
-投稿列表只显示自己的记录，支持分页。待审核及退回图片只允许投稿人和管理员读取；图片不会通过公开的 `/media/` 目录直接暴露。手机登录凭证保存在系统安全存储中，服务端只保存凭证摘要，30 天到期；退出登录撤销当前设备的会话。密码由 Django 加密哈希保存。
+| 改动 | 发布方式 |
+| --- | --- |
+| 后台编辑公开内容、审核通过投稿 | 写入线上数据库，App 后续刷新时读取 |
+| Django 接口、权限或数据结构 | 单独部署后端，必要时执行数据库迁移 |
+| 与当前原生运行时兼容的手机端代码、图片等资源 | 导出并发布签名 OTA 热更新 |
+| 原生插件、权限、SDK 或原生配置 | 构建、签名并分发新的 APK，按兼容性调整 runtime |
 
-新投稿带有请求编号，网络重试不会创建重复记录；修改重交及管理员审核会检查版本，旧审核页面不能通过已被修改的内容。账号入口和投稿写入有请求频率限制。
+`app.json` 当前正式 App 版本为 `1.0.6`、Android `versionCode` 为 `10`，OTA runtime 使用 `appVersion` 策略。Android 正式版由 `StartupUpdate.tsx` 在启动时检查相符 runtime 的已签名更新；开发模式跳过此过程。证书公钥在 `assets/android-update-certificate.cer`，制作更新使用 `scripts/prepare-android-update.mjs`，签名私钥由维护者保管。关闭更新的源码测试副本不会下载正式 OTA。
 
-## 地图演示
+**推送 GitHub 与发布后端、OTA、APK 是不同操作。** `.github/workflows/check.yml` 执行检查，不部署正式环境。涉及接口和内容的联动发布，应先部署兼容的后端，再发布手机端更新。服务器部署、图片存储及备份恢复操作见 [deploy/README.md](deploy/README.md)。
 
-界面沿用「港大漫游」HTML 预览的校园示意地图、照片、图标与配色。地点搜索支持简繁、英文、简称、拼音、别名和输入联想。准确结果优先，查不到时把少字、错字或字母顺序颠倒的相近地点直接列出来。地图搜索和路线起终点共用此规则。也可以直接点击地图标记、筛选类别、拖动及缩放地图。地点卡片提供详情与步行路线。地点详情包含校园照片、入口和楼层说明及小地图。
+## 项目结构
 
-搜索「吃饭的地方」会显示地点库里已发布的餐饮地点。搜索具体需求时也会查看介绍、标签、入口和楼层，例如一家名称不含「汉堡」的店，只要介绍写了供应汉堡，也能被「哪里能吃汉堡」找到。新地点审核发布并加载到手机后就能参与这些匹配。
+| 路径 | 内容 |
+| --- | --- |
+| 根目录 `.tsx`、`.ts` | 手机端界面、状态、搜索、地图和接口调用 |
+| `assets/`、根目录数据 JSON | 图像、地图及内置数据 |
+| `locales/` | 手机端翻译与指南翻译版本 |
+| `server/guide/` | 校园数据、指南、讨论、问答、知识库和翻译 |
+| `server/community/` | 账号、投稿、审核、图片访问、消息与个人记录 |
+| `server/locale/`、`server/templates/` | 后台翻译及页面模板 |
+| `scripts/` | 语言校验、应用检查和热更新准备 |
+| `deploy/`、`Dockerfile` | 部署、存储及备份恢复配置 |
 
-步行路线可选择或搜索起终点、交换方向。演示路线使用六步图文指引，同学分享的路线显示审核通过的说明与步骤照片。地图上的连线是位置示意。「我的」登录后显示投稿、收藏和历史记录，每栏可切换地点、路线和帖子。收藏和历史记录按账号保存在本机。升级前的本机记录由升级后第一个登录的账号接收。
+## 检查与已验证范围
 
-指南帖子、地点和路线分别存于 `guide_guidepost`、`guide_campusplace`、`guide_campusroute`。路线的起终点通过外键引用地点，`guide_routestep` 保存有序的路线步骤。`guide_publication` 保存共有的发布状态、版本和稳定编号。投稿仍从同一入口审核。内置地点以数据库中的记录为准，App 自带初始地图数据供离线使用。
+安装前后端依赖后，在项目根目录运行：
 
-在「我的 → 设置 → 界面语言」选择简体中文、繁體中文或 English，切换即时生效并保留到下次打开。内置指南和地点资料提供对应翻译；已发布地点简介、路线标题和图文步骤通过 `useContentTranslation` 自动翻译到当前语言，支持后台编辑和未来新投稿。译文按内容、原文版本及目标语言缓存，原文修改会重新翻译，切换语言后不显示旧语言的结果。简介为空时不显示占位文字，也不调用翻译服务。帖子仍由用户点击「显示翻译」才翻译，输入框保留源文字；数据库原文不被译文覆盖。手机端在搜索时用 OpenCC 统一简繁写法。
+```powershell
+npx tsc --noEmit
+npm run locales:check
+node scripts/check-localization.cjs
+npm run check:content-language
+npm run check:guide-reader
+node scripts/check-app.cjs
+.\.venv\Scripts\python.exe server/manage.py test guide community --noinput
+.\.venv\Scripts\python.exe server/manage.py makemigrations --check --dry-run
+npx expo export --platform android --output-dir .expo/check-android
+```
 
-以后新增功能及其展示内容默认随界面语言切换，只有用户明确指定时才例外。新的动态展示内容须接入自动翻译流程，并补上切换语言、缓存失效和失败重试检查。`npm run check:content-language` 验证这些行为，CI 和 Android 热更新签名也会执行该检查。
+2026-11-26，源码 `1b90e50` 的独立解压副本通过了 npm 与 Python 依赖安装、类型和语言检查、应用回归检查、144 项后端测试、迁移检查、本地接口启动、Android 导出及 x86_64 release APK 编译。该 APK 已核对内嵌的正式 API 地址；这次检查未进行真机操作。GitHub Actions 的当前结果以对应提交的检查页面为准。
 
-系统文案以中文为源，英文译文登记在 `locales/*-en.json`，繁体中文由 OpenCC 生成。执行 `npm run locales:prepare` 可生成字典并检查遗漏；`npm run locales:check` 会同时拒绝未同步的生成字典。开发服务器启动、Expo 打包以及 Android 热更新签名都会自动执行语言校验，缺译文、参数不一致、重复或冲突的译文、直接使用未本地化的原生文本组件都会阻止继续发布。新增翻译文件和被 App 导入的数据文件会自动纳入扫描，无需再手动维护文件清单。
+## 数据来源
 
-改动内置长篇指南时，须同时更新 `locales/guide-articles-en.json` 中的英文正文，并在 `locales/guide-source-revisions.json` 更新对应中文正文的 SHA-256。计算前将字面 `\\n` 转成换行、字面 `\\u000b` 及垂直制表符转成空格、CRLF 转 LF，再去掉末尾空白。原文改变但翻译版本未同步、译文链接或页内锚点改变都会阻止发布。代码规范见 [AGENTS.md](AGENTS.md)，语言切换及阻止遗漏发布的回归用例为 `node scripts/check-localization.cjs`。
-
-App 内置可离线查看的本部及百周年校园底图，道路、大学街与天桥采用统一的白色路面，楼梯用棕色横纹标示。道路及楼宇轮廓主要来自 [OpenStreetMap contributors（ODbL）](https://www.openstreetmap.org/copyright)，[底图数据区域](https://api.openstreetmap.org/api/0.6/map?bbox=114.1328,22.2800,114.1417,22.28495)。地点名称、简称和出入口参考[港大物业处 25.2 版校园地图](https://www.estates.hku.hk/download_file/view_inline/674)与[港大 2015 年大学街原图](https://www.maps.hku.hk/downloads/201501hkumap.jpg)。餐饮楼层参考[港大餐饮目录](https://catering.hku.hk/en/eateries/)。地图地点和学生指南会在 App 打开或回到前台时自动刷新。路线的距离和步骤仍为演示。
-
-底图点位独立于 GPS，经横向 0–360 和纵向 0–580 的比例坐标储存。新 App 以 `/api/campus/?mapVersion=2` 获取地图地点。旧版点位会保留，重新在新版底图上标记前只显示文字资料。
-
-放大地图可看到楼梯和天桥的线形。选择「地图设施」可以单独查看设施图例，点图标可查看楼层和连接信息。楼梯与天桥的线形取自上述 OpenStreetMap 底图区域。升降机及坡道参考[港大无障碍通行图](https://www.estates.hku.hk/campus-information/campus-accessibility/wheelchair-friendly-routes-hku-main-estate)，停车资料参考[校方停车场](https://www.estates.hku.hk/our-services/facility-management/parking/parking-space-location-and-parking-fee)与[无障碍车位](https://www.estates.hku.hk/campus-information/campus-accessibility/carparks-for-persons-disability)。只能确认所在楼宇或区域的设施会标明点位为示意。
-
-## 配置与检查
-
-用户帖子可在列表或详情中点击无边框的「显示翻译」文字，按当前界面语言查看标题、正文、图片说明和相关地点的译文，再点「显示原文」恢复。切换界面语言不会自动发起翻译。纯中文简繁互转由手机 OpenCC 完成；其他情况由后台复用现有 AI 配置，仅传送公开帖子的文字，不传送图片。译文按帖子内容、目标语言和模型缓存 30 天，原帖不变；帖子改动会使用新的缓存。`TRANSLATION_DAILY_LIMIT` 默认允许全站每天 200 次未命中缓存的翻译请求，独立于助手的每日额度。
-
-手机端新增功能检查：`node scripts/audit-locales.cjs --strict` 校验系统文案覆盖，`node scripts/check-app.cjs` 检查三语搜索、类别筛选、无结果、内置指南翻译和动态参数。界面约定见 [DESIGN.md](DESIGN.md)。
-本轮模拟器操作、三语显示及检查范围见 [UI_QA.md](UI_QA.md)。
-
-安卓模拟器默认通过 `10.0.2.2:8000` 访问电脑后端。开发服务器默认只监听本机地址。使用真机时，需在可信网络下为后端配置可访问地址和 `DJANGO_ALLOWED_HOSTS`，并按 `.env.example` 配置 `EXPO_PUBLIC_API_URL` 后重新启动 Expo。
-
-后端检查命令为 `.\.venv\Scripts\python.exe server\manage.py test guide community`。2026-11-25 本机通过 139 项测试，覆盖指南维护、账号与恢复码、上传校验、图片可见范围、分页、防重复提交、修改申请、审核发布、内容翻译和知识库，以及数据库图片存储的容量限制。手机端类型检查命令为 `npx tsc --noEmit`，依赖兼容检查为 `npx expo install --check`。
-
-使用 `npm ci` 安装锁定的依赖版本。2026-11-25 同步源码时保留了已发布 App 使用的依赖；Expo 在线兼容检查提示 Expo 及六个模块有新的推荐补丁版本，尚未升级。该在线检查会使用 Expo 当前的推荐版本，因此可能与锁定版本不同；依赖升级须单独验证。
-
-早期 SDK 54 版本在安卓模拟器中验证过登录、投稿、系统选图入口、查看修改建议、编辑重交及刷新已通过状态。升级 SDK 58 后，已重新通过苹果、安卓代码打包、Expo Doctor 20 项检查和安卓地图启动检查。新增账号与编辑功能有独立后端及 HTTP 联调验证；这不等同于完整的真实手机操作验证。
-
-服务器配置和备份操作见 [deploy/README.md](deploy/README.md)。`.github/workflows/check.yml` 的 PostgreSQL、容器启动、两种图片存储以及苹果、安卓打包检查已经在 GitHub Actions 通过。
-
-当前线上后端和生产数据库运行在香港 ECS。HTTPS API 地址以本机 `.env.local` 的 `EXPO_PUBLIC_API_URL` 为准。管理后台和健康检查分别在该地址的 `/admin/` 和 `/api/health/`，手机界面通过 Expo Go 加载。
-
-已通过公网 HTTPS 验证四类指南、管理员登录、注册、登录、修改密码、恢复码找回、旧会话撤销、图片上传与受控读取、已发布内容修改审核。生成的联调账号已停用，测试指南已取消发布。云端数据库的初始备份已在维护者本机保存并校验摘要；备份不进入仓库。后台凭据存放在本机忽略目录的私有文件中。
-
-使用线上数据进行手机测试时，将当前香港后端的 HTTPS 地址传给 `./Start-Phone-Test.ps1 -ApiUrl`，然后扫描新生成的 Expo Go 二维码。地图首页可开启前台定位。经纬度在手机上换算为底图坐标，离开地图或切到后台时暂停更新。步行步骤仍为演示。
+底图道路及楼宇轮廓主要来自 [OpenStreetMap contributors（ODbL）](https://www.openstreetmap.org/copyright)。地点、出入口、餐饮及设施资料参考港大[校园地图](https://www.estates.hku.hk/download_file/view_inline/674)、[大学街地图](https://www.maps.hku.hk/downloads/201501hkumap.jpg)、[餐饮目录](https://catering.hku.hk/en/eateries/)、[无障碍通行资料](https://www.estates.hku.hk/campus-information/campus-accessibility/wheelchair-friendly-routes-hku-main-estate)及[停车场资料](https://www.estates.hku.hk/our-services/facility-management/parking/parking-space-location-and-parking-fee)。App 同时接收经审核的校园共建内容；设施的楼层说明与示意点位以各条资料展示为准。
