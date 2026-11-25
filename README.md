@@ -47,14 +47,14 @@ Android APK / 从源码运行的手机端
 在任意可写目录克隆项目，并进入包含 `package.json` 的项目根目录。Windows 原生构建建议使用较短路径，例如 `C:\hku-review\HKU-Walk`。
 
 ```powershell
-git clone https://github.com/lrk126336-glitch/HKU-Walk.git
+git clone https://github.com/bstsitong/HKU-Walk.git
 cd HKU-Walk
 npm ci
 npm run locales:prepare
 Set-Content -LiteralPath .env.local -Encoding ascii -Value 'EXPO_PUBLIC_API_URL=https://47.239.18.183'
 ```
 
-仓库为私有仓库，克隆需要仓库访问权限；收到源码 ZIP 的读者可直接解压，从 `npm ci` 开始执行。`.env.local` 中这里只保存公开接口地址。JavaScript 依赖版本由 `package-lock.json` 锁定，使用 `npm ci` 安装。
+源码也可通过 ZIP 下载或接收；解压后进入项目根目录，从 `npm ci` 开始执行。`.env.local` 中这里只保存公开接口地址。JavaScript 依赖版本由 `package-lock.json` 锁定，使用 `npm ci` 安装。
 
 ### 生成原生项目并运行
 
