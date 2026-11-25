@@ -218,7 +218,8 @@ def publish_content(item):
     else:
         publication = Publication.objects.create(kind=kind, sort_order=100, current_submission=item)
 
-    body = publication_body(item)
+    # A place's uploaded introduction is its detail-page description, including an intentional blank.
+    body = item.body if kind == Publication.Kind.PLACE else publication_body(item)
     common = {"body": body, "external_url": item.external_url, "image_url": item.inherited_image_url}
     if kind == Publication.Kind.PLACE:
         details = place_fields(data)
@@ -258,10 +259,12 @@ def review_submission(identifier, expected, decision, note, reviewer):
     item = Submission.objects.select_for_update().get(pk=identifier)
     if item.revision != expected or item.status != Submission.Status.PENDING:
         raise ReviewConflict("投稿状态已变化，请刷新后再审核。")
-    if decision not in {Submission.Status.APPROVED, Submission.Status.CHANGES}:
-        raise ReviewConflict("请选择通过或需修改。")
+    if decision not in {Submission.Status.APPROVED, Submission.Status.CHANGES, Submission.Status.REJECTED}:
+        raise ReviewConflict("请选择通过、需修改或拒绝。")
     if decision == Submission.Status.CHANGES and not note.strip():
         raise ReviewConflict("请填写修改建议。")
+    if decision == Submission.Status.REJECTED and not note.strip():
+        raise ReviewConflict("请填写拒绝原因。")
     claimed = Submission.objects.filter(pk=identifier, revision=expected, status=Submission.Status.PENDING).update(
         status=decision, review_note=note.strip(), reviewer=reviewer, reviewed_at=timezone.now(),
         updated_at=timezone.now(), revision=F("revision") + 1)

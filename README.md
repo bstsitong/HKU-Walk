@@ -51,7 +51,13 @@ python -m venv .venv
 
 指南帖子、地点和路线分别存于 `guide_guidepost`、`guide_campusplace`、`guide_campusroute`。路线的起终点通过外键引用地点，`guide_routestep` 保存有序的路线步骤。`guide_publication` 保存共有的发布状态、版本和稳定编号。投稿仍从同一入口审核。内置地点以数据库中的记录为准，App 自带初始地图数据供离线使用。
 
-在「我的 → 设置 → 界面语言」选择简体中文、繁體中文或 English，切换即时生效并保留到下次打开。内置指南和地点资料提供对应翻译；同学投稿、管理员审核意见、账号及输入内容保留原文。新增系统文案后，编辑 `locales/app-en.json`，运行 `node scripts/build-locales.cjs` 生成英语与香港繁体字典。手机端也会在搜索时用 OpenCC 统一简繁写法。
+在「我的 → 设置 → 界面语言」选择简体中文、繁體中文或 English，切换即时生效并保留到下次打开。内置指南和地点资料提供对应翻译；已发布地点简介、路线标题和图文步骤通过 `useContentTranslation` 自动翻译到当前语言，支持后台编辑和未来新投稿。译文按内容、原文版本及目标语言缓存，原文修改会重新翻译，切换语言后不显示旧语言的结果。简介为空时不显示占位文字，也不调用翻译服务。帖子仍由用户点击「显示翻译」才翻译，输入框保留源文字；数据库原文不被译文覆盖。手机端在搜索时用 OpenCC 统一简繁写法。
+
+以后新增功能及其展示内容默认随界面语言切换，只有用户明确指定时才例外。新的动态展示内容须接入自动翻译流程，并补上切换语言、缓存失效和失败重试检查。`npm run check:content-language` 验证这些行为，CI 和 Android 热更新签名也会执行该检查。
+
+系统文案以中文为源，英文译文登记在 `locales/*-en.json`，繁体中文由 OpenCC 生成。执行 `npm run locales:prepare` 可生成字典并检查遗漏；`npm run locales:check` 会同时拒绝未同步的生成字典。开发服务器启动、Expo 打包以及 Android 热更新签名都会自动执行语言校验，缺译文、参数不一致、重复或冲突的译文、直接使用未本地化的原生文本组件都会阻止继续发布。新增翻译文件和被 App 导入的数据文件会自动纳入扫描，无需再手动维护文件清单。
+
+改动内置长篇指南时，须同时更新 `locales/guide-articles-en.json` 中的英文正文，并在 `locales/guide-source-revisions.json` 更新对应中文正文的 SHA-256。计算前将字面 `\\n` 转成换行、字面 `\\u000b` 及垂直制表符转成空格、CRLF 转 LF，再去掉末尾空白。原文改变但翻译版本未同步、译文链接或页内锚点改变都会阻止发布。代码规范见 [AGENTS.md](AGENTS.md)，语言切换及阻止遗漏发布的回归用例为 `node scripts/check-localization.cjs`。
 
 App 内置可离线查看的本部及百周年校园底图，道路、大学街与天桥采用统一的白色路面，楼梯用棕色横纹标示。道路及楼宇轮廓主要来自 [OpenStreetMap contributors（ODbL）](https://www.openstreetmap.org/copyright)，[底图数据区域](https://api.openstreetmap.org/api/0.6/map?bbox=114.1328,22.2800,114.1417,22.28495)。地点名称、简称和出入口参考[港大物业处 25.2 版校园地图](https://www.estates.hku.hk/download_file/view_inline/674)与[港大 2015 年大学街原图](https://www.maps.hku.hk/downloads/201501hkumap.jpg)。餐饮楼层参考[港大餐饮目录](https://catering.hku.hk/en/eateries/)。地图地点和学生指南会在 App 打开或回到前台时自动刷新。路线的距离和步骤仍为演示。
 
@@ -61,12 +67,16 @@ App 内置可离线查看的本部及百周年校园底图，道路、大学街�
 
 ## 配置与检查
 
+用户帖子可在列表或详情中点击无边框的「显示翻译」文字，按当前界面语言查看标题、正文、图片说明和相关地点的译文，再点「显示原文」恢复。切换界面语言不会自动发起翻译。纯中文简繁互转由手机 OpenCC 完成；其他情况由后台复用现有 AI 配置，仅传送公开帖子的文字，不传送图片。译文按帖子内容、目标语言和模型缓存 30 天，原帖不变；帖子改动会使用新的缓存。`TRANSLATION_DAILY_LIMIT` 默认允许全站每天 200 次未命中缓存的翻译请求，独立于助手的每日额度。
+
 手机端新增功能检查：`node scripts/audit-locales.cjs --strict` 校验系统文案覆盖，`node scripts/check-app.cjs` 检查三语搜索、类别筛选、无结果、内置指南翻译和动态参数。界面约定见 [DESIGN.md](DESIGN.md)。
 本轮模拟器操作、三语显示及检查范围见 [UI_QA.md](UI_QA.md)。
 
 安卓模拟器默认通过 `10.0.2.2:8000` 访问电脑后端。开发服务器默认只监听本机地址。使用真机时，需在可信网络下为后端配置可访问地址和 `DJANGO_ALLOWED_HOSTS`，并按 `.env.example` 配置 `EXPO_PUBLIC_API_URL` 后重新启动 Expo。
 
-后端检查命令为 `.\.venv\Scripts\python.exe server\manage.py test guide community`。40 项测试覆盖指南维护、账号与恢复码、上传校验、图片可见范围、分页、防重复提交、修改申请和审核发布，以及数据库图片存储的容量限制。手机端类型检查命令为 `npx tsc --noEmit`，依赖兼容检查为 `npx expo install --check`。
+后端检查命令为 `.\.venv\Scripts\python.exe server\manage.py test guide community`。2026-11-25 本机通过 139 项测试，覆盖指南维护、账号与恢复码、上传校验、图片可见范围、分页、防重复提交、修改申请、审核发布、内容翻译和知识库，以及数据库图片存储的容量限制。手机端类型检查命令为 `npx tsc --noEmit`，依赖兼容检查为 `npx expo install --check`。
+
+使用 `npm ci` 安装锁定的依赖版本。2026-11-25 同步源码时保留了已发布 App 使用的依赖；Expo 在线兼容检查提示 Expo 及六个模块有新的推荐补丁版本，尚未升级。该在线检查会使用 Expo 当前的推荐版本，因此可能与锁定版本不同；依赖升级须单独验证。
 
 早期 SDK 54 版本在安卓模拟器中验证过登录、投稿、系统选图入口、查看修改建议、编辑重交及刷新已通过状态。升级 SDK 58 后，已重新通过苹果、安卓代码打包、Expo Doctor 20 项检查和安卓地图启动检查。新增账号与编辑功能有独立后端及 HTTP 联调验证；这不等同于完整的真实手机操作验证。
 

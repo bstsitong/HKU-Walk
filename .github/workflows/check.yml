@@ -38,7 +38,10 @@ jobs:
         with: {node-version: "24", cache: npm}
       - run: npm ci
       - run: npx tsc --noEmit
-      - run: node scripts/audit-locales.cjs --strict
+      - run: npm run locales:check
+      - run: node scripts/check-localization.cjs
+      - run: node scripts/check-content-translation.cjs
+      - run: npm run check:guide-reader
       - run: node scripts/check-app.cjs
       - run: npx expo install --check
       - run: npx expo export --platform ios --output-dir .expo/ci-ios

@@ -82,8 +82,8 @@ async function openOfficialSource(value?: string) {
   try {
     if (!value) throw new Error();
     const url = new URL(value);
-    if (url.protocol !== 'https:' || url.username || url.password || url.port ||
-        (url.hostname !== 'hku.hk' && !url.hostname.endsWith('.hku.hk'))) throw new Error();
+    const permitted = url.hostname === 'hku.hk' || url.hostname.endsWith('.hku.hk');
+    if (url.protocol !== 'https:' || url.username || url.password || url.port || !permitted) throw new Error();
     await Linking.openURL(url.href);
   } catch {
     Alert.alert('暂时无法打开来源');

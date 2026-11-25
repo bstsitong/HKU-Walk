@@ -11,21 +11,21 @@ const normalizedSource = (body: string) => normalizeBreaks(body).replace(/\r\n/g
 function guideBody(body: string, key: string, language: Language, original?: string) {
   const normalized = normalizedSource(body);
   if (language === 'en' && original && normalized === normalizedSource(original)) {
-    return translatedBodies[key] ?? normalized;
+    return translatedBodies[key] ?? translate(normalized, language);
   }
   // Translate prose without changing links, image URLs or source page anchors.
   if (language === 'zh-Hant') {
     return normalized.split(/(\]\([^\n)]*\))/).map((part, index) => index % 2 ? part : traditionalChinese(part)).join('');
   }
-  return normalized;
+  return translate(normalized, language);
 }
 
 export function guideArticleTitle(article: GuideArticle, language: Language) {
-  return article.markdown && article.isCommunity !== true ? translate(article.title, language) : article.title;
+  return article.isCommunity !== true ? translate(article.title, language) : article.title;
 }
 
 export function localizedGuideArticle(article: GuideArticle, language: Language): GuideArticle {
-  if (!article.markdown || article.isCommunity === true) return article;
+  if (article.isCommunity === true) return article;
   const original = sourceArticles.get(article.title);
   const originalPages = original?.sourcePages as Record<string, { body: string }> | undefined;
   return {

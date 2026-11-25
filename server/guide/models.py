@@ -80,6 +80,31 @@ class GuidePost(ContentFields):
         return self.title
 
 
+class KnowledgeDocument(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    key = models.SlugField("资料标识", max_length=100, unique=True)
+    title = models.CharField("简体标题", max_length=200)
+    title_en = models.CharField("英文标题", max_length=200, blank=True)
+    title_hant = models.CharField("繁体标题", max_length=200, blank=True)
+    source_date = models.DateField("资料整理日期", null=True, blank=True)
+    enabled = models.BooleanField("供 AskHKU 检索", default=False)
+    filename = models.CharField("原文件名", max_length=240, editable=False)
+    sha256 = models.CharField("文件校验值", max_length=64, editable=False)
+    original = models.BinaryField("原文件", editable=False)
+    blocks = models.JSONField("完整原文", default=list, editable=False)
+    references = models.JSONField("来源登记", default=dict, editable=False)
+    chunks = models.JSONField("检索段落", default=list, editable=False)
+    updated_at = models.DateTimeField("更新时间", auto_now=True)
+
+    class Meta:
+        verbose_name = "AskHKU 知识库资料"
+        verbose_name_plural = "AskHKU 知识库资料"
+        ordering = ["title", "id"]
+
+    def __str__(self):
+        return self.title
+
+
 class GuideLike(models.Model):
     post = models.ForeignKey(GuidePost, on_delete=models.CASCADE, related_name="likes")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -163,6 +188,7 @@ class CampusFacility(models.Model):
     display_level = models.PositiveSmallIntegerField("地图显示层级", choices=DISPLAY_LEVELS, default=4)
     overview = models.BooleanField("设施总览显示", default=False)
     approximate = models.BooleanField("位置为示意", default=False)
+    image_url = models.URLField("设施照片链接", blank=True, db_default="", max_length=1000, validators=[http_url])
 
     class Meta:
         verbose_name = "校园地图设施"

@@ -31,7 +31,7 @@ const kinds: { key: Kind; label: string; icon: IconName }[] = [
 ];
 const kindLabel = (kind: Kind) => kinds.find(item => item.key === kind)?.label ?? '学生指南';
 const hasRichBody = (kind: Kind) => kind !== 'new_place' && kind !== 'new_route';
-const statuses = { pending: '待审核', approved: '已通过', changes_requested: '需修改' };
+const statuses = { pending: '待审核', approved: '已通过', changes_requested: '需修改', rejected: '已拒绝' };
 const newDraft = (kind: Kind = 'guide'): Draft => ({ kind, title: '', body: '', location: '', externalUrl: '', image: null,
   existingImage: '', removeImage: false, mapData: emptyMapDraft(kind), bodyBlocks: hasRichBody(kind) ? [newBodyBlock()] : [],
   requestKey: `${Date.now()}_${Math.random().toString(36).slice(2, 12)}` });
@@ -39,7 +39,7 @@ const message = (error: unknown) => error instanceof Error ? error.message : '�
 const dateText = formatDate;
 
 function Status({ value }: { value: Submission['status'] }) {
-  return <Text style={[s.status, value === 'approved' && s.approved, value === 'changes_requested' && s.changes]}>{statuses[value]}</Text>;
+  return <Text style={[s.status, value === 'approved' && s.approved, (value === 'changes_requested' || value === 'rejected') && s.changes]}>{statuses[value]}</Text>;
 }
 function AuthForm({ account, onRecover, onBusy }: { account: ReturnType<typeof useAccount>; onRecover: () => void; onBusy: (busy: boolean) => void }) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -190,7 +190,6 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
     if (!token || busy) return;
     Keyboard.dismiss(); setError('');
     if (!draft.title.trim()) { setError('请填写标题或名称。'); return; }
-    if (draft.kind === 'new_place' && draft.body.trim().length < 10) { setError('请填写地点名称，地点介绍至少 10 个字。'); return; }
     if (draft.kind === 'new_route' && draft.title.trim().length < 3) { setError('路线名称至少 3 个字。'); return; }
     if (hasRichBody(draft.kind)) {
       const { data } = serializeBodyBlocks(draft.bodyBlocks);
@@ -272,8 +271,8 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
               onPickStep={index => void pickImage(index)} token={token}
               overviewUri={image} overviewToken={draft.image ? undefined : token}
               onPickOverview={() => void pickImage()} onRemoveOverview={() => update({ image: null, removeImage: true })} />
-            {isMapDraft ? <Field label={draft.kind === 'new_place' ? '地点介绍' : '路线简介（选填）'}
-              hint={draft.kind === 'new_place' ? '至少 10 个字。' : undefined} value={draft.body} multiline textAlignVertical="top"
+            {isMapDraft ? <Field testID="submission-introduction" label={draft.kind === 'new_place' ? '地点介绍（选填）' : '路线简介（选填）'}
+              value={draft.body} multiline textAlignVertical="top"
               editable={!busy} maxLength={8000} onChangeText={body => update({ body })} /> :
               <BodyEditor title={draft.title} blocks={draft.bodyBlocks} token={token} disabled={busy}
                 onChange={bodyBlocks => update({ bodyBlocks })} onPickImage={selectPhoto} />}
@@ -301,8 +300,9 @@ export default function CommunityScreen({ visible, initialScreen, initialSubmiss
             <Text raw accessibilityRole="header" style={[s.title, s.detailTitle]}>{selected.title}</Text>
             {selected.authorProfile ? <AuthorByline author={selected.authorProfile} /> : null}
             <Text style={s.hint}>{selected.isEdit ? '内容修改申请 · ' : ''}{kindLabel(selected.kind)} · {dateText(selected.createdAt)}</Text>
-            <View style={s.feedback}><Text style={s.label}>{selected.status === 'pending' ? '已收到，等待管理员审核' : selected.status === 'approved' ? '审核通过' : '修改后可以重新提交'}</Text>
-              <Text style={s.copy}>{selected.reviewNote ? <Text raw>{selected.reviewNote}</Text> : (selected.status === 'pending' ? '审核结果会显示在这里，下拉即可刷新。' : selected.kind === 'new_place' || selected.kind === 'new_route' ? '内容已发布到地图或路线列表，也可在学生指南查看。' : '内容已发布到对应的学生指南分类。')}</Text></View>
+            <View style={s.feedback}><Text style={s.label}>{selected.status === 'pending' ? '已收到，等待管理员审核' : selected.status === 'approved' ? '审核通过' : selected.status === 'rejected' ? '投稿已拒绝' : '修改后可以重新提交'}</Text>
+              <Text style={s.copy}>{selected.reviewNote ? <Text raw>{selected.reviewNote}</Text> : (selected.status === 'pending' ? '审核结果会显示在这里，下拉即可刷新。' : selected.status === 'rejected' ? '此投稿未获通过。' : selected.kind === 'new_place' || selected.kind === 'new_route' ? '内容已发布到地图或路线列表，也可在学生指南查看。' : '内容已发布到对应的学生指南分类。')}</Text>
+              {selected.status === 'rejected' ? <Text style={s.hint}>此投稿审核已结束，不能修改后重交。</Text> : null}</View>
             {selected.location ? <Text style={s.location}>相关地点或路线：<Text raw>{selected.location}</Text></Text> : null}
             {selected.bodyBlocks?.length ? <SubmissionBody blocks={selected.bodyBlocks} token={token} /> :
               selected.body ? <Text raw selectable style={s.detailBody}>{selected.body}</Text> : null}

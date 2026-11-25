@@ -4,7 +4,7 @@ import { Alert, Image, Pressable, Text } from './ui';
 import AppIcon, { IconName } from './AppIcon';
 import { AuthorByline } from './AuthorIdentity';
 import MapCanvas from './MapCanvas';
-import { Category, Place, categories, categoryIcon, categoryLabel, classroomBuilding, findPlace, getCampusRoute, getPlace, hasPlacePhoto, isPublishedPlace, mapPlace, placeIcon, placeName, placePhoto } from './campus';
+import { Category, Place, CampusRoute, campusRoutes, categories, categoryIcon, categoryLabel, classroomBuilding, findPlace, getCampusRoute, getPlace, hasPlacePhoto, isPublishedPlace, mapPlace, placeIcon, placeName, placePhoto } from './campus';
 import { PlaceRecords } from './usePlaces';
 import { t } from './localization';
 import { useLanguage } from './LanguageProvider';
@@ -17,6 +17,7 @@ import useCampus from './useCampus';
 import useCampusLocation from './useCampusLocation';
 import { MAX_MAP_ZOOM, MIN_MAP_ZOOM } from './mapCamera';
 import { CampusFacility, facilityName, facilityStyles } from './campusFacilities';
+import PlaceIntroduction from './PlaceIntroduction';
 
 const locationMessages = {
   idle: '授权后在校园地图上显示当前位置',
@@ -145,8 +146,18 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
     return () => listener.remove();
   }, [active, view, fromSaved, returnView, routeReturn, facilitySelection]);
   const startRoute = (place: Place) => {
-    setDestination(place); setOrigin(findPlace(place.id === 'gate' ? 'main' : 'gate'));
-    setPreferredRoute(null); setRouteReturn(view); changeView('route');
+    const available = campusRoutes.filter(route => route.destinationId === place.id);
+    const shared = available.find(route => route.originId === 'gate') ?? available[0];
+    setDestination(place); setOrigin(findPlace(shared?.originId ?? (place.id === 'gate' ? 'main' : 'gate')));
+    setPreferredRoute(shared ? { id: shared.id, originId: shared.originId, destinationId: shared.destinationId, source: 'community' } : null);
+    setRouteReturn(view); changeView('route');
+  };
+  const openPublishedRoute = (route: CampusRoute) => {
+    const start = getPlace(route.originId), end = getPlace(route.destinationId);
+    if (!start || !end) return;
+    setFromSaved(false); setOrigin(start); setDestination(end); setSelected(end);
+    setPreferredRoute({ id: route.id, originId: route.originId, destinationId: route.destinationId, source: 'community' });
+    setRouteReturn('search'); changeView('route');
   };
   useEffect(() => {
     if (selected) {
@@ -165,7 +176,7 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
   const building = selected ? classroomBuilding(selected) : undefined;
   const placeSubtitle = selected ? [language !== 'en' ? selected.english : '', !building && selected.abbreviation].filter(Boolean).join(' · ') : '';
   const saveButton = selected && <IconButton testID="save-place" icon="bookmark" label={saved ? '取消收藏' : '收藏地点'} selected={saved} disabled={!records.ready} onPress={() => records.toggle(selected.id)} />;
-  if (view === 'search') return <PlaceSearch onBack={back} onChoose={detail} recentPlaceIds={records.recent} />;
+  if (view === 'search') return <PlaceSearch onBack={back} onChoose={detail} onChooseRoute={openPublishedRoute} recentPlaceIds={records.recent} />;
   if (view === 'detail' && selected) return <View style={s.flex}>
     <ScrollView contentContainerStyle={s.detailPage}>
       <View style={s.hero}>
@@ -178,17 +189,12 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
       <View style={s.detailBody}><Text raw={selected.isCommunity} accessibilityRole="header" style={s.title}>{placeName(selected)}</Text>{placeSubtitle ? <Text raw style={s.meta}>{placeSubtitle}</Text> : null}
         {building ? <>
           <View style={s.infoRow}><AppIcon name="building" size={20} /><View style={s.flex}><Text style={s.rowTitle}>所在楼宇</Text><Text raw style={s.body}>{selected.buildingName ? t(selected.buildingName) : placeName(building)}</Text></View></View>
-          <View style={s.infoRow}><AppIcon name="lift" size={20} /><View style={s.flex}><Text style={s.rowTitle}>教室楼层</Text><Text style={s.body}>{selected.floor || '楼层待核实'}</Text></View></View>
         </> : <>
         <View style={s.detailBadges}><Text style={s.categoryMeta}>{categoryLabel(selected)} ·</Text><Text style={s.categoryMeta}>{selected.isCommunity ? '同学提供' : '校园地图资料'}</Text></View>
         {selected.authorProfile ? <AuthorByline author={selected.authorProfile} /> : null}
-        {selected.description ? <Text raw={selected.isCommunity} style={s.body}>{selected.description}</Text> : null}
-        <View style={s.divider} /><View style={s.sectionHeading}><Text style={s.sectionTitle}>怎么进入这里</Text></View>
-        <View style={s.infoRow}><AppIcon name="building" size={20} /><View style={s.flex}><Text style={s.rowTitle}>入口位置</Text><Text raw={selected.isCommunity && Boolean(selected.entrance)} style={s.body}>{selected.entrance || '入口资料待补充'}</Text></View></View>
-        <View style={s.infoRow}><AppIcon name="lift" size={20} /><View style={s.flex}><Text style={s.rowTitle}>楼层与升降机</Text><Text raw={selected.isCommunity && Boolean(selected.floor)} style={s.body}>{selected.floor || '楼层资料待补充'}</Text></View></View>
-        {selected.id === 'main' || selected.imageUrl ? <><View style={s.divider} /><Text style={s.sectionTitle}>地图位置</Text><View style={s.miniMap}><MapCanvas selected={selected} variant="mini" /></View></> : null}
-        <Text style={s.note}>{selected.isCommunity ? '地点位置由投稿人点选。' : '图标标出地点或所在楼宇，入口与开放情况以现场为准。'}</Text>
         </>}
+        <PlaceIntroduction place={selected} active={active} />
+        {selected.id === 'main' || selected.imageUrl ? <><View testID="place-map-divider" style={s.divider} /><Text style={s.sectionTitle}>地图位置</Text><View style={s.miniMap}><MapCanvas selected={selected} variant="mini" /></View></> : null}
       </View>
     </ScrollView>
     <View style={s.footer}>
@@ -205,7 +211,7 @@ export default function CampusMap({ active, records, routes, campus, sampleLocat
         livePosition={location.point} centerTick={centerTick} facilitiesOnly={facilitiesOnly} facilities={campus.catalog.facilities} onFacilitySelect={setFacilitySelection} />
       <View pointerEvents="box-none" style={s.mapOverlay}>
         <View pointerEvents="box-none" style={s.homeTop}><View pointerEvents="none" style={s.brandRow}><Text accessibilityRole="header" style={s.brand}>港大漫游</Text><Text style={s.area}>本部 · 百周年</Text></View>
-          <Pressable testID="open-search" accessibilityRole="button" onPress={() => { setFromSaved(false); changeView('search'); }} style={({ pressed }) => [s.searchLauncher, pressed && s.pressed]}><AppIcon name="search" size={18} color={c.muted} /><Text style={[s.searchLabel, s.flex]}>搜索校园地点</Text></Pressable>
+          <Pressable testID="open-search" accessibilityRole="button" onPress={() => { setFromSaved(false); changeView('search'); }} style={({ pressed }) => [s.searchLauncher, pressed && s.pressed]}><AppIcon name="search" size={18} color={c.muted} /><Text style={[s.searchLabel, s.flex]}>搜索地点或路线</Text></Pressable>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.homeCategories}>
             {categories.map(item => {
               const selectedCategory = !facilitiesOnly && category === item.id;

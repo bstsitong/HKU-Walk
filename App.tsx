@@ -31,6 +31,7 @@ import { ApiError, deleteGuideArticle, DiscussionTarget, fetchInboxCount, fetchS
 import useRecentActivity from './useRecentActivity';
 import usePersonalStorage from './usePersonalStorage';
 import StartupUpdate from './StartupUpdate';
+import { guideArticleTitle } from './guideLocalization';
 
 const tabs: { key: 'map' | 'guide' | 'profile'; label: string; icon: IconName }[] = [
   { key: 'map', label: '地图', icon: 'map' },
@@ -38,7 +39,7 @@ const tabs: { key: 'map' | 'guide' | 'profile'; label: string; icon: IconName }[
   { key: 'profile', label: '我的', icon: 'user' },
 ];
 function MainApp() {
-  useLanguage();
+  const { language } = useLanguage();
   const [tab, setTab] = useState<(typeof tabs)[number]['key']>('map');
   const campus = useCampus();
   const account = useAccount();
@@ -84,6 +85,14 @@ function MainApp() {
     else if (account.ready) openLogin();
   };
   const onInboxExpired = () => { closeInbox(); openDiscussionLogin(true); };
+  const inboxTargetTitle = (target: DiscussionTarget) => {
+    if (target.kind === 'place') {
+      const place = getPlace(target.id);
+      return place ? placeName(place, language) : target.title;
+    }
+    const article = data.articles.find(item => item.id === target.id);
+    return article ? guideArticleTitle(article, language) : target.title;
+  };
   const openInboxMessage = async (message: InboxMessage) => {
     const version = ++inboxNavigation.current;
     if (message.kind !== 'review') {
@@ -229,9 +238,10 @@ function MainApp() {
         onBack={() => setCommentPlace(null)} onLogin={openDiscussionLogin} /> : null}
       {inboxActive && token && (inboxTarget ?
         <DiscussionScreen key={`${inboxTarget.kind}-${inboxTarget.commentId}`} kind={inboxTarget.kind}
-          id={inboxTarget.id} title={inboxTarget.title} focusCommentId={inboxTarget.commentId} session={account.session}
+          id={inboxTarget.id} title={inboxTargetTitle(inboxTarget)} focusCommentId={inboxTarget.commentId} session={account.session}
           onBack={() => setInboxTarget(null)} onLogin={expired => { if (expired) onInboxExpired(); else openLogin(); }} /> :
         <InboxScreen key={owner} token={token} onBack={closeInbox} onOpen={message => void openInboxMessage(message)}
+          targetTitle={inboxTargetTitle}
           onProfile={id => { inboxNavigation.current++; setPublicProfileId(id); }} onExpired={onInboxExpired}
           onUnread={unread => setBadge({ token, unread })} />)}
       {editingUser ? <EditProfile key={editingUser.id} user={editingUser} onBack={() => setEditingProfile(false)}
@@ -242,17 +252,17 @@ function MainApp() {
         if (communityEntry !== 'security' && communityEntry !== 'login') void refreshAll();
         setCommunityEntry(null);
       }} account={account} />
-      {!article && !commentPlace && !editingUser && !inboxActive && (tab !== 'map' || mapView === 'home') ? <View style={s.nav} accessibilityRole="tablist">
+      <View testID="main-navigation" style={s.nav} accessibilityRole="tablist">
         {tabs.map(item => (
           <Pressable key={item.key} testID={`tab-${item.key}`} accessibilityRole="tab" accessibilityLabel={item.label}
             accessibilityState={{ selected: tab === item.key }}
-            onPress={() => { Keyboard.dismiss(); setTab(item.key); }} style={s.navItem}>
+            onPress={() => { Keyboard.dismiss(); setReading(null); setCommentPlace(null); setEditingProfile(false); closeInbox(); setTab(item.key); }} style={s.navItem}>
             {tab === item.key ? <View style={s.navIndicator} /> : null}
             <AppIcon name={item.icon} size={20} color={tab === item.key ? colors.green : colors.muted} />
             <Text style={[s.navText, tab === item.key && s.navTextActive]}>{item.label}</Text>
           </Pressable>
         ))}
-      </View> : null}
+      </View>
       {publicProfileId ? <PublicProfileScreen key={publicProfileId} id={publicProfileId} onBack={() => setPublicProfileId(null)} onOpenPost={openProfilePost} /> : null}
       </AssistantHost>
     </SafeAreaView>

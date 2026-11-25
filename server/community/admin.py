@@ -37,7 +37,7 @@ class SubmissionTypeFilter(admin.SimpleListFilter):
 
 class ReviewForm(forms.ModelForm):
     decision = forms.ChoiceField(label="审核结果", required=False, choices=[
-        ("", "请选择"), ("approved", "通过并发布"), ("changes_requested", "请投稿人修改"),
+        ("", "请选择"), ("approved", "通过并发布"), ("changes_requested", "请投稿人修改"), ("rejected", "拒绝投稿"),
     ])
     review_version = forms.IntegerField(widget=forms.HiddenInput, required=False)
 
@@ -52,7 +52,7 @@ class ReviewForm(forms.ModelForm):
         if "review_note" in self.fields:
             note = self.fields["review_note"]
             note.label = "给投稿人的审核意见"
-            note.help_text = "退回修改时必填。投稿人可在 App 内查看。"
+            note.help_text = "退回修改或拒绝时必填。投稿人可在 App 内查看；被拒绝的稿件不能直接重交。"
             note.widget.attrs["rows"] = 4
 
     def clean(self):
@@ -64,6 +64,8 @@ class ReviewForm(forms.ModelForm):
                 self.add_error("decision", "请选择审核结果。")
             if cleaned.get("decision") == Submission.Status.CHANGES and not cleaned.get("review_note", "").strip():
                 self.add_error("review_note", "请写明需要修改的内容。")
+            if cleaned.get("decision") == Submission.Status.REJECTED and not cleaned.get("review_note", "").strip():
+                self.add_error("review_note", "请写明拒绝原因。")
         return cleaned
 
 
@@ -147,7 +149,7 @@ class SubmissionAdmin(admin.ModelAdmin):
                 coordinates = f'X {data["x"]} · Y {data["y"]}（底图版本 {data.get("mapVersion", 1)}）'
             place_fields = [
                 ("地点类别", category), ("英文名称", data.get("english")), ("英文简称", data.get("abbreviation")),
-                ("地图选点", coordinates), ("入口说明", data.get("entrance")), ("楼层说明", data.get("floor")),
+                ("地图选点", coordinates),
             ]
         elif obj.kind in (Kind.PLACE, Kind.ROUTE, Kind.NEW_ROUTE):
             keys = (("纠错地点", "placeId"),) if obj.kind == Kind.PLACE else (("起点", "originId"), ("终点", "destinationId"))

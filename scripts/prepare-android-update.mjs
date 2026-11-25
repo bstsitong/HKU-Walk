@@ -1,10 +1,22 @@
 import { createHash, randomUUID, sign, verify } from 'node:crypto';
-import { constants, copyFileSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { constants, copyFileSync, mkdirSync, readFileSync, renameSync, writeFileSync, statSync, readdirSync } from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
+import { execFileSync } from 'node:child_process';
+
+// A signed release cannot bypass translation coverage and source-revision checks.
+createRequire(import.meta.url)('./locale-catalog.cjs').ensureLocales();
+execFileSync(process.execPath, ['scripts/check-content-translation.cjs'], { stdio: 'inherit' });
 
 const [exportDir, destination, manifestEndpoint] = process.argv.slice(2);
 if (!exportDir || !destination) {
   throw new Error('Usage: node scripts/prepare-android-update.mjs <expo-export-dir> <publication-dir> [manifest-endpoint]');
+}
+const exportedAt = statSync(path.join(exportDir, 'metadata.json')).mtimeMs;
+const { sourceFiles } = createRequire(import.meta.url)('./locale-catalog.cjs');
+const localeInputs = readdirSync('locales').filter(name => name.endsWith('.json')).map(name => path.join('locales', name));
+if ([...sourceFiles(), ...localeInputs].some(file => statSync(file).mtimeMs > exportedAt)) {
+  throw new Error('Source or translations changed after this export. Export the Android bundle again before signing.');
 }
 const { expo: config } = JSON.parse(readFileSync('app.json', 'utf8'));
 const url = new URL(manifestEndpoint || config.updates.url);

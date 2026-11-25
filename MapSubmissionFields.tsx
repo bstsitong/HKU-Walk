@@ -83,8 +83,6 @@ export default function MapSubmissionFields({ kind, data, onChange, disabled, on
     <Field label="英文简称（选填）" value={data.abbreviation || ''} onChangeText={abbreviation => patch({ abbreviation })} maxLength={40} editable={!disabled} autoCapitalize="characters" />
     <Text style={s.label}>地点类别</Text><View style={s.categories}>{[...categories.filter(item => item.id !== 'all' && item.id !== 'souvenir'),{ id: 'space' as const, label: '校园空间' }].map(item => <Pressable key={item.id} accessibilityRole="radio" accessibilityState={{ checked: data.category === item.id }} disabled={disabled} onPress={() => patch({ category: item.id as NonNullable<MapDraftData['category']> })} style={[s.category,data.category === item.id && s.active]}><Text style={[s.categoryText,data.category === item.id && s.white]}>{item.label}</Text></Pressable>)}</View>
     <PointPicker data={data} disabled={disabled} onChange={patch} />
-    <Field label="入口说明（选填）" value={data.entrance || ''} onChangeText={entrance => patch({ entrance })} maxLength={1000} editable={!disabled} multiline />
-    <Field label="楼层说明（选填）" value={data.floor || ''} onChangeText={floor => patch({ floor })} maxLength={500} editable={!disabled} />
   </View>;
   if (kind !== 'new_route' && kind !== 'place' && kind !== 'route') return null;
   const selectorTitles = { placeId: '选择纠错地点', originId: '选择起点', destinationId: '选择终点' } as const;
@@ -158,7 +156,6 @@ export function SubmittedMapData({ data, token, overviewUri }: { data?: MapDraft
       <MapCanvas selected={{ id: 'submission-location', name: '', english: '', keywords: '', category: data.category || 'space',
         x: data.x ?? 180, y: data.y ?? 290, isCommunity: true, mapPositionPending: data.mapVersion !== CAMPUS_MAP_VERSION }} variant="mini" />
     </View>
-    <Text raw style={s.copy}>{data.entrance}</Text><Text raw style={s.copy}>{data.floor}</Text>
   </View>;
   const origin = getPlace(data.originId || ''), destination = getPlace(data.destinationId || '');
   return <View style={s.section}>

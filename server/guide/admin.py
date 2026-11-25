@@ -5,6 +5,7 @@ from django.utils.html import format_html
 
 from .models import CampusFacility, CampusPlace, CampusRoute, GuideCategory, GuidePost, Publication, RouteStep
 from .map_display import place_display_level
+from . import knowledge_admin  # Register the AI-only document manager separately from posts.
 
 
 @admin.register(GuideCategory)
@@ -45,6 +46,7 @@ class PostForm(PublicationForm):
 
 
 class PlaceForm(PublicationForm):
+    body = forms.CharField(label="地点简介", required=False, max_length=8000, widget=forms.Textarea)
     display_level = forms.TypedChoiceField(label="地图显示层级", choices=(), required=False, coerce=int)
 
     def __init__(self, *args, **kwargs):
@@ -118,7 +120,7 @@ class PlaceAdmin(PublishedContentAdmin):
     readonly_fields = ("code", "is_builtin", "updated_at")
     fields = (
         "code", "name_zh", "name_en", "abbreviation_en", "keywords", "category", "display_level", "map_version", "map_x", "map_y",
-        "entrance", "floor", "has_power_outlets", "power_outlet_location", "body", "external_url", "image_url",
+        "has_power_outlets", "power_outlet_location", "body", "external_url", "image_url",
         "published", "sort_order", "is_builtin", "updated_at",
     )
 

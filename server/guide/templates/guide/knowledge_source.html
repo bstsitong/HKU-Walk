@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="{{ language }}">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }} — AskHKU</title>
+  <style>
+    body{margin:0;background:#fbfcf8;color:#203a31;font:16px/1.75 system-ui,sans-serif}main{max-width:760px;margin:auto;padding:28px 20px 56px}h1{font-size:24px;line-height:1.4;margin:14px 0}h2{font-size:18px;margin-top:28px}p{margin:12px 0}.meta{color:#637169;font-size:14px}.extract{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#184d3e;overflow-wrap:anywhere}li{margin:12px 0}hr{border:0;border-top:1px solid #e6eae2;margin:24px 0}a:focus-visible{outline:2px solid #184d3e;outline-offset:4px}
+  </style>
+</head>
+<body><main>
+  <p class="meta">{{ copy.source }}</p><h1>{{ title }}</h1>
+  <p class="meta">{{ copy.compiled }}: {{ date }} · {{ classification }}</p>
+  <p>{{ copy.note }}</p><hr>
+  <h2>{{ copy.original }}</h2>
+  <p lang="en">{{ chunk.chapter }}{% if chunk.heading %} / {{ chunk.heading }}{% endif %}</p>
+  {% if chunk.context %}<p class="extract" lang="en">{{ chunk.context }}</p>{% endif %}
+  <div class="extract" lang="en">{{ chunk.body }}</div>
+  {% if references %}<hr><h2>{{ copy.links }}</h2><ul>
+    {% for ref in references %}<li><a href="{{ ref.url }}" rel="noopener noreferrer">{{ ref.id }} — {{ ref.title }}</a>{% if ref.notes %}<p lang="en">{{ ref.notes|join:" " }}</p>{% endif %}</li>{% endfor %}
+  </ul>{% endif %}
+</main></body></html>

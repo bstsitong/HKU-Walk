@@ -2,14 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, BackHandler, FlatList, StyleSheet, View } from 'react-native';
 import AppIcon from './AppIcon';
 import { AuthorByline } from './AuthorIdentity';
-import { ApiError, fetchInbox, InboxMessage, markInboxRead } from './communityApi';
+import { ApiError, DiscussionTarget, fetchInbox, InboxMessage, markInboxRead } from './communityApi';
 import { formatDate } from './localization';
 import { colors as c } from './theme';
 import { Pressable, Text } from './ui';
 
-export default function InboxScreen({ token, onBack, onOpen, onProfile, onUnread, onExpired }: {
+export default function InboxScreen({ token, onBack, onOpen, onProfile, onUnread, onExpired, targetTitle }: {
   token: string; onBack: () => void; onOpen: (message: InboxMessage) => void;
   onProfile: (id: string) => void; onUnread: (count: number) => void; onExpired: () => void;
+  targetTitle: (target: DiscussionTarget) => string;
 }) {
   const [messages, setMessages] = useState<InboxMessage[]>([]);
   const [nextPage, setNextPage] = useState<number | null>(null);
@@ -79,9 +80,9 @@ export default function InboxScreen({ token, onBack, onOpen, onProfile, onUnread
       refreshing={loading && messages.length > 0} onRefresh={() => void load()}
       renderItem={({ item }) => <View style={[s.row, !item.read && s.unread]}>
         {item.kind === 'review' ? <Pressable testID={`inbox-message-${item.id}`} accessibilityRole="button" onPress={() => open(item)} style={s.review}>
-          <View style={s.symbol}><AppIcon name={item.reviewStatus === 'approved' ? 'check' : 'edit'} size={18} /></View>
+          <View style={s.symbol}><AppIcon name={item.reviewStatus === 'approved' ? 'check' : item.reviewStatus === 'rejected' ? 'close' : 'edit'} size={18} /></View>
           <View style={s.flex}>
-            <Text style={s.name}>{item.reviewStatus === 'approved' ? '投稿审核通过' : '投稿需修改'}</Text>
+            <Text style={s.name}>{item.reviewStatus === 'approved' ? '投稿审核通过' : item.reviewStatus === 'rejected' ? '投稿已拒绝' : '投稿需修改'}</Text>
             <Text raw style={s.copy}>{item.title}</Text>
             {item.reviewNote ? <Text raw style={s.meta} numberOfLines={3}>{item.reviewNote}</Text> : null}
             <Text raw style={s.meta}>{formatDate(item.createdAt)}</Text>
@@ -93,7 +94,7 @@ export default function InboxScreen({ token, onBack, onOpen, onProfile, onUnread
             <Text style={s.meta}>{item.kind === 'reply' ? '回复了你的评论' : '评论了你发布的内容'}</Text>
             {item.target ? <>
               <Text raw style={s.copy} numberOfLines={3}>{item.body}</Text>
-              <Text raw style={s.target} numberOfLines={1}>{item.target.title}</Text>
+              <Text raw style={s.target} numberOfLines={1}>{targetTitle(item.target)}</Text>
             </> : <Text style={s.copy}>这条评论已不可用。</Text>}
           </Pressable>
         </>}

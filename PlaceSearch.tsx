@@ -3,7 +3,8 @@ import { KeyboardLayout } from './KeyboardLayout';
 import { Keyboard, ScrollView, StyleSheet, View } from 'react-native';
 import { Pressable, Text, TextInput } from './ui';
 import AppIcon from './AppIcon';
-import { Category, Place, categories, categoryIcon, categoryLabel, classroomBuilding, classroomLocation, filterPlaces, placeIcon, placeName, places } from './campus';
+import { Category, Place, CampusRoute, campusRoutes, categories, categoryIcon, categoryLabel, classroomBuilding, classroomLocation, filterPlaces, getPlace, placeIcon, placeName, places } from './campus';
+import { normalizeSearchText } from './placeMatching';
 import { useLanguage } from './LanguageProvider';
 import { t } from './localization';
 import { colors as c } from './theme';
@@ -20,8 +21,9 @@ export function PlaceRow({ place, onPress, trailing }: { place: Place; onPress: 
       </>}
     </View>{!trailing ? <AppIcon name="chevron" size={16} color={c.muted} /> : null}</Pressable>{trailing}</View>;
 }
-export default function PlaceSearch({ onBack, onChoose, title, recentPlaceIds, includePlace }: {
+export default function PlaceSearch({ onBack, onChoose, onChooseRoute, title, recentPlaceIds, includePlace }: {
   onBack: () => void; onChoose: (place: Place) => void; title?: string; recentPlaceIds?: readonly string[];
+  onChooseRoute?: (route: CampusRoute) => void;
   includePlace?: (place: Place) => boolean;
 }) {
   const [query, setQuery] = useState('');
@@ -29,18 +31,36 @@ export default function PlaceSearch({ onBack, onChoose, title, recentPlaceIds, i
   const [focused, setFocused] = useState(false);
   const matches = filterPlaces(category, query, recentPlaceIds);
   const results = includePlace ? matches.filter(includePlace) : matches;
+  const terms = normalizeSearchText(query).split(' ').filter(Boolean);
+  const routeResults = onChooseRoute ? campusRoutes.filter(route => {
+    const endpoints = [getPlace(route.originId), getPlace(route.destinationId)];
+    if (category !== 'all' && !endpoints.some(place => place && results.some(item => item.id === place.id))) return false;
+    const searchable = normalizeSearchText([route.title, ...endpoints.flatMap(place => place ? [place.name, place.english, place.abbreviation ?? '', place.keywords] : [])].join(' '));
+    return terms.every(term => searchable.includes(term));
+  }) : [];
   return <KeyboardLayout><View style={s.searchHeader}>
     <Pressable accessibilityRole="button" accessibilityLabel="返回" onPress={onBack} style={s.iconButton}><AppIcon name="back" /></Pressable>
-    <View style={[s.searchInput, focused && s.inputFocused]}><AppIcon name="search" size={18} color={c.muted} /><TextInput testID="place-search" accessibilityLabel={title || '搜索校园地点'} placeholder={title || '搜索名称、英文或简称'} value={query} onChangeText={setQuery} maxLength={120} returnKeyType="search" autoCorrect={false} style={s.input} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} onSubmitEditing={Keyboard.dismiss} />
+    <View style={[s.searchInput, focused && s.inputFocused]}><AppIcon name="search" size={18} color={c.muted} /><TextInput testID="place-search" accessibilityLabel={title || (onChooseRoute ? '搜索地点或路线' : '搜索校园地点')} placeholder={title || (onChooseRoute ? '搜索名称、英文、简称或路线' : '搜索名称、英文或简称')} value={query} onChangeText={setQuery} maxLength={120} returnKeyType="search" autoCorrect={false} style={s.input} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} onSubmitEditing={Keyboard.dismiss} />
       {query ? <Pressable accessibilityRole="button" accessibilityLabel="清空搜索" onPress={() => setQuery('')} style={s.iconButton}><AppIcon name="close" /></Pressable> : null}</View></View>
     <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={s.page}>
       {title ? <Text accessibilityRole="header" style={s.sectionTitle}>{title}</Text> : null}
       {!query && category === 'all' ? <><Text style={s.sectionTitle}>常用搜索</Text><View style={s.chips}>{(includePlace ? places.filter(includePlace) : places).slice(0, 3).map(place => <Pressable accessibilityRole="button" key={place.id} onPress={() => setQuery(placeName(place))} style={s.chip}><Text style={s.chipText}>{placeName(place)}</Text></Pressable>)}</View>
         <Text style={s.sectionTitle}>按类别探索</Text><View style={s.explore}>{categories.filter(item => ['building','food','souvenir','toilet','access'].includes(item.id)).map(item => <Pressable key={item.id} accessibilityRole="button" onPress={() => setCategory(item.id)} style={s.exploreItem}><AppIcon name={categoryIcon(item.id)} size={18} color={c.muted} /><Text style={s.exploreLabel}>{item.label}</Text></Pressable>)}</View></> :
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.filters}>{categories.map(item => <Pressable key={item.id} accessibilityRole="button" accessibilityState={{ selected: category === item.id }} onPress={() => setCategory(item.id)} style={[s.chip, category === item.id && s.selectedChip]}><Text style={[s.chipText, category === item.id && s.selectedText]}>{item.label}</Text></Pressable>)}</ScrollView>}
+      {routeResults.length ? <>
+        <View style={s.heading}><Text accessibilityRole="header" style={s.resultsTitle}>已发布路线</Text><Text style={s.count}>{t('{count} 条路线', { count: routeResults.length })}</Text></View>
+        {routeResults.map(route => {
+          const start = getPlace(route.originId), end = getPlace(route.destinationId);
+          return <Pressable key={route.id} testID={`search-${route.id}`} accessibilityRole="button" onPress={() => { Keyboard.dismiss(); onChooseRoute?.(route); }} style={[s.placeMain, s.routeRow]}>
+            <View style={s.placeSymbol}><AppIcon name="walk" size={18} color={c.muted} /></View>
+            <View style={s.flex}><Text raw style={s.rowTitle}>{route.title}</Text><Text raw style={s.meta}>{start && end ? `${placeName(start)} → ${placeName(end)}` : ''}</Text></View>
+            <AppIcon name="chevron" size={16} color={c.muted} />
+          </Pressable>;
+        })}
+      </> : null}
       <View style={s.heading}><Text accessibilityRole="header" style={s.resultsTitle}>{query || category !== 'all' ? '搜索结果' : '校园地点'}</Text><Text style={s.count}>{t('{count} 个地点', { count: results.length })}</Text></View>
       {results.map(place => <PlaceRow key={place.id} place={place} onPress={() => { Keyboard.dismiss(); onChoose(place); }} />)}
-      {!results.length ? <View style={s.empty}><Text style={s.rowTitle}>没有找到相关地点</Text><Text style={s.body}>试试建筑的英文名称、简称，或者换一个关键词。</Text><Pressable accessibilityRole="button" style={s.chip} onPress={() => { setQuery(''); setCategory('all'); }}><Text style={s.selectedText}>查看全部地点</Text></Pressable></View> : null}
+      {!results.length && !routeResults.length ? <View style={s.empty}><Text style={s.rowTitle}>没有找到相关地点</Text><Text style={s.body}>试试建筑的英文名称、简称，或者换一个关键词。</Text><Pressable accessibilityRole="button" style={s.chip} onPress={() => { setQuery(''); setCategory('all'); }}><Text style={s.selectedText}>查看全部地点</Text></Pressable></View> : null}
       <Text style={s.note}>包含内置示意地点和已审核的新地点。</Text>
     </ScrollView></KeyboardLayout>;
 }
@@ -70,6 +90,7 @@ const s = StyleSheet.create({
   exploreLabel: { flexShrink: 1, color: c.ink, fontSize: 13, lineHeight: 20 },
   filters: { gap: 8 },
   placeRow: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: c.line },
+  routeRow: { borderBottomWidth: 1, borderBottomColor: c.line, minHeight: 64 },
   placeMain: { flex: 1, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 },
   placeSymbol: { width: 40, height: 40, borderRadius: 8, backgroundColor: c.paper, alignItems: 'center', justifyContent: 'center' },
   empty: { paddingVertical: 32, alignItems: 'flex-start', gap: 8 },

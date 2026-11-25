@@ -66,6 +66,7 @@ class Submission(models.Model):
         PENDING = "pending", "待审核"
         APPROVED = "approved", "已通过"
         CHANGES = "changes_requested", "需修改"
+        REJECTED = "rejected", "已拒绝"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, verbose_name="投稿人")

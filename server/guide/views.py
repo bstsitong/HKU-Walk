@@ -26,7 +26,7 @@ def guide_card(request, content, map_type=""):
         "authorProfile": publication_author(request, publication),
         "externalUrl": content.external_url, "imageUrl": content_image(request, content, publication),
         "isExample": getattr(content, "is_example", False), "updatedAt": publication.updated_at.isoformat(),
-        "isCommunity": bool(map_type) or publication.current_submission_id is not None, "mapType": map_type,
+        "isCommunity": bool(map_type) or publication.current_submission_id is not None or publication.key not in ARTICLE_KEYS, "mapType": map_type,
     }
 
 
@@ -96,6 +96,7 @@ def campus_content(request):
             "id": place.pk, "entryId": str(place.publication_id), "name": place.name_zh,
             "english": place.name_en, "abbreviation": place.abbreviation_en, "keywords": place.keywords,
             "category": place.category, "displayLevel": place.display_level, "x": place.map_x, "y": place.map_y, "description": place.body,
+            "updatedAt": place.publication.updated_at.isoformat(),
             "entrance": place.entrance, "floor": place.floor, "imageUrl": content_image(request, place, place.publication),
             "isCommunity": not place.is_builtin,
             "authorProfile": publication_author(request, place.publication),
@@ -127,7 +128,7 @@ def campus_content(request):
     if version == MAP_VERSION:
         response["facilities"] = [
             {"id": item.pk, "kind": item.kind, "at": [item.map_x, item.map_y], "title": item.title, "english": item.name_en,
-             "detail": item.detail, "displayLevel": item.display_level,
+             "detail": item.detail, "imageUrl": getattr(item, "image_url", ""), "displayLevel": item.display_level,
              "overview": item.overview, "approximate": item.approximate}
             for item in CampusFacility.objects.order_by("code")
         ]

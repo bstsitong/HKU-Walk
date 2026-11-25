@@ -7,7 +7,9 @@ from .seed_content import read_catalog
 ARTICLE_KEYS = (
     "student-guide-links", "student-guide-hku", "student-guide-food", "student-guide-groups",
 )
-ARTICLE_SCOPE = Q(publication__key__in=ARTICLE_KEYS) | Q(publication__current_submission__isnull=False)
+LEGACY_ARTICLE_KEYS = tuple({entry["key"] for filename in ("seed.json", "student_guide_hku_v1.json")
+                           for group in read_catalog(filename) for entry in group["entries"]})
+ARTICLE_SCOPE = ~Q(publication__key__in=LEGACY_ARTICLE_KEYS) | Q(publication__current_submission__isnull=False)
 
 
 def seed_articles(GuideCategory, GuidePost, Publication, using="default"):

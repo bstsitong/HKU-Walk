@@ -32,6 +32,7 @@ export type Place = {
   y: number;
   entryId?: string;
   description?: string;
+  updatedAt?: string;
   entrance?: string;
   floor?: string;
   imageUrl?: string;

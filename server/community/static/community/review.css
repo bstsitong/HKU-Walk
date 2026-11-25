@@ -45,6 +45,7 @@ a.review-primary:hover { background: #22624f; }
 .review-status--pending { color: #664710; background: #f6ecd5; }
 .review-status--approved { color: #174d3e; background: #e5f1e8; }
 .review-status--changes_requested { color: #813a28; background: #f8e9e1; }
+.review-status--rejected { color: #8a2333; background: #f9e5e8; }
 .field-submission_content label { display: none; }
 .field-submission_content .readonly { flex: 1; min-width: 0; margin: 0; }
 .review-preview {

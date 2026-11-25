@@ -18,7 +18,7 @@ class GuideTests(TestCase):
     def test_public_read_contains_four_categories_and_live_edits(self):
         self.assertEqual(len(self.client.get("/api/guide/").json()["categories"]), 4)
         self.assertTrue(all(entry["isCommunity"] is False for category in self.client.get("/api/guide/").json()["categories"] for entry in category["entries"]))
-        entry = GuidePost.objects.get(publication__key="tips-1")
+        entry = GuidePost.objects.get(publication__key="student-guide-hku")
         entry.body = "管理员更新后的入学安排"
         entry.save()
         content = self.client.get("/api/guide/")
@@ -27,6 +27,7 @@ class GuideTests(TestCase):
 
     def test_initial_feed_contains_the_four_source_articles(self):
         articles = self.client.get("/api/guide/").json()["articles"]
+        self.assertEqual(GuidePost.objects.count(), 4)
         self.assertEqual([article["title"] for article in articles], ["快捷链接", "HKU 指南", "HKU美食分享", "娱乐群"])
         self.assertTrue(all(article["body"] and article["publishedAt"] and article["markdown"] for article in articles))
         self.assertEqual(len(articles[1]["sourcePages"]), 3)
@@ -114,7 +115,7 @@ class GuideTests(TestCase):
         self.assertEqual(self.client.get(url).status_code, 404)
 
     def test_unpublished_content_is_private(self):
-        entry = GuidePost.objects.get(publication__key="tips-1")
+        entry = GuidePost.objects.get(publication__key="student-guide-hku")
         entry.publication.published = False
         entry.publication.save()
         self.assertNotContains(self.client.get("/api/guide/"), entry.body)
@@ -137,11 +138,12 @@ class GuideTests(TestCase):
         values["body"] = "后台编辑后的正文"
         self.assertEqual(self.client.post(f"/admin/guide/guidepost/{entry.pk}/change/", values).status_code, 302)
         self.assertContains(self.client.get("/api/guide/"), "后台编辑后的正文")
+        self.assertIn(str(entry.pk), {post["id"] for post in self.client.get("/api/guide/").json()["articles"]})
         self.assertEqual(self.client.post(f"/admin/guide/guidepost/{entry.pk}/delete/", {"post": "yes"}).status_code, 302)
         self.assertFalse(GuidePost.objects.filter(pk=entry.pk).exists())
 
     def test_seed_preserves_edits_and_does_not_duplicate(self):
-        entry = GuidePost.objects.get(publication__key="tips-1")
+        entry = GuidePost.objects.get(publication__key="student-guide-hku")
         entry.title = "保留管理员修改"
         entry.save()
         count = GuidePost.objects.count()
@@ -154,7 +156,7 @@ class GuideTests(TestCase):
         client = Client(enforce_csrf_checks=True)
         client.force_login(self.admin_user)
         self.assertEqual(client.post("/admin/guide/guidepost/add/", {}).status_code, 403)
-        entry = GuidePost.objects.get(publication__key="links-1")
+        entry = GuidePost.objects.get(publication__key="student-guide-links")
         entry.external_url = "javascript:alert(1)"
         with self.assertRaises(ValidationError):
             entry.full_clean()

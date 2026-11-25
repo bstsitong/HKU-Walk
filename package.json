@@ -3,10 +3,16 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
+    "check:content-language": "node scripts/check-content-translation.cjs",
+    "locales:build": "node scripts/build-locales.cjs",
+    "locales:check": "node scripts/audit-locales.cjs --strict",
+    "locales:prepare": "node scripts/ensure-locales.cjs",
+    "export": "expo export",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "check:guide-reader": "node scripts/check-guide-reader.cjs"
   },
   "dependencies": {
     "@believer/react-native-markdown-display": "8.4.1",
@@ -30,6 +36,10 @@
   },
   "devDependencies": {
     "@types/react": "~19.3.0",
+    "esbuild": "0.28.2",
+    "react-dom": "19.3.0",
+    "react-native-web": "0.21.4",
+    "react-test-renderer": "19.3.0",
     "typescript": "~6.0.3"
   },
   "private": true

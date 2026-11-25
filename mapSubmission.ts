@@ -6,7 +6,7 @@ export type MapDraftData = { type?: 'place' | 'route' | 'place_correction' | 'ro
   category?: Place['category']; x?: number | null; y?: number | null; english?: string; abbreviation?: string; entrance?: string;
   floor?: string; placeId?: string; originId?: string; destinationId?: string; routeId?: string; steps?: RouteStepDraft[] };
 export function emptyMapDraft(kind: string): MapDraftData {
-  if (kind === 'new_place') return { type: 'place', mapVersion: CAMPUS_MAP_VERSION, category: 'building', x: null, y: null, english: '', entrance: '', floor: '' };
+  if (kind === 'new_place') return { type: 'place', mapVersion: CAMPUS_MAP_VERSION, category: 'building', x: null, y: null, english: '' };
   if (kind === 'new_route') return { type: 'route', steps: [{ title: '', body: '' }] };
   if (kind === 'place') return { type: 'place_correction' };
   if (kind === 'route') return { type: 'route_correction' };

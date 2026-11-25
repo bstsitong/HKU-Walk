@@ -54,7 +54,7 @@ class RegisterInput(AccountInput):
 class SubmissionInput(serializers.Serializer):
     kind = serializers.ChoiceField(choices=Submission.Kind.choices)
     title = serializers.CharField(min_length=1, max_length=160)
-    body = serializers.CharField(max_length=8000, allow_blank=True)
+    body = serializers.CharField(max_length=8000, allow_blank=True, required=False, default="")
     body_blocks = serializers.JSONField(required=False, default=list)
     inherit_body_images = serializers.JSONField(required=False, default=dict)
     location = serializers.CharField(max_length=160, required=False, allow_blank=True, default="")
@@ -91,7 +91,7 @@ class SubmissionInput(serializers.Serializer):
             data["body"] = "\n\n".join(block["text"] for block in blocks if block["text"])
             if kind in {Submission.Kind.PLACE, Submission.Kind.ROUTE} and not data["map_data"]:
                 raise serializers.ValidationError({"location": "请选择需要纠错的地点或路线。"})
-        elif kind != Submission.Kind.NEW_ROUTE and len(data["body"]) < 10:
+        elif kind not in {Submission.Kind.NEW_ROUTE, Submission.Kind.NEW_PLACE} and len(data["body"]) < 10:
             raise serializers.ValidationError({"body": "正文至少 10 个字。"})
         if kind in {Submission.Kind.PLACE, Submission.Kind.ROUTE} and data["map_data"]:
             data["location"] = correction_location(data["map_data"])

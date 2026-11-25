@@ -11,7 +11,7 @@ export type PublicProfile = { name: string; avatarUrl: string; bio: string; post
 export type Kind = 'guide' | 'food' | 'group' | 'place' | 'route' | 'new_place' | 'new_route';
 export type Submission = {
   id: string; kind: Kind; title: string; body: string; location: string; externalUrl: string;
-  imageUrl: string; status: 'pending' | 'approved' | 'changes_requested'; reviewNote: string;
+  imageUrl: string; status: 'pending' | 'approved' | 'changes_requested' | 'rejected'; reviewNote: string;
   revision: number; createdAt: string; updatedAt: string; publicEntryId: string | null;
   isEdit: boolean; openEditId: string | null;
   authorProfile?: AuthorProfile;
@@ -111,7 +111,7 @@ export const fetchSubmission = (token: string, id: string) => request<{ submissi
 export type DiscussionKind = 'guide' | 'place';
 export type DiscussionTarget = { kind: DiscussionKind; id: string; commentId: string; title: string };
 export type InboxMessage = { id: string; createdAt: string; read: boolean } & (
-  { kind: 'review'; submissionId: string; title: string; reviewStatus: 'approved' | 'changes_requested'; reviewNote: string } |
+  { kind: 'review'; submissionId: string; title: string; reviewStatus: 'approved' | 'changes_requested' | 'rejected'; reviewNote: string } |
   { kind: 'comment' | 'reply'; target: DiscussionTarget | null; author?: AuthorProfile; body?: string }
 );
 export const fetchInbox = (token: string, page = 1) =>

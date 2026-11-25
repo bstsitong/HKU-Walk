@@ -1,26 +1,15 @@
-const fs = require('fs');
-const parser = require('@babel/parser');
-const dictionary = require('../locales/messages.json');
-const found = new Set();
-const chinese = /[\u3400-\u9fff]/;
-function visit(value) {
-  if (!value || typeof value !== 'object') return;
-  if (value.type === 'StringLiteral' || value.type === 'JSXText') {
-    const text = value.value.trim();
-    if (chinese.test(text)) found.add(text);
+const fs = require('node:fs');
+const path = require('node:path');
+const { root, auditCatalog, buildCatalog } = require('./locale-catalog.cjs');
+try {
+  const result = auditCatalog();
+  const expected = JSON.stringify(buildCatalog(), null, 2) + '\n';
+  if (fs.readFileSync(path.join(root, 'locales/messages.json'), 'utf8') !== expected) result.issues.push('Generated dictionary is stale. Run npm run locales:build.');
+  fs.mkdirSync(path.join(root, '.local'), { recursive: true });
+  fs.writeFileSync(path.join(root, '.local/missing-locales.json'), JSON.stringify(result.issues, null, 2));
+  console.log(JSON.stringify({ total: result.total, missing: result.issues.length }));
+  if (result.issues.length) {
+    console.error(result.issues.join('\n'));
+    if (process.argv.includes('--strict')) process.exitCode = 1;
   }
-  for (const [key, child] of Object.entries(value)) {
-    if (['loc','comments','leadingComments','trailingComments','tokens','extra'].includes(key)) continue;
-    if (Array.isArray(child)) child.forEach(visit); else if (child && typeof child === 'object') visit(child);
-  }
-}
-for (const name of fs.readdirSync('.').filter(name => /\.tsx?$/.test(name))) visit(parser.parse(fs.readFileSync(name, 'utf8'), { sourceType: 'module', plugins: ['typescript','jsx'] }));
-function strings(value) { if (typeof value === 'string' && chinese.test(value)) found.add(value); else if (Array.isArray(value)) value.forEach(strings); else if (value && typeof value === 'object') Object.values(value).forEach(strings); }
-strings(JSON.parse(fs.readFileSync('server/guide/seed.json','utf8')));
-strings(require('../server/guide/student_guide_hku_v1.json'));
-for (const place of require('../server/guide/base_places_v2.json')) strings([place.name, place.entrance, place.floor]);
-const missing = [...found].filter(text => !dictionary[text]);
-fs.mkdirSync('.local', { recursive: true });
-fs.writeFileSync('.local/missing-locales.json', JSON.stringify(missing,null,2));
-console.log(JSON.stringify({ total: found.size, missing: missing.length }));
-if (process.argv.includes('--strict') && missing.length) process.exitCode = 1;
+} catch (error) { console.error(error.message); process.exitCode = 1; }
