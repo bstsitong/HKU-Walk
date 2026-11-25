@@ -1,0 +1,14 @@
+{% load i18n %}
+{% get_current_language as current_language %}
+{% get_available_languages as available_languages %}
+<form class="admin-language" action="{% url 'set_language' %}" method="post">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+  <label for="admin-language">{% translate "界面语言" %}</label>
+  <select id="admin-language" name="language">
+    {% for code, name in available_languages %}
+      <option value="{{ code }}"{% if code == current_language %} selected{% endif %}>{% if code == "en" %}English{% elif code == "zh-hant" %}繁體中文（香港）{% else %}简体中文{% endif %}</option>
+    {% endfor %}
+  </select>
+  <button type="submit">{% translate "切换" %}</button>
+</form>

@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.urls import include, path
+from django.utils.translation import gettext_lazy as _
+from django.views.i18n import set_language
 
 from guide.views import guide_content, health, campus_content
 from guide.assistant import AskAssistant
@@ -9,12 +11,13 @@ from guide.translation import TranslatePost, TranslateRoute, TranslatePlace
 from . import mobile_updates
 from guide.discussion import ArticleComments, ArticleLike, DeleteArticle, DeleteArticleComment, DeletePlaceComment, PlaceComments
 
-admin.site.site_header = "港大漫游管理后台"
-admin.site.site_title = "港大漫游"
-admin.site.index_title = "管理首页"
+admin.site.site_header = _("港大漫游管理后台")
+admin.site.site_title = _("港大漫游")
+admin.site.index_title = _("管理首页")
 admin.site.index_template = "admin/hku_index.html"
 urlpatterns = [
     path("", lambda request: HttpResponseRedirect("/admin/")),
+    path("admin/set-language/", set_language, name="set_language"),
     path("admin/", admin.site.urls),
     path("api/guide/", guide_content, name="guide-content"),
     path("api/guide/articles/<int:pk>/comments/", ArticleComments.as_view()),

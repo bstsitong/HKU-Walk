@@ -1,10 +1,10 @@
 {% extends "admin/change_list.html" %}
-{% load static %}
+{% load i18n static %}
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'community/review.css' %}">{% endblock %}
 {% block object-tools %}
   {% url 'admin:community_submission_changelist' as review_url %}
-  <nav class="review-list-shortcuts" aria-label="投稿审核快捷入口">
-    <a href="{{ review_url }}?status__exact=pending">待审核</a>
-    <a href="{{ review_url }}">全部投稿</a>
+  <nav class="review-list-shortcuts" aria-label="{% translate "投稿审核快捷入口" %}">
+    <a href="{{ review_url }}?status__exact=pending">{% translate "待审核" %}</a>
+    <a href="{{ review_url }}">{% translate "全部投稿" %}</a>
   </nav>
 {% endblock %}

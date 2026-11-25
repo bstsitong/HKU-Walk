@@ -1,5 +1,22 @@
 from django.conf import settings
 from django.http import JsonResponse
+from django.middleware.locale import LocaleMiddleware
+from django.utils import translation
+
+
+class AdminLocaleMiddleware(LocaleMiddleware):
+    """Keep browser language preferences scoped to the administrator interface."""
+
+    def process_request(self, request):
+        if request.path_info.startswith("/admin/"):
+            super().process_request(request)
+        else:
+            translation.activate(settings.LANGUAGE_CODE)
+
+    def process_response(self, request, response):
+        if request.path_info.startswith("/admin/"):
+            return super().process_response(request, response)
+        return response
 
 class MaintenanceMiddleware:
     def __init__(self, get_response):

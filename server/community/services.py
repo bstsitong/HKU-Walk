@@ -1,3 +1,4 @@
+from django.utils.translation import gettext
 import hashlib
 import json
 from django.core.files.storage import default_storage
@@ -212,7 +213,7 @@ def publish_content(item):
     if item.edit_of_id:
         publication = Publication.objects.select_for_update().get(pk=item.edit_of_id)
         if not publication.published or publication.updated_at != item.base_entry_updated_at or publication.kind != kind:
-            raise ReviewConflict("公开内容已更新或下线，请先退回并说明需要核对的内容。")
+            raise ReviewConflict(gettext("公开内容已更新或下线，请先退回并说明需要核对的内容。"))
         publication.current_submission = item
         publication.save(update_fields=["current_submission", "updated_at"])
     else:
@@ -255,21 +256,21 @@ def publish_content(item):
 @transaction.atomic
 def review_submission(identifier, expected, decision, note, reviewer):
     if not reviewer.is_active or not reviewer.is_staff:
-        raise ReviewConflict("需要管理员权限。")
+        raise ReviewConflict(gettext("需要管理员权限。"))
     item = Submission.objects.select_for_update().get(pk=identifier)
     if item.revision != expected or item.status != Submission.Status.PENDING:
-        raise ReviewConflict("投稿状态已变化，请刷新后再审核。")
+        raise ReviewConflict(gettext("投稿状态已变化，请刷新后再审核。"))
     if decision not in {Submission.Status.APPROVED, Submission.Status.CHANGES, Submission.Status.REJECTED}:
-        raise ReviewConflict("请选择通过、需修改或拒绝。")
+        raise ReviewConflict(gettext("请选择通过、需修改或拒绝。"))
     if decision == Submission.Status.CHANGES and not note.strip():
-        raise ReviewConflict("请填写修改建议。")
+        raise ReviewConflict(gettext("请填写修改建议。"))
     if decision == Submission.Status.REJECTED and not note.strip():
-        raise ReviewConflict("请填写拒绝原因。")
+        raise ReviewConflict(gettext("请填写拒绝原因。"))
     claimed = Submission.objects.filter(pk=identifier, revision=expected, status=Submission.Status.PENDING).update(
         status=decision, review_note=note.strip(), reviewer=reviewer, reviewed_at=timezone.now(),
         updated_at=timezone.now(), revision=F("revision") + 1)
     if claimed != 1:
-        raise ReviewConflict("这条投稿已被处理，请刷新。")
+        raise ReviewConflict(gettext("这条投稿已被处理，请刷新。"))
     if decision == Submission.Status.APPROVED:
         publication = publish_content(item)
         Submission.objects.filter(pk=identifier).update(public_entry=publication)

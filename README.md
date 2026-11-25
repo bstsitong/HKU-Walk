@@ -21,6 +21,10 @@ python -m venv .venv
 
 浏览器打开 <http://127.0.0.1:8000/admin/>。本机首次生成的管理员账号和随机密码保存在 `.local/admin-access.txt`。数据库、密码文件及后端密钥均已加入 Git 忽略规则。
 
+管理员后台的登录页和各管理页面顶部提供语言选择，可切换简体中文、香港繁体中文和英文，点击「切换」后保留当前页面及筛选条件。浏览器会记住选择；后台语言独立于手机 App。编辑框和投稿预览保留录入原文。
+
+后台翻译位于 `server/locale/*/LC_MESSAGES/django.po`，编译后的 `django.mo` 随后端一起发布。修改翻译后，在安装 GNU gettext 的环境中进入 `server` 运行 `python manage.py compilemessages`，同时提交更新的 `.po` 和 `.mo` 文件。执行 `python manage.py test community.test_admin_language` 检查切换、审核、权限和翻译覆盖。
+
 在「指南内容」中新增或编辑内容，可以设置分类、标题、正文、外部链接、图片地址、示例标记、发布状态和顺序。取消「发布到 App」会隐藏内容。删除操作使用 Django 的确认页面。
 
 「学生指南」默认以单列显示各类帖子。可按标题或正文搜索，也可用顶部标签筛选类别。下拉即可读取后台更新。登录后点内容旁的书签，可在「我的」查看收藏。

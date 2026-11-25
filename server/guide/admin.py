@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from django import forms
 from django.contrib import admin
 from django.urls import reverse
@@ -17,8 +18,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class PublicationForm(forms.ModelForm):
-    published = forms.BooleanField(label="发布到 App", required=False, initial=True)
-    sort_order = forms.IntegerField(label="显示顺序", min_value=0, initial=100)
+    published = forms.BooleanField(label=_("发布到 App"), required=False, initial=True)
+    sort_order = forms.IntegerField(label=_("显示顺序"), min_value=0, initial=100)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,7 +31,7 @@ class PublicationForm(forms.ModelForm):
 
 
 class PostForm(PublicationForm):
-    key = forms.SlugField(label="内容标识", required=False, max_length=80)
+    key = forms.SlugField(label=_("内容标识"), required=False, max_length=80)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -41,18 +42,18 @@ class PostForm(PublicationForm):
     def clean_key(self):
         key = self.cleaned_data["key"]
         if key and not self.instance.publication_id and Publication.objects.filter(key=key).exists():
-            raise forms.ValidationError("这个内容标识已被使用。")
+            raise forms.ValidationError(_("这个内容标识已被使用。"))
         return key
 
 
 class PlaceForm(PublicationForm):
-    body = forms.CharField(label="地点简介", required=False, max_length=8000, widget=forms.Textarea)
-    display_level = forms.TypedChoiceField(label="地图显示层级", choices=(), required=False, coerce=int)
+    body = forms.CharField(label=_("地点简介"), required=False, max_length=8000, widget=forms.Textarea)
+    display_level = forms.TypedChoiceField(label=_("地图显示层级"), choices=(), required=False, coerce=int)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         field = self.fields["display_level"]
-        field.choices = [("", "按类别分配"), *CampusPlace._meta.get_field("display_level").choices]
+        field.choices = [("", _("按类别分配")), *CampusPlace._meta.get_field("display_level").choices]
         if not self.instance.publication_id:
             self.initial["display_level"] = ""
 
@@ -66,11 +67,11 @@ class PublishedContentAdmin(admin.ModelAdmin):
     list_filter = ("publication__published",)
     readonly_fields = ("updated_at",)
 
-    @admin.display(description="已发布", boolean=True, ordering="publication__published")
+    @admin.display(description=_("已发布"), boolean=True, ordering="publication__published")
     def is_published(self, obj):
         return obj.publication.published
 
-    @admin.display(description="更新时间", ordering="publication__updated_at")
+    @admin.display(description=_("更新时间"), ordering="publication__updated_at")
     def updated_at(self, obj):
         return obj.publication.updated_at if obj.publication_id else None
 
@@ -149,11 +150,11 @@ class RouteStepInline(admin.TabularInline):
     def get_formset(self, request, obj=None, **kwargs):
         return super().get_formset(request, obj, validate_min=True, validate_max=True, **kwargs)
 
-    @admin.display(description="步骤配图")
+    @admin.display(description=_("步骤配图"))
     def photo_link(self, obj):
         if obj.photo_id:
-            return format_html('<a href="{}" target="_blank" rel="noopener">查看配图</a>',
-                               reverse("submission-step-image", args=[obj.photo_id]))
+            return format_html('<a href="{}" target="_blank" rel="noopener">{}</a>',
+                               reverse("submission-step-image", args=[obj.photo_id]), _("查看配图"))
         return "—"
 
 

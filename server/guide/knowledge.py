@@ -1,3 +1,4 @@
+from django.utils.translation import gettext
 """Versioned, AI-only document evidence. No guide posts or map records are created."""
 import hashlib
 import io
@@ -60,27 +61,27 @@ def safe_link(value):
 def parse_docx(raw):
     """Read paragraphs, hyperlinks and tables in their original body order."""
     if not raw or len(raw) > MAX_UPLOAD:
-        raise ValueError("请选择不超过 10 MB 的 Word 文档。")
+        raise ValueError(gettext("请选择不超过 10 MB 的 Word 文档。"))
     try:
         with ZipFile(io.BytesIO(raw)) as archive:
             if len(archive.infolist()) > 2000 or sum(item.file_size for item in archive.infolist()) > 25 * 1024 * 1024:
-                raise ValueError("文档解压后的内容过大。")
+                raise ValueError(gettext("文档解压后的内容过大。"))
             xml = archive.read("word/document.xml")
             if b"<!DOCTYPE" in xml or b"<!ENTITY" in xml:
-                raise ValueError("文档包含不支持的 XML 定义。")
+                raise ValueError(gettext("文档包含不支持的 XML 定义。"))
             root = ET.fromstring(xml)
             links = {}
             if "word/_rels/document.xml.rels" in archive.namelist():
                 rel_xml = archive.read("word/_rels/document.xml.rels")
                 if b"<!DOCTYPE" in rel_xml or b"<!ENTITY" in rel_xml:
-                    raise ValueError("文档链接格式不受支持。")
+                    raise ValueError(gettext("文档链接格式不受支持。"))
                 for node in ET.fromstring(rel_xml):
                     target = node.get("Target", "")
                     if node.get("TargetMode") == "External" and safe_link(target):
                         links[node.get("Id")] = target
             body = root.find("w:body", NS)
             if body is None:
-                raise ValueError("文档没有正文。")
+                raise ValueError(gettext("文档没有正文。"))
 
             def paragraph(node):
                 text = "".join(item.text or "" for item in node.findall(".//w:t", NS)).strip()
@@ -101,9 +102,9 @@ def parse_docx(raw):
                              for cell in row.findall("w:tc", NS)] for row in node.findall("w:tr", NS)]
                     blocks.append({"position": position, "type": "table", "rows": rows})
     except (BadZipFile, KeyError, ET.ParseError, OSError) as error:
-        raise ValueError("无法读取这份 Word 文档，请检查文件格式。") from error
+        raise ValueError(gettext("无法读取这份 Word 文档，请检查文件格式。")) from error
     if not blocks:
-        raise ValueError("文档没有可检索的文字。")
+        raise ValueError(gettext("文档没有可检索的文字。"))
     references = {}
     current = None
     for block in blocks:

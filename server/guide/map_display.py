@@ -1,8 +1,9 @@
+from django.utils.translation import gettext_lazy as _
 import json
 from pathlib import Path
 
-DISPLAY_LEVELS = [(1, "一级 · 入口"), (2, "二级 · 楼宇和广场"),
-                  (3, "三级 · 景点、餐饮和商店"), (4, "四级 · 设施")]
+DISPLAY_LEVELS = [(1, _("一级 · 入口")), (2, _("二级 · 楼宇和广场")),
+                  (3, _("三级 · 景点、餐饮和商店")), (4, _("四级 · 设施"))]
 _DATA_DIR = Path(__file__).parent
 _RULES = json.loads((_DATA_DIR / "map_display.json").read_text(encoding="utf-8"))
 PLACE_ALIASES = _RULES["aliases"]

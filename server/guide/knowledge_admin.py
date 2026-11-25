@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from django import forms
 from django.contrib import admin
 
@@ -6,8 +7,8 @@ from .models import KnowledgeDocument
 
 
 class KnowledgeDocumentForm(forms.ModelForm):
-    document = forms.FileField(label="上传 Word 文档", required=False,
-                               help_text="支持 .docx，不超过 10 MB；替换文件会重新生成检索段落。")
+    document = forms.FileField(label=_("上传 Word 文档"), required=False,
+                               help_text=_("支持 .docx，不超过 10 MB；替换文件会重新生成检索段落。"))
 
     class Meta:
         model = KnowledgeDocument
@@ -17,10 +18,10 @@ class KnowledgeDocumentForm(forms.ModelForm):
         upload = self.cleaned_data.get("document")
         if not upload:
             if not self.instance.pk or not self.instance.sha256:
-                raise forms.ValidationError("请上传知识文档。")
+                raise forms.ValidationError(_("请上传知识文档。"))
             return None
         if not upload.name.casefold().endswith(".docx") or upload.size > MAX_UPLOAD:
-            raise forms.ValidationError("请选择不超过 10 MB 的 .docx 文档。")
+            raise forms.ValidationError(_("请选择不超过 10 MB 的 .docx 文档。"))
         raw = upload.read(MAX_UPLOAD + 1)
         try:
             self.parsed_document = (raw, upload.name, parse_docx(raw))
@@ -39,11 +40,11 @@ class KnowledgeDocumentAdmin(admin.ModelAdmin):
               "filename", "sha256", "chunk_count", "reference_count", "updated_at")
     readonly_fields = ("filename", "sha256", "chunk_count", "reference_count", "updated_at")
 
-    @admin.display(description="检索段落")
+    @admin.display(description=_("检索段落"))
     def chunk_count(self, obj):
         return len(obj.chunks)
 
-    @admin.display(description="来源条目")
+    @admin.display(description=_("来源条目"))
     def reference_count(self, obj):
         return len(obj.references)
 

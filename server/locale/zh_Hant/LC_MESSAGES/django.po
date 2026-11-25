@@ -1,0 +1,603 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: HKU Walk\n"
+"Language: zh-Hant\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "%(type)s · 修改申请"
+msgstr "%(type)s · 修改申請"
+
+msgid "AskHKU 知识库资料"
+msgstr "AskHKU 知識庫資料"
+
+msgid "X %(x)s · Y %(y)s（底图版本 %(version)s）"
+msgstr "X %(x)s · Y %(y)s（底圖版本 %(version)s）"
+
+msgid "一级 · 入口"
+msgstr "一級 · 入口"
+
+msgid "三级 · 景点、餐饮和商店"
+msgstr "三級 · 景點、餐飲和商店"
+
+msgid "上传 Word 文档"
+msgstr "上傳 Word 文檔"
+
+msgid "中文名称"
+msgstr "中文名稱"
+
+msgid "二级 · 楼宇和广场"
+msgstr "二級 · 樓宇和廣場"
+
+msgid "位置为示意"
+msgstr "位置為示意"
+
+msgid "供 AskHKU 检索"
+msgstr "供 AskHKU 檢索"
+
+msgid "停车场"
+msgstr "停車場"
+
+msgid "入口说明"
+msgstr "入口説明"
+
+msgid "全部投稿"
+msgstr "全部投稿"
+
+msgid "公开内容"
+msgstr "公開內容"
+
+msgid "公开内容已更新或下线，请先退回并说明需要核对的内容。"
+msgstr "公開內容已更新或下線，請先退回並説明需要核對的內容。"
+
+msgid "关联地点或线路"
+msgstr "關聯地點或線路"
+
+msgid "关联线路"
+msgstr "關聯線路"
+
+msgid "其他搜索词"
+msgstr "其他搜索詞"
+
+msgid "内容标识"
+msgstr "內容標識"
+
+msgid "内置演示地点"
+msgstr "內置演示地點"
+
+msgid "出入口"
+msgstr "出入口"
+
+msgid "分类"
+msgstr "分類"
+
+msgid "分类标识"
+msgstr "分類標識"
+
+msgid "切换"
+msgstr "切換"
+
+msgid "升降机"
+msgstr "升降機"
+
+msgid "卡片简介"
+msgstr "卡片簡介"
+
+msgid "原文件"
+msgstr "原文件"
+
+msgid "原文件名"
+msgstr "原文件名"
+
+msgid "原文子页"
+msgstr "原文子頁"
+
+msgid "发布到 App"
+msgstr "發佈到 App"
+
+msgid "发布时间"
+msgstr "發佈時間"
+
+msgid "发布记录"
+msgstr "發佈記錄"
+
+msgid "可按标题、正文、投稿人账号或纠错对象搜索。"
+msgstr "可按標題、正文、投稿人賬號或糾錯對象搜索。"
+
+msgid "名称"
+msgstr "名稱"
+
+msgid "四级 · 设施"
+msgstr "四級 · 設施"
+
+msgid "回复"
+msgstr "回覆"
+
+msgid "图文步骤"
+msgstr "圖文步驟"
+
+msgid "地图显示层级"
+msgstr "地圖顯示層級"
+
+msgid "地图横坐标"
+msgstr "地圖橫座標"
+
+msgid "地图纵坐标"
+msgstr "地圖縱座標"
+
+msgid "地图选点"
+msgstr "地圖選點"
+
+msgid "地点介绍"
+msgstr "地點介紹"
+
+msgid "地点已不可用"
+msgstr "地點已不可用"
+
+msgid "地点或路线资料"
+msgstr "地點或路線資料"
+
+msgid "地点标识"
+msgstr "地點標識"
+
+msgid "地点简介"
+msgstr "地點簡介"
+
+msgid "地点类别"
+msgstr "地點類別"
+
+msgid "地点纠错"
+msgstr "地點糾錯"
+
+msgid "地点资料"
+msgstr "地點資料"
+
+msgid "坡道"
+msgstr "坡道"
+
+msgid "娱乐群"
+msgstr "娛樂羣"
+
+msgid "娱乐群资料"
+msgstr "娛樂羣資料"
+
+msgid "学习"
+msgstr "學習"
+
+msgid "学生指南"
+msgstr "學生指南"
+
+msgid "完整原文"
+msgstr "完整原文"
+
+msgid "审核"
+msgstr "審核"
+
+msgid "审核人"
+msgstr "審核人"
+
+msgid "审核时间"
+msgstr "審核時間"
+
+msgid "审核状态"
+msgstr "審核狀態"
+
+msgid "审核结果"
+msgstr "審核結果"
+
+msgid "审核记录"
+msgstr "審核記錄"
+
+msgid "审核说明"
+msgstr "審核説明"
+
+msgid "封面图片链接"
+msgstr "封面圖片鏈接"
+
+msgid "已下线"
+msgstr "已下線"
+
+msgid "已发布"
+msgstr "已發佈"
+
+msgid "已发布内容"
+msgstr "已發佈內容"
+
+msgid "已发布版本"
+msgstr "已發佈版本"
+
+msgid "已拒绝"
+msgstr "已拒絕"
+
+msgid "已通过"
+msgstr "已通過"
+
+msgid "常用快捷链接"
+msgstr "常用快捷鏈接"
+
+msgid "底图版本"
+msgstr "底圖版本"
+
+msgid "当前公开内容"
+msgstr "當前公開內容"
+
+msgid "当前发布版本"
+msgstr "當前發佈版本"
+
+msgid "待审核"
+msgstr "待審核"
+
+msgid "投稿人"
+msgstr "投稿人"
+
+msgid "投稿人填写"
+msgstr "投稿人填寫"
+
+msgid "投稿审核"
+msgstr "投稿審核"
+
+msgid "投稿审核快捷入口"
+msgstr "投稿審核快捷入口"
+
+msgid "投稿已被更新，请刷新页面后重新审核。"
+msgstr "投稿已被更新，請刷新頁面後重新審核。"
+
+msgid "投稿状态已变化，请刷新后再审核。"
+msgstr "投稿狀態已變化，請刷新後再審核。"
+
+msgid "投稿类型"
+msgstr "投稿類型"
+
+msgid "投稿配图"
+msgstr "投稿配圖"
+
+msgid "拒绝投稿"
+msgstr "拒絕投稿"
+
+msgid "指南分类"
+msgstr "指南分類"
+
+msgid "指南帖子"
+msgstr "指南帖子"
+
+msgid "按类别分配"
+msgstr "按類別分配"
+
+msgid "提交审核结果"
+msgstr "提交審核結果"
+
+msgid "提交时间"
+msgstr "提交時間"
+
+msgid "插座位置"
+msgstr "插座位置"
+
+msgid "支持 .docx，不超过 10 MB；替换文件会重新生成检索段落。"
+msgstr "支持 .docx，不超過 10 MB；替換文件會重新生成檢索段落。"
+
+msgid "教学楼"
+msgstr "教學樓"
+
+msgid "文件校验值"
+msgstr "文件校驗值"
+
+msgid "文档包含不支持的 XML 定义。"
+msgstr "文檔包含不支持的 XML 定義。"
+
+msgid "文档没有可检索的文字。"
+msgstr "文檔沒有可檢索的文字。"
+
+msgid "文档没有正文。"
+msgstr "文檔沒有正文。"
+
+msgid "文档解压后的内容过大。"
+msgstr "文檔解壓後的內容過大。"
+
+msgid "文档链接格式不受支持。"
+msgstr "文檔鏈接格式不受支持。"
+
+msgid "新地点"
+msgstr "新地點"
+
+msgid "新地点、地点纠错、新线路、线路纠错和学生指南。"
+msgstr "新地點、地點糾錯、新線路、線路糾錯和學生指南。"
+
+msgid "新生入学小 Tips"
+msgstr "新生入學小 Tips"
+
+msgid "新线路"
+msgstr "新線路"
+
+msgid "新路线"
+msgstr "新路線"
+
+msgid "无法读取这份 Word 文档，请检查文件格式。"
+msgstr "無法讀取這份 Word 文檔，請檢查文件格式。"
+
+msgid "无障碍车位"
+msgstr "無障礙車位"
+
+msgid "旧版示意图"
+msgstr "舊版示意圖"
+
+msgid "显示顺序"
+msgstr "顯示順序"
+
+msgid "更新时间"
+msgstr "更新時間"
+
+msgid "有可用插座"
+msgstr "有可用插座"
+
+msgid "未附步骤照片"
+msgstr "未附步驟照片"
+
+msgid "来源条目"
+msgstr "來源條目"
+
+msgid "来源登记"
+msgstr "來源登記"
+
+msgid "查看待审核"
+msgstr "查看待審核"
+
+msgid "查看配图"
+msgstr "查看配圖"
+
+msgid "标题"
+msgstr "標題"
+
+msgid "校园地图"
+msgstr "校園地圖"
+
+msgid "校园地图设施"
+msgstr "校園地圖設施"
+
+msgid "校园地点"
+msgstr "校園地點"
+
+msgid "校园空间"
+msgstr "校園空間"
+
+msgid "检索段落"
+msgstr "檢索段落"
+
+msgid "楼层说明"
+msgstr "樓層説明"
+
+msgid "楼梯"
+msgstr "樓梯"
+
+msgid "横坐标"
+msgstr "橫座標"
+
+msgid "正文"
+msgstr "正文"
+
+msgid "正文排版"
+msgstr "正文排版"
+
+msgid "正文配图"
+msgstr "正文配圖"
+
+msgid "步行路线"
+msgstr "步行路線"
+
+msgid "步骤标题"
+msgstr "步驟標題"
+
+msgid "步骤编号"
+msgstr "步驟編號"
+
+msgid "步骤说明"
+msgstr "步驟説明"
+
+msgid "步骤配图"
+msgstr "步驟配圖"
+
+msgid "洗手间"
+msgstr "洗手間"
+
+msgid "港大漫游"
+msgstr "港大漫遊"
+
+msgid "港大漫游管理后台"
+msgstr "港大漫遊管理後台"
+
+msgid "用户投稿"
+msgstr "用户投稿"
+
+msgid "申请修改的内容"
+msgstr "申請修改的內容"
+
+msgid "界面语言"
+msgstr "界面語言"
+
+msgid "相关地点或路线"
+msgstr "相關地點或路線"
+
+msgid "相关链接"
+msgstr "相關鏈接"
+
+msgid "示例内容"
+msgstr "示例內容"
+
+msgid "稿件"
+msgstr "稿件"
+
+msgid "稿件信息"
+msgstr "稿件信息"
+
+msgid "稿件预览"
+msgstr "稿件預覽"
+
+msgid "第 %(step)s 步配图"
+msgstr "第 %(step)s 步配圖"
+
+msgid "简体标题"
+msgstr "簡體標題"
+
+msgid "管理首页"
+msgstr "管理首頁"
+
+msgid "繁体标题"
+msgstr "繁體標題"
+
+msgid "纠错地点"
+msgstr "糾錯地點"
+
+msgid "纠错对象"
+msgstr "糾錯對象"
+
+msgid "纠错说明"
+msgstr "糾錯説明"
+
+msgid "纵坐标"
+msgstr "縱座標"
+
+msgid "线路已不可用"
+msgstr "線路已不可用"
+
+msgid "线路简介"
+msgstr "線路簡介"
+
+msgid "线路纠错"
+msgstr "線路糾錯"
+
+msgid "终点"
+msgstr "終點"
+
+msgid "给投稿人的审核意见"
+msgstr "給投稿人的審核意見"
+
+msgid "美食分享"
+msgstr "美食分享"
+
+msgid "美食推荐"
+msgstr "美食推薦"
+
+msgid "英文名称"
+msgstr "英文名稱"
+
+msgid "英文标题"
+msgstr "英文標題"
+
+msgid "英文简称"
+msgstr "英文簡稱"
+
+msgid "行人天桥"
+msgstr "行人天橋"
+
+msgid "设施总览显示"
+msgstr "設施總覽顯示"
+
+msgid "设施标识"
+msgstr "設施標識"
+
+msgid "设施照片链接"
+msgstr "設施照片鏈接"
+
+msgid "设施类型"
+msgstr "設施類型"
+
+msgid "评论"
+msgstr "評論"
+
+msgid "该版本已不可用。"
+msgstr "該版本已不可用。"
+
+msgid "说明"
+msgstr "説明"
+
+msgid "请上传知识文档。"
+msgstr "請上傳知識文檔。"
+
+msgid "请写明拒绝原因。"
+msgstr "請寫明拒絕原因。"
+
+msgid "请写明需要修改的内容。"
+msgstr "請寫明需要修改的內容。"
+
+msgid "请填写修改建议。"
+msgstr "請填寫修改建議。"
+
+msgid "请填写拒绝原因。"
+msgstr "請填寫拒絕原因。"
+
+msgid "请投稿人修改"
+msgstr "請投稿人修改"
+
+msgid "请选择"
+msgstr "請選擇"
+
+msgid "请选择不超过 10 MB 的 .docx 文档。"
+msgstr "請選擇不超過 10 MB 的 .docx 文檔。"
+
+msgid "请选择不超过 10 MB 的 Word 文档。"
+msgstr "請選擇不超過 10 MB 的 Word 文檔。"
+
+msgid "请选择审核结果。"
+msgstr "請選擇審核結果。"
+
+msgid "请选择通过、需修改或拒绝。"
+msgstr "請選擇通過、需修改或拒絕。"
+
+msgid "贡献者"
+msgstr "貢獻者"
+
+msgid "资料整理日期"
+msgstr "資料整理日期"
+
+msgid "资料标识"
+msgstr "資料標識"
+
+msgid "起点"
+msgstr "起點"
+
+msgid "起点和终点不能相同。"
+msgstr "起點和終點不能相同。"
+
+msgid "路线名称"
+msgstr "路線名稱"
+
+msgid "路线总览图"
+msgstr "路線總覽圖"
+
+msgid "路线纠错"
+msgstr "路線糾錯"
+
+msgid "返回投稿审核"
+msgstr "返回投稿審核"
+
+msgid "这个内容标识已被使用。"
+msgstr "這個內容標識已被使用。"
+
+msgid "这条投稿已处理，请返回审核列表。"
+msgstr "這條投稿已處理，請返回審核列表。"
+
+msgid "这条投稿已被处理，请刷新。"
+msgstr "這條投稿已被處理，請刷新。"
+
+msgid "退回修改或拒绝时必填。投稿人可在 App 内查看；被拒绝的稿件不能直接重交。"
+msgstr "退回修改或拒絕時必填。投稿人可在 App 內查看；被拒絕的稿件不能直接重交。"
+
+msgid "通过并发布"
+msgstr "通過併發布"
+
+msgid "需修改"
+msgstr "需修改"
+
+msgid "需要管理员权限。"
+msgstr "需要管理員權限。"
+
+msgid "页面说明"
+msgstr "頁面説明"
+
+msgid "餐饮"
+msgstr "餐飲"
+
+msgid "饮水点"
+msgstr "飲水點"

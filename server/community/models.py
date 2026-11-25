@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 import uuid
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -54,46 +55,46 @@ class MediaQuota(models.Model):
 
 class Submission(models.Model):
     class Kind(models.TextChoices):
-        FOOD = "food", "美食推荐"
-        GROUP = "group", "娱乐群资料"
-        PLACE = "place", "地点纠错"
-        ROUTE = "route", "路线纠错"
-        NEW_PLACE = "new_place", "新地点"
-        NEW_ROUTE = "new_route", "新路线"
-        GUIDE = "guide", "学生指南"
+        FOOD = "food", _("美食推荐")
+        GROUP = "group", _("娱乐群资料")
+        PLACE = "place", _("地点纠错")
+        ROUTE = "route", _("路线纠错")
+        NEW_PLACE = "new_place", _("新地点")
+        NEW_ROUTE = "new_route", _("新路线")
+        GUIDE = "guide", _("学生指南")
 
     class Status(models.TextChoices):
-        PENDING = "pending", "待审核"
-        APPROVED = "approved", "已通过"
-        CHANGES = "changes_requested", "需修改"
-        REJECTED = "rejected", "已拒绝"
+        PENDING = "pending", _("待审核")
+        APPROVED = "approved", _("已通过")
+        CHANGES = "changes_requested", _("需修改")
+        REJECTED = "rejected", _("已拒绝")
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, verbose_name="投稿人")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, verbose_name=_("投稿人"))
     request_key = models.CharField(max_length=64)
     content_hash = models.CharField(max_length=64)
-    kind = models.CharField("投稿类型", max_length=12, choices=Kind.choices)
-    title = models.CharField("标题", max_length=160)
-    body = models.TextField("正文")
-    body_blocks = models.JSONField("正文排版", default=list, db_default=[], blank=True)
-    map_data = models.JSONField("地点或路线资料", default=dict, db_default={}, blank=True)
-    location = models.CharField("相关地点或路线", max_length=160, blank=True)
-    external_url = models.URLField("相关链接", blank=True, max_length=1000)
+    kind = models.CharField(_("投稿类型"), max_length=12, choices=Kind.choices)
+    title = models.CharField(_("标题"), max_length=160)
+    body = models.TextField(_("正文"))
+    body_blocks = models.JSONField(_("正文排版"), default=list, db_default=[], blank=True)
+    map_data = models.JSONField(_("地点或路线资料"), default=dict, db_default={}, blank=True)
+    location = models.CharField(_("相关地点或路线"), max_length=160, blank=True)
+    external_url = models.URLField(_("相关链接"), blank=True, max_length=1000)
     image = models.FileField(upload_to="contributions/", blank=True)
     inherited_image_url = models.URLField(blank=True, max_length=1000)
-    status = models.CharField("审核状态", max_length=24, choices=Status.choices, default=Status.PENDING)
-    review_note = models.TextField("审核说明", blank=True)
+    status = models.CharField(_("审核状态"), max_length=24, choices=Status.choices, default=Status.PENDING)
+    review_note = models.TextField(_("审核说明"), blank=True)
     revision = models.PositiveIntegerField(default=1)
     reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
-        on_delete=models.SET_NULL, related_name="reviewed_submissions", verbose_name="审核人")
-    reviewed_at = models.DateTimeField("审核时间", null=True, blank=True)
+        on_delete=models.SET_NULL, related_name="reviewed_submissions", verbose_name=_("审核人"))
+    reviewed_at = models.DateTimeField(_("审核时间"), null=True, blank=True)
     public_entry = models.ForeignKey("guide.Publication", null=True, blank=True,
-        on_delete=models.SET_NULL, related_name="contributions", verbose_name="公开内容")
+        on_delete=models.SET_NULL, related_name="contributions", verbose_name=_("公开内容"))
     edit_of = models.ForeignKey("guide.Publication", null=True, blank=True,
-        on_delete=models.PROTECT, related_name="edit_requests", verbose_name="申请修改的内容")
+        on_delete=models.PROTECT, related_name="edit_requests", verbose_name=_("申请修改的内容"))
     base_entry_updated_at = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField("提交时间", auto_now_add=True)
-    updated_at = models.DateTimeField("更新时间", auto_now=True)
+    created_at = models.DateTimeField(_("提交时间"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("更新时间"), auto_now=True)
 
     class Meta:
         ordering = ["-created_at", "-id"]
@@ -102,8 +103,8 @@ class Submission(models.Model):
             models.UniqueConstraint(fields=["edit_of"], condition=models.Q(edit_of__isnull=False,
                 status__in=["pending", "changes_requested"]), name="one_open_edit_per_entry"),
         ]
-        verbose_name = "用户投稿"
-        verbose_name_plural = "用户投稿"
+        verbose_name = _("用户投稿")
+        verbose_name_plural = _("用户投稿")
 
     def __str__(self):
         return self.title
@@ -132,9 +133,9 @@ class SubmissionBodyImage(models.Model):
 
 class InboxMessage(models.Model):
     class Kind(models.TextChoices):
-        REVIEW = "review", "审核结果"
-        COMMENT = "comment", "评论"
-        REPLY = "reply", "回复"
+        REVIEW = "review", _("审核结果")
+        COMMENT = "comment", _("评论")
+        REPLY = "reply", _("回复")
 
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="inbox_messages")
     kind = models.CharField(max_length=10, choices=Kind.choices)

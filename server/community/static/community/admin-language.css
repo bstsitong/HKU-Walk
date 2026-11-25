@@ -1,0 +1,25 @@
+#header { flex-wrap: wrap; gap: 12px; }
+#user-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+#header .admin-language { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0; }
+#header .admin-language label { font-size: 0.8125rem; }
+#header .admin-language select,
+#header .admin-language button {
+  font: inherit;
+  font-size: 0.8125rem;
+  min-height: 36px;
+  padding: 6px 10px;
+  color: var(--body-fg);
+  background: var(--body-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+#header .admin-language button { cursor: pointer; }
+#header .admin-language button:hover { background: var(--darkened-bg); }
+#header .admin-language :focus-visible { outline: 2px solid var(--header-link-color); outline-offset: 3px; }
+.login #header { flex-direction: column; align-items: stretch; }
+.login #branding { flex-wrap: wrap; gap: 12px; }
+.login #header .admin-language { flex-basis: 100%; justify-content: center; }
+@media (max-width: 767px) {
+  #user-tools { justify-content: center; }
+  #header .admin-language select, #header .admin-language button { min-height: 44px; }
+}
