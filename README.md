@@ -1,132 +1,319 @@
 # HKU-Walk
 
 A campus map and student guide for University of Hong Kong students and visitors.
-The mobile app is built with React Native, Expo SDK 58 and TypeScript, with a
-Django backend and a hosted PostgreSQL database in Hong Kong.
+HKU-Walk brings together place search, illustrated walking directions, student
+guides, campus Q&A and reviewed community contributions.
 
-**[Download HKU-Walk 1.0.6 for Android](https://github.com/bstsitong/HKU-Walk/releases/download/v1.0.6/HKU-Walk-1.0.6.apk)**
+**[Download Android 1.0.6](https://github.com/bstsitong/HKU-Walk/releases/download/v1.0.6/HKU-Walk-1.0.6.apk)** · [Open the web app](https://47.239.18.183/app/) · [Source code](https://github.com/bstsitong/HKU-Walk) · [Chinese README](README.zh-CN.md)
 
-[Release details](https://github.com/bstsitong/HKU-Walk/releases/tag/v1.0.6) | [Chinese README](README.zh-CN.md)
+## Features
 
-## Install the Android app
-
-1. Download the APK using the link above and open it on an Android device.
-2. Allow installation from the browser or file manager when Android asks.
-3. Open HKU-Walk with an Internet connection and allow the signed startup update
-   to finish. The app uses the production backend and its existing published data.
-4. Browse the map and guides without signing in, or register an account for
-   bookmarks, comments, submissions and other personal features.
-
-The standalone APK does not require Expo Go, a development computer, an Aliyun
-account or a database password. It supports ARM64 Android phones and x86_64
-emulators, with Android 7.0 / API 24 or later.
-
-| APK detail | Value |
+| Feature | What it does |
 | --- | --- |
-| Version | 1.0.6 |
-| Android application ID | `com.hkuwalk` |
-| Version code | 10 |
-| File size | 45.65 MB |
-| Download | [HKU-Walk-1.0.6.apk](https://github.com/bstsitong/HKU-Walk/releases/download/v1.0.6/HKU-Walk-1.0.6.apk) |
+| Campus map | Browse places and facilities, zoom the SVG map, inspect photos, entrances and floor information, and show foreground device location |
+| Place search | Search names, room codes, English abbreviations, Simplified/Traditional Chinese, pinyin, aliases and approximate spellings |
+| Walking directions | Select endpoints and view published routes, ordered instructions, overview images and enlarged step photos |
+| Student guides | Read arrival information, useful links, food recommendations and group information, with article search, Markdown and photos |
+| Ask HKU | Ask questions using published campus records, reference documents and public HKU webpages, with source references |
+| Accounts and profiles | Register, sign in, edit profiles, avatars and cover photos, manage passwords, recovery codes and author visibility |
+| Bookmarks and history | Keep account-specific records with local caching, queued changes and backend synchronization |
+| Contributions | Submit places, illustrated routes, guides and corrections; revise requests and publish after moderation |
+| Discussions and inbox | Comment, reply and react to published content, and read review/comment notifications |
+| Three languages | English, Simplified Chinese and Hong Kong Traditional Chinese in the App and administration interface |
 
-SHA-256 of the downloadable APK:
+Map, guide and published discussion browsing is public. Contributions and personal
+features require an App account. Routes are retrieved from published records; a
+missing route is shown as awaiting content. Device positioning and route diagrams
+do not establish indoor positioning or surveyed turn-by-turn navigation.
+
+## Install and use
+
+Download the APK, allow installation from the browser or file manager when Android
+asks, and open the App with an Internet connection. Allow its signed startup update
+to finish. Browse without signing in, or create an account for personal features.
+The standalone APK runs without Expo Go or a development computer.
+
+| Android release | Value |
+| --- | --- |
+| Version / version code | 1.0.6 / 10 |
+| Application ID | `com.hkuwalk` |
+| Supported architectures | ARM64 phones and x86_64 emulators |
+| Minimum Android version | Android 7.0 / API 24 |
+| File size | 45,651,901 bytes |
+| Release | [v1.0.6](https://github.com/bstsitong/HKU-Walk/releases/tag/v1.0.6) |
+
+APK SHA-256:
 
 ```text
 1902493d37d1e521f2d372ed4b0c02ad421d66a12d7a0e67e85f347ac56f4911
 ```
 
-The installer uses the compatible 1.0.6 signed OTA channel for subsequent mobile
-code updates. Published campus content is fetched separately from the backend.
+The [web app](https://47.239.18.183/app/) uses the same hosted API. It is an
+additional browser deployment; its later compatibility changes are not all present
+in every source snapshot. Native iOS builds require macOS/Xcode and separate device
+validation; the downloadable native release here is Android.
 
-## Features
+## Architecture and technology stack
 
-| Feature | Current implementation |
+![Complete HKU-Walk architecture](architecture/architecture-en.svg)
+
+[Full-size diagram](architecture/architecture-en.svg) · [Editable Mermaid topology](architecture/architecture-en.mmd) · [Detailed technology inventory](TECHNOLOGY.md)
+
+The user clients and staff browser reach Caddy over HTTPS. Caddy routes API and
+administration requests to the same Django backend, which reads and updates the
+production PostgreSQL database according to permissions. It also serves published
+web/download files. Model calls, media access, backups and publication paths are
+connected to their actual services in the diagram.
+
+| Layer | Technologies and responsibilities |
 | --- | --- |
-| Campus map | Main and Centennial campus basemaps, place and facility filters, zoom, foreground location, floor and entrance information, and place photos |
-| Place search | Simplified and Traditional Chinese, English, abbreviations, pinyin, aliases, approximate input matching and category-based queries |
-| Walking routes | Endpoint selection and swapping, schematic map connections, ordered instructions for published routes, and enlarged step photos |
-| Student guide | Useful links, arrival information, food and social groups, built-in article readers, search, community posts, comments and likes |
-| Ask HKU | Campus answers using places, routes, guides, administrator-uploaded reference material and public HKU webpages |
-| Accounts | Registration, sign-in, profile editing, avatars, cover photos, password changes, recovery codes, notifications and submission history |
-| Bookmarks and history | Per-account records synchronized with the backend, with local caching and queued changes |
-| Contributions | New places, illustrated routes, food, groups and corrections, with review, revision requests, rejection and edits to published content |
-| Languages | English, Simplified Chinese and Hong Kong Traditional Chinese in both the mobile app and administration interface |
+| User clients | React 19.3.0, React Native 0.88.1, Expo SDK 58, TypeScript; React Native Web / React DOM for the browser |
+| Map, search and media | Custom SVG / react-native-svg, OpenStreetMap-derived artwork, Expo Location, OpenCC, pinyin-pro, Markdown, Expo photo/file modules and Pillow |
+| Device state | SecureStore for native credentials, AsyncStorage for settings/caches/pending records; browser localStorage for the current web client |
+| Backend and admin | Python 3.12, Django 5.2.19, Django REST Framework 3.18.3, Django Admin, ORM and psycopg |
+| Data and storage | Production PostgreSQL 17, independent local SQLite, Django-controlled media, DatabaseCache; optional filesystem/database/private S3 media modes |
+| AI and languages | Configurable DeepSeek-compatible model, Word text retrieval, project/HKU sources, built-in translations, OpenCC Hong Kong Traditional Chinese and Django gettext |
+| Production hosting | Aliyun Hong Kong ECS, Linux, Docker / Compose, Gunicorn, Caddy 2, Let's Encrypt / ACME and WhiteNoise |
+| Backup and recovery | Encrypted PostgreSQL archives on ECS and Supabase, OpenSSL, systemd scheduling and manual restore |
+| Development and delivery | Git/GitHub, GitHub Actions, GitHub Releases, Expo CLI / Metro / Hermes, Android SDK / adb, JDK / Gradle / NDK / CMake and signed Expo Updates |
 
-Browsing the map and guide is public. Personal records and contributions require
-an account. Published routes display reviewed instructions and photos. Built-in
-demonstration routes include illustrative distances and steps; they are not
-verified turn-by-turn navigation.
+GitHub hosts source history, checks and release downloads. Backend deployment,
+web publication, Android OTA publication and APK releases are separate maintainer
+operations. Django Admin is a browser interface to the shared backend and models.
 
-## Hosted backend and database
-
-```text
-Android APK or mobile app running from source
-                    |
-                 HTTPS API
-                    |
-          Django backend in Hong Kong
-                    |
-       PostgreSQL and controlled image storage
-```
+## Hosted services and data
 
 | Service | Address |
 | --- | --- |
-| Production API | `https://47.239.18.183` |
-| Health check | <https://47.239.18.183/api/health/> |
-| Administration | <https://47.239.18.183/admin/> |
+| API origin | `https://47.239.18.183` |
+| Health | <https://47.239.18.183/api/health/> |
+| User web app | <https://47.239.18.183/app/> |
+| Staff administration | <https://47.239.18.183/admin/> |
 
-**To see the same published places, photos, routes and posts as the production
-APK, point the mobile source build at this same API.** The client communicates
-with Django rather than connecting directly to PostgreSQL. Users do not need
-cloud-console access or database credentials. Personal records remain scoped to
-the signed-in account; administration requires separately authorized staff access.
+The live primary database is PostgreSQL on Aliyun ECS in Hong Kong. Clients call
+the API; they do not connect directly to PostgreSQL. Normal App use needs no Aliyun
+or Supabase account, SSH access or database password. Administration requires a
+separately authorized staff account.
 
-A local backend uses SQLite by default. Migrations and `seed_guide` recreate the
-repository's built-in content, not a complete copy of production uploads,
-accounts, discussions or knowledge documents. Production database backups,
-private credentials and signing keys are not included in this repository.
+### Running modes
+
+| Mode | Backend and data | Where changes go |
+| --- | --- | --- |
+| Install the production APK | Hosted Django API and current production PostgreSQL | Authorized actions update the live service |
+| Run source with the hosted API | The same API, public data and App accounts as the APK | The same live service |
+| Run the client and backend locally | A separate Django service, SQLite and local files | The local environment only |
+
+Starting a local backend does not redirect a client that is still configured for
+the hosted API. Set `EXPO_PUBLIC_API_URL` before native generation and bundling.
+Account-private records remain scoped to the signed-in user in either environment.
+
+### Public-content snapshots
+
+Source archives that contain `submission/data/public-content.json` and
+`submission/data/images/` include a published-content snapshot captured on
+**26 November 2026, Hong Kong time**: 144 base places, 24 routes, 32 facilities,
+4 guide categories, 19 articles and 182 distinct downloaded images referenced by
+298 public image URLs. These are captured records and photo bytes.
+
+In those archives, `Start-Backend.ps1` imports the snapshot into local SQLite and
+creates a local administrator. A regular Git clone initializes the repository's
+built-in content instead. The snapshot is a separate copy, not live replication.
+Passwords, production sessions, private records and private knowledge documents
+are excluded; public attribution may use inactive replacement accounts.
+
+### Supabase backups
+
+Supabase stores private encrypted production database archives in
+`hku_backup.ecs_archives`. Its `hku_app` schema retains read-only migration-era
+data. The configured backup job runs daily at 04:30 Hong Kong time and retains
+the latest seven archives on ECS and in Supabase. Archive freshness, job health
+and restore validation are separate operational checks; dated observations and
+file-coverage details are in the [technology inventory](TECHNOLOGY.md).
+
+Recovery uses checksum verification, private-key decryption, restore into a new
+empty PostgreSQL 17 database, validation and a manual backend connection switch.
+The App continues using the ECS API; it does not query backup archives or
+automatically fail over to Supabase. Filesystem media, OTA and published web/APK
+files need their own backup coverage in addition to a database dump.
 
 ## Run the Android source
 
-Install Node.js 24.x, npm, Android Studio, the Android SDK and a JDK supported by
-the generated Gradle project. The isolated build checked on 26 November 2026 used
-Node 24.13.0, JDK 25, Android SDK 37 and NDK 27.1.12297006. Python 3.12 is used for
-the backend. Initial dependency installation and native builds require Internet.
+Install Node.js 24.x, npm, Android Studio, Android SDK and a compatible JDK.
+Python 3.12 is used for the backend and optional archive setup helpers. The
+isolated build recorded on 26 November used Node 24.13.0, JDK 25, SDK 37 and
+NDK 27.1.12297006. Initial dependency downloads require Internet.
 
-Clone into a writable directory and open a terminal in the project root, where
-`package.json` is located. On Windows, a short path such as
-`C:\hku-review\HKU-Walk` helps avoid native C++ path-length limits.
+Clone the repository or extract a source archive into a writable directory. Open
+a terminal in the project root containing `package.json`. On Windows, use a short
+path such as `C:\hku-walk\HKU-Walk` to reduce native C++ path-length problems.
+The commands below use PowerShell. Start with a fresh copy and choose the backend
+before generating native projects.
 
 ```powershell
-git clone https://github.com/bstsitong/HKU-Walk.git
-cd HKU-Walk
+npm ci
+if (Test-Path -LiteralPath submission/configure.py) {
+    python submission/configure.py
+} else {
+    Set-Content -LiteralPath .env.local -Encoding ascii -Value 'EXPO_PUBLIC_API_URL=https://47.239.18.183'
+    node -e "const fs=require('fs'); const p=JSON.parse(fs.readFileSync('app.json','utf8')); p.expo.android.package='com.hkuwalk.review'; p.expo.updates.enabled=false; fs.writeFileSync('app.json',JSON.stringify(p,null,2)+'\n');"
+}
+npm run locales:prepare
+npx expo prebuild --platform android --no-install
+npx expo run:android
+```
+
+Start an Android emulator or connect a USB debugging-enabled device first.
+`expo run:android` builds/installs the development App and starts Metro; keep Metro
+running during development. `npm run android` starts the development server and
+attempts to open Android, rather than compiling a standalone APK.
+
+The configuration above uses `com.hkuwalk.review` for an independent local build
+and disables production OTA downloads so it continues running the selected source.
+It can coexist with the production APK and still use the same hosted API. Archives
+with `submission/configure.py` also apply portable Android build settings. Run
+that helper before native projects exist; use a fresh copy when changing its API.
+
+On macOS/Linux, use `python3` if needed. Set the same API origin in `.env.local`
+and apply the App settings above with the helper or Node command, then run the
+same npm/Expo commands. iOS compilation additionally requires macOS and Xcode.
+
+### Build a standalone APK
+
+After the same configuration and prebuild:
+
+```powershell
+cd android
+.\gradlew.bat assembleRelease
+cd ..
+```
+
+Use `./gradlew assembleRelease` on macOS/Linux. The output is
+`android/app/build/outputs/apk/release/app-release.apk`. It includes the JavaScript
+bundle and runs without Metro. The generated template uses a development signing
+key for this independent build; production upgrades need the production signing
+key. Online features still use the selected backend.
+
+## Run the backend locally
+
+In a fresh source copy, create a Python environment and start Django:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r server/requirements.txt
+.\Start-Backend.ps1
+```
+
+Local health: <http://127.0.0.1:8000/api/health/>. Local admin:
+<http://127.0.0.1:8000/admin/>. Database: `.local/hku-walk.sqlite3`. Generated
+administrator credentials: `.local/admin-access.txt`. The launcher performs
+migrations/initialization, or imports the public snapshot when included. Repeated
+starts preserve local accounts and edits; the snapshot importer refuses to
+overwrite an unrelated existing account/submission database.
+
+Keep that terminal open. Before native generation in the same source copy,
+select the local API:
+
+```powershell
+if (Test-Path -LiteralPath submission/configure.py) {
+    python submission/configure.py --api-url http://10.0.2.2:8000
+} else {
+    Set-Content -LiteralPath .env.local -Encoding ascii -Value 'EXPO_PUBLIC_API_URL=http://10.0.2.2:8000'
+    node -e "const fs=require('fs'); const p=JSON.parse(fs.readFileSync('app.json','utf8')); p.expo.android.package='com.hkuwalk.review'; p.expo.updates.enabled=false; fs.writeFileSync('app.json',JSON.stringify(p,null,2)+'\n');"
+}
 npm ci
 npm run locales:prepare
-Set-Content -LiteralPath .env.local -Encoding ascii -Value 'EXPO_PUBLIC_API_URL=https://47.239.18.183'
+npx expo prebuild --platform android --no-install
+npx expo run:android
 ```
 
-You can also extract a source ZIP and begin with `npm ci`. The value above is a
-public API origin; private model or database credentials do not belong in mobile
-environment variables. `npm ci` installs the versions in `package-lock.json`.
+`10.0.2.2` is the Android emulator's address for the host computer. For a physical
+phone, use the computer's actual LAN IP, allow it in `DJANGO_ALLOWED_HOSTS`, bind
+Django to a reachable interface and allow the port through the local firewall.
+Archives with the snapshot launcher accept `-PublicOrigin`, `-ListenAddress` and
+`-Port`; use the same origin for imported photos and the client API. Development
+builds support HTTP; standalone HTTP builds also need Android cleartext permission,
+which the archive's native helper configures for an HTTP API.
 
-### Generate and run a native project
+On macOS/Linux use `.venv/bin/python`. Run `submission/import_public_data.py
+--public-origin http://10.0.2.2:8000` when included; otherwise run
+`server/manage.py migrate --noinput`, `seed_guide` and `init_admin`. Start with
+`server/manage.py runserver 127.0.0.1:8000 --noreload`.
 
-In a fresh clone or extracted test copy, use a separate application ID and disable
-production OTA downloads so the build keeps running the source being inspected:
+## Administration, AI and languages
+
+Staff maintain places, facilities, routes and guides, and moderate contributions.
+Submission states are pending, approved, changes requested and rejected. Revision
+requests can be resubmitted; rejected requests are closed. Edits to published
+content leave the current public version visible until approval.
+
+Ask HKU uses server-configured model credentials and can retrieve enabled Word
+reference documents, published project records and official HKU webpages. Private
+document originals require staff access; public answers expose public citations.
+Local AI requires a model key and local reference material. Use `DEEPSEEK_API_KEY`
+or compatible `ASSISTANT_API_BASE_URL`, `ASSISTANT_API_KEY`, `ASSISTANT_MODEL`
+settings on the backend. The source defaults to `deepseek-flash` for DeepSeek;
+provider-specific web tools need their own supported configuration.
+
+App and administration languages are selected independently. Source records and
+editing fields preserve the original text. Place introductions and published
+route text translate with the interface; community posts translate on request.
+English dictionaries and long-form guide translations are in `locales/`, Hong
+Kong Traditional Chinese uses OpenCC, and admin translations use Django gettext.
+Dynamic translations are cached by source revision/text and target language.
+See [development conventions](AGENTS.md) and [deployment notes](deploy/README.md).
+
+## Updates and deployment
+
+Content changes become visible through API refresh. Backend changes require a
+separate deployment and migrations. Compatible Android JavaScript/assets can be
+exported, signed and published to the ECS-hosted Expo Updates endpoints; native
+dependency/runtime changes need a new APK. Web changes require exporting and
+publishing web files. A Git push or successful CI check does not perform these
+publication steps automatically.
+
+Production builds use the public update certificate in `assets/`; signing private
+keys remain with maintainers. Code rollback and database recovery are separate
+operations. See `deploy/`, `Dockerfile` and `scripts/prepare-android-update.mjs`.
+
+## Source layout and checks
+
+| Path | Purpose |
+| --- | --- |
+| Root `.ts` / `.tsx` | Screens, components, state, API clients, map/search and shared logic |
+| `server/` | Django API/admin, models, migrations, shared JSON catalogs, initialization and tests |
+| `assets/`, `locales/` | Artwork/images, public update certificate and language resources |
+| `scripts/` | Localization and application checks, production verification and update tooling |
+| `deploy/`, `Dockerfile` | Production setup, storage and backup/restore tooling |
+| `architecture/`, `TECHNOLOGY.md` | Complete diagrams and detailed dependency/service inventory |
+| `submission/` when included | Archive setup helpers, public snapshot, images and checksums |
+
+With dependencies installed:
 
 ```powershell
-node -e "const fs=require('fs'); const p=JSON.parse(fs.readFileSync('app.json','utf8')); p.expo.android.package='com.hkuwalk.review'; p.expo.updates.enabled=false; fs.writeFileSync('app.json',JSON.stringify(p,null,2)+'\n');"
-npx expo prebuild --platform android --no-install
+npx tsc --noEmit
+npm run locales:check
+node scripts/check-localization.cjs
+node scripts/check-content-translation.cjs
+npm run check:guide-reader
+node scripts/check-app.cjs
+.\.venv\Scripts\python.exe server/manage.py test guide community --noinput
+.\.venv\Scripts\python.exe server/manage.py makemigrations --check --dry-run
+npx expo export --platform android --output-dir .expo/source-check-export
 ```
 
-These settings allow the source build to coexist with the production APK. They
-do not change the selected API or copy a database. Production releases retain
-`com.hkuwalk` and their signed OTA configuration. The native `android/` directory
-is generated on the developer's machine.
+These are check commands, not a new test-run report. Build/export, backend tests,
+emulator interaction, browser checks and physical-device testing establish
+different things; verification scope is recorded in the detailed documentation.
 
-If a Windows build encounters CMake path-length errors, add the following inside
-`android { ... }` in the generated `android/app/build.gradle`. `projectRoot` is
-already defined by the generated file:
+## Troubleshooting
+
+- Check the selected API's `/api/health/` when data cannot load. Hosted features
+  need Internet and an available server; a phone's `localhost` is not the computer.
+- Configure `ANDROID_HOME` / `JAVA_HOME` for the actual local SDK/JDK. Install the
+  SDK components Gradle requests and accept their licences.
+- If Windows CMake paths are too long, use a short checkout path. For a build
+  without the archive helper, add the following inside the generated
+  `android/app/build.gradle` `android { ... }` block; `projectRoot` is already defined:
 
 ```groovy
 externalNativeBuild.cmake.buildStagingDirectory file(System.getProperty("java.io.tmpdir") + "/hku-review-cxx-" + Integer.toHexString(projectRoot.hashCode()))
@@ -135,182 +322,20 @@ defaultConfig {
 }
 ```
 
-Start an emulator in Android Studio or connect a USB debugging-enabled phone,
-then run from the project root:
-
-```powershell
-npx expo run:android
-```
-
-This builds and installs a development app and starts Metro. Keep Metro running
-while using that development build. Expo Go and an Expo cloud-build account are
-not required. `npm run android` starts the Expo development server and attempts
-to open Android; it does not compile a standalone APK.
-
-### Build a standalone test APK
-
-After configuration and prebuild:
-
-```powershell
-cd android
-.\gradlew.bat assembleRelease
-cd ..
-```
-
-On macOS/Linux, use `./gradlew assembleRelease`. The generated file is
-`android/app/build/outputs/apk/release/app-release.apk`. The freshly generated Expo
-template uses a development signing key for this test release variant. It embeds
-the JavaScript bundle and runs without Metro, while online features use the
-selected backend. Production upgrades require the maintainer's signing key.
-
-Set `ANDROID_HOME` and `JAVA_HOME` to the actual installations on your computer.
-Install SDK components requested by Gradle and accept their licences. Expo's
-online compatibility check may recommend newer patch versions than the locked
-dependency set; dependency upgrades should be verified separately.
-
-## Run a local backend
-
-For independent backend development and moderation checks, install Python 3.12
-and run from the project root:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r server/requirements.txt
-.\Start-Backend.ps1
-```
-
-The script applies migrations, seeds built-in content, initializes a local
-administrator and starts Django at `http://127.0.0.1:8000`. The default database
-is `.local/hku-walk.sqlite3`. Randomly generated local administrator credentials
-are written to `.local/admin-access.txt`. Repeated starts preserve existing local
-accounts and edits. Open <http://127.0.0.1:8000/admin/> to manage local content.
-
-To point the Android emulator at this local backend, set the following before
-native generation and Metro startup:
-
-```powershell
-Set-Content -LiteralPath .env.local -Encoding ascii -Value 'EXPO_PUBLIC_API_URL=http://10.0.2.2:8000'
-```
-
-`10.0.2.2` is the Android emulator's address for its host computer. Development
-builds support local HTTP. A standalone release APK using an HTTP backend also
-needs an appropriate Android cleartext network configuration.
-
-For a physical phone, use the computer's actual LAN IP, include it in
-`DJANGO_ALLOWED_HOSTS`, bind Django to a reachable interface and allow the port
-through the local firewall if needed. Both devices must be able to communicate.
-See [phone testing notes](PHONE_TEST.md) for network setup and optional Expo Go
-preview scripts; that document also contains historical test records.
-
-On macOS/Linux, create the environment with `python3 -m venv .venv`, install with
-`.venv/bin/python -m pip install -r server/requirements.txt`, and use
-`.venv/bin/python server/manage.py` to run `migrate --noinput`, `seed_guide`,
-`init_admin`, then `runserver 127.0.0.1:8000 --noreload`.
-
-## Administration, knowledge and languages
-
-Staff can maintain places, facilities, routes and guides, review contributions
-and approve edits to published content. Submission states include pending,
-approved, changes requested and rejected. Revision requests can be resubmitted;
-rejected submissions are closed. A pending edit leaves the existing public
-version visible until approval.
-
-Staff can upload Word reference documents for Ask HKU. Original uploaded
-documents and internal source pages require staff access; public answers expose
-public source citations. A local environment can be populated with its own
-documents. Clients connected to the hosted API use the existing hosted library.
-
-Model keys are configured only on the backend. Use `DEEPSEEK_API_KEY`, or a
-compatible provider through `ASSISTANT_API_BASE_URL`, `ASSISTANT_API_KEY` and
-`ASSISTANT_MODEL`. Configuration is described in [deployment notes](deploy/README.md).
-AI answers and related translations require a configured model service. Map,
-account, contribution and built-in translation features can run independently.
-
-Mobile and administration languages are selected independently. Editing fields
-and stored records preserve the original text. Place introductions and published
-route titles and steps translate with the interface language; community posts
-translate when the user selects the translation control. Translation caches are
-keyed by source revision and target language.
-
-English system translations are maintained in `locales/*-en.json`; OpenCC
-generates Hong Kong Traditional Chinese. `locales/messages.json` is generated.
-Use `npm run locales:prepare` to generate and validate it, and
-`npm run locales:check` to check coverage and synchronization. New features must
-include all three languages; see [development conventions](AGENTS.md).
-
-Built-in long-form guide translations are in `locales/guide-articles-en.json`,
-with source revision hashes in `locales/guide-source-revisions.json`.
-Administration translations are in `server/locale/*/LC_MESSAGES/django.po` and
-the compiled `.mo` files. After editing those translations, use GNU gettext to
-run `compilemessages` and commit both formats.
-
-## Deployment and updates
-
-| Change | Delivery |
-| --- | --- |
-| Edit public content or approve a contribution | Update the hosted database; the app reads it on refresh |
-| Django API, permissions or database schema | Deploy the backend separately and apply migrations when required |
-| Mobile code or assets compatible with the installed native runtime | Export and publish a signed OTA update |
-| Native plugins, permissions, SDK or native configuration | Build, sign and distribute a new APK; adjust the runtime for compatibility |
-
-`app.json` specifies app version `1.0.6`, Android version code `10`, and an
-`appVersion` runtime policy. `StartupUpdate.tsx` checks matching signed updates
-on Android release startup and skips development mode. The public update
-certificate is `assets/android-update-certificate.cer`; release preparation uses
-`scripts/prepare-android-update.mjs`. Signing private keys stay with maintainers.
-Source test builds with updates disabled do not download production OTA code.
-
-Pushing to GitHub, deploying the backend, publishing OTA and distributing an APK
-are separate actions. `.github/workflows/check.yml` runs checks and does not
-deploy production. For changes spanning the API and mobile client, deploy a
-compatible backend first. See [deployment, storage and recovery notes](deploy/README.md).
-
-## Source layout
-
-| Path | Contents |
-| --- | --- |
-| Root `.tsx` and `.ts` files | Mobile screens, state, search, map and API clients |
-| `assets/` and root JSON files | Images, map resources and bundled data |
-| `locales/` | Mobile translations and guide translation revisions |
-| `server/guide/` | Campus content, guides, discussions, assistant, knowledge and translations |
-| `server/community/` | Accounts, contributions, moderation, image access, messages and personal records |
-| `server/locale/` and `server/templates/` | Administration translations and templates |
-| `scripts/` | Application checks, language validation and OTA preparation |
-| `deploy/` and `Dockerfile` | Deployment, storage and backup/restore configuration |
-
-## Checks and verification scope
-
-After installing frontend and backend dependencies, run from the project root:
-
-```powershell
-npx tsc --noEmit
-npm run locales:check
-node scripts/check-localization.cjs
-npm run check:content-language
-npm run check:guide-reader
-node scripts/check-app.cjs
-.\.venv\Scripts\python.exe server/manage.py test guide community --noinput
-.\.venv\Scripts\python.exe server/manage.py makemigrations --check --dry-run
-npx expo export --platform android --output-dir .expo/check-android
-```
-
-An isolated copy of source `1b90e50` passed fresh npm and Python installation,
-type and language checks, frontend regression checks, 144 backend tests,
-migration checks, local HTTP startup, Android export and an x86_64 release APK
-build on 26 November 2026. The source-built app was subsequently launched in an
-Android emulator and its hosted student guide was inspected. This is not a
-physical-phone test. Current GitHub Actions results belong to their individual
-commits and are available on the repository's Actions page.
+- If local script policy blocks the launcher, run `powershell -NoProfile
+  -ExecutionPolicy Bypass -File .\Start-Backend.ps1`; this applies to that process.
+- For matching current public data across clients, select the same hosted API.
+  For independent changes, use the local backend. Snapshot imports reflect the
+  capture date and do not synchronize later production edits.
 
 ## Data sources
 
-Basemap roads and building outlines primarily use
-[OpenStreetMap contributors, licensed under ODbL](https://www.openstreetmap.org/copyright).
-Place, entrance, dining and facility information references the HKU
-[campus map](https://www.estates.hku.hk/download_file/view_inline/674),
+Basemap roads and building outlines reference [OpenStreetMap contributors,
+ODbL](https://www.openstreetmap.org/copyright). Campus information references the
+HKU [campus map](https://www.estates.hku.hk/download_file/view_inline/674),
 [University Street map](https://www.maps.hku.hk/downloads/201501hkumap.jpg),
 [dining directory](https://catering.hku.hk/en/eateries/),
 [accessibility information](https://www.estates.hku.hk/campus-information/campus-accessibility/wheelchair-friendly-routes-hku-main-estate)
-and [parking information](https://www.estates.hku.hk/our-services/facility-management/parking/parking-space-location-and-parking-fee).
-The app also displays reviewed community contributions. Individual records retain
-their floor descriptions and any indication that a map position is approximate.
+and [parking information](https://www.estates.hku.hk/our-services/facility-management/parking/parking-space-location-and-parking-fee),
+alongside reviewed contributions. Individual records retain source/approximation
+notes. Content, installed client code and server configuration may evolve independently.

@@ -1,0 +1,234 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="2440" viewBox="0 0 3000 2440">
+<defs><marker id="runtime" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0 L10 4 L0 8Z" fill="#3B6883"/></marker><marker id="publish" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0 L10 4 L0 8Z" fill="#80689D"/></marker><marker id="history" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0 L10 4 L0 8Z" fill="#9C7946"/></marker></defs>
+<rect width="100%" height="100%" fill="#F6F8FA"/>
+<text x="60" y="74" font-family="Microsoft YaHei,Arial,sans-serif" font-size="44" fill="#173C51">HKU-Walk｜完整项目关系图</text>
+<text x="60" y="124" font-family="Microsoft YaHei,Arial,sans-serif" font-size="25" fill="#516D7D">源码 → 发布 → 客户端 → 共用后端 → 实时数据 → 备份、恢复与本地开发</text>
+<rect x="45" y="160" width="2620" height="180" rx="16" fill="#FFFFFF" stroke="#B2C4D0" stroke-width="2"/>
+<rect x="50" y="770" width="1580" height="1485" rx="16" fill="#FFFFFF" stroke="#B2C4D0" stroke-width="2"/>
+<rect x="1640" y="1750" width="550" height="490" rx="16" fill="#FFFFFF" stroke="#B2C4D0" stroke-width="2"/>
+<rect x="2425" y="1110" width="500" height="510" rx="16" fill="#FFFFFF" stroke="#B2C4D0" stroke-width="2"/>
+<text x="65" y="191" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#173C51">源码／检查／人工发布</text>
+<text x="70" y="799" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#173C51">阿里云香港 ECS｜Linux／Docker／Compose</text>
+<text x="1660" y="1782" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#173C51">SUPABASE｜异地备份／历史数据</text>
+<text x="2440" y="1140" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#173C51">独立的本地运行环境</text>
+<polyline points="350,260 470,260" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="360.0" y="223" width="100.0" height="29" fill="#F6F8FA"/>
+<text x="365.0" y="246" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">推送／PR</text>
+<polyline points="830,260 970,260" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="853.0" y="223" width="94.0" height="29" fill="#F6F8FA"/>
+<text x="858.0" y="246" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">触发检查</text>
+<polyline points="1350,260 1520,260" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="1363.5" y="223" width="143.0" height="27" fill="#F6F8FA"/>
+<text x="1368.5" y="244" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#80689D">检查后人工决定</text>
+<polyline points="1940,260 2290,260" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="2044.5" y="223" width="141.0" height="29" fill="#F6F8FA"/>
+<text x="2049.5" y="246" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">上传签名 APK</text>
+<polyline points="650,200 650,145 1730,145 1730,200" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="1139.0" y="124" width="162.0" height="27" fill="#F6F8FA"/>
+<text x="1144.0" y="145" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#80689D">获取指定版本源码</text>
+<polyline points="2465,320 2465,370 665,370 665,490" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="1659.0" y="341" width="162.0" height="29" fill="#F6F8FA"/>
+<text x="1664.0" y="364" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">下载／安装 APK</text>
+<polyline points="1730,320 1730,405 970,405 970,1140 1050,1140" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="700.0" y="1068" width="190.0" height="28" fill="#F6F8FA"/>
+<text x="705.0" y="1090" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#80689D">部署后端镜像／迁移</text>
+<polyline points="1730,320 1730,405 970,405 970,930 900,930" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="909.0" y="963" width="86.0" height="27" fill="#F6F8FA"/>
+<text x="914.0" y="984" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#80689D">发布网页</text>
+<polyline points="1730,320 1730,405 970,405 970,1020 285,1020 285,1100" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="477.515625" y="988" width="164.96875" height="29" fill="#F6F8FA"/>
+<text x="482.515625" y="1011" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">签名／发布 OTA</text>
+<polyline points="650,320 650,425 2940,425 2940,935 2890,935" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="2541.0" y="393" width="178.0" height="29" fill="#F6F8FA"/>
+<text x="2546.0" y="416" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">打包固定版本源码</text>
+<polyline points="310,565 430,565" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="322.5" y="530" width="91.0" height="27" fill="#F6F8FA"/>
+<text x="327.5" y="551" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#3B6883">使用 App</text>
+<polyline points="185,510 185,455 1250,455 1250,490" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1322.5" y="428" width="115.0" height="29" fill="#F6F8FA"/>
+<text x="1327.5" y="451" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#3B6883">打开网页版</text>
+<polyline points="665,660 665,750 1180,750 1180,800" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="735.5" y="715" width="149.0" height="29" fill="#F6F8FA"/>
+<text x="740.5" y="738" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#3B6883">API／启动更新</text>
+<polyline points="1250,640 1250,800" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1316.5" y="683" width="107.0" height="29" fill="#F6F8FA"/>
+<text x="1321.5" y="706" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#3B6883">网页＋API</text>
+<polyline points="1800,615 1800,735 1470,735 1470,800" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1508.0" y="697" width="224.0" height="29" fill="#F6F8FA"/>
+<text x="1513.0" y="720" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#3B6883">工作人员会话 /admin/</text>
+<polyline points="1770,850 1570,850" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1632.0" y="803" width="106.0" height="26" fill="#F6F8FA"/>
+<text x="1637.0" y="823" font-family="Microsoft YaHei,Arial,sans-serif" font-size="18" fill="#3B6883">HTTPS 证书</text>
+<polyline points="1050,865 900,865" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="927.0" y="823" width="86.0" height="27" fill="#F6F8FA"/>
+<text x="932.0" y="844" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#3B6883">提供文件</text>
+<polyline points="1310,960 1310,1100" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1350.515625" y="1034" width="208.96875" height="28" fill="#F6F8FA"/>
+<text x="1355.515625" y="1056" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#3B6883">转发 API／管理／OTA</text>
+<polyline points="1400,1290 1400,1450" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1426.5" y="1360" width="167.0" height="29" fill="#F6F8FA"/>
+<text x="1431.5" y="1383" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#3B6883">ORM / psycopg</text>
+<polyline points="1150,1290 1150,1375 710,1375 710,1450" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="825.5" y="1333" width="199.0" height="29" fill="#F6F8FA"/>
+<text x="830.5" y="1356" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#3B6883">受控图片／上传接口</text>
+<polyline points="1050,1210 480,1210" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="675.0" y="1173" width="170.0" height="28" fill="#F6F8FA"/>
+<text x="680.0" y="1195" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#3B6883">兼容签名更新接口</text>
+<polyline points="1570,1140 1690,1140 1690,1105 1770,1105" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1617.0" y="1088" width="86.0" height="27" fill="#F6F8FA"/>
+<text x="1622.0" y="1109" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#3B6883">调用模型</text>
+<polyline points="1570,1250 1690,1250 1690,1325 1770,1325" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1627.0" y="1343" width="86.0" height="27" fill="#F6F8FA"/>
+<text x="1632.0" y="1364" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#3B6883">获取来源</text>
+<polyline points="1570,1200 2240,1200 2240,1000 2460,1000" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="1801.0" y="1203" width="248.0" height="28" fill="#F6F8FA"/>
+<text x="1806.0" y="1225" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#80689D">一次性采集公开 API／照片</text>
+<polyline points="2675,850 2675,700" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="2617.5" y="763" width="115.0" height="29" fill="#F6F8FA"/>
+<text x="2622.5" y="786" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">配置／编译</text>
+<polyline points="2460,625 2290,625 2290,775 1660,775 1660,920 1570,920" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="2139.5" y="738" width="261.0" height="28" fill="#F6F8FA"/>
+<text x="2144.5" y="760" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#3B6883">默认：与 APK 同一线上后端</text>
+<polyline points="2890,625 2920,625 2920,1210 2890,1210" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="2606.0" y="1068" width="188.0" height="28" fill="#F6F8FA"/>
+<text x="2611.0" y="1090" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#3B6883">可选：选择本地 API</text>
+<polyline points="2460,920 2350,920 2350,1490 2460,1490" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="2210.0" y="1368" width="160.0" height="27" fill="#F6F8FA"/>
+<text x="2215.0" y="1389" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#80689D">导入 JSON／照片</text>
+<polyline points="2675,1270 2675,1410" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="2607.5" y="1328" width="165.0" height="28" fill="#F6F8FA"/>
+<text x="2612.5" y="1350" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#3B6883">本地 ORM／图片</text>
+<polyline points="1310,1630 1310,1800" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="1375.0" y="1698" width="130.0" height="28" fill="#F6F8FA"/>
+<text x="1380.0" y="1720" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#80689D">导出生产主库</text>
+<polyline points="1310,1945 1310,2010 750,2010 750,2070" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="971.0" y="1975" width="178.0" height="29" fill="#F6F8FA"/>
+<text x="976.0" y="1998" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">保存本地加密备份</text>
+<polyline points="1570,1875 1650,1875" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="1587.0" y="1838" width="46.0" height="26" fill="#F6F8FA"/>
+<text x="1592.0" y="1858" font-family="Microsoft YaHei,Arial,sans-serif" font-size="18" fill="#80689D">上传</text>
+<polyline points="2160,1890 2240,1890 2240,1850 2310,1850" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="2215.0" y="1808" width="50.0" height="28" fill="#F6F8FA"/>
+<text x="2220.0" y="1830" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#80689D">取回</text>
+<polyline points="2580,1910 2580,2040" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="2637.5" y="1968" width="115.0" height="29" fill="#F6F8FA"/>
+<text x="2642.5" y="1991" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">恢复／验证</text>
+<polyline points="750,2195 750,2270 2240,2270 2240,1910 2420,1910" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="1385.0" y="2243" width="250.0" height="28" fill="#F6F8FA"/>
+<text x="1390.0" y="2265" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#80689D">本地加密备份也可用于恢复</text>
+<polyline points="2580,2180 2580,2325 25,2325 25,1330 1020,1330 1020,1260 1050,1260" fill="none" stroke="#9C7946" stroke-width="3" stroke-dasharray="3 8" marker-end="url(#history)"/>
+<rect x="1251.0" y="2288" width="538.0" height="30" fill="#F6F8FA"/>
+<text x="1256.0" y="2312" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#9C7946">仅在恢复并验证后：由维护者手动切换后端数据库连接</text>
+<polyline points="1905,2080 1905,2010 1600,2010 1600,1550 1550,1550" fill="none" stroke="#9C7946" stroke-width="3" stroke-dasharray="3 8" marker-end="url(#history)"/>
+<rect x="1705.0" y="1663" width="210.0" height="28" fill="#F6F8FA"/>
+<text x="1710.0" y="1685" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#9C7946">历史迁移；无持续同步</text>
+<rect x="70" y="200" width="280" height="120" rx="22" fill="#F0F3F5" stroke="#92AABA" stroke-width="2"/>
+<text x="152.5" y="253.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">项目维护者</text>
+<text x="136.5" y="285.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Git／源码修改</text>
+<rect x="470" y="200" width="360" height="120" rx="22" fill="#EEE9F7" stroke="#92AABA" stroke-width="2"/>
+<text x="549.9921875" y="253.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">GitHub repository</text>
+<text x="535.0078125" y="285.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">bstsitong/HKU-Walk</text>
+<rect x="970" y="200" width="380" height="120" rx="22" fill="#EEE9F7" stroke="#92AABA" stroke-width="2"/>
+<text x="1080.0" y="237.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">GitHub Actions</text>
+<text x="1050.0" y="268.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">类型／三语／回归检查</text>
+<text x="1018.5078125" y="299.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">PostgreSQL／Docker／导出</text>
+<rect x="1520" y="200" width="420" height="120" rx="22" fill="#EEE9F7" stroke="#92AABA" stroke-width="2"/>
+<text x="1620.0" y="237.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">维护者构建／执行发布</text>
+<text x="1597.0" y="268.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Expo CLI／Metro／Gradle</text>
+<text x="1627.0" y="299.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">JDK／NDK／CMake</text>
+<rect x="2290" y="200" width="350" height="120" rx="22" fill="#EEE9F7" stroke="#92AABA" stroke-width="2"/>
+<text x="2374.5078125" y="253.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">GitHub Releases</text>
+<text x="2413.5" y="285.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">APK 1.0.6</text>
+<rect x="60" y="510" width="250" height="110" rx="22" fill="#F0F3F5" stroke="#92AABA" stroke-width="2"/>
+<text x="116.0" y="574.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">用户／开发者</text>
+<rect x="430" y="490" width="470" height="170" rx="22" fill="#E3F1E8" stroke="#92AABA" stroke-width="2"/>
+<text x="597.5" y="537.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Android App</text>
+<text x="499.015625" y="568.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">React Native／React／Expo／TS</text>
+<text x="518.5" y="599.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">SVG 地图／定位／照片／三语</text>
+<text x="520.015625" y="630.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">SecureStore／AsyncStorage</text>
+<rect x="1050" y="490" width="400" height="150" rx="22" fill="#E3F1E8" stroke="#92AABA" stroke-width="2"/>
+<text x="1157.5" y="542.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">用户网页版 /app/</text>
+<text x="1075.0234375" y="574.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">React Native Web／React DOM</text>
+<text x="1142.5078125" y="606.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">浏览器 localStorage</text>
+<rect x="1600" y="490" width="400" height="125" rx="22" fill="#E3F1E8" stroke="#92AABA" stroke-width="2"/>
+<text x="1731.0" y="545.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">管理员浏览器</text>
+<text x="1671.0" y="577.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Django Admin /admin/</text>
+<rect x="2460" y="550" width="430" height="150" rx="22" fill="#E3F1E8" stroke="#92AABA" stroke-width="2"/>
+<text x="2583.0" y="602.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">源码构建的客户端</text>
+<text x="2595.5" y="634.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">默认：生产 API</text>
+<text x="2549.5" y="666.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">可选：明确选择本地 API</text>
+<rect x="1050" y="800" width="520" height="160" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="1199.5" y="857.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Caddy 2 HTTPS 入口</text>
+<text x="1236.0" y="889.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">47.239.18.183</text>
+<text x="1183.5" y="921.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">反向代理／静态文件路由</text>
+<rect x="520" y="800" width="380" height="160" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<text x="595.0" y="873.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">已发布网页／下载文件</text>
+<text x="596.0" y="905.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">/app/＋/downloads/</text>
+<rect x="1770" y="800" width="410" height="125" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="1859.5" y="855.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Let&#x27;s Encrypt／ACME</text>
+<text x="1872.0" y="887.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">TLS 证书签发／续期</text>
+<rect x="1050" y="1100" width="520" height="190" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="1209.5" y="1157.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">同一套 Django 后端</text>
+<text x="1187.5" y="1188.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Python 3.12／Gunicorn</text>
+<text x="1132.0" y="1219.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Django 5.2／DRF／Django Admin</text>
+<text x="1189.0" y="1250.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">认证／审核／同步／翻译</text>
+<rect x="90" y="1100" width="390" height="180" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<text x="186.0234375" y="1151.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Android 签名 OTA</text>
+<text x="146.5" y="1183.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Expo Updates 清单／资源</text>
+<text x="203.5" y="1215.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">RSA／SHA-256</text>
+<text x="163.0" y="1247.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">按 App 运行时版本匹配</text>
+<rect x="1770" y="1040" width="410" height="130" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="1827.5" y="1098.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">DeepSeek／配置的模型服务</text>
+<text x="1883.0" y="1130.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">问港大／内容翻译</text>
+<rect x="1770" y="1260" width="410" height="130" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="1877.5" y="1318.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">HKU 官方网页来源</text>
+<text x="1848.5" y="1350.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">图书馆／餐饮／校园设施</text>
+<rect x="1070" y="1450" width="480" height="180" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<path d="M 1070 1458 Q 1310.0 1475 1550 1458" fill="none" stroke="#92AABA" stroke-width="2"/>
+<text x="1244.0" y="1502.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">唯一生产主库</text>
+<text x="1233.0078125" y="1533.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">PostgreSQL 17</text>
+<text x="1189.0" y="1564.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">地点／路线／指南／账号</text>
+<text x="1153.0" y="1595.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Word 知识库／DatabaseCache</text>
+<rect x="520" y="1450" width="380" height="155" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<text x="641.0" y="1504.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">受控媒体存储</text>
+<text x="629.5" y="1536.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">照片／上传文件</text>
+<text x="599.0" y="1568.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Pillow＋Django 存储</text>
+<rect x="1050" y="1800" width="520" height="145" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="1200.0" y="1850.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">数据库定时导出／加密</text>
+<text x="1136.5078125" y="1881.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">PostgreSQL／OpenSSL／systemd</text>
+<text x="1143.5" y="1912.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">配置：香港每天 04:30；保留 7 份</text>
+<rect x="540" y="2070" width="420" height="125" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<text x="645.5" y="2125.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">ECS 加密数据库备份</text>
+<text x="618.5" y="2157.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">/opt/hku-walk/backups</text>
+<rect x="1650" y="1820" width="510" height="145" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<path d="M 1650 1828 Q 1905.0 1845 2160 1828" fill="none" stroke="#92AABA" stroke-width="2"/>
+<text x="1851.5" y="1869.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Supabase</text>
+<text x="1767.5" y="1901.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">hku_backup.ecs_archives</text>
+<text x="1778.5" y="1933.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">私有生产数据库加密备份</text>
+<rect x="1650" y="2080" width="510" height="120" rx="7" fill="#F0F0F0" stroke="#92AABA" stroke-width="2"/>
+<path d="M 1650 2088 Q 1905.0 2105 2160 2088" fill="none" stroke="#92AABA" stroke-width="2"/>
+<text x="1801.0" y="2133.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Supabase hku_app</text>
+<text x="1790.0" y="2165.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">迁移前保留的只读数据</text>
+<rect x="2310" y="1790" width="540" height="120" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="2499.5" y="1843.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">维护者手动恢复</text>
+<text x="2488.0" y="1875.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">取回／校验／解密</text>
+<rect x="2310" y="2040" width="540" height="140" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<path d="M 2310 2048 Q 2580.0 2065 2850 2048" fill="none" stroke="#92AABA" stroke-width="2"/>
+<text x="2460.5078125" y="2103.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">新的空 PostgreSQL 17</text>
+<text x="2499.5" y="2135.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">先恢复，再验证</text>
+<rect x="2460" y="850" width="430" height="170" rx="22" fill="#EEE9F7" stroke="#92AABA" stroke-width="2"/>
+<text x="2578.0" y="897.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">源码 ZIP＋公开快照</text>
+<text x="2554.0" y="928.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">固定版本源码／导入程序</text>
+<text x="2554.5" y="959.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">公开 JSON／下载的照片</text>
+<text x="2532.5" y="990.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">采集：2026-11-26 香港时间</text>
+<rect x="2460" y="1150" width="430" height="120" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="2581.5" y="1203.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">本地 Django 后端</text>
+<text x="2606.0" y="1235.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">独立本地服务</text>
+<rect x="2460" y="1410" width="430" height="160" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<path d="M 2460 1418 Q 2675.0 1435 2890 1418" fill="none" stroke="#92AABA" stroke-width="2"/>
+<text x="2555.0" y="1467.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">本地 SQLite＋图片文件</text>
+<text x="2571.5" y="1499.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">导入的真实公开数据</text>
+<text x="2560.0" y="1531.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">新建本地用户／管理员</text>
+<text x="60" y="2383" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">实线：运行请求／数据访问　｜　虚线：构建、发布、备份、快照　｜　点线：历史迁移／手动恢复切换</text>
+<text x="60" y="2423" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#526F7E">线上后端与生产主库各只出现一次。公开快照是公开数据；Supabase 加密备份供维护者手动恢复。</text>
+</svg>

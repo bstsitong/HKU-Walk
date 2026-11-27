@@ -1,0 +1,66 @@
+flowchart LR
+dev["Maintainers<br/>Git / source edits"]
+git["GitHub repository<br/>bstsitong/HKU-Walk"]
+ci["GitHub Actions<br/>Types / languages / tests<br/>PostgreSQL / Docker / exports"]
+publish["Maintainer builds / publishes<br/>Expo CLI / Metro / Gradle<br/>JDK / NDK / CMake"]
+release["GitHub Releases<br/>APK 1.0.6"]
+user["Users / developers"]
+app["Android App<br/>React Native / React / Expo / TS<br/>SVG map / GPS / photos / languages<br/>SecureStore / AsyncStorage"]
+web["Web client /app/<br/>React Native Web / React DOM<br/>Browser localStorage"]
+admin["Staff browser<br/>Django Admin /admin/"]
+review["Source-built client<br/>Default: production API<br/>Optional: selected local API"]
+caddy["Caddy 2 HTTPS ingress<br/>47.239.18.183<br/>Reverse proxy / static routing"]
+static["Published web / download files<br/>/app/ + /downloads/"]
+tls["Let's Encrypt / ACME<br/>TLS certificate issuance / renewal"]
+backend["ONE SHARED DJANGO BACKEND<br/>Python 3.12 / Gunicorn<br/>Django 5.2 / DRF / Django Admin<br/>Auth / moderation / sync / translation"]
+ota["Signed Android OTA<br/>Expo Updates manifest / assets<br/>RSA / SHA-256<br/>App-version runtime matching"]
+ai["DeepSeek / configured model<br/>Ask HKU / content translation"]
+hku["HKU official websites<br/>Library / dining / estates"]
+pg["ONE PRODUCTION PRIMARY<br/>PostgreSQL 17<br/>Places / routes / guides / accounts<br/>Word knowledge / DatabaseCache"]
+media["Controlled media storage<br/>Photos / uploads<br/>Pillow + Django storage"]
+job["Scheduled DB dump / encryption<br/>PostgreSQL / OpenSSL / systemd<br/>Configured: daily 04:30 HKT; keep 7"]
+archive["ECS encrypted DB archives<br/>/opt/hku-walk/backups"]
+supabase["Supabase<br/>hku_backup.ecs_archives<br/>Private encrypted production DB backups"]
+legacy["Supabase hku_app<br/>Retained migration-era read-only data"]
+restore["Maintainer manual recovery<br/>Retrieve / verify / decrypt"]
+newpg["New empty PostgreSQL 17<br/>Restore first, then validate"]
+zip["SOURCE ZIP + DATA<br/>Frozen source / import helper<br/>Public JSON / downloaded photos<br/>Captured: 26 Nov 2026 HKT"]
+local["Local Django backend<br/>Independent local service"]
+sqlite["Local SQLite + photo files<br/>Imported real public data<br/>New local users / administrator"]
+dev -.->|"push / PR"| git
+git -.->|"trigger checks"| ci
+ci -.->|"manual decision"| publish
+publish -.->|"upload signed APK"| release
+git -.->|"checkout selected source"| publish
+release -.->|"download / install APK"| app
+publish -.->|"deploy backend image / migrations"| backend
+publish -.->|"publish web"| static
+publish -.->|"sign / publish OTA"| ota
+git -.->|"package fixed source commit"| zip
+user -->|"use App"| app
+user -->|"open web client"| web
+app -->|"API / startup OTA"| caddy
+web -->|"web + API"| caddy
+admin -->|"staff session /admin/"| caddy
+tls -->|"HTTPS certificate"| caddy
+caddy -->|"serve files"| static
+caddy -->|"proxy API / admin / OTA"| backend
+backend -->|"ORM / psycopg"| pg
+backend -->|"controlled photo / upload endpoints"| media
+backend -->|"compatible signed update endpoint"| ota
+backend -->|"model call"| ai
+backend -->|"fetch sources"| hku
+backend -.->|"one-time PUBLIC API / photo capture"| zip
+zip -.->|"configure / compile"| review
+review -->|"default: SAME live backend as APK"| caddy
+review -->|"optional: select local API"| local
+zip -.->|"import JSON / photos"| sqlite
+local -->|"local ORM / photos"| sqlite
+pg -.->|"dump production primary"| job
+job -.->|"save local encrypted backup"| archive
+job -.->|"upload"| supabase
+supabase -.->|"retrieve"| restore
+restore -.->|"restore / validate"| newpg
+archive -.->|"local archive can also be a recovery source"| restore
+newpg -.->|"ONLY AFTER restore + validation: maintainer manually switches the backend database connection"| backend
+legacy -.->|"historical migration; no ongoing sync"| pg

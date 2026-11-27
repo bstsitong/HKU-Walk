@@ -1,0 +1,234 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="2440" viewBox="0 0 3000 2440">
+<defs><marker id="runtime" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0 L10 4 L0 8Z" fill="#3B6883"/></marker><marker id="publish" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0 L10 4 L0 8Z" fill="#80689D"/></marker><marker id="history" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0 L10 4 L0 8Z" fill="#9C7946"/></marker></defs>
+<rect width="100%" height="100%" fill="#F6F8FA"/>
+<text x="60" y="74" font-family="Microsoft YaHei,Arial,sans-serif" font-size="44" fill="#173C51">HKU-Walk | Complete connected project architecture</text>
+<text x="60" y="124" font-family="Microsoft YaHei,Arial,sans-serif" font-size="25" fill="#516D7D">Source -&gt; publication -&gt; clients -&gt; shared backend -&gt; live data -&gt; backups, recovery and local development</text>
+<rect x="45" y="160" width="2620" height="180" rx="16" fill="#FFFFFF" stroke="#B2C4D0" stroke-width="2"/>
+<rect x="50" y="770" width="1580" height="1485" rx="16" fill="#FFFFFF" stroke="#B2C4D0" stroke-width="2"/>
+<rect x="1640" y="1750" width="550" height="490" rx="16" fill="#FFFFFF" stroke="#B2C4D0" stroke-width="2"/>
+<rect x="2425" y="1110" width="500" height="510" rx="16" fill="#FFFFFF" stroke="#B2C4D0" stroke-width="2"/>
+<text x="65" y="191" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#173C51">SOURCE / CHECKS / MANUAL PUBLICATION</text>
+<text x="70" y="799" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#173C51">ALIYUN HONG KONG ECS | Linux / Docker / Compose</text>
+<text x="1660" y="1782" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#173C51">SUPABASE | BACKUP / HISTORICAL DATA</text>
+<text x="2440" y="1140" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#173C51">INDEPENDENT LOCAL ENVIRONMENT</text>
+<polyline points="350,260 470,260" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="356.5" y="223" width="107.0" height="29" fill="#F6F8FA"/>
+<text x="361.5" y="246" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">push / PR</text>
+<polyline points="830,260 970,260" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="824.0" y="223" width="152.0" height="29" fill="#F6F8FA"/>
+<text x="829.0" y="246" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">trigger checks</text>
+<polyline points="1350,260 1520,260" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="1354.5" y="223" width="161.0" height="27" fill="#F6F8FA"/>
+<text x="1359.5" y="244" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#80689D">manual decision</text>
+<polyline points="1940,260 2290,260" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="2015.0" y="223" width="200.0" height="29" fill="#F6F8FA"/>
+<text x="2020.0" y="246" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">upload signed APK</text>
+<polyline points="650,200 650,145 1730,145 1730,200" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="1098.5" y="124" width="243.0" height="27" fill="#F6F8FA"/>
+<text x="1103.5" y="145" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#80689D">checkout selected source</text>
+<polyline points="2465,320 2465,370 665,370 665,490" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="1620.5" y="341" width="239.0" height="29" fill="#F6F8FA"/>
+<text x="1625.5" y="364" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">download / install APK</text>
+<polyline points="1730,320 1730,405 970,405 970,1140 1050,1140" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="619.5" y="1068" width="351.0" height="28" fill="#F6F8FA"/>
+<text x="624.5" y="1090" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#80689D">deploy backend image / migrations</text>
+<polyline points="1730,320 1730,405 970,405 970,930 900,930" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="891.5" y="963" width="121.0" height="27" fill="#F6F8FA"/>
+<text x="896.5" y="984" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#80689D">publish web</text>
+<polyline points="1730,320 1730,405 970,405 970,1020 285,1020 285,1100" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="461.515625" y="988" width="196.96875" height="29" fill="#F6F8FA"/>
+<text x="466.515625" y="1011" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">sign / publish OTA</text>
+<polyline points="650,320 650,425 2940,425 2940,935 2890,935" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="2477.0" y="393" width="306.0" height="29" fill="#F6F8FA"/>
+<text x="2482.0" y="416" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">package fixed source commit</text>
+<polyline points="310,565 430,565" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="325.5" y="530" width="85.0" height="27" fill="#F6F8FA"/>
+<text x="330.5" y="551" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#3B6883">use App</text>
+<polyline points="185,510 185,455 1250,455 1250,490" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1294.5" y="428" width="171.0" height="29" fill="#F6F8FA"/>
+<text x="1299.5" y="451" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#3B6883">open web client</text>
+<polyline points="665,660 665,750 1180,750 1180,800" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="716.5078125" y="715" width="186.984375" height="29" fill="#F6F8FA"/>
+<text x="721.5078125" y="738" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#3B6883">API / startup OTA</text>
+<polyline points="1250,640 1250,800" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1313.0" y="683" width="114.0" height="29" fill="#F6F8FA"/>
+<text x="1318.0" y="706" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#3B6883">web + API</text>
+<polyline points="1800,615 1800,735 1470,735 1470,800" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1509.0" y="697" width="222.0" height="29" fill="#F6F8FA"/>
+<text x="1514.0" y="720" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#3B6883">staff session /admin/</text>
+<polyline points="1770,850 1570,850" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1607.5" y="803" width="155.0" height="26" fill="#F6F8FA"/>
+<text x="1612.5" y="823" font-family="Microsoft YaHei,Arial,sans-serif" font-size="18" fill="#3B6883">HTTPS certificate</text>
+<polyline points="1050,865 900,865" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="919.4921875" y="823" width="101.015625" height="27" fill="#F6F8FA"/>
+<text x="924.4921875" y="844" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#3B6883">serve files</text>
+<polyline points="1310,960 1310,1100" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1332.015625" y="1034" width="245.96875" height="28" fill="#F6F8FA"/>
+<text x="1337.015625" y="1056" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#3B6883">proxy API / admin / OTA</text>
+<polyline points="1400,1290 1400,1450" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1426.5" y="1360" width="167.0" height="29" fill="#F6F8FA"/>
+<text x="1431.5" y="1383" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#3B6883">ORM / psycopg</text>
+<polyline points="1150,1290 1150,1375 710,1375 710,1450" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="736.5" y="1333" width="377.0" height="29" fill="#F6F8FA"/>
+<text x="741.5" y="1356" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#3B6883">controlled photo / upload endpoints</text>
+<polyline points="1050,1210 480,1210" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="584.5" y="1173" width="351.0" height="28" fill="#F6F8FA"/>
+<text x="589.5" y="1195" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#3B6883">compatible signed update endpoint</text>
+<polyline points="1570,1140 1690,1140 1690,1105 1770,1105" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1607.5" y="1088" width="105.0" height="27" fill="#F6F8FA"/>
+<text x="1612.5" y="1109" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#3B6883">model call</text>
+<polyline points="1570,1250 1690,1250 1690,1325 1770,1325" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="1603.5" y="1343" width="133.0" height="27" fill="#F6F8FA"/>
+<text x="1608.5" y="1364" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#3B6883">fetch sources</text>
+<polyline points="1570,1200 2240,1200 2240,1000 2460,1000" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="1741.5" y="1203" width="367.0" height="28" fill="#F6F8FA"/>
+<text x="1746.5" y="1225" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#80689D">one-time PUBLIC API / photo capture</text>
+<polyline points="2675,850 2675,700" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="2571.0" y="763" width="208.0" height="29" fill="#F6F8FA"/>
+<text x="2576.0" y="786" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">configure / compile</text>
+<polyline points="2460,625 2290,625 2290,775 1660,775 1660,920 1570,920" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="2100.0" y="738" width="340.0" height="28" fill="#F6F8FA"/>
+<text x="2105.0" y="760" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#3B6883">default: SAME live backend as APK</text>
+<polyline points="2890,625 2920,625 2920,1210 2890,1210" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="2579.5" y="1068" width="241.0" height="28" fill="#F6F8FA"/>
+<text x="2584.5" y="1090" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#3B6883">optional: select local API</text>
+<polyline points="2460,920 2350,920 2350,1490 2460,1490" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="2185.0" y="1368" width="210.0" height="27" fill="#F6F8FA"/>
+<text x="2190.0" y="1389" font-family="Microsoft YaHei,Arial,sans-serif" font-size="19" fill="#80689D">import JSON / photos</text>
+<polyline points="2675,1270 2675,1410" fill="none" stroke="#3B6883" stroke-width="3" marker-end="url(#runtime)"/>
+<rect x="2591.5" y="1328" width="197.0" height="28" fill="#F6F8FA"/>
+<text x="2596.5" y="1350" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#3B6883">local ORM / photos</text>
+<polyline points="1310,1630 1310,1800" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="1309.9921875" y="1698" width="260.015625" height="28" fill="#F6F8FA"/>
+<text x="1314.9921875" y="1720" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#80689D">dump production primary</text>
+<polyline points="1310,1945 1310,2010 750,2010 750,2070" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="912.4921875" y="1975" width="295.015625" height="29" fill="#F6F8FA"/>
+<text x="917.4921875" y="1998" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">save local encrypted backup</text>
+<polyline points="1570,1875 1650,1875" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="1574.5" y="1838" width="71.0" height="26" fill="#F6F8FA"/>
+<text x="1579.5" y="1858" font-family="Microsoft YaHei,Arial,sans-serif" font-size="18" fill="#80689D">upload</text>
+<polyline points="2160,1890 2240,1890 2240,1850 2310,1850" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="2199.0" y="1808" width="82.0" height="28" fill="#F6F8FA"/>
+<text x="2204.0" y="1830" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#80689D">retrieve</text>
+<polyline points="2580,1910 2580,2040" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="2604.0" y="1968" width="182.0" height="29" fill="#F6F8FA"/>
+<text x="2609.0" y="1991" font-family="Microsoft YaHei,Arial,sans-serif" font-size="21" fill="#80689D">restore / validate</text>
+<polyline points="750,2195 750,2270 2240,2270 2240,1910 2420,1910" fill="none" stroke="#80689D" stroke-width="3" stroke-dasharray="12 8" marker-end="url(#publish)"/>
+<rect x="1301.9921875" y="2243" width="416.015625" height="28" fill="#F6F8FA"/>
+<text x="1306.9921875" y="2265" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#80689D">local archive can also be a recovery source</text>
+<polyline points="2580,2180 2580,2325 25,2325 25,1330 1020,1330 1020,1260 1050,1260" fill="none" stroke="#9C7946" stroke-width="3" stroke-dasharray="3 8" marker-end="url(#history)"/>
+<rect x="998.5078125" y="2288" width="1042.984375" height="30" fill="#F6F8FA"/>
+<text x="1003.5078125" y="2312" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#9C7946">ONLY AFTER restore + validation: maintainer manually switches the backend database connection</text>
+<polyline points="1905,2080 1905,2010 1600,2010 1600,1550 1550,1550" fill="none" stroke="#9C7946" stroke-width="3" stroke-dasharray="3 8" marker-end="url(#history)"/>
+<rect x="1627.5" y="1663" width="365.0" height="28" fill="#F6F8FA"/>
+<text x="1632.5" y="1685" font-family="Microsoft YaHei,Arial,sans-serif" font-size="20" fill="#9C7946">historical migration; no ongoing sync</text>
+<rect x="70" y="200" width="280" height="120" rx="22" fill="#F0F3F5" stroke="#92AABA" stroke-width="2"/>
+<text x="145.0" y="253.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Maintainers</text>
+<text x="114.5" y="285.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Git / source edits</text>
+<rect x="470" y="200" width="360" height="120" rx="22" fill="#EEE9F7" stroke="#92AABA" stroke-width="2"/>
+<text x="549.9921875" y="253.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">GitHub repository</text>
+<text x="535.0078125" y="285.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">bstsitong/HKU-Walk</text>
+<rect x="970" y="200" width="380" height="120" rx="22" fill="#EEE9F7" stroke="#92AABA" stroke-width="2"/>
+<text x="1080.0" y="237.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">GitHub Actions</text>
+<text x="1028.5078125" y="268.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Types / languages / tests</text>
+<text x="1001.0" y="299.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">PostgreSQL / Docker / exports</text>
+<rect x="1520" y="200" width="420" height="120" rx="22" fill="#EEE9F7" stroke="#92AABA" stroke-width="2"/>
+<text x="1576.0" y="237.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Maintainer builds / publishes</text>
+<text x="1596.0" y="268.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Expo CLI / Metro / Gradle</text>
+<text x="1626.0" y="299.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">JDK / NDK / CMake</text>
+<rect x="2290" y="200" width="350" height="120" rx="22" fill="#EEE9F7" stroke="#92AABA" stroke-width="2"/>
+<text x="2374.5078125" y="253.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">GitHub Releases</text>
+<text x="2413.5" y="285.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">APK 1.0.6</text>
+<rect x="60" y="510" width="250" height="110" rx="22" fill="#F0F3F5" stroke="#92AABA" stroke-width="2"/>
+<text x="81.5" y="574.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Users / developers</text>
+<rect x="430" y="490" width="470" height="170" rx="22" fill="#E3F1E8" stroke="#92AABA" stroke-width="2"/>
+<text x="597.5" y="537.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Android App</text>
+<text x="497.515625" y="568.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">React Native / React / Expo / TS</text>
+<text x="469.5" y="599.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">SVG map / GPS / photos / languages</text>
+<text x="519.515625" y="630.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">SecureStore / AsyncStorage</text>
+<rect x="1050" y="490" width="400" height="150" rx="22" fill="#E3F1E8" stroke="#92AABA" stroke-width="2"/>
+<text x="1156.0078125" y="542.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Web client /app/</text>
+<text x="1074.5234375" y="574.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">React Native Web / React DOM</text>
+<text x="1132.5078125" y="606.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Browser localStorage</text>
+<rect x="1600" y="490" width="400" height="125" rx="22" fill="#E3F1E8" stroke="#92AABA" stroke-width="2"/>
+<text x="1726.0078125" y="545.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Staff browser</text>
+<text x="1671.0" y="577.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Django Admin /admin/</text>
+<rect x="2460" y="550" width="430" height="150" rx="22" fill="#E3F1E8" stroke="#92AABA" stroke-width="2"/>
+<text x="2573.5" y="602.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Source-built client</text>
+<text x="2544.0" y="634.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Default: production API</text>
+<text x="2522.5" y="666.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Optional: selected local API</text>
+<rect x="1050" y="800" width="520" height="160" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="1183.0" y="857.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Caddy 2 HTTPS ingress</text>
+<text x="1236.0" y="889.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">47.239.18.183</text>
+<text x="1145.5078125" y="921.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Reverse proxy / static routing</text>
+<rect x="520" y="800" width="380" height="160" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<text x="536.5" y="873.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Published web / download files</text>
+<text x="592.0" y="905.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">/app/ + /downloads/</text>
+<rect x="1770" y="800" width="410" height="125" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="1859.0" y="855.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Let&#x27;s Encrypt / ACME</text>
+<text x="1791.9921875" y="887.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">TLS certificate issuance / renewal</text>
+<rect x="1050" y="1100" width="520" height="190" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="1132.5" y="1157.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">ONE SHARED DJANGO BACKEND</text>
+<text x="1187.0" y="1188.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Python 3.12 / Gunicorn</text>
+<text x="1131.0" y="1219.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Django 5.2 / DRF / Django Admin</text>
+<text x="1109.0" y="1250.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Auth / moderation / sync / translation</text>
+<rect x="90" y="1100" width="390" height="180" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<text x="171.0234375" y="1151.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Signed Android OTA</text>
+<text x="110.0" y="1183.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Expo Updates manifest / assets</text>
+<text x="203.0" y="1215.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">RSA / SHA-256</text>
+<text x="114.0" y="1247.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">App-version runtime matching</text>
+<rect x="1770" y="1040" width="410" height="130" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="1808.0" y="1098.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">DeepSeek / configured model</text>
+<text x="1808.5" y="1130.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Ask HKU / content translation</text>
+<rect x="1770" y="1260" width="410" height="130" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="1858.0" y="1318.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">HKU official websites</text>
+<text x="1838.4921875" y="1350.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Library / dining / estates</text>
+<rect x="1070" y="1450" width="480" height="180" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<path d="M 1070 1458 Q 1310.0 1475 1550 1458" fill="none" stroke="#92AABA" stroke-width="2"/>
+<text x="1156.5" y="1502.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">ONE PRODUCTION PRIMARY</text>
+<text x="1233.0078125" y="1533.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">PostgreSQL 17</text>
+<text x="1128.5" y="1564.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Places / routes / guides / accounts</text>
+<text x="1128.0" y="1595.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Word knowledge / DatabaseCache</text>
+<rect x="520" y="1450" width="380" height="155" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<text x="567.5" y="1504.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Controlled media storage</text>
+<text x="614.5" y="1536.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Photos / uploads</text>
+<text x="575.5" y="1568.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Pillow + Django storage</text>
+<rect x="1050" y="1800" width="520" height="145" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="1132.9921875" y="1850.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Scheduled DB dump / encryption</text>
+<text x="1135.5078125" y="1881.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">PostgreSQL / OpenSSL / systemd</text>
+<text x="1121.0" y="1912.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Configured: daily 04:30 HKT; keep 7</text>
+<rect x="540" y="2070" width="420" height="125" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<text x="601.9921875" y="2125.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">ECS encrypted DB archives</text>
+<text x="618.5" y="2157.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">/opt/hku-walk/backups</text>
+<rect x="1650" y="1820" width="510" height="145" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<path d="M 1650 1828 Q 1905.0 1845 2160 1828" fill="none" stroke="#92AABA" stroke-width="2"/>
+<text x="1851.5" y="1869.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Supabase</text>
+<text x="1767.5" y="1901.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">hku_backup.ecs_archives</text>
+<text x="1672.4921875" y="1933.5" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Private encrypted production DB backups</text>
+<rect x="1650" y="2080" width="510" height="120" rx="7" fill="#F0F0F0" stroke="#92AABA" stroke-width="2"/>
+<path d="M 1650 2088 Q 1905.0 2105 2160 2088" fill="none" stroke="#92AABA" stroke-width="2"/>
+<text x="1801.0" y="2133.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Supabase hku_app</text>
+<text x="1690.0078125" y="2165.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Retained migration-era read-only data</text>
+<rect x="2310" y="1790" width="540" height="120" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="2424.9921875" y="1843.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Maintainer manual recovery</text>
+<text x="2438.5" y="1875.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Retrieve / verify / decrypt</text>
+<rect x="2310" y="2040" width="540" height="140" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<path d="M 2310 2048 Q 2580.0 2065 2850 2048" fill="none" stroke="#92AABA" stroke-width="2"/>
+<text x="2431.0078125" y="2103.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">New empty PostgreSQL 17</text>
+<text x="2434.0078125" y="2135.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Restore first, then validate</text>
+<rect x="2460" y="850" width="430" height="170" rx="22" fill="#EEE9F7" stroke="#92AABA" stroke-width="2"/>
+<text x="2566.0234375" y="897.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">SOURCE ZIP + DATA</text>
+<text x="2517.9921875" y="928.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Frozen source / import helper</text>
+<text x="2493.0" y="959.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Public JSON / downloaded photos</text>
+<text x="2527.0" y="990.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="22" fill="#173C51">Captured: 26 Nov 2026 HKT</text>
+<rect x="2460" y="1150" width="430" height="120" rx="22" fill="#E2EDFA" stroke="#92AABA" stroke-width="2"/>
+<text x="2551.0" y="1203.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Local Django backend</text>
+<text x="2532.9921875" y="1235.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Independent local service</text>
+<rect x="2460" y="1410" width="430" height="160" rx="22" fill="#FFF0D6" stroke="#92AABA" stroke-width="2"/>
+<path d="M 2460 1418 Q 2675.0 1435 2890 1418" fill="none" stroke="#92AABA" stroke-width="2"/>
+<text x="2531.5" y="1467.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Local SQLite + photo files</text>
+<text x="2532.4921875" y="1499.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Imported real public data</text>
+<text x="2500.5" y="1531.0" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">New local users / administrator</text>
+<text x="60" y="2383" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#173C51">Solid: runtime requests/data access   |   Dashed: build, publish, backup, snapshot   |   Dotted: historical migration / manual recovery switch</text>
+<text x="60" y="2423" font-family="Microsoft YaHei,Arial,sans-serif" font-size="23" fill="#526F7E">One shared production backend and primary DB. The public snapshot is public data; Supabase archives support private manual recovery.</text>
+</svg>

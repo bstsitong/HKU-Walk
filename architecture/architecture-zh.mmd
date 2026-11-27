@@ -1,0 +1,66 @@
+flowchart LR
+dev["项目维护者<br/>Git／源码修改"]
+git["GitHub repository<br/>bstsitong/HKU-Walk"]
+ci["GitHub Actions<br/>类型／三语／回归检查<br/>PostgreSQL／Docker／导出"]
+publish["维护者构建／执行发布<br/>Expo CLI／Metro／Gradle<br/>JDK／NDK／CMake"]
+release["GitHub Releases<br/>APK 1.0.6"]
+user["用户／开发者"]
+app["Android App<br/>React Native／React／Expo／TS<br/>SVG 地图／定位／照片／三语<br/>SecureStore／AsyncStorage"]
+web["用户网页版 /app/<br/>React Native Web／React DOM<br/>浏览器 localStorage"]
+admin["管理员浏览器<br/>Django Admin /admin/"]
+review["源码构建的客户端<br/>默认：生产 API<br/>可选：明确选择本地 API"]
+caddy["Caddy 2 HTTPS 入口<br/>47.239.18.183<br/>反向代理／静态文件路由"]
+static["已发布网页／下载文件<br/>/app/＋/downloads/"]
+tls["Let's Encrypt／ACME<br/>TLS 证书签发／续期"]
+backend["同一套 Django 后端<br/>Python 3.12／Gunicorn<br/>Django 5.2／DRF／Django Admin<br/>认证／审核／同步／翻译"]
+ota["Android 签名 OTA<br/>Expo Updates 清单／资源<br/>RSA／SHA-256<br/>按 App 运行时版本匹配"]
+ai["DeepSeek／配置的模型服务<br/>问港大／内容翻译"]
+hku["HKU 官方网页来源<br/>图书馆／餐饮／校园设施"]
+pg["唯一生产主库<br/>PostgreSQL 17<br/>地点／路线／指南／账号<br/>Word 知识库／DatabaseCache"]
+media["受控媒体存储<br/>照片／上传文件<br/>Pillow＋Django 存储"]
+job["数据库定时导出／加密<br/>PostgreSQL／OpenSSL／systemd<br/>配置：香港每天 04:30；保留 7 份"]
+archive["ECS 加密数据库备份<br/>/opt/hku-walk/backups"]
+supabase["Supabase<br/>hku_backup.ecs_archives<br/>私有生产数据库加密备份"]
+legacy["Supabase hku_app<br/>迁移前保留的只读数据"]
+restore["维护者手动恢复<br/>取回／校验／解密"]
+newpg["新的空 PostgreSQL 17<br/>先恢复，再验证"]
+zip["源码 ZIP＋公开快照<br/>固定版本源码／导入程序<br/>公开 JSON／下载的照片<br/>采集：2026-11-26 香港时间"]
+local["本地 Django 后端<br/>独立本地服务"]
+sqlite["本地 SQLite＋图片文件<br/>导入的真实公开数据<br/>新建本地用户／管理员"]
+dev -.->|"推送／PR"| git
+git -.->|"触发检查"| ci
+ci -.->|"检查后人工决定"| publish
+publish -.->|"上传签名 APK"| release
+git -.->|"获取指定版本源码"| publish
+release -.->|"下载／安装 APK"| app
+publish -.->|"部署后端镜像／迁移"| backend
+publish -.->|"发布网页"| static
+publish -.->|"签名／发布 OTA"| ota
+git -.->|"打包固定版本源码"| zip
+user -->|"使用 App"| app
+user -->|"打开网页版"| web
+app -->|"API／启动更新"| caddy
+web -->|"网页＋API"| caddy
+admin -->|"工作人员会话 /admin/"| caddy
+tls -->|"HTTPS 证书"| caddy
+caddy -->|"提供文件"| static
+caddy -->|"转发 API／管理／OTA"| backend
+backend -->|"ORM / psycopg"| pg
+backend -->|"受控图片／上传接口"| media
+backend -->|"兼容签名更新接口"| ota
+backend -->|"调用模型"| ai
+backend -->|"获取来源"| hku
+backend -.->|"一次性采集公开 API／照片"| zip
+zip -.->|"配置／编译"| review
+review -->|"默认：与 APK 同一线上后端"| caddy
+review -->|"可选：选择本地 API"| local
+zip -.->|"导入 JSON／照片"| sqlite
+local -->|"本地 ORM／图片"| sqlite
+pg -.->|"导出生产主库"| job
+job -.->|"保存本地加密备份"| archive
+job -.->|"上传"| supabase
+supabase -.->|"取回"| restore
+restore -.->|"恢复／验证"| newpg
+archive -.->|"本地加密备份也可用于恢复"| restore
+newpg -.->|"仅在恢复并验证后：由维护者手动切换后端数据库连接"| backend
+legacy -.->|"历史迁移；无持续同步"| pg
